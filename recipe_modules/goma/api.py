@@ -20,7 +20,7 @@ class GomaApi(recipe_api.RecipeApi):
 
   @property
   def service_account_json_path(self):
-    return '/creds/service_accounts/service-account-goma-client.json'
+    return self.m.service_account.get_json_path('goma-client')
 
   @property
   def json_path(self):

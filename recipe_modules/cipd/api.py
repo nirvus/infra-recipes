@@ -18,7 +18,7 @@ class CIPDApi(recipe_api.RecipeApi):
 
   @property
   def default_bot_service_account_credentials(self):
-    return '/creds/service_accounts/service-account-cipd-builder.json'
+    return self.m.service_account.get_json_path('cipd-builder')
 
   def platform_suffix(self):
     """Use to get full package name that is platform indepdent.
