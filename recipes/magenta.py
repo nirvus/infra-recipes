@@ -4,27 +4,21 @@
 
 """Recipe for building Magenta."""
 
-import re
+import multiprocessing
 
 from recipe_engine.config import Enum
 from recipe_engine.recipe_api import Property
 
 
 DEPS = [
-  'infra/cipd',
   'infra/jiri',
   'recipe_engine/path',
-  'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
-  'recipe_engine/shutil',
   'recipe_engine/step',
-  'recipe_engine/tempfile',
 ]
 
 TARGETS = ['magenta-qemu-arm64', 'magenta-pc-x86-64']
-
-TEST_MATCH = re.compile(r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed')
 
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
@@ -59,62 +53,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   assert 'checkout' not in api.path
   api.path['checkout'] = api.path['start_dir'].join('magenta')
 
-  tmp_dir = api.path['tmp_base'].join('magenta_tmp')
-  api.shutil.makedirs('makedirs', tmp_dir)
-  path = tmp_dir.join('autorun')
-  api.shutil.write('write %s' % path, path, '''#!/bin/sh
-runtests
-dm poweroff''')
-
-  build_args = [
-    'make',
-    '-j%s' % api.platform.cpu_count,
-    target
-  ]
-  if toolchain == 'clang':
-    build_args.append('USE_CLANG=true')
-  api.step(
-      'build',
-      build_args,
-      cwd=api.path['checkout'],
-      env={'USER_AUTORUN': path}
-  )
-
-  with api.step.nest('ensure_qemu'):
-    with api.step.context({'infra_step': True}):
-      qemu_package = ('fuchsia/tools/qemu/%s' %
-          api.cipd.platform_suffix())
-      qemu_dir = api.path['start_dir'].join('cipd', 'qemu')
-      api.cipd.ensure(qemu_dir, {qemu_package: 'latest'})
-
-  arch = {
-      'magenta-qemu-arm64': 'arm64',
-      'magenta-pc-x86-64': 'x86-64',
-  }[target]
-
-  test_args = [
-    api.path['checkout'].join('scripts', 'run-magenta'),
-    '-a', arch,
-    '-q', qemu_dir.join('bin/'),
-    '-c', '-serial stdio',
-  ]
-  if toolchain == 'clang':
-    test_args.append('-C')
-  step_result = api.step(
-      'test',
-      test_args,
-      timeout=120,
-      stdin=api.raw_io.input(''),
-      stdout=api.raw_io.output(),
-      stderr=api.raw_io.output(),
-      step_test_data=lambda:
-          api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed')
-  )
-  output = step_result.stdout
-  m = TEST_MATCH.search(output)
-  if not m or int(m.group('failed')) > 0:
-    step_result.presentation.status = api.step.FAILURE
-  step_result.presentation.logs['qemu.stdout'] = output.splitlines()
+  with api.step.nest('build'):
+    api.step('cleanup', ['make', 'spotless'], cwd=api.path['checkout'])
+    build_args = ['make', '-j%s' % multiprocessing.cpu_count(), target]
+    if toolchain == 'clang':
+      build_args.append('USE_CLANG=true')
+    api.step('build', build_args, cwd=api.path['checkout'])
 
 
 def GenTests(api):

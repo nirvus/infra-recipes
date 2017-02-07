@@ -72,98 +72,31 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[TMP_BASE]/magenta_tmp",
-      "511"
-    ],
-    "name": "makedirs makedirs",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "#!/bin/sh\nruntests\ndm poweroff",
-      "[TMP_BASE]/magenta_tmp/autorun"
-    ],
-    "name": "write [TMP_BASE]/magenta_tmp/autorun"
+    "cmd": [],
+    "name": "build"
   },
   {
     "cmd": [
       "make",
-      "-j2",
-      "magenta-pc-x86-64",
-      "USE_CLANG=true"
+      "spotless"
     ],
     "cwd": "[START_DIR]/magenta",
-    "env": {
-      "USER_AUTORUN": "[TMP_BASE]/magenta_tmp/autorun"
-    },
-    "name": "build"
-  },
-  {
-    "cmd": [],
-    "name": "ensure_qemu"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "--root",
-      "[START_DIR]/cipd/qemu",
-      "--list",
-      "fuchsia/tools/qemu/linux-amd64 latest",
-      "--json-output",
-      "/path/to/tmp/json"
-    ],
-    "name": "ensure_qemu.ensure_installed",
+    "name": "build.cleanup",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/qemu/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [
-      "[START_DIR]/magenta/scripts/run-magenta",
-      "-a",
-      "x86-64",
-      "-q",
-      "[START_DIR]/cipd/qemu/bin/",
-      "-c",
-      "-serial stdio",
-      "-C"
+      "make",
+      "-j48",
+      "magenta-pc-x86-64",
+      "USE_CLANG=true"
     ],
-    "name": "test",
-    "stderr": "/path/to/tmp/",
-    "stdout": "/path/to/tmp/",
-    "timeout": 120,
+    "cwd": "[START_DIR]/magenta",
+    "name": "build.build",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@qemu.stdout@SUMMARY: Ran 2 tests: 1 failed@@@",
-      "@@@STEP_LOG_END@qemu.stdout@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
