@@ -60,9 +60,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.path['checkout'] = api.path['start_dir'].join('magenta')
 
   tmp_dir = api.path['tmp_base'].join('magenta_tmp')
-  api.shutil.makedirs('makedirs', tmp_dir)
+  api.shutil.makedirs('tmp', tmp_dir)
   path = tmp_dir.join('autorun')
-  api.shutil.write('write %s' % path, path, '''#!/bin/sh
+  api.shutil.write('write autorun', path, '''#!/bin/sh
 runtests
 dm poweroff''')
 
@@ -100,21 +100,25 @@ dm poweroff''')
   ]
   if toolchain == 'clang':
     test_args.append('-C')
-  step_result = api.step(
-      'test',
-      test_args,
-      timeout=120,
-      stdin=api.raw_io.input(''),
-      stdout=api.raw_io.output(),
-      stderr=api.raw_io.output(),
-      step_test_data=lambda:
-          api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed')
-  )
-  output = step_result.stdout
-  m = TEST_MATCH.search(output)
-  if not m or int(m.group('failed')) > 0:
-    step_result.presentation.status = api.step.FAILURE
-  step_result.presentation.logs['qemu.stdout'] = output.splitlines()
+  try:
+    step_result = api.step(
+        'test',
+        test_args,
+        timeout=120,
+        stdin=api.raw_io.input(''),
+        stdout=api.raw_io.output(),
+        stderr=api.raw_io.output(),
+        step_test_data=lambda:
+            api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed')
+    )
+  except api.step.StepTimeout: # pragma: no cover
+    step_result.presentation.status = api.step.EXCEPTION
+  else:
+    output = step_result.stdout
+    m = TEST_MATCH.search(output)
+    if not m or int(m.group('failed')) > 0:
+      step_result.presentation.status = api.step.FAILURE
+    step_result.presentation.logs['qemu.stdout'] = output.splitlines()
 
 
 def GenTests(api):

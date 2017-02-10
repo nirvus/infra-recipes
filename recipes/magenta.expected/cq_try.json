@@ -89,7 +89,7 @@
       "[TMP_BASE]/magenta_tmp",
       "511"
     ],
-    "name": "makedirs makedirs",
+    "name": "makedirs tmp",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
@@ -111,7 +111,7 @@
       "#!/bin/sh\nruntests\ndm poweroff",
       "[TMP_BASE]/magenta_tmp/autorun"
     ],
-    "name": "write [TMP_BASE]/magenta_tmp/autorun"
+    "name": "write autorun"
   },
   {
     "cmd": [
