@@ -11,9 +11,11 @@
   * [goma](#recipe_modules-goma)
   * [gsutil](#recipe_modules-gsutil)
   * [hash](#recipe_modules-hash)
+  * [isolate](#recipe_modules-isolate)
   * [jiri](#recipe_modules-jiri)
   * [qemu](#recipe_modules-qemu)
   * [service_account](#recipe_modules-service_account)
+  * [swarming](#recipe_modules-swarming)
   * [tar](#recipe_modules-tar)
 
 **[Recipes](#Recipes)**
@@ -32,6 +34,7 @@
   * [goma:examples/full](#recipes-goma_examples_full)
   * [gsutil:examples/full](#recipes-gsutil_examples_full)
   * [hash:examples/full](#recipes-hash_examples_full)
+  * [isolate:examples/full](#recipes-isolate_examples_full)
   * [jiri](#recipes-jiri) &mdash; Recipe for building Jiri.
   * [jiri:examples/full](#recipes-jiri_examples_full)
   * [modules](#recipes-modules) &mdash; Recipe for building and running pre-submit checks for the modules repo.
@@ -41,6 +44,7 @@
   * [rust_toolchain](#recipes-rust_toolchain) &mdash; Recipe for building Rust toolchain.
   * [sdk](#recipes-sdk) &mdash; Recipe for building Fuchsia SDKs.
   * [service_account:examples/full](#recipes-service_account_examples_full)
+  * [swarming:examples/full](#recipes-swarming_examples_full)
   * [tar:examples/full](#recipes-tar_examples_full)
   * [third_party_rust_crates](#recipes-third_party_rust_crates) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [web_view](#recipes-web_view) &mdash; Recipe for building WebView.
@@ -354,6 +358,35 @@ HashApi provides file hashing functionality.
 &mdash; **def [sha384](/recipe_modules/hash/api.py#36)(self, name, source, test_data=''):**
 
 &mdash; **def [sha512](/recipe_modules/hash/api.py#39)(self, name, source, test_data=''):**
+### *recipe_modules* / [isolate](/recipe_modules/isolate)
+
+[DEPS](/recipe_modules/isolate/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [IsolateApi](/recipe_modules/isolate/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+APIs for interacting with isolates.
+
+&mdash; **def [\_\_call\_\_](/recipe_modules/isolate/api.py#16)(self, \*args, \*\*kwargs):**
+
+Return an isolate command step.
+
+&mdash; **def [archive](/recipe_modules/isolate/api.py#50)(self, isolate, isolated):**
+
+All the files in the .isolate file are put in the isolate server cache.
+
+Args:
+  isolate: .isolate file to load the dependency data from.
+  isolated: .isolated file to generate or read.
+
+&mdash; **def [ensure\_isolate](/recipe_modules/isolate/api.py#22)(self, version=None):**
+
+Ensures that isolate client is installed.
+
+&emsp; **@property**<br>&mdash; **def [isolate\_client](/recipe_modules/isolate/api.py#36)(self):**
+
+&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolate/api.py#45)(self, value):**
+
+Changes URL of Isolate server to use.
 ### *recipe_modules* / [jiri](/recipe_modules/jiri)
 
 [DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -415,6 +448,58 @@ QemuApi provides support for QEMU.
 ServiceAccountApi provides access to service account keys.
 
 &mdash; **def [get\_json\_path](/recipe_modules/service_account/api.py#17)(self, account):**
+### *recipe_modules* / [swarming](/recipe_modules/swarming)
+
+[DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolate](#recipe_modules-isolate), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [SwarmingApi](/recipe_modules/swarming/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+APIs for interacting with swarming.
+
+&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#16)(self, \*args, \*\*kwargs):**
+
+Return a swarming command step.
+
+&mdash; **def [collect](/recipe_modules/swarming/api.py#105)(self, timeout, requests_json=None, tasks=[]):**
+
+Waits on a set of Swarming tasks.
+
+Args:
+  timeout: timeout to wait for result.
+  requests_json: load details about the task(s) from the json file.
+  tasks: list of task ids to wait on.
+
+&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#22)(self, version=None):**
+
+Ensures that swarming client is installed.
+
+&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#36)(self):**
+
+&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#45)(self, value):**
+
+Changes URL of Swarming server to use.
+
+&mdash; **def [trigger](/recipe_modules/swarming/api.py#50)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, idempotent=False, cipd_packages=None):**
+
+Triggers a Swarming task.
+
+Args:
+  name: name of the task.
+  raw_cmd: task command.
+  isolated: hash of isolated test on isolate server.
+  dump_json: dump details about the triggered task(s).
+  dimensions: dimensions to filter slaves on.
+  expiration: seconds before this task request expires.
+  io_timeout: seconds to allow the task to be silent.
+  idempotent: whether this task is considered idempotent.
+  cipd_packages: list of 3-tuples corresponding to CIPD packages needed for
+      the task: ('path', 'package_name', 'version'), defined as follows:
+          path: Path relative to the Swarming root dir in which to install
+              the package.
+          package_name: Name of the package to install,
+              eg. "infra/tools/authutil/${platform}"
+          version: Version of the package, either a package instance ID,
+              ref, or tag key/value pair.
 ### *recipe_modules* / [tar](/recipe_modules/tar)
 
 [DEPS](/recipe_modules/tar/__init__.py#5): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -541,6 +626,11 @@ Recipe for building Go toolchain.
 [DEPS](/recipe_modules/hash/examples/full.py#5): [hash](#recipe_modules-hash), [recipe\_engine/path][recipe_engine/recipe_modules/path]
 
 &mdash; **def [RunSteps](/recipe_modules/hash/examples/full.py#11)(api):**
+### *recipes* / [isolate:examples/full](/recipe_modules/isolate/examples/full.py)
+
+[DEPS](/recipe_modules/isolate/examples/full.py#5): [isolate](#recipe_modules-isolate), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path]
+
+&mdash; **def [RunSteps](/recipe_modules/isolate/examples/full.py#12)(api):**
 ### *recipes* / [jiri](/recipes/jiri.py)
 
 [DEPS](/recipes/jiri.py#11): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
@@ -614,6 +704,11 @@ Recipe for building Fuchsia SDKs.
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)
 
 &mdash; **def [RunSteps](/recipe_modules/service_account/examples/full.py#10)(api):**
+### *recipes* / [swarming:examples/full](/recipe_modules/swarming/examples/full.py)
+
+[DEPS](/recipe_modules/swarming/examples/full.py#5): [swarming](#recipe_modules-swarming), [recipe\_engine/path][recipe_engine/recipe_modules/path]
+
+&mdash; **def [RunSteps](/recipe_modules/swarming/examples/full.py#11)(api):**
 ### *recipes* / [tar:examples/full](/recipe_modules/tar/examples/full.py)
 
 [DEPS](/recipe_modules/tar/examples/full.py#5): [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step]
