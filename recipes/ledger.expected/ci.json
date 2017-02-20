@@ -1,0 +1,365 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_goma"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "--root",
+      "[START_DIR]/cipd/goma",
+      "--list",
+      "infra_internal/goma/client/linux-amd64 release",
+      "--json-output",
+      "/path/to/tmp/json",
+      "--service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
+    ],
+    "name": "ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "--root",
+      "[START_DIR]/cipd/jiri",
+      "--list",
+      "fuchsia/tools/jiri/linux-amd64 latest",
+      "--json-output",
+      "/path/to/tmp/json",
+      "--service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
+    ],
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_qemu"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "--root",
+      "[START_DIR]/cipd/qemu",
+      "--list",
+      "fuchsia/tools/qemu/linux-amd64 latest",
+      "--json-output",
+      "/path/to/tmp/json",
+      "--service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
+    ],
+    "name": "ensure_qemu.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/qemu/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-cache",
+      "[CACHE]/git"
+    ],
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "clean"
+    ],
+    "name": "jiri project clean"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "userspace",
+      "https://fuchsia.googlesource.com/manifest"
+    ],
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-autoupdate=false"
+    ],
+    "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "snapshot",
+      "/path/to/tmp/"
+    ],
+    "name": "jiri snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@jiri.snapshot@@@@",
+      "@@@STEP_LOG_LINE@jiri.snapshot@<manifest>@@@",
+      "@@@STEP_LOG_LINE@jiri.snapshot@  <projects>@@@",
+      "@@@STEP_LOG_LINE@jiri.snapshot@    <project name=\"manifest\" path=\"manifest\" remote=\"https://fuchsia.googlesource.com/manifest\" revision=\"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"/>@@@",
+      "@@@STEP_LOG_LINE@jiri.snapshot@  </projects>@@@",
+      "@@@STEP_LOG_LINE@jiri.snapshot@</manifest>@@@",
+      "@@@STEP_LOG_END@jiri.snapshot@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[TMP_BASE]/magenta_tmp",
+      "511"
+    ],
+    "name": "makedirs makedirs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "/system/test/ledger_unittests\n/system/test/ledger_integration_tests\nmsleep 250\ndm poweroff",
+      "[TMP_BASE]/magenta_tmp/autorun"
+    ],
+    "name": "write [TMP_BASE]/magenta_tmp/autorun"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "magenta-pc-x86-64"
+    ],
+    "cwd": "[START_DIR]/magenta",
+    "env": {
+      "USER_AUTORUN": "[TMP_BASE]/magenta_tmp/autorun"
+    },
+    "name": "build magenta"
+  },
+  {
+    "cmd": [
+      "scripts/build-sysroot.sh",
+      "-c",
+      "-t",
+      "x86_64"
+    ],
+    "name": "build sysroot"
+  },
+  {
+    "cmd": [],
+    "name": "build Fuchsia"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "restart"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "build Fuchsia.start_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "packages/gn/gen.py",
+      "--target_cpu=x86-64",
+      "--goma=[START_DIR]/cipd/goma",
+      "--modules=ledger,boringssl"
+    ],
+    "name": "build Fuchsia.gen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
+    ],
+    "name": "build Fuchsia.calculate the number of recommended jobs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
+      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
+      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "buildtools/ninja",
+      "-C",
+      "out/debug-x86-64",
+      "-j",
+      "50"
+    ],
+    "name": "build Fuchsia.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "jsonstatus",
+      "[START_DIR]/cipd/goma/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "build Fuchsia.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "build Fuchsia.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stop"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "build Fuchsia.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport platform\nimport sys\nprint platform.processor() == sys.argv[1] and os.path.exists('/dev/kvm')\n",
+      "x86_64"
+    ],
+    "name": "check if kvm is supported",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
+      "-nographic",
+      "-m",
+      "2048",
+      "-smp",
+      "4",
+      "-machine",
+      "q35",
+      "-kernel",
+      "[START_DIR]/magenta/build-magenta-pc-x86-64/magenta.bin",
+      "-enable-kvm",
+      "-cpu",
+      "host",
+      "-initrd",
+      "[START_DIR]/out/debug-x86-64/user.bootfs",
+      "-append",
+      "TERM=vt100"
+    ],
+    "name": "test",
+    "stderr": "/path/to/tmp/",
+    "stdout": "/path/to/tmp/",
+    "timeout": 300,
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "reason": "1 out of 6 tests failed",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]
