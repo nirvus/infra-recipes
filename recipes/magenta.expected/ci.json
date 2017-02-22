@@ -98,7 +98,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "#!/bin/sh\nruntests\ndm poweroff",
+      "runtests\nmsleep 250\ndm poweroff",
       "[TMP_BASE]/magenta_tmp/autorun"
     ],
     "name": "write autorun"
@@ -107,8 +107,7 @@
     "cmd": [
       "make",
       "-j2",
-      "magenta-pc-x86-64",
-      "USE_CLANG=true"
+      "magenta-pc-x86-64"
     ],
     "cwd": "[START_DIR]/magenta",
     "env": {
@@ -147,28 +146,45 @@
   },
   {
     "cmd": [
-      "[START_DIR]/magenta/scripts/run-magenta",
-      "-a",
-      "x86-64",
-      "-q",
-      "[START_DIR]/cipd/qemu/bin/",
-      "-c",
-      "-serial stdio",
-      "-C"
+      "python",
+      "-u",
+      "\nimport os\nimport platform\nimport sys\nprint platform.processor() == sys.argv[1] and os.path.exists('/dev/kvm')\n",
+      "x86_64"
     ],
-    "name": "test",
+    "name": "check if kvm is supported",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
+      "-nographic",
+      "-m",
+      "2048",
+      "-smp",
+      "4",
+      "-machine",
+      "q35",
+      "-kernel",
+      "[START_DIR]/magenta/build-magenta-pc-x86-64/magenta.bin",
+      "-enable-kvm",
+      "-cpu",
+      "host",
+      "-append",
+      "TERM=vt100"
+    ],
+    "name": "run magenta.bin",
     "stderr": "/path/to/tmp/",
     "stdout": "/path/to/tmp/",
-    "timeout": 120,
+    "timeout": 300,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@qemu.stdout@SUMMARY: Ran 2 tests: 1 failed@@@",
-      "@@@STEP_LOG_END@qemu.stdout@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_END@qemu.stdout@@@"
     ]
   },
   {
     "name": "$result",
+    "reason": "SUMMARY: Ran 2 tests: 1 failed",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]
