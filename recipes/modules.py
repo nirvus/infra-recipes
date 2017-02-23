@@ -49,7 +49,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   # architecture.
   with api.goma.build_with_goma():
     modules_repo_path = api.path['start_dir'].join('apps/modules')
-    api.step('build and run presubmit tests', ['make', 'presubmit'],
+    api.step('build and run presubmit tests', ['make', 'presubmit-cq'],
              cwd=modules_repo_path,
              env={'GOMA': 1, 'MINIMAL': 1, 'NO_ENSURE_GOMA': 1,
                   'GOMA_DIR': api.goma.goma_dir,
