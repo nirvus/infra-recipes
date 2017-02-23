@@ -56,9 +56,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url)
 
-  assert 'checkout' not in api.path
-  api.path['checkout'] = api.path['start_dir'].join('magenta')
-
   tmp_dir = api.path['tmp_base'].join('magenta_tmp')
   api.shutil.makedirs('tmp', tmp_dir)
   path = tmp_dir.join('autorun')
@@ -73,12 +70,8 @@ dm poweroff''')
   ]
   if toolchain == 'clang':
     build_args.append('USE_CLANG=true')
-  api.step(
-      'build',
-      build_args,
-      cwd=api.path['checkout'],
-      env={'USER_AUTORUN': path}
-  )
+  with api.step.context({'cwd': api.path['start_dir'].join('magenta')}):
+    api.step('build', build_args, env={'USER_AUTORUN': path})
 
   with api.step.nest('ensure_qemu'):
     with api.step.context({'infra_step': True}):
@@ -93,7 +86,7 @@ dm poweroff''')
   }[target]
 
   test_args = [
-    api.path['checkout'].join('scripts', 'run-magenta'),
+    api.path['start_dir'].join('magenta', 'scripts', 'run-magenta'),
     '-a', arch,
     '-q', qemu_dir.join('bin/'),
     '-c', '-serial stdio',

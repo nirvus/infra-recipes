@@ -48,7 +48,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   gitdir = api.path['start_dir'].join(
       'go', 'src', 'fuchsia.googlesource.com', 'jiri')
-  git_commit = api.git.get_hash(cwd=gitdir)
+  with api.step.context({'cwd': gitdir}):
+    git_commit = api.git.get_hash()
   result = api.step('date', ['date', '--rfc-3339=seconds'],
       stdout=api.raw_io.output(),
       step_test_data=lambda:

@@ -38,10 +38,9 @@ def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
     api.jiri.patch(patch_ref, host=patch_gerrit_url)
 
   # Start the cobalt build process.
-  api.path['checkout'] = api.path['start_dir'].join('cobalt')
-
-  for step in ["setup", "build", "test"]:
-    api.step(step, ["./cobaltb.py", step], cwd=api.path['checkout'])
+  with api.step.context({'cwd': api.path['start_dir'].join('cobalt')}):
+    for step in ["setup", "build", "test"]:
+      api.step(step, ["./cobaltb.py", step])
 
 
 def GenTests(api):

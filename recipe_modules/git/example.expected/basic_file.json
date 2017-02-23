@@ -24,8 +24,7 @@
   {
     "cmd": [
       "git",
-      "init",
-      "[START_DIR]/fuchsia"
+      "init"
     ],
     "cwd": "[START_DIR]/fuchsia",
     "name": "git init"

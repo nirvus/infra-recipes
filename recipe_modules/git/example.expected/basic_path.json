@@ -24,8 +24,7 @@
   {
     "cmd": [
       "git",
-      "init",
-      "[START_DIR]/foo"
+      "init"
     ],
     "cwd": "[START_DIR]/foo",
     "name": "git init"

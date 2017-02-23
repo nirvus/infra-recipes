@@ -22,11 +22,12 @@ def RunSteps(api):
       remote=api.properties.get('remote'),
       file=api.properties.get('checkout_file'))
 
-  api.git.get_hash()
-  api.git.get_timestamp()
+  with api.step.context({'cwd': api.properties.get('path') or api.path['start_dir'].join('fuchsia')}):
+    api.git.get_hash()
+    api.git.get_timestamp()
 
-  # You can invoke arbitrary command on api.git.
-  api.git('status', config_options={'foo': 'bar'}, cwd=api.path['checkout'])
+    # You can invoke arbitrary command on api.git.
+    api.git('status', config={'foo': 'bar'})
 
 
 def GenTests(api):
