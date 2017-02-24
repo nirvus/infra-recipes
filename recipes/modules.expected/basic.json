@@ -120,7 +120,7 @@
   {
     "cmd": [
       "make",
-      "presubmit"
+      "presubmit-cq"
     ],
     "cwd": "[START_DIR]/apps/modules",
     "env": {
