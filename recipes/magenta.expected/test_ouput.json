@@ -73,16 +73,6 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "refs/changes/89/456789/12"
-    ],
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
@@ -117,8 +107,7 @@
     "cmd": [
       "make",
       "-j2",
-      "magenta-pc-x86-64",
-      "USE_CLANG=true"
+      "magenta-pc-x86-64"
     ],
     "cwd": "[START_DIR]/magenta",
     "env": {
@@ -176,7 +165,7 @@
       "-machine",
       "q35",
       "-kernel",
-      "[START_DIR]/magenta/build-magenta-pc-x86-64-clang/magenta.bin",
+      "[START_DIR]/magenta/build-magenta-pc-x86-64/magenta.bin",
       "-enable-kvm",
       "-cpu",
       "host",
@@ -188,14 +177,13 @@
     "stdout": "/path/to/tmp/",
     "timeout": 300,
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@qemu.stdout@SUMMARY: Ran 2 tests: 1 failed@@@",
       "@@@STEP_LOG_END@qemu.stdout@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_WARNINGS@@@"
     ]
   },
   {
     "name": "$result",
-    "reason": "SUMMARY: Ran 2 tests: 1 failed",
+    "reason": "Test output missing",
     "recipe_result": null,
     "status_code": 1
   }

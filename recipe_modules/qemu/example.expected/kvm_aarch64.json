@@ -59,7 +59,7 @@
       "TERM=vt100",
       "foo=bar"
     ],
-    "name": "run bzImaze",
+    "name": "test",
     "stderr": "/path/to/tmp/",
     "stdout": "/path/to/tmp/",
     "timeout": 300

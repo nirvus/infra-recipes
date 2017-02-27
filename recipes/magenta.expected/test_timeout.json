@@ -73,16 +73,6 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "refs/changes/89/456789/12"
-    ],
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
@@ -117,8 +107,7 @@
     "cmd": [
       "make",
       "-j2",
-      "magenta-pc-x86-64",
-      "USE_CLANG=true"
+      "magenta-qemu-arm64"
     ],
     "cwd": "[START_DIR]/magenta",
     "env": {
@@ -160,23 +149,23 @@
       "python",
       "-u",
       "\nimport os\nimport platform\nimport sys\nprint platform.processor() == sys.argv[1] and os.path.exists('/dev/kvm')\n",
-      "x86_64"
+      "aarch64"
     ],
     "name": "check if kvm is supported",
     "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
+      "[START_DIR]/cipd/qemu/bin/qemu-system-aarch64",
       "-nographic",
       "-m",
       "2048",
       "-smp",
       "4",
       "-machine",
-      "q35",
+      "virt",
       "-kernel",
-      "[START_DIR]/magenta/build-magenta-pc-x86-64-clang/magenta.bin",
+      "[START_DIR]/magenta/build-magenta-qemu-arm64/magenta.elf",
       "-enable-kvm",
       "-cpu",
       "host",
@@ -186,16 +175,11 @@
     "name": "test",
     "stderr": "/path/to/tmp/",
     "stdout": "/path/to/tmp/",
-    "timeout": 300,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@qemu.stdout@SUMMARY: Ran 2 tests: 1 failed@@@",
-      "@@@STEP_LOG_END@qemu.stdout@@@",
-      "@@@STEP_FAILURE@@@"
-    ]
+    "timeout": 300
   },
   {
     "name": "$result",
-    "reason": "SUMMARY: Ran 2 tests: 1 failed",
+    "reason": "Step Timeout: Step('test') timed out after 300",
     "recipe_result": null,
     "status_code": 1
   }

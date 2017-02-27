@@ -43,7 +43,7 @@ class QemuApi(recipe_api.RecipeApi):
         add_python_log=False
     ).stdout)
 
-  def run(self, arch, kernel, smp=4, memory=2048, kvm=False, initrd=None,
+  def run(self, name, arch, kernel, smp=4, memory=2048, kvm=False, initrd=None,
           cmdline=None, timeout=300, step_test_data=None):
     cmd = [
       self.qemu_executable(arch),
@@ -66,7 +66,7 @@ class QemuApi(recipe_api.RecipeApi):
     if cmdline:
       cmd.append(cmdline)
     return self.m.step(
-        'run %s' % self.m.path.basename(kernel),
+        name,
         cmd,
         timeout=timeout,
         stdin=self.m.raw_io.input(''),

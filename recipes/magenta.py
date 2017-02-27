@@ -86,31 +86,44 @@ dm poweroff''')
     'x86_64': 'magenta.bin',
   }[arch]
 
-  step_result = api.qemu.run(arch,
+  step_result = api.qemu.run('test', arch,
       api.path['start_dir'].join('magenta', build_dir, image), kvm=True,
       step_test_data=lambda:
           api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed')
   )
   step_result.presentation.logs['qemu.stdout'] = step_result.stdout.splitlines()
   m = TEST_MATCH.search(step_result.stdout)
-  if not m: # pragma: no cover
+  if not m:
+    step_result.presentation.status = api.step.WARNING
     raise api.step.StepWarning('Test output missing')
   elif int(m.group('failed')) > 0:
+    step_result.presentation.status = api.step.FAILURE
     raise api.step.StepFailure(m.group(0))
 
 
 def GenTests(api):
-  yield api.test('ci') + api.properties(
-      manifest='magenta',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='magenta-pc-x86-64',
-      toolchain='gcc',
-  )
-  yield api.test('cq_try') + api.properties.tryserver(
-      gerrit_project='magenta',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='magenta',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='magenta-pc-x86-64',
-      toolchain='clang',
-  )
+  yield (api.test('ci') +
+         api.properties(manifest='magenta',
+                        remote='https://fuchsia.googlesource.com/manifest',
+                        target='magenta-pc-x86-64',
+                        toolchain='gcc'))
+  yield (api.test('cq_try') +
+         api.properties.tryserver(
+             gerrit_project='magenta',
+             patch_gerrit_url='fuchsia-review.googlesource.com',
+             manifest='magenta',
+             remote='https://fuchsia.googlesource.com/manifest',
+             target='magenta-pc-x86-64',
+             toolchain='clang'))
+  yield (api.test('test_ouput') +
+         api.properties(manifest='magenta',
+                        remote='https://fuchsia.googlesource.com/manifest',
+                        target='magenta-pc-x86-64',
+                        toolchain='gcc') +
+         api.step_data('test', api.raw_io.stream_output('')))
+  yield (api.test('test_timeout') +
+         api.properties(manifest='magenta',
+                        remote='https://fuchsia.googlesource.com/manifest',
+                        target='magenta-qemu-arm64',
+                        toolchain='gcc') +
+         api.step_data('test', times_out_after=350))
