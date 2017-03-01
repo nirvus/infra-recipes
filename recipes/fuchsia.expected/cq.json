@@ -162,7 +162,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/packages/gen/gen.py",
+      "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=x86-64",
       "--goma=[START_DIR]/cipd/goma"
     ],

@@ -82,7 +82,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   # Step: build Fuchsia
   with api.step.nest('build Fuchsia'), api.goma.build_with_goma():
     gen_cmd_params = [
-      checkout.join('packages', 'gen', 'gen.py'),
+      checkout.join('packages', 'gn', 'gen.py'),
       '--target_cpu=%s' % fuchsia_target,
       '--goma=%s' % api.goma.goma_dir
     ]
