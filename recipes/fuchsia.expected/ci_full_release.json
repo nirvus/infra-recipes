@@ -68,31 +68,38 @@
       "-cache",
       "[CACHE]/git"
     ],
+    "cwd": "[START_DIR]",
     "name": "jiri init"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
-      "clean"
+      "clean",
+      "-branches=true"
     ],
+    "cwd": "[START_DIR]",
     "name": "jiri project clean"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
+      "-overwrite=true",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
+    "cwd": "[START_DIR]",
     "name": "jiri import"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
-      "-autoupdate=false"
+      "-autoupdate=false",
+      "-gc=true"
     ],
+    "cwd": "[START_DIR]",
     "name": "jiri update"
   },
   {
@@ -101,6 +108,7 @@
       "snapshot",
       "/path/to/tmp/"
     ],
+    "cwd": "[START_DIR]",
     "name": "jiri snapshot",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@jiri.snapshot@@@@",
@@ -114,7 +122,7 @@
   },
   {
     "cmd": [
-      "scripts/build-sysroot.sh",
+      "[START_DIR]/scripts/build-sysroot.sh",
       "-c",
       "-t",
       "x86_64",
@@ -144,7 +152,7 @@
   },
   {
     "cmd": [
-      "packages/gn/gen.py",
+      "[START_DIR]/packages/gen/gen.py",
       "--target_cpu=x86-64",
       "--goma=[START_DIR]/cipd/goma",
       "--release"
@@ -184,7 +192,7 @@
   },
   {
     "cmd": [
-      "buildtools/ninja",
+      "[START_DIR]/buildtools/ninja",
       "-C",
       "out/release-x86-64",
       "-j",

@@ -68,7 +68,7 @@
       "-cache",
       "[CACHE]/git"
     ],
-    "cwd": "[START_DIR]",
+    "cwd": "[CACHE]/fuchsia",
     "name": "jiri init"
   },
   {
@@ -78,7 +78,7 @@
       "clean",
       "-branches=true"
     ],
-    "cwd": "[START_DIR]",
+    "cwd": "[CACHE]/fuchsia",
     "name": "jiri project clean"
   },
   {
@@ -89,7 +89,7 @@
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
-    "cwd": "[START_DIR]",
+    "cwd": "[CACHE]/fuchsia",
     "name": "jiri import"
   },
   {
@@ -99,19 +99,8 @@
       "-autoupdate=false",
       "-gc=true"
     ],
-    "cwd": "[START_DIR]",
+    "cwd": "[CACHE]/fuchsia",
     "name": "jiri update"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "refs/changes/89/456789/12"
-    ],
-    "cwd": "[START_DIR]",
-    "name": "jiri patch"
   },
   {
     "cmd": [
@@ -119,7 +108,7 @@
       "snapshot",
       "/path/to/tmp/"
     ],
-    "cwd": "[START_DIR]",
+    "cwd": "[CACHE]/fuchsia",
     "name": "jiri snapshot",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@jiri.snapshot@@@@",
@@ -133,10 +122,11 @@
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-sysroot.sh",
+      "[CACHE]/fuchsia/scripts/build-sysroot.sh",
       "-c",
       "-t",
-      "x86_64"
+      "x86_64",
+      "-r"
     ],
     "name": "build sysroot"
   },
@@ -162,9 +152,10 @@
   },
   {
     "cmd": [
-      "[START_DIR]/packages/gen/gen.py",
+      "[CACHE]/fuchsia/packages/gen/gen.py",
       "--target_cpu=x86-64",
-      "--goma=[START_DIR]/cipd/goma"
+      "--goma=[START_DIR]/cipd/goma",
+      "--release"
     ],
     "name": "build Fuchsia.gen",
     "~followup_annotations": [
@@ -201,9 +192,9 @@
   },
   {
     "cmd": [
-      "[START_DIR]/buildtools/ninja",
+      "[CACHE]/fuchsia/buildtools/ninja",
       "-C",
-      "out/debug-x86-64",
+      "out/release-x86-64",
       "-j",
       "50"
     ],

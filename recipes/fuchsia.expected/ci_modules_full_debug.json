@@ -105,17 +105,6 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "refs/changes/89/456789/12"
-    ],
-    "cwd": "[START_DIR]",
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "snapshot",
       "/path/to/tmp/"
     ],
@@ -164,7 +153,8 @@
     "cmd": [
       "[START_DIR]/packages/gen/gen.py",
       "--target_cpu=x86-64",
-      "--goma=[START_DIR]/cipd/goma"
+      "--goma=[START_DIR]/cipd/goma",
+      "--modules=foo,bar"
     ],
     "name": "build Fuchsia.gen",
     "~followup_annotations": [

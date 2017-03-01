@@ -32,6 +32,8 @@ PROPERTIES = {
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
+  'build_variant': Property(kind=Enum('incremental', 'full'),
+                            help='The build variant', default='full'),
   'build_type': Property(kind=Enum('debug', 'release'), help='The build type',
                          default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
@@ -41,20 +43,25 @@ PROPERTIES = {
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
-             build_type, modules):
+             build_variant, build_type, modules):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
-  api.jiri.init()
-  api.jiri.clean_project()
-  api.jiri.import_manifest(manifest, remote)
-  api.jiri.update()
-  step_result = api.jiri.snapshot(api.raw_io.output())
-  snapshot = step_result.raw_io.output
-  step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
+  if build_variant == 'incremental':
+    checkout = api.path['cache'].join('fuchsia')
+  else:
+    checkout = api.path['start_dir']
 
-  if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url)
+  with api.step.context({'cwd': checkout}):
+    api.jiri.init()
+    api.jiri.clean_project(branches=True)
+    api.jiri.import_manifest(manifest, remote, overwrite=True)
+    api.jiri.update(gc=True)
+    if patch_ref is not None:
+      api.jiri.patch(patch_ref, host=patch_gerrit_url)
+    step_result = api.jiri.snapshot(api.raw_io.output())
+    snapshot = step_result.raw_io.output
+    step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 
   sysroot_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
 
@@ -63,11 +70,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   out_dir_prefix = 'out/release-%s' if release_build else 'out/debug-%s'
 
   # Step: build sysroot
-  build_sysroot_cmd_params = \
-      ['scripts/build-sysroot.sh', '-c', '-t', sysroot_target]
+  build_sysroot_cmd_params = [
+    checkout.join('scripts', 'build-sysroot.sh'), '-c', '-t', sysroot_target
+  ]
   if release_build:
     build_sysroot_cmd_params.append('-r')
-
   api.step('build sysroot', build_sysroot_cmd_params)
 
   fuchsia_target = {'arm64': 'aarch64', 'x86-64': 'x86-64'}[target]
@@ -75,7 +82,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   # Step: build Fuchsia
   with api.step.nest('build Fuchsia'), api.goma.build_with_goma():
     gen_cmd_params = [
-      'packages/gn/gen.py',
+      checkout.join('packages', 'gen', 'gen.py'),
       '--target_cpu=%s' % fuchsia_target,
       '--goma=%s' % api.goma.goma_dir
     ]
@@ -87,27 +94,34 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.step('gen', gen_cmd_params)
     api.step(
         'ninja',
-        ['buildtools/ninja', '-C', out_dir_prefix % fuchsia_target,
-         '-j', api.goma.recommended_goma_jobs])
+        [
+          checkout.join('buildtools', 'ninja'),
+          '-C', out_dir_prefix % fuchsia_target,
+          '-j', api.goma.recommended_goma_jobs,
+        ]
+    )
 
 
 def GenTests(api):
-  yield api.test('scheduler-debug') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-      modules=['foo', 'bar'],
-  )
-  yield api.test('scheduler-release') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-      build_type='release',
-  )
-  yield api.test('cq') + api.properties.tryserver(
-      gerrit_project='manifest',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-  )
+  for build_variant in ['incremental', 'full']:
+    for build_type in ['debug', 'release']:
+      yield (api.test('ci_%s_%s' % (build_variant, build_type)) +
+             api.properties(manifest='fuchsia',
+                            remote='https://fuchsia.googlesource.com/manifest',
+                            target='x86-64',
+                            build_variant=build_variant,
+                            build_type=build_type))
+      yield (api.test('ci_modules_%s_%s' % (build_variant, build_type)) +
+             api.properties(manifest='fuchsia',
+                            remote='https://fuchsia.googlesource.com/manifest',
+                            target='x86-64',
+                            build_variant=build_variant,
+                            build_type=build_type,
+                            modules=['foo', 'bar']))
+  yield (api.test('cq') +
+         api.properties.tryserver(
+             gerrit_project='manifest',
+             patch_gerrit_url='fuchsia-review.googlesource.com',
+             manifest='fuchsia',
+             remote='https://fuchsia.googlesource.com/manifest',
+             target='x86-64'))
