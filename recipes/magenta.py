@@ -55,7 +55,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 
   if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url)
+    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   tmp_dir = api.path['tmp_base'].join('magenta_tmp')
   api.shutil.makedirs('tmp', tmp_dir)

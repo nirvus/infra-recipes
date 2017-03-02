@@ -91,7 +91,8 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def patch(self, ref, host=None, delete=False, force=False, **kwargs):
+  def patch(self, ref, host=None, delete=False, force=False, rebase=False,
+            **kwargs):
     cmd = [ 'patch' ]
     if host:
       cmd.extend(['-host', host])
@@ -99,6 +100,8 @@ class JiriApi(recipe_api.RecipeApi):
       cmd.extend(['-delete=true'])
     if force:
       cmd.extend(['-force=true'])
+    if rebase:
+      cmd.extend(['-rebase=true'])
     cmd.extend([ref])
 
     return self(*cmd, **kwargs)
