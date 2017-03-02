@@ -193,7 +193,7 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "out/debug-x86-64",
+      "[START_DIR]/out/debug-x86-64",
       "-j",
       "50"
     ],

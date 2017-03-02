@@ -65,9 +65,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   sysroot_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
 
-  # Just default to "debug" for invalid values of |build_type|.
   release_build = (build_type == 'release')
-  out_dir_prefix = 'out/release-%s' if release_build else 'out/debug-%s'
+  build_dir_prefix = 'release-%s' if release_build else 'debug-%s'
 
   # Step: build sysroot
   build_sysroot_cmd_params = [
@@ -96,7 +95,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'ninja',
         [
           checkout.join('buildtools', 'ninja'),
-          '-C', out_dir_prefix % fuchsia_target,
+          '-C', checkout.join('out', build_dir_prefix % fuchsia_target),
           '-j', api.goma.recommended_goma_jobs,
         ]
     )

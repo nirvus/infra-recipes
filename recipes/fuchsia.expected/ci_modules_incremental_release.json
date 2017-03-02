@@ -195,7 +195,7 @@
     "cmd": [
       "[CACHE]/fuchsia/buildtools/ninja",
       "-C",
-      "out/release-x86-64",
+      "[CACHE]/fuchsia/out/release-x86-64",
       "-j",
       "50"
     ],
