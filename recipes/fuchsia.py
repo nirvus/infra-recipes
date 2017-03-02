@@ -70,7 +70,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   # Step: build sysroot
   build_sysroot_cmd_params = [
-    checkout.join('scripts', 'build-sysroot.sh'), '-t', sysroot_target
+    checkout.join('scripts', 'build-sysroot.sh'), '-c', '-t', sysroot_target
   ]
   if release_build:
     build_sysroot_cmd_params.append('-r')

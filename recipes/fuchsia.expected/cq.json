@@ -134,6 +134,7 @@
   {
     "cmd": [
       "[START_DIR]/scripts/build-sysroot.sh",
+      "-c",
       "-t",
       "x86_64"
     ],
