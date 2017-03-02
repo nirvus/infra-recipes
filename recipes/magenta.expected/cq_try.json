@@ -180,6 +180,8 @@
       "-enable-kvm",
       "-cpu",
       "host",
+      "-initrd",
+      "[START_DIR]/magenta/build-magenta-pc-x86-64-clang/bootdata.bin",
       "-append",
       "TERM=vt100"
     ],

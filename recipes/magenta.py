@@ -88,6 +88,7 @@ dm poweroff''')
 
   step_result = api.qemu.run('test', arch,
       api.path['start_dir'].join('magenta', build_dir, image), kvm=True,
+      initrd=api.path['start_dir'].join('magenta', build_dir, 'bootdata.bin'),
       step_test_data=lambda:
           api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed')
   )

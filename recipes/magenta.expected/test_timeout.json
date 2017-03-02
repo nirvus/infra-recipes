@@ -169,6 +169,8 @@
       "-enable-kvm",
       "-cpu",
       "host",
+      "-initrd",
+      "[START_DIR]/magenta/build-magenta-qemu-arm64/bootdata.bin",
       "-append",
       "TERM=vt100"
     ],
