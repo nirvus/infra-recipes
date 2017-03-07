@@ -24,11 +24,12 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
+  'project_path': Property(kind=str, help='Project path', default=None),
 }
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url):
+             patch_storage, patch_repository_url, project_path):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
@@ -48,7 +49,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   # only exercising Dart code we don't parameterize the recipe for any other
   # architecture.
   with api.goma.build_with_goma():
-    with api.step.context({'cwd': api.path['start_dir'].join('apps/modules')}):
+    with api.step.context({'cwd': api.path['start_dir'].join(project_path)}):
       api.step('build and run presubmit tests', ['make', 'presubmit-cq'],
                env={'GOMA': 1, 'MINIMAL': 1, 'NO_ENSURE_GOMA': 1,
                     'GOMA_DIR': api.goma.goma_dir,
@@ -60,4 +61,5 @@ def GenTests(api):
   yield api.test('cq') + api.properties.tryserver(
       gerrit_project='modules',
       patch_gerrit_url='fuchsia-review.googlesource.com',
+      project_path='apps/modules',
   )
