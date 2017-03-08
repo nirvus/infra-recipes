@@ -138,9 +138,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     'x86-64': 'magenta.bin',
   }[target]
   magenta_image_path = api.path['start_dir'].join(
-    'magenta', 'build-magenta-pc-%s' % target, magenta_image_name)
+    'magenta', 'build-%s' % magenta_target, magenta_image_name)
   bootfs_path = api.path['start_dir'].join(
-    'out', '%s-%s' % (build_type, target), 'user.bootfs')
+    'out', '%s-%s' % (build_type, fuchsia_target), 'user.bootfs')
 
   qemu_arch = {
     'arm64': 'aarch64',
@@ -156,6 +156,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
           api.raw_io.test_api.stream_output(FAKE_TEST_OUTPUT)))
 
   output = step_result.stdout
+  step_result.presentation.logs['qemu.stdout'] = output.splitlines()
+
   tests_total_match = re.findall(TESTS_TOTAL_PATTERN, output)
   tests_passed_match = re.findall(TESTS_PASSED_PATTERN, output)
   tests_total = sum(int(num) for num in tests_total_match)
@@ -171,9 +173,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if exception:
     step_result.presentation.status = api.step.FAILURE
     raise exception
-
-  step_result.presentation.logs['qemu.stdout'] = output.splitlines()
-
 
 def GenTests(api):
   yield api.test('ci') + api.properties(

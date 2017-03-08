@@ -182,9 +182,6 @@
       "magenta-pc-x86-64"
     ],
     "cwd": "[START_DIR]/magenta",
-    "env": {
-      "USER_AUTORUN": "[TMP_BASE]/magenta_tmp/autorun"
-    },
     "name": "build magenta"
   },
   {
@@ -220,8 +217,9 @@
     "cmd": [
       "packages/gn/gen.py",
       "--target_cpu=x86-64",
+      "--autorun=[TMP_BASE]/magenta_tmp/autorun",
       "--goma=[START_DIR]/cipd/goma",
-      "--modules=ledger,boringssl"
+      "--modules=ledger,boringssl,runtime"
     ],
     "name": "build Fuchsia.gen",
     "~followup_annotations": [
@@ -353,6 +351,7 @@
     "stdout": "/path/to/tmp/",
     "timeout": 300,
     "~followup_annotations": [
+      "@@@STEP_LOG_END@qemu.stdout@@@",
       "@@@STEP_FAILURE@@@"
     ]
   },

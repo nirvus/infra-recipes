@@ -361,6 +361,12 @@
     "stdout": "/path/to/tmp/",
     "timeout": 300,
     "~followup_annotations": [
+      "@@@STEP_LOG_LINE@qemu.stdout@@@@",
+      "@@@STEP_LOG_LINE@qemu.stdout@  3 tests from 1 test cases ran.@@@",
+      "@@@STEP_LOG_LINE@qemu.stdout@  [  PASSED  ] 3 tests.@@@",
+      "@@@STEP_LOG_LINE@qemu.stdout@  3 tests from 1 test cases ran.@@@",
+      "@@@STEP_LOG_LINE@qemu.stdout@  [  PASSED  ] 2 tests.@@@",
+      "@@@STEP_LOG_END@qemu.stdout@@@",
       "@@@STEP_FAILURE@@@"
     ]
   },
