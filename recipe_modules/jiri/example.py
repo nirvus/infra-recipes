@@ -33,7 +33,7 @@ def RunSteps(api):
   step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 
   # Get information about the project.
-  api.jiri.describe('test')
+  api.jiri.project('test')
 
   # Patch in an existing change.
   api.jiri.patch('refs/changes/1/2/3',

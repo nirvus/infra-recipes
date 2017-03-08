@@ -6,7 +6,7 @@
 
 import re
 
-from recipe_engine.config import Enum
+from recipe_engine.config import Enum, ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
 
@@ -40,6 +40,10 @@ PROPERTIES = {
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
   'toolchain': Property(kind=Enum('gcc', 'clang'), help='Toolchain to use'),
 }
+
+RETURN_SCHEMA = ReturnSchema(
+  got_revision=Single(str)
+)
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -103,13 +107,18 @@ dm poweroff''')
     step_result.presentation.status = api.step.FAILURE
     raise api.step.StepFailure(m.group(0))
 
+  revision = api.jiri.project('magenta').json.output[0]['revision']
+  return RETURN_SCHEMA.new(got_revision=revision)
+
 
 def GenTests(api):
   yield (api.test('ci') +
          api.properties(manifest='magenta',
                         remote='https://fuchsia.googlesource.com/manifest',
                         target='magenta-pc-x86-64',
-                        toolchain='gcc'))
+                        toolchain='gcc') +
+         api.step_data('test',
+             api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('cq_try') +
          api.properties.tryserver(
              gerrit_project='magenta',

@@ -46,7 +46,7 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def describe(self, *projects, **kwargs):
+  def project(self, *projects, **kwargs):
     cmd = [
       'project',
       'info',
@@ -56,7 +56,7 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(
         *cmd,
-        step_test_data=lambda: self.test_api.example_describe(projects),
+        step_test_data=lambda: self.test_api.example_project(projects),
         **kwargs
     )
 

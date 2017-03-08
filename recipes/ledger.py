@@ -6,7 +6,7 @@
 
 import re
 
-from recipe_engine.config import Enum, List
+from recipe_engine.config import Enum, List, ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
 
@@ -54,6 +54,10 @@ PROPERTIES = {
   'build_type': Property(kind=Enum('debug', 'release'), help='The build type',
                          default='debug'),
 }
+
+RETURN_SCHEMA = ReturnSchema(
+  got_revision=Single(str)
+)
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -173,6 +177,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if exception:
     step_result.presentation.status = api.step.FAILURE
     raise exception
+
+  revision = api.jiri.project('ledger').json.output[0]['revision']
+  return RETURN_SCHEMA.new(got_revision=revision)
+
 
 def GenTests(api):
   yield api.test('ci') + api.properties(

@@ -7,7 +7,7 @@ from recipe_engine import recipe_test_api
 
 class JiriTestApi(recipe_test_api.RecipeTestApi):
 
-  def example_describe(self, projects):
+  def example_project(self, projects):
     assert projects is not None
     return self.m.json.output([
       {

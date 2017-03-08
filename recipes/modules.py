@@ -4,6 +4,7 @@
 
 """Recipe for building and running pre-submit checks for the modules repo."""
 
+from recipe_engine.config import ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
 
@@ -26,6 +27,10 @@ PROPERTIES = {
                                    default=None),
   'project_path': Property(kind=str, help='Project path', default=None),
 }
+
+RETURN_SCHEMA = ReturnSchema(
+  got_revision=Single(str)
+)
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -55,6 +60,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                env={'GOMA': 1, 'MINIMAL': 1, 'NO_ENSURE_GOMA': 1,
                     'GOMA_DIR': api.goma.goma_dir,
                     'PUB_CACHE': api.path['cache'].join('pub')})
+
+  revision = api.jiri.project('modules').json.output[0]['revision']
+  return RETURN_SCHEMA.new(got_revision=revision)
 
 
 def GenTests(api):
