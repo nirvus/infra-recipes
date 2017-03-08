@@ -359,7 +359,7 @@
     "name": "test",
     "stderr": "/path/to/tmp/",
     "stdout": "/path/to/tmp/",
-    "timeout": 300,
+    "timeout": 600,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@qemu.stdout@@@@",
       "@@@STEP_LOG_LINE@qemu.stdout@  3 tests from 1 test cases ran.@@@",

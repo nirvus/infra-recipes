@@ -128,4 +128,4 @@ def GenTests(api):
                         remote='https://fuchsia.googlesource.com/manifest',
                         target='magenta-qemu-arm64',
                         toolchain='gcc') +
-         api.step_data('test', times_out_after=350))
+         api.step_data('test', times_out_after=650))

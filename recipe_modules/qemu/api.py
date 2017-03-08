@@ -44,7 +44,7 @@ class QemuApi(recipe_api.RecipeApi):
     ).stdout)
 
   def run(self, name, arch, kernel, smp=4, memory=2048, kvm=False, initrd=None,
-          cmdline=None, timeout=300, step_test_data=None):
+          cmdline=None, timeout=600, step_test_data=None):
     cmd = [
       self.qemu_executable(arch),
       '-nographic',

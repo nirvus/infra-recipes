@@ -177,11 +177,11 @@
     "name": "test",
     "stderr": "/path/to/tmp/",
     "stdout": "/path/to/tmp/",
-    "timeout": 300
+    "timeout": 600
   },
   {
     "name": "$result",
-    "reason": "Step Timeout: Step('test') timed out after 300",
+    "reason": "Step Timeout: Step('test') timed out after 600",
     "recipe_result": null,
     "status_code": 1
   }

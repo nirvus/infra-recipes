@@ -62,7 +62,7 @@
     "name": "test",
     "stderr": "/path/to/tmp/",
     "stdout": "/path/to/tmp/",
-    "timeout": 300
+    "timeout": 600
   },
   {
     "name": "$result",
