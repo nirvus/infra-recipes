@@ -95,10 +95,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     magenta_target,
   ]
   with api.step.context({'cwd': api.path['start_dir'].join('magenta')}):
-    api.step(
-        'build magenta',
-        build_args,
-        env={'USER_AUTORUN': autorun_path})
+    api.step('build magenta', build_args)
 
   # Step: build sysroot
   sysroot_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
@@ -118,6 +115,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     gen_cmd_params = [
       'packages/gn/gen.py',
       '--target_cpu=%s' % fuchsia_target,
+      '--autorun=%s' % autorun_path,
       '--goma=%s' % api.goma.goma_dir,
     ]
 
@@ -125,7 +123,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       gen_cmd_params.append('--release')
 
     # Include boringssl because the Ledger tests use it.
-    gen_cmd_params.append('--modules=ledger,boringssl')
+    # Include runtime because it triggers /system/autorun on startup.
+    gen_cmd_params.append('--modules=ledger,boringssl,runtime')
 
     api.step('gen', gen_cmd_params)
     api.step(
