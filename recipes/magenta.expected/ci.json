@@ -49,6 +49,14 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "clean"
+    ],
+    "name": "jiri project clean"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-autoupdate=false"
     ],

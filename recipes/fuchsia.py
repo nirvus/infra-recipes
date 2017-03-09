@@ -54,8 +54,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   with api.step.context({'cwd': checkout}):
     api.jiri.init()
-    api.jiri.clean_project(branches=True)
     api.jiri.import_manifest(manifest, remote, overwrite=True)
+    api.jiri.clean_project(branches=True)
     api.jiri.update(gc=True)
     if patch_ref is not None:
       api.jiri.patch(patch_ref, host=patch_gerrit_url)

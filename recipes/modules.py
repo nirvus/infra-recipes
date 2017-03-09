@@ -36,6 +36,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.jiri.init()
   api.jiri.import_manifest('userspace',
                            'https://fuchsia.googlesource.com/manifest')
+  api.jiri.clean_project()
   api.jiri.update()
   step_result = api.jiri.snapshot(api.raw_io.output())
   snapshot = step_result.raw_io.output

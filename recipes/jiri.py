@@ -37,8 +37,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.jiri.ensure_jiri()
 
   api.jiri.init()
-  api.jiri.clean_project()
   api.jiri.import_manifest(manifest, remote)
+  api.jiri.clean_project()
   api.jiri.update(gc=True)
 
   if patch_ref is not None:

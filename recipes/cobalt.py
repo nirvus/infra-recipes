@@ -27,8 +27,8 @@ def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
   api.jiri.ensure_jiri()
 
   api.jiri.init()
-  api.jiri.clean_project()
   api.jiri.import_manifest(manifest, remote)
+  api.jiri.clean_project()
   api.jiri.update()
   step_result = api.jiri.snapshot(api.raw_io.output())
   snapshot = step_result.raw_io.output

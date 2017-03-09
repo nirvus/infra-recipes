@@ -74,16 +74,6 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "clean",
-      "-branches=true"
-    ],
-    "cwd": "[START_DIR]",
-    "name": "jiri project clean"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "import",
       "-overwrite=true",
       "fuchsia",
@@ -91,6 +81,16 @@
     ],
     "cwd": "[START_DIR]",
     "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "clean",
+      "-branches=true"
+    ],
+    "cwd": "[START_DIR]",
+    "name": "jiri project clean"
   },
   {
     "cmd": [

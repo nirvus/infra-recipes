@@ -104,19 +104,19 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "clean"
-    ],
-    "name": "jiri project clean"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "import",
       "userspace",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "clean"
+    ],
+    "name": "jiri project clean"
   },
   {
     "cmd": [
