@@ -30,38 +30,23 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport platform\nimport sys\nprint platform.processor() == sys.argv[1] and os.path.exists('/dev/kvm')\n",
-      "x86_64"
-    ],
-    "name": "check if kvm is supported",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "--executable",
       "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
-      "-nographic",
-      "-m",
+      "--memory",
       "2048",
-      "-smp",
+      "--smp",
       "4",
-      "-machine",
-      "q35",
-      "-kernel",
-      "bzImaze",
-      "-cpu",
-      "Haswell,+smap,-check",
-      "-initrd",
+      "--arch",
+      "x86_64",
+      "--initrd",
       "disk.img",
-      "-append",
-      "TERM=vt100",
-      "foo=bar"
+      "--cmdline",
+      "foo=bar",
+      "bzImaze"
     ],
     "name": "test",
-    "stderr": "/path/to/tmp/",
-    "stdout": "/path/to/tmp/",
-    "timeout": 600
+    "stdout": "/path/to/tmp/"
   },
   {
     "name": "$result",

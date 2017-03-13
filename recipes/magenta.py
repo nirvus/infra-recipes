@@ -133,9 +133,3 @@ def GenTests(api):
                         target='magenta-pc-x86-64',
                         toolchain='gcc') +
          api.step_data('test', api.raw_io.stream_output('')))
-  yield (api.test('test_timeout') +
-         api.properties(manifest='magenta',
-                        remote='https://fuchsia.googlesource.com/manifest',
-                        target='magenta-qemu-arm64',
-                        toolchain='gcc') +
-         api.step_data('test', times_out_after=650))

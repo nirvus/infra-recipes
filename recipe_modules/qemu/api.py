@@ -4,8 +4,6 @@
 
 from recipe_engine import recipe_api
 
-import ast
-
 
 class QemuApi(recipe_api.RecipeApi):
   """QemuApi provides support for QEMU."""
@@ -27,51 +25,25 @@ class QemuApi(recipe_api.RecipeApi):
   def qemu_executable(self, arch):
     return self.m.path.join(self._qemu_dir, 'bin', 'qemu-system-%s' % arch)
 
-  def is_kvm_supported(self, arch):
-    return self.m.platform.is_linux and ast.literal_eval(self.m.python.inline(
-        'check if kvm is supported',
-        """
-        import os
-        import platform
-        import sys
-        print platform.processor() == sys.argv[1] and os.path.exists('/dev/kvm')
-        """,
-        args=[arch],
-        stdout=self.m.raw_io.output(),
-        step_test_data=lambda:
-            self.m.raw_io.test_api.stream_output('True\n'),
-        add_python_log=False
-    ).stdout)
-
   def run(self, name, arch, kernel, smp=4, memory=2048, kvm=False, initrd=None,
-          cmdline=None, timeout=600, step_test_data=None):
+          cmdline=None, step_test_data=None):
     cmd = [
-      self.qemu_executable(arch),
-      '-nographic',
-      '-m', memory,
-      '-smp', smp,
-      '-machine', {'aarch64': 'virt', 'x86_64': 'q35'}[arch],
-      '-kernel', kernel,
+      self.resource('qemu.py'),
+      '--executable', self.qemu_executable(arch),
+      '--memory', memory,
+      '--smp', smp,
+      '--arch', arch,
     ]
-    if self.is_kvm_supported(arch) and kvm:
-      cmd.extend(['-enable-kvm', '-cpu', 'host'])
-    else:
-      cmd.extend({
-        'aarch64': ['-cpu', 'cortex-a53'],
-        'x86_64': ['-cpu', 'Haswell,+smap,-check'],
-      }[arch])
     if initrd:
-      cmd.extend(['-initrd', initrd])
-    cmd.extend(['-append', 'TERM=vt100'])
+      cmd.extend(['--initrd', initrd])
     if cmdline:
-      cmd.append(cmdline)
+      cmd.extend(['--cmdline', cmdline])
+    cmd.append(kernel)
     return self.m.step(
         name,
         cmd,
-        timeout=timeout,
         stdin=self.m.raw_io.input(''),
         stdout=self.m.raw_io.output(),
-        stderr=self.m.raw_io.output(),
         step_test_data=step_test_data or
             (lambda: self.m.raw_io.test_api.stream_output('qemu'))
     )

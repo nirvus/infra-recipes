@@ -318,38 +318,21 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport platform\nimport sys\nprint platform.processor() == sys.argv[1] and os.path.exists('/dev/kvm')\n",
-      "x86_64"
-    ],
-    "name": "check if kvm is supported",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "--executable",
       "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
-      "-nographic",
-      "-m",
+      "--memory",
       "2048",
-      "-smp",
+      "--smp",
       "4",
-      "-machine",
-      "q35",
-      "-kernel",
-      "[START_DIR]/magenta/build-magenta-pc-x86-64/magenta.bin",
-      "-enable-kvm",
-      "-cpu",
-      "host",
-      "-initrd",
+      "--arch",
+      "x86_64",
+      "--initrd",
       "[START_DIR]/out/debug-x86-64/user.bootfs",
-      "-append",
-      "TERM=vt100"
+      "[START_DIR]/magenta/build-magenta-pc-x86-64/magenta.bin"
     ],
     "name": "test",
-    "stderr": "/path/to/tmp/",
     "stdout": "/path/to/tmp/",
-    "timeout": 600,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@qemu.stdout@@@@",
       "@@@STEP_LOG_LINE@qemu.stdout@  3 tests from 1 test cases ran.@@@",
