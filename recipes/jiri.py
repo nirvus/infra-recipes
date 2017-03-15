@@ -9,12 +9,14 @@ from recipe_engine import config
 
 
 DEPS = [
+  'infra/cipd',
   'infra/jiri',
   'infra/git',
   'infra/go',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
+  'recipe_engine/shutil',
   'recipe_engine/step',
 ]
 
@@ -37,8 +39,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.jiri.ensure_jiri()
 
   api.jiri.init()
-  api.jiri.import_manifest(manifest, remote)
-  api.jiri.clean_project()
+  api.jiri.import_manifest(manifest, remote, overwrite=True)
+  api.jiri.clean_project(branches=True)
   api.jiri.update(gc=True)
 
   if patch_ref is not None:
@@ -46,9 +48,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   api.go.ensure_go()
 
-  gitdir = api.path['start_dir'].join(
+  jiri_dir = api.path['start_dir'].join(
       'go', 'src', 'fuchsia.googlesource.com', 'jiri')
-  with api.step.context({'cwd': gitdir}):
+  git2go_dir = jiri_dir.join('vendor', 'github.com', 'libgit2', 'git2go')
+  libgit2_dir = git2go_dir.join('vendor', 'libgit2')
+
+  with api.step.context({'cwd': jiri_dir}):
     git_commit = api.git.get_hash()
   result = api.step('date', ['date', '--rfc-3339=seconds'],
       stdout=api.raw_io.output(),
@@ -58,14 +63,37 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   ldflags = "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=%s\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=%s\"" % (git_commit, build_time)
   gopath = api.path['start_dir'].join('go')
-  goos, goarch = target.split("-", 2)
 
-  with api.step.context({'env': {'GOPATH': gopath, 'GOOS': goos, 'GOARCH': goarch}}):
-    api.go('build', '-ldflags', ldflags, '-a',
+  with api.step.nest('ensure_packages'):
+    with api.step.context({'infra_step': True}):
+      cipd_dir = api.path['start_dir'].join('cipd')
+      api.cipd.ensure(cipd_dir, {
+        'fuchsia/tools/cmake/${platform}': 'latest',
+        'fuchsia/tools/ninja/${platform}': 'latest',
+      })
+
+  build_dir = libgit2_dir.join('build')
+  api.shutil.makedirs('build', build_dir)
+  with api.step.context({'cwd': build_dir}):
+    api.step('configure libgit2', [
+      cipd_dir.join('bin', 'cmake'),
+      '-GNinja',
+      '-DCMAKE_BUILD_PROGRAM=%s' % cipd_dir.join('ninja'),
+      '-DCMAKE_BUILD_TYPE=RelWithDebInfo',
+      '-DCMAKE_C_FLAGS=-fPIC',
+      '-DTHREADSAFE=ON',
+      '-DBUILD_CLAR=OFF',
+      '-DBUILD_SHARED_LIBS=OFF',
+      libgit2_dir,
+    ])
+    api.step('build libgit2', [cipd_dir.join('ninja')])
+
+  with api.step.context({'env': {'GOPATH': gopath}}):
+    api.go('build jiri', '-ldflags', ldflags, '-a',
            'fuchsia.googlesource.com/jiri/cmd/jiri')
 
   with api.step.context({'env': {'GOPATH': gopath}}):
-    api.go('test', 'fuchsia.googlesource.com/jiri/cmd/jiri')
+    api.go('test jiri', 'fuchsia.googlesource.com/jiri/cmd/jiri')
 
 
 def GenTests(api):
