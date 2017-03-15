@@ -105,26 +105,6 @@
     ]
   },
   {
-    "cmd": [
-      "git",
-      "show",
-      "HEAD",
-      "--format=%H",
-      "-s"
-    ],
-    "cwd": "[START_DIR]/go/src/fuchsia.googlesource.com/jiri",
-    "name": "git show",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "date",
-      "--rfc-3339=seconds"
-    ],
-    "name": "date",
-    "stdout": "/path/to/tmp/"
-  },
-  {
     "cmd": [],
     "name": "ensure_packages"
   },
@@ -183,7 +163,7 @@
     "cmd": [
       "[START_DIR]/cipd/bin/cmake",
       "-GNinja",
-      "-DCMAKE_BUILD_PROGRAM=[START_DIR]/cipd/ninja",
+      "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
       "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
       "-DCMAKE_C_FLAGS=-fPIC",
       "-DTHREADSAFE=ON",
@@ -203,10 +183,37 @@
   },
   {
     "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "info",
+      "-json-output",
+      "/path/to/tmp/json",
+      "jiri"
+    ],
+    "name": "jiri project info",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"master\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"jiri\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/repo\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/repo\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "build jiri",
       "-ldflags",
-      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=deadbeef\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2016-10-11 14:40:25-07:00\"",
+      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=c22471f4e3f842ae18dd9adec82ed9eb78ed1127\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:21.500000\"",
       "-a",
       "fuchsia.googlesource.com/jiri/cmd/jiri"
     ],
@@ -230,7 +237,9 @@
   },
   {
     "name": "$result",
-    "recipe_result": null,
+    "recipe_result": {
+      "got_revision": "c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+    },
     "status_code": 0
   }
 ]

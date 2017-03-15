@@ -4,6 +4,7 @@
 
 """Recipe for building Jiri."""
 
+from recipe_engine.config import ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 from recipe_engine import config
 
@@ -18,6 +19,7 @@ DEPS = [
   'recipe_engine/raw_io',
   'recipe_engine/shutil',
   'recipe_engine/step',
+  'recipe_engine/time',
 ]
 
 PROPERTIES = {
@@ -32,6 +34,10 @@ PROPERTIES = {
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=str, help='Target to build'),
 }
+
+RETURN_SCHEMA = ReturnSchema(
+  got_revision=Single(str)
+)
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -53,17 +59,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   git2go_dir = jiri_dir.join('vendor', 'github.com', 'libgit2', 'git2go')
   libgit2_dir = git2go_dir.join('vendor', 'libgit2')
 
-  with api.step.context({'cwd': jiri_dir}):
-    git_commit = api.git.get_hash()
-  result = api.step('date', ['date', '--rfc-3339=seconds'],
-      stdout=api.raw_io.output(),
-      step_test_data=lambda:
-          api.raw_io.test_api.stream_output('2016-10-11 14:40:25-07:00'))
-  build_time = result.stdout.strip()
-
-  ldflags = "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=%s\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=%s\"" % (git_commit, build_time)
-  gopath = api.path['start_dir'].join('go')
-
   with api.step.nest('ensure_packages'):
     with api.step.context({'infra_step': True}):
       cipd_dir = api.path['start_dir'].join('cipd')
@@ -78,7 +73,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.step('configure libgit2', [
       cipd_dir.join('bin', 'cmake'),
       '-GNinja',
-      '-DCMAKE_BUILD_PROGRAM=%s' % cipd_dir.join('ninja'),
+      '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
       '-DCMAKE_BUILD_TYPE=RelWithDebInfo',
       '-DCMAKE_C_FLAGS=-fPIC',
       '-DTHREADSAFE=ON',
@@ -88,12 +83,20 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     ])
     api.step('build libgit2', [cipd_dir.join('ninja')])
 
+  revision = api.jiri.project('jiri').json.output[0]['revision']
+  build_time = api.time.utcnow().isoformat()
+
+  ldflags = "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=%s\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=%s\"" % (revision, build_time)
+  gopath = api.path['start_dir'].join('go')
+
   with api.step.context({'env': {'GOPATH': gopath}}):
     api.go('build jiri', '-ldflags', ldflags, '-a',
            'fuchsia.googlesource.com/jiri/cmd/jiri')
 
   with api.step.context({'env': {'GOPATH': gopath}}):
     api.go('test jiri', 'fuchsia.googlesource.com/jiri/cmd/jiri')
+
+  return RETURN_SCHEMA.new(got_revision=revision)
 
 
 def GenTests(api):
