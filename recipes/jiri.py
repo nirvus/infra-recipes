@@ -90,11 +90,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   gopath = api.path['start_dir'].join('go')
 
   with api.step.context({'env': {'GOPATH': gopath}}):
-    api.go('build jiri', '-ldflags', ldflags, '-a',
+    api.go('build', '-ldflags', ldflags, '-a',
            'fuchsia.googlesource.com/jiri/cmd/jiri')
 
   with api.step.context({'env': {'GOPATH': gopath}}):
-    api.go('test jiri', 'fuchsia.googlesource.com/jiri/cmd/jiri')
+    api.go('test', 'fuchsia.googlesource.com/jiri/cmd/jiri')
 
   return RETURN_SCHEMA.new(got_revision=revision)
 

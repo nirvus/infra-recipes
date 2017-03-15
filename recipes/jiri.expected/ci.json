@@ -201,7 +201,7 @@
   {
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
-      "build jiri",
+      "build",
       "-ldflags",
       "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=c22471f4e3f842ae18dd9adec82ed9eb78ed1127\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:21.500000\"",
       "-a",
@@ -211,19 +211,19 @@
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
-    "name": "go build jiri"
+    "name": "go build"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
-      "test jiri",
+      "test",
       "fuchsia.googlesource.com/jiri/cmd/jiri"
     ],
     "env": {
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
-    "name": "go test jiri"
+    "name": "go test"
   },
   {
     "name": "$result",
