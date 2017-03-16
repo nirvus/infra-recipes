@@ -51,13 +51,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              toolchain):
   api.jiri.ensure_jiri()
 
-  api.jiri.init()
-  api.jiri.import_manifest(manifest, remote)
-  api.jiri.clean_project()
-  api.jiri.update()
-  step_result = api.jiri.snapshot(api.raw_io.output())
-  snapshot = step_result.raw_io.output
-  step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
+  with api.step.context({'infra_step': True}):
+    api.jiri.init()
+    api.jiri.import_manifest(manifest, remote)
+    api.jiri.clean_project()
+    update_result = api.jiri.update()
+    revision = api.jiri.project('magenta').json.output[0]['revision']
+    api.step.active_result.presentation.properties['got_revision'] = revision
 
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
@@ -107,7 +107,6 @@ dm poweroff''')
     step_result.presentation.status = api.step.FAILURE
     raise api.step.StepFailure(m.group(0))
 
-  revision = api.jiri.project('magenta').json.output[0]['revision']
   return RETURN_SCHEMA.new(got_revision=revision)
 
 

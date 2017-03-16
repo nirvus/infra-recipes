@@ -4,6 +4,7 @@
 
 """Recipe for building and testing Cobalt."""
 
+from recipe_engine.config import ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
 
@@ -22,17 +23,21 @@ PROPERTIES = {
   'remote': Property(kind=str, help='Remote manifest repository'),
 }
 
+RETURN_SCHEMA = ReturnSchema(
+  got_revision=Single(str)
+)
+
 
 def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
   api.jiri.ensure_jiri()
 
-  api.jiri.init()
-  api.jiri.import_manifest(manifest, remote)
-  api.jiri.clean_project()
-  api.jiri.update()
-  step_result = api.jiri.snapshot(api.raw_io.output())
-  snapshot = step_result.raw_io.output
-  step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
+  with api.step.context({'infra_step': True}):
+    api.jiri.init()
+    api.jiri.import_manifest(manifest, remote)
+    api.jiri.clean_project()
+    api.jiri.update()
+    revision = api.jiri.project('cobalt').json.output[0]['revision']
+    api.step.active_result.presentation.properties['got_revision'] = revision
 
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url)
@@ -41,6 +46,8 @@ def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
   with api.step.context({'cwd': api.path['start_dir'].join('cobalt')}):
     for step in ["setup", "build", "test"]:
       api.step(step, ["./cobaltb.py", step])
+
+  return RETURN_SCHEMA.new(got_revision=revision)
 
 
 def GenTests(api):

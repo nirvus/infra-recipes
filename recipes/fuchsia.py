@@ -53,15 +53,17 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     checkout = api.path['start_dir']
 
   with api.step.context({'cwd': checkout}):
-    api.jiri.init()
-    api.jiri.import_manifest(manifest, remote, overwrite=True)
-    api.jiri.clean_project(branches=True)
-    api.jiri.update(gc=True)
+    with api.step.context({'infra_step': True}):
+      api.jiri.init()
+      api.jiri.import_manifest(manifest, remote, overwrite=True)
+      api.jiri.clean_project(branches=True)
+      api.jiri.update(gc=True)
+      step_result = api.jiri.snapshot(api.raw_io.output())
+      snapshot = step_result.raw_io.output
+      step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
+
     if patch_ref is not None:
       api.jiri.patch(patch_ref, host=patch_gerrit_url)
-    step_result = api.jiri.snapshot(api.raw_io.output())
-    snapshot = step_result.raw_io.output
-    step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 
   sysroot_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
 

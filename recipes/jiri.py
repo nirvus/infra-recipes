@@ -44,10 +44,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target):
   api.jiri.ensure_jiri()
 
-  api.jiri.init()
-  api.jiri.import_manifest(manifest, remote, overwrite=True)
-  api.jiri.clean_project(branches=True)
-  api.jiri.update(gc=True)
+  with api.step.context({'infra_step': True}):
+    api.jiri.init()
+    api.jiri.import_manifest(manifest, remote, overwrite=True)
+    api.jiri.clean_project(branches=True)
+    update_result = api.jiri.update(gc=True)
+    revision = api.jiri.project('jiri').json.output[0]['revision']
+    api.step.active_result.presentation.properties['got_revision'] = revision
 
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url)
@@ -83,9 +86,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     ])
     api.step('build libgit2', [cipd_dir.join('ninja')])
 
-  revision = api.jiri.project('jiri').json.output[0]['revision']
   build_time = api.time.utcnow().isoformat()
-
   ldflags = "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=%s\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=%s\"" % (revision, build_time)
   gopath = api.path['start_dir'].join('go')
 

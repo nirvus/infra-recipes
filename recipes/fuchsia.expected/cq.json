@@ -105,17 +105,6 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "refs/changes/89/456789/12"
-    ],
-    "cwd": "[START_DIR]",
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "snapshot",
       "/path/to/tmp/"
     ],
@@ -130,6 +119,17 @@
       "@@@STEP_LOG_LINE@jiri.snapshot@</manifest>@@@",
       "@@@STEP_LOG_END@jiri.snapshot@@@"
     ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-host",
+      "fuchsia-review.googlesource.com",
+      "refs/changes/89/456789/12"
+    ],
+    "cwd": "[START_DIR]",
+    "name": "jiri patch"
   },
   {
     "cmd": [

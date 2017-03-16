@@ -38,14 +38,18 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
-  api.jiri.init()
-  api.jiri.import_manifest('userspace',
-                           'https://fuchsia.googlesource.com/manifest')
-  api.jiri.clean_project()
-  api.jiri.update()
-  step_result = api.jiri.snapshot(api.raw_io.output())
-  snapshot = step_result.raw_io.output
-  step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
+  with api.step.context({'infra_step': True}):
+    api.jiri.init()
+    api.jiri.import_manifest('userspace',
+                             'https://fuchsia.googlesource.com/manifest')
+    api.jiri.clean_project()
+    update_result = api.jiri.update()
+    revision = api.jiri.project('modules').json.output[0]['revision']
+    api.step.active_result.presentation.properties['got_revision'] = revision
+
+    step_result = api.jiri.snapshot(api.raw_io.output())
+    snapshot = step_result.raw_io.output
+    step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url)
@@ -61,7 +65,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                     'GOMA_DIR': api.goma.goma_dir,
                     'PUB_CACHE': api.path['cache'].join('pub')})
 
-  revision = api.jiri.project('modules').json.output[0]['revision']
   return RETURN_SCHEMA.new(got_revision=revision)
 
 

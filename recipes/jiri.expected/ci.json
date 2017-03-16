@@ -66,6 +66,34 @@
     "name": "jiri update"
   },
   {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "info",
+      "-json-output",
+      "/path/to/tmp/json",
+      "jiri"
+    ],
+    "name": "jiri project info",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"master\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"jiri\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/repo\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/repo\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "ensure_go"
   },
@@ -170,33 +198,6 @@
     ],
     "cwd": "[START_DIR]/go/src/fuchsia.googlesource.com/jiri/vendor/github.com/libgit2/git2go/vendor/libgit2/build",
     "name": "build libgit2"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "info",
-      "-json-output",
-      "/path/to/tmp/json",
-      "jiri"
-    ],
-    "name": "jiri project info",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"master\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"jiri\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/repo\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/repo\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
   },
   {
     "cmd": [
