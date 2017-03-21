@@ -59,8 +59,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   jiri_dir = api.path['start_dir'].join(
       'go', 'src', 'fuchsia.googlesource.com', 'jiri')
-  git2go_dir = jiri_dir.join('vendor', 'github.com', 'libgit2', 'git2go')
-  libgit2_dir = git2go_dir.join('vendor', 'libgit2')
 
   with api.step.nest('ensure_packages'):
     with api.step.context({'infra_step': True}):
@@ -70,30 +68,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'fuchsia/tools/ninja/${platform}': 'latest',
       })
 
-  build_dir = libgit2_dir.join('build')
-  api.shutil.makedirs('build', build_dir)
-  with api.step.context({'cwd': build_dir}):
-    api.step('configure libgit2', [
-      cipd_dir.join('bin', 'cmake'),
-      '-GNinja',
-      '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
-      '-DCMAKE_BUILD_TYPE=RelWithDebInfo',
-      '-DCMAKE_C_FLAGS=-fPIC',
-      '-DTHREADSAFE=ON',
-      '-DBUILD_CLAR=OFF',
-      '-DBUILD_SHARED_LIBS=OFF',
-      libgit2_dir,
-    ])
-    api.step('build libgit2', [cipd_dir.join('ninja')])
+  api.step('build jiri', [jiri_dir.join('scripts', 'build.sh')],
+           env={'CMAKE_PROGRAM': cipd_dir.join('bin', 'cmake'),
+                'NINJA_PROGRAM': cipd_dir.join('ninja'),
+                'GO_PROGRAM': api.go.go_executable})
 
-  build_time = api.time.utcnow().isoformat()
-  ldflags = "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=%s\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=%s\"" % (revision, build_time)
   gopath = api.path['start_dir'].join('go')
-
-  with api.step.context({'env': {'GOPATH': gopath}}):
-    api.go('build', '-ldflags', ldflags, '-a',
-           'fuchsia.googlesource.com/jiri/cmd/jiri')
-
   with api.step.context({'env': {'GOPATH': gopath}}):
     api.go('test', 'fuchsia.googlesource.com/jiri/cmd/jiri')
 
