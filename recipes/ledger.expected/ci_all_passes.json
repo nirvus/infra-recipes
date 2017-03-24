@@ -64,13 +64,44 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure_qemu"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "--root",
+      "[START_DIR]/cipd/qemu",
+      "--list",
+      "fuchsia/tools/qemu/linux-amd64 latest",
+      "--json-output",
+      "/path/to/tmp/json",
+      "--service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
+    ],
+    "infra_step": true,
+    "name": "ensure_qemu.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/qemu/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
       "-cache",
       "[CACHE]/git"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri init"
   },
@@ -78,11 +109,9 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "-overwrite=true",
-      "fuchsia",
+      "userspace",
       "https://fuchsia.googlesource.com/manifest"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri import"
   },
@@ -90,10 +119,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
-      "clean",
-      "-branches=true"
+      "clean"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri project clean"
   },
@@ -101,46 +128,84 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
-      "-autoupdate=false",
-      "-gc=true"
+      "-autoupdate=false"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri update"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "snapshot",
-      "/path/to/tmp/"
+      "project",
+      "info",
+      "-json-output",
+      "/path/to/tmp/json",
+      "ledger"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
-    "name": "jiri snapshot",
+    "name": "jiri project info",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@jiri.snapshot@@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@<manifest>@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@  <projects>@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@    <project name=\"manifest\" path=\"manifest\" remote=\"https://fuchsia.googlesource.com/manifest\" revision=\"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"/>@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@  </projects>@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@</manifest>@@@",
-      "@@@STEP_LOG_END@jiri.snapshot@@@"
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"master\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"ledger\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/repo\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/repo\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
     ]
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "refs/changes/89/456789/12"
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[TMP_BASE]/magenta_tmp",
+      "511"
     ],
-    "cwd": "[START_DIR]",
-    "name": "jiri patch"
+    "name": "makedirs makedirs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-sysroot.sh",
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "/system/test/ledger_unittests\n/system/test/ledger_integration_tests\nmsleep 250\ndm poweroff",
+      "[TMP_BASE]/magenta_tmp/autorun"
+    ],
+    "name": "write [TMP_BASE]/magenta_tmp/autorun"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "magenta-pc-x86-64"
+    ],
+    "cwd": "[START_DIR]/magenta",
+    "name": "build magenta"
+  },
+  {
+    "cmd": [
+      "scripts/build-sysroot.sh",
       "-c",
       "-t",
       "x86_64"
@@ -170,9 +235,11 @@
   },
   {
     "cmd": [
-      "[START_DIR]/packages/gn/gen.py",
+      "packages/gn/gen.py",
       "--target_cpu=x86-64",
-      "--goma=[START_DIR]/cipd/goma"
+      "--autorun=[TMP_BASE]/magenta_tmp/autorun",
+      "--goma=[START_DIR]/cipd/goma",
+      "--modules=ledger,boringssl,runtime"
     ],
     "name": "build Fuchsia.gen",
     "~followup_annotations": [
@@ -209,9 +276,9 @@
   },
   {
     "cmd": [
-      "[START_DIR]/buildtools/ninja",
+      "buildtools/ninja",
       "-C",
-      "[START_DIR]/out/debug-x86-64",
+      "out/debug-x86-64",
       "-j",
       "50"
     ],
@@ -270,8 +337,36 @@
     ]
   },
   {
+    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "--executable",
+      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
+      "--memory",
+      "2048",
+      "--smp",
+      "4",
+      "--arch",
+      "x86_64",
+      "--initrd",
+      "[START_DIR]/out/debug-x86-64/user.bootfs",
+      "[START_DIR]/magenta/build-magenta-pc-x86-64/magenta.bin"
+    ],
+    "name": "test",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@qemu.stdout@@@@",
+      "@@@STEP_LOG_LINE@qemu.stdout@  3 tests from 1 test cases ran.@@@",
+      "@@@STEP_LOG_LINE@qemu.stdout@  [  PASSED  ] 3 tests.@@@",
+      "@@@STEP_LOG_LINE@qemu.stdout@  3 tests from 1 test cases ran.@@@",
+      "@@@STEP_LOG_LINE@qemu.stdout@  [  PASSED  ] 3 tests.@@@",
+      "@@@STEP_LOG_END@qemu.stdout@@@"
+    ]
+  },
+  {
     "name": "$result",
-    "recipe_result": null,
+    "recipe_result": {
+      "got_revision": "c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+    },
     "status_code": 0
   }
 ]

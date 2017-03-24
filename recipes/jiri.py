@@ -68,10 +68,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'fuchsia/tools/ninja/${platform}': 'latest',
       })
 
-  api.step('build jiri', [jiri_dir.join('scripts', 'build.sh')],
-           env={'CMAKE_PROGRAM': cipd_dir.join('bin', 'cmake'),
-                'NINJA_PROGRAM': cipd_dir.join('ninja'),
-                'GO_PROGRAM': api.go.go_executable})
+  ctx = {
+    'env': {
+      'CMAKE_PROGRAM': cipd_dir.join('bin', 'cmake'),
+      'NINJA_PROGRAM': cipd_dir.join('ninja'),
+      'GO_PROGRAM': api.go.go_executable
+    }
+  }
+  with api.step.context(ctx):
+    api.step('build jiri', [jiri_dir.join('scripts', 'build.sh')])
 
   gopath = api.path['start_dir'].join('go')
   with api.step.context({'env': {'GOPATH': gopath}}):

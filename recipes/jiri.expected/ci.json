@@ -14,6 +14,7 @@
       "--json-output",
       "/path/to/tmp/json"
     ],
+    "infra_step": true,
     "name": "ensure_jiri.ensure_installed",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
@@ -35,6 +36,7 @@
       "-cache",
       "[CACHE]/git"
     ],
+    "infra_step": true,
     "name": "jiri init"
   },
   {
@@ -45,6 +47,7 @@
       "jiri",
       "https://fuchsia.googlesource.com/manifest"
     ],
+    "infra_step": true,
     "name": "jiri import"
   },
   {
@@ -54,6 +57,7 @@
       "clean",
       "-branches=true"
     ],
+    "infra_step": true,
     "name": "jiri project clean"
   },
   {
@@ -63,6 +67,7 @@
       "-autoupdate=false",
       "-gc=true"
     ],
+    "infra_step": true,
     "name": "jiri update"
   },
   {
@@ -74,6 +79,7 @@
       "/path/to/tmp/json",
       "jiri"
     ],
+    "infra_step": true,
     "name": "jiri project info",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@[@@@",
@@ -108,6 +114,7 @@
       "--json-output",
       "/path/to/tmp/json"
     ],
+    "infra_step": true,
     "name": "ensure_go.ensure_installed",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
@@ -137,6 +144,7 @@
       "--json-output",
       "/path/to/tmp/json"
     ],
+    "infra_step": true,
     "name": "ensure_packages.ensure_installed",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",

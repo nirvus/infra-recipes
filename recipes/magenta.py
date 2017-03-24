@@ -77,8 +77,13 @@ dm poweroff''')
   ]
   if toolchain == 'clang':
     build_args.append('USE_CLANG=true')
-  with api.step.context({'cwd': api.path['start_dir'].join('magenta')}):
-    api.step('build', build_args, env={'USER_AUTORUN': path})
+
+  ctx = {
+    'cwd': api.path['start_dir'].join('magenta'),
+    'env': {'USER_AUTORUN': path},
+  }
+  with api.step.context(ctx):
+    api.step('build', build_args)
 
   api.qemu.ensure_qemu()
 

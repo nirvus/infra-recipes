@@ -38,6 +38,14 @@ FAKE_TEST_OUTPUT = """
   [  PASSED  ] 2 tests.
 """
 
+FAKE_TEST_OUTPUT_PASSES = """
+  3 tests from 1 test cases ran.
+  [  PASSED  ] 3 tests.
+  3 tests from 1 test cases ran.
+  [  PASSED  ] 3 tests.
+"""
+
+
 TARGETS = ['arm64', 'x86-64']
 
 PROPERTIES = {
@@ -105,7 +113,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   sysroot_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
   build_sysroot_cmd_params = \
       ['scripts/build-sysroot.sh', '-c', '-t', sysroot_target]
-  if release_build:
+  if release_build:  # pragma: no cover
     build_sysroot_cmd_params.append('-r')
 
   api.step(
@@ -123,7 +131,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '--goma=%s' % api.goma.goma_dir,
     ]
 
-    if release_build:
+    if release_build:  # pragma: no cover
       gen_cmd_params.append('--release')
 
     # Include boringssl because the Ledger tests use it.
@@ -187,6 +195,11 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
   )
+  yield api.test('ci_all_passes') + api.properties(
+      manifest='userspace',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+  ) + api.step_data('test', stdout=api.raw_io.output(FAKE_TEST_OUTPUT_PASSES))
   yield api.test('cq_try') + api.properties.tryserver(
       gerrit_project='ledger',
       patch_gerrit_url='fuchsia-review.googlesource.com',

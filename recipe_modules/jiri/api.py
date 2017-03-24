@@ -100,7 +100,7 @@ class JiriApi(recipe_api.RecipeApi):
       cmd.extend(['-delete=true'])
     if force:
       cmd.extend(['-force=true'])
-    if rebase:
+    if rebase:  # pragma: no cover
       cmd.extend(['-rebase=true'])
     cmd.extend([ref])
 

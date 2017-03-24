@@ -58,12 +58,18 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   # also always hardcodes x86-64 as the target architecture. Since this is
   # only exercising Dart code we don't parameterize the recipe for any other
   # architecture.
+  ctx = {
+    'cwd': api.path['start_dir'].join(project_path),
+    'env': {
+      'GOMA': 1, 'MINIMAL': 1, 'NO_ENSURE_GOMA': 1,
+      'GOMA_DIR': api.goma.goma_dir,
+      'PUB_CACHE': api.path['cache'].join('pub')
+    }
+  }
+
   with api.goma.build_with_goma():
-    with api.step.context({'cwd': api.path['start_dir'].join(project_path)}):
-      api.step('build and run presubmit tests', ['make', 'presubmit-cq'],
-               env={'GOMA': 1, 'MINIMAL': 1, 'NO_ENSURE_GOMA': 1,
-                    'GOMA_DIR': api.goma.goma_dir,
-                    'PUB_CACHE': api.path['cache'].join('pub')})
+    with api.step.context(ctx):
+      api.step('build and run presubmit tests', ['make', 'presubmit-cq'])
 
   return RETURN_SCHEMA.new(got_revision=revision)
 

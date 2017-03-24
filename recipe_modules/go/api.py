@@ -20,11 +20,12 @@ class GoApi(recipe_api.RecipeApi):
     assert self._go_dir
 
     name = kwargs.pop('name', 'go ' + args[0])
-    env = kwargs.setdefault('env', {})
-    go_cmd = [self.go_executable]
-    env.setdefault('GOROOT', self._go_dir)
+    new_env = self.m.step.get_from_context('env', {})
+    new_env.setdefault('GOROOT', self._go_dir)
 
-    return self.m.step(name, go_cmd + list(args or []), **kwargs)
+    with self.m.step.context({'env': new_env}):
+      go_cmd = [self.go_executable]
+      return self.m.step(name, go_cmd + list(args or []), **kwargs)
 
   def ensure_go(self, version=None):
     """Ensures that go distribution is installed."""

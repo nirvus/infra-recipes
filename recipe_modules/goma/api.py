@@ -15,7 +15,6 @@ class GomaApi(recipe_api.RecipeApi):
     self._goma_dir = None
     self._goma_started = False
 
-    self._goma_ctl_env = {}
     self._goma_jobs = None
 
   @property
@@ -90,6 +89,15 @@ print jobs
     assert self._goma_dir
     return self._goma_dir
 
+  @contextmanager
+  def goma_env(self):
+    env = {
+      'GOMA_CACHE_DIR': self.m.path.join(self.m.path['cache'], 'goma'),
+      'GOMA_SERVICE_ACCOUNT_JSON_FILE': self.service_account_json_path,
+    }
+    with self.m.step.context({'env': env}):
+      yield
+
   def start(self, env=None, **kwargs):
     """Start goma compiler_proxy.
 
@@ -99,34 +107,28 @@ print jobs
     assert self._goma_dir
     assert not self._goma_started
 
-    self._goma_ctl_env['GOMA_CACHE_DIR'] = (
-        self.m.path.join(self.m.path['cache'], 'goma'))
-    self._goma_ctl_env['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = (
-        self.service_account_json_path)
-
     # GLOG_log_dir should not be set.
-    assert env is None or 'GLOG_log_dir' not in env
+    cur_env = self.m.step.get_from_context('env')
+    assert cur_env is None or 'GLOG_log_dir' not in env, (
+      'GLOG_log_dir must not be set in env during goma.start()')
 
-    goma_ctl_start_env = self._goma_ctl_env.copy()
-    if env is not None:
-      goma_ctl_start_env.update(env)
-
-    try:
-      self.m.python(
-          name='start_goma',
-          script=self.goma_ctl,
-          args=['restart'], env=goma_ctl_start_env, infra_step=True, **kwargs)
-      self._goma_started = True
-    except self.m.step.InfraFailure as e: # pragma: no cover
+    with self.goma_env():
       try:
-        with self.m.step.defer_results():
-          self.m.python(
-              name='stop_goma (start failure)',
-              script=self.goma_ctl,
-              args=['stop'], env=self._goma_ctl_env, **kwargs)
-      except self.m.step.StepFailure:
-        pass
-      raise e
+        self.m.python(
+            name='start_goma',
+            script=self.goma_ctl,
+            args=['restart'], infra_step=True, **kwargs)
+        self._goma_started = True
+      except self.m.step.InfraFailure as e: # pragma: no cover
+        try:
+          with self.m.step.defer_results():
+            self.m.python(
+                name='stop_goma (start failure)',
+                script=self.goma_ctl,
+                args=['stop'], **kwargs)
+        except self.m.step.StepFailure:
+          pass
+        raise e
 
   def stop(self, **kwargs):
     """Stop goma compiler_proxy.
@@ -141,17 +143,17 @@ print jobs
     assert self._goma_started
 
     with self.m.step.defer_results():
-      self.m.python(name='goma_jsonstatus', script=self.goma_ctl,
-                    args=['jsonstatus', self.json_path],
-                    env=self._goma_ctl_env, **kwargs)
-      self.m.python(name='goma_stat', script=self.goma_ctl,
-                    args=['stat'],
-                    env=self._goma_ctl_env, **kwargs)
-      self.m.python(name='stop_goma', script=self.goma_ctl,
-                    args=['stop'], env=self._goma_ctl_env, **kwargs)
+      with self.goma_env():
+        self.m.python(name='goma_jsonstatus', script=self.goma_ctl,
+                      args=['jsonstatus', self.json_path],
+                      **kwargs)
+        self.m.python(name='goma_stat', script=self.goma_ctl,
+                      args=['stat'],
+                      **kwargs)
+        self.m.python(name='stop_goma', script=self.goma_ctl,
+                      args=['stop'], **kwargs)
 
     self._goma_started = False
-    self._goma_ctl_env = {}
 
   @contextmanager
   def build_with_goma(self, env=None):
