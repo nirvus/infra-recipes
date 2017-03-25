@@ -63,6 +63,7 @@ class JiriApi(recipe_api.RecipeApi):
     cmd = [
       'update',
       '-autoupdate=false',
+      '-time',
     ]
     if gc:
       cmd.extend(['-gc=true'])
