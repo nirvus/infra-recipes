@@ -54,7 +54,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.step.context({'infra_step': True}):
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote)
-    api.jiri.clean_project()
+    api.jiri.clean()
     update_result = api.jiri.update()
     revision = api.jiri.project('magenta').json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision

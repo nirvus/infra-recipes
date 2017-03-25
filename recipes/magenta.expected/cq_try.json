@@ -53,7 +53,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
-      "clean"
+      "-clean"
     ],
     "infra_step": true,
     "name": "jiri project clean"
@@ -71,13 +71,12 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
-      "info",
       "-json-output",
       "/path/to/tmp/json",
       "magenta"
     ],
     "infra_step": true,
-    "name": "jiri project info",
+    "name": "jiri project",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@[@@@",
       "@@@STEP_LOG_LINE@json.output@  {@@@",

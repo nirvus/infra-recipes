@@ -56,7 +56,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     with api.step.context({'infra_step': True}):
       api.jiri.init()
       api.jiri.import_manifest(manifest, remote, overwrite=True)
-      api.jiri.clean_project(branches=True)
+      api.jiri.clean(all=True)
       api.jiri.update(gc=True)
       step_result = api.jiri.snapshot(api.raw_io.output())
       snapshot = step_result.raw_io.output

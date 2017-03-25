@@ -90,8 +90,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
-      "clean",
-      "-branches=true"
+      "-clean-all"
     ],
     "cwd": "[START_DIR]",
     "infra_step": true,

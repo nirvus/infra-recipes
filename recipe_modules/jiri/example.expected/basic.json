@@ -80,12 +80,11 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
-      "info",
       "-json-output",
       "/path/to/tmp/json",
       "test"
     ],
-    "name": "jiri project info",
+    "name": "jiri project",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@[@@@",
       "@@@STEP_LOG_LINE@json.output@  {@@@",
@@ -119,8 +118,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
-      "clean",
-      "-branches=true"
+      "-clean-all"
     ],
     "name": "jiri project clean"
   },

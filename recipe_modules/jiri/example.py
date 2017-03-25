@@ -41,7 +41,7 @@ def RunSteps(api):
                  delete=True, force=True)
 
   # Clean up after ourselves.
-  api.jiri.clean_project(branches=True)
+  api.jiri.clean(all=True)
 
 
 def GenTests(api):

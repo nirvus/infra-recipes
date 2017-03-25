@@ -34,7 +34,7 @@ def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
   with api.step.context({'infra_step': True}):
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote)
-    api.jiri.clean_project()
+    api.jiri.clean()
     api.jiri.update()
     revision = api.jiri.project('cobalt').json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision

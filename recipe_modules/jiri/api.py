@@ -49,10 +49,9 @@ class JiriApi(recipe_api.RecipeApi):
   def project(self, *projects, **kwargs):
     cmd = [
       'project',
-      'info',
       '-json-output', self.m.json.output(),
     ] + list(projects)
-    kwargs.setdefault('name', 'jiri project info')
+    kwargs.setdefault('name', 'jiri project')
 
     return self(
         *cmd,
@@ -72,13 +71,11 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def clean_project(self, branches=False, **kwargs):
+  def clean(self, all=False, **kwargs):
     cmd = [
       'project',
-      'clean',
+      '-clean-all' if all else '-clean',
     ]
-    if branches:
-      cmd.extend(['-branches=true'])
     kwargs.setdefault('name', 'jiri project clean')
 
     return self(*cmd, **kwargs)
