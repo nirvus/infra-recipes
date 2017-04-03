@@ -1,6 +1,36 @@
 [
   {
     "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "--root",
+      "[START_DIR]/cipd/jiri",
+      "--list",
+      "fuchsia/tools/jiri/linux-amd64 latest",
+      "--json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "ensure_goma"
   },
   {
@@ -32,38 +62,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_jiri"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "--root",
-      "[START_DIR]/cipd/jiri",
-      "--list",
-      "fuchsia/tools/jiri/linux-amd64 latest",
-      "--json-output",
-      "/path/to/tmp/json",
-      "--service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
-    ],
-    "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
@@ -71,7 +69,7 @@
       "[CACHE]/git",
       "-shared"
     ],
-    "cwd": "[CACHE]/fuchsia",
+    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri init"
   },
@@ -83,7 +81,7 @@
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
-    "cwd": "[CACHE]/fuchsia",
+    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri import"
   },
@@ -93,7 +91,7 @@
       "project",
       "-clean-all"
     ],
-    "cwd": "[CACHE]/fuchsia",
+    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri project clean"
   },
@@ -104,7 +102,7 @@
       "-autoupdate=false",
       "-gc=true"
     ],
-    "cwd": "[CACHE]/fuchsia",
+    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri update"
   },
@@ -114,7 +112,7 @@
       "snapshot",
       "/path/to/tmp/"
     ],
-    "cwd": "[CACHE]/fuchsia",
+    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri snapshot",
     "~followup_annotations": [
@@ -129,7 +127,7 @@
   },
   {
     "cmd": [
-      "[CACHE]/fuchsia/scripts/build-sysroot.sh",
+      "[START_DIR]/scripts/build-sysroot.sh",
       "-c",
       "-t",
       "x86_64"
@@ -138,7 +136,7 @@
   },
   {
     "cmd": [],
-    "name": "build Fuchsia"
+    "name": "build fuchsia"
   },
   {
     "cmd": [
@@ -154,19 +152,19 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build Fuchsia.start_goma",
+    "name": "build fuchsia.start_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [
-      "[CACHE]/fuchsia/packages/gn/gen.py",
+      "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=x86-64",
-      "--goma=[START_DIR]/cipd/goma",
-      "--modules=foo,bar"
+      "--modules=default",
+      "--goma=[START_DIR]/cipd/goma"
     ],
-    "name": "build Fuchsia.gen",
+    "name": "build fuchsia.gen",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -177,7 +175,7 @@
       "-u",
       "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
     ],
-    "name": "build Fuchsia.calculate the number of recommended jobs",
+    "name": "build fuchsia.calculate the number of recommended jobs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
@@ -201,13 +199,13 @@
   },
   {
     "cmd": [
-      "[CACHE]/fuchsia/buildtools/ninja",
+      "[START_DIR]/buildtools/ninja",
       "-C",
-      "[CACHE]/fuchsia/out/debug-x86-64",
+      "[START_DIR]/out/debug-x86-64",
       "-j",
       "50"
     ],
-    "name": "build Fuchsia.ninja",
+    "name": "build fuchsia.ninja",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -226,7 +224,7 @@
       "GOMA_LOCAL_OUTPUT_CACHE_DIR": "[CACHE]/goma/localoutputcache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build Fuchsia.goma_jsonstatus",
+    "name": "build fuchsia.goma_jsonstatus",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -244,7 +242,7 @@
       "GOMA_LOCAL_OUTPUT_CACHE_DIR": "[CACHE]/goma/localoutputcache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build Fuchsia.goma_stat",
+    "name": "build fuchsia.goma_stat",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -262,7 +260,7 @@
       "GOMA_LOCAL_OUTPUT_CACHE_DIR": "[CACHE]/goma/localoutputcache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build Fuchsia.stop_goma",
+    "name": "build fuchsia.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

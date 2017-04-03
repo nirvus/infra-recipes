@@ -8,6 +8,7 @@ import fcntl
 import os
 import platform
 import re
+import signal
 import socket
 import subprocess
 import sys
@@ -55,18 +56,46 @@ def is_kvm_supported(arch):
           os.path.exists('/dev/kvm'))
 
 
+def stop_qemu():
+  pid = int(open('qemu.pid').read())
+  os.kill(pid, signal.SIGTERM)
+
+  while True:
+    time.sleep(0.5)
+    try:
+      os.kill(pid, 0)
+    except OSError:  # process completed
+      break
+
+
 def main():
-  parser = argparse.ArgumentParser(description='Run')
-  parser.add_argument('--memory', type=int, default=2048)
-  parser.add_argument('--smp', type=int, default=4)
-  parser.add_argument('--arch', type=str, default=None)
-  parser.add_argument('--kvm', dest='kvm', action='store_true', default=True)
-  parser.add_argument('--no-kvm', dest='kvm', action='store_false')
-  parser.add_argument('--initrd', type=str, default=None)
-  parser.add_argument('--cmdline', type=str, default=None)
-  parser.add_argument('--executable', type=str, required=True)
-  parser.add_argument('kernel', type=str, default=None)
-  args = parser.parse_args()
+  main_parser = argparse.ArgumentParser(description='QEMU')
+  subparsers = main_parser.add_subparsers(dest='command')
+  run_parser = subparsers.add_parser('run',
+      description='run QEMU in the foreground')
+  start_parser = subparsers.add_parser('start',
+      description='start QEMU in the background')
+  stop_parser = subparsers.add_parser('stop',
+      description='stop the background QEMU process')
+
+  for parser in run_parser, start_parser:
+    parser.add_argument('--memory', type=int, default=2048)
+    parser.add_argument('--smp', type=int, default=4)
+    parser.add_argument('--arch', type=str, required=True)
+    parser.add_argument('--kvm', dest='kvm', action='store_true', default=True)
+    parser.add_argument('--no-kvm', dest='kvm', action='store_false')
+    parser.add_argument('--initrd', type=str, default=None)
+    parser.add_argument('--cmdline', type=str, default=None)
+    parser.add_argument('--executable', type=str, required=True)
+    parser.add_argument('--netdev', type=str, default=None)
+    parser.add_argument('--device', type=str, action='append', default=[])
+    parser.add_argument('kernel', type=str, default=None)
+
+  args = main_parser.parse_args()
+
+  if args.command == 'stop':
+    stop_qemu()
+    return 0
 
   cmd = [
     args.executable,
@@ -87,10 +116,27 @@ def main():
     cmd.extend(['-initrd', args.initrd])
   if args.cmdline:
     cmd.extend(['-append', args.cmdline])
+  if args.netdev:
+    cmd.extend(['-netdev', args.netdev])
+  for device in args.device:
+    cmd.extend(['-device', device])
+
+  if args.command == 'start':
+    daemon = True
+    if os.fork() != 0:
+      os._exit(0)
+    stdout = open('qemu.stdout', 'w')
+  else:
+    daemon = False
+    stdout = sys.stdout
 
   qemu = subprocess.Popen(cmd, stdout=subprocess.PIPE)
   flags = fcntl.fcntl(qemu.stdout, fcntl.F_GETFL)
   fcntl.fcntl(qemu.stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+
+  if daemon:
+    with open('qemu.pid', 'w') as pidfile:
+      pidfile.write(str(qemu.pid) + '\n')
 
   done = threading.Event()
 
@@ -112,13 +158,16 @@ def main():
         break
     else:
       watchdog.reset()
-      sys.stdout.write(line)
-      sys.stdout.flush()
+      stdout.write(line)
+      stdout.flush()
 
   done.set()
 
   if qemu.poll() is None:
     qemu.kill()
+
+  if daemon:
+    os.remove('qemu.pid')
 
   return qemu.returncode
 

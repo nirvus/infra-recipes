@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from contextlib import contextmanager
+
 from recipe_engine import recipe_api
 
 
@@ -25,10 +27,20 @@ class QemuApi(recipe_api.RecipeApi):
   def qemu_executable(self, arch):
     return self.m.path.join(self._qemu_dir, 'bin', 'qemu-system-%s' % arch)
 
+  @contextmanager
+  def background_run(self, *args, **kwargs):
+    try:
+      self.run(*args, action='start', **kwargs)
+      yield
+    finally:
+      self.m.step('stop qemu', [self.resource('qemu.py'), 'stop'])
+
   def run(self, name, arch, kernel, smp=4, memory=2048, kvm=False, initrd=None,
-          cmdline=None, step_test_data=None):
+          cmdline=None, netdev=None, devices=[], action='run',
+          step_test_data=None):
     cmd = [
       self.resource('qemu.py'),
+      action,
       '--executable', self.qemu_executable(arch),
       '--memory', memory,
       '--smp', smp,
@@ -38,6 +50,11 @@ class QemuApi(recipe_api.RecipeApi):
       cmd.extend(['--initrd', initrd])
     if cmdline:
       cmd.extend(['--cmdline', cmdline])
+    if netdev:
+      cmd.extend(['--netdev', netdev])
+    for device in devices:
+      cmd.extend(['--device', device])
+
     cmd.append(kernel)
     return self.m.step(
         name,
