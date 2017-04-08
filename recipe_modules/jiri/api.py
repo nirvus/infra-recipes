@@ -40,6 +40,7 @@ class JiriApi(recipe_api.RecipeApi):
     cmd = [
       'init',
       '-cache', self.m.path['cache'].join('git'),
+      '-shared',
     ]
     if dir:
       cmd.append(dir)
@@ -63,7 +64,6 @@ class JiriApi(recipe_api.RecipeApi):
     cmd = [
       'update',
       '-autoupdate=false',
-      '-time',
     ]
     if gc:
       cmd.extend(['-gc=true'])

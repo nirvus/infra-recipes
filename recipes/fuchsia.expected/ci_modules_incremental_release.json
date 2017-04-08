@@ -68,7 +68,8 @@
       "[START_DIR]/cipd/jiri/jiri",
       "init",
       "-cache",
-      "[CACHE]/git"
+      "[CACHE]/git",
+      "-shared"
     ],
     "cwd": "[CACHE]/fuchsia",
     "infra_step": true,
@@ -101,7 +102,6 @@
       "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-autoupdate=false",
-      "-time",
       "-gc=true"
     ],
     "cwd": "[CACHE]/fuchsia",

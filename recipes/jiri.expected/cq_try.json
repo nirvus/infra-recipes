@@ -34,7 +34,8 @@
       "[START_DIR]/cipd/jiri/jiri",
       "init",
       "-cache",
-      "[CACHE]/git"
+      "[CACHE]/git",
+      "-shared"
     ],
     "infra_step": true,
     "name": "jiri init"
@@ -64,7 +65,6 @@
       "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-autoupdate=false",
-      "-time",
       "-gc=true"
     ],
     "infra_step": true,
