@@ -92,7 +92,9 @@ print jobs
   @contextmanager
   def goma_env(self):
     env = {
-      'GOMA_CACHE_DIR': self.m.path.join(self.m.path['cache'], 'goma'),
+      'GOMA_DEPS_CACHE_FILE': 'goma_deps_cache',
+      'GOMA_CACHE_DIR': self.m.path['cache'].join('goma'),
+      'GOMA_LOCAL_OUTPUT_CACHE_DIR': self.m.path['cache'].join('goma', 'localoutputcache'),
       'GOMA_SERVICE_ACCOUNT_JSON_FILE': self.service_account_json_path,
     }
     with self.m.step.context({'env': env}):
