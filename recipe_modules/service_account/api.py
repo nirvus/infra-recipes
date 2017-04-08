@@ -16,6 +16,6 @@ class ServiceAccountApi(recipe_api.RecipeApi):
 
   def get_json_path(self, account):
     if self.c is None: # pragma: no cover
-      self._config_defaults()
+      return None
     return self.m.path.join(self.c.accounts_path,
                             'service-account-%s.json' % account)

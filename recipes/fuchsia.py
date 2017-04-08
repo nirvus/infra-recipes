@@ -13,6 +13,7 @@ from recipe_engine.recipe_api import Property
 DEPS = [
   'infra/goma',
   'infra/jiri',
+  'infra/service_account',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
@@ -37,13 +38,15 @@ PROPERTIES = {
   'build_type': Property(kind=Enum('debug', 'release'), help='The build type',
                          default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
-                      default=[])
+                      default=[]),
 }
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
              build_variant, build_type, modules):
+  if not api.properties.get('test'):
+    api.service_account.set_config('service_account_default')
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
