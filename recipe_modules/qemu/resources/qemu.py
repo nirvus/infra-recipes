@@ -138,6 +138,7 @@ def main():
     daemon = False
     stdout = sys.stdout
 
+  print ' '.join(cmd)
   qemu = subprocess.Popen(cmd, stdout=subprocess.PIPE)
   flags = fcntl.fcntl(qemu.stdout, fcntl.F_GETFL)
   fcntl.fcntl(qemu.stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
