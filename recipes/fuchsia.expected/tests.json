@@ -339,9 +339,10 @@
   {
     "cmd": [
       "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
-      "stop"
+      "stop",
+      "--log"
     ],
-    "name": "stop qemu"
+    "name": "stop qemu and read log"
   },
   {
     "name": "$result",

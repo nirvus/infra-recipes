@@ -33,7 +33,8 @@ class QemuApi(recipe_api.RecipeApi):
       self.run(*args, action='start', **kwargs)
       yield
     finally:
-      self.m.step('stop qemu', [self.resource('qemu.py'), 'stop'])
+      self.m.step('stop qemu and read log',
+          [self.resource('qemu.py'), 'stop', '--log'])
 
   def run(self, name, arch, kernel, smp=4, memory=2048, kvm=False, initrd=None,
           cmdline=None, netdev=None, devices=[], action='run',

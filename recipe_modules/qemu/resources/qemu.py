@@ -91,10 +91,18 @@ def main():
     parser.add_argument('--device', type=str, action='append', default=[])
     parser.add_argument('kernel', type=str, default=None)
 
+  stop_parser.add_argument('--log', dest='log', action='store_true',
+      default=False)
+  stop_parser.add_argument('--no-log', dest='log', action='store_false')
+
   args = main_parser.parse_args()
 
   if args.command == 'stop':
-    stop_qemu()
+    try:
+      stop_qemu()
+    finally:
+      if args.log:
+        sys.stdout.write(open('qemu.stdout').read())
     return 0
 
   cmd = [
