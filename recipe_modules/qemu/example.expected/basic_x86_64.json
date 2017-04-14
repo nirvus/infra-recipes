@@ -32,6 +32,7 @@
   {
     "cmd": [
       "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "run",
       "--executable",
       "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
       "--memory",
