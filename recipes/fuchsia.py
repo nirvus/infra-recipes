@@ -146,7 +146,7 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
   netdev = 'user,id=net0,hostfwd=tcp::%d-:%d' % (
       TEST_RUNNER_PORT, TEST_RUNNER_PORT)
 
-  qemu = api.qemu.background_run('run fuchsia',
+  qemu = api.qemu.background_run(
       qemu_arch,
       magenta_image_path,
       kvm=True,

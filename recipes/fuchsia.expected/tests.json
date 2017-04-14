@@ -313,8 +313,7 @@
       "e1000,netdev=net0",
       "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64/magenta.bin"
     ],
-    "name": "run fuchsia",
-    "stdout": "/path/to/tmp/"
+    "name": "start qemu"
   },
   {
     "cmd": [
