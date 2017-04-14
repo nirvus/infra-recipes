@@ -14,7 +14,6 @@ DEPS = [
   'infra/cipd',
   'infra/goma',
   'infra/jiri',
-  'infra/service_account',
   'infra/qemu',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -184,9 +183,6 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
              build_variant, build_type, modules, tests, use_goma):
-  if not api.properties.get('recipe_test'):
-    api.service_account.set_config('service_account_default')
-
   if build_variant == 'incremental':
     start_dir = api.path['cache'].join('fuchsia')
   else:
