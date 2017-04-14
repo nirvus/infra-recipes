@@ -119,7 +119,7 @@
       "--root",
       "[START_DIR]/cipd/go",
       "--list",
-      "fuchsia/go/go/linux-amd64 release",
+      "fuchsia/go/linux-amd64 release",
       "--json-output",
       "/path/to/tmp/json"
     ],
@@ -131,7 +131,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/go/go/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/go/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
