@@ -108,7 +108,7 @@
       "project",
       "-json-output",
       "/path/to/tmp/json",
-      "modules"
+      "modules/common"
     ],
     "infra_step": true,
     "name": "jiri project",
@@ -120,7 +120,7 @@
       "@@@STEP_LOG_LINE@json.output@      \"master\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"modules\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"modules/common\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/repo\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/repo\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
@@ -179,7 +179,7 @@
       "make",
       "presubmit-cq"
     ],
-    "cwd": "[START_DIR]/apps/modules",
+    "cwd": "[START_DIR]/apps/modules/common",
     "env": {
       "GOMA": "1",
       "GOMA_DIR": "[START_DIR]/cipd/goma",

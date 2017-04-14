@@ -44,7 +44,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                              'https://fuchsia.googlesource.com/manifest')
     api.jiri.clean()
     update_result = api.jiri.update()
-    revision = api.jiri.project('modules').json.output[0]['revision']
+    revision = api.jiri.project(patch_project).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
     step_result = api.jiri.snapshot(api.raw_io.output())
@@ -75,9 +75,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
 
 def GenTests(api):
-  yield api.test('basic')
+  yield api.test('basic') + api.properties(
+      patch_project='modules/common',
+  )
   yield api.test('cq') + api.properties.tryserver(
-      gerrit_project='modules',
+      gerrit_project='modules/common',
       patch_gerrit_url='fuchsia-review.googlesource.com',
-      project_path='apps/modules',
+      project_path='apps/modules/common',
   )
