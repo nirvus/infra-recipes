@@ -183,6 +183,10 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
              build_variant, build_type, modules, tests, use_goma):
+  # Tests are currently broken on arm64.
+  if target == 'arm64':
+    tests = None
+
   if build_variant == 'incremental':
     start_dir = api.path['cache'].join('fuchsia')
   else:
@@ -226,6 +230,12 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       use_goma=False,
+  )
+  yield api.test('arm64_skip_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      tests='tests.json',
+      target='arm64',
   )
   yield api.test('release') + api.properties(
       manifest='fuchsia',
