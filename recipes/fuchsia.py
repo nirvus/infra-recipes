@@ -171,13 +171,9 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
       },
     }
 
-    # TODO(bgoldman): Update run_test so that it gives exit status and also
-    # retries the TCP connection at startup.
-    # - Exit status is necessary to tell if the tests passed, not just if they
-    #   completed.
-    # - Retry is to deal with a possible race condition where QEMU is not
-    #   forwarding the port by the time run_tests tries to connect. I haven't
-    #   actually seen this happen yet.
+    # TODO(bgoldman): Update run_test so that it retries the TCP connection at
+    # startup, to deal with a possible race condition where QEMU is not
+    # forwarding the port by the time run_tests tries to connect.
     with api.step.context(context):
       api.step('run tests', run_tests_cmd)
 
