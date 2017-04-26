@@ -334,6 +334,13 @@
   },
   {
     "cmd": [
+      "sleep",
+      "3"
+    ],
+    "name": "sleep"
+  },
+  {
+    "cmd": [
       "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
       "stop",
       "--log"

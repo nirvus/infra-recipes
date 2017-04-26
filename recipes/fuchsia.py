@@ -181,6 +181,9 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
     with api.step.context(context):
       api.step('run tests', run_tests_cmd)
 
+    # Workaround for: https://fuchsia.atlassian.net/browse/TO-273
+    api.step('sleep', ['sleep', '3'])
+
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
              build_variant, build_type, modules, tests, use_goma):
