@@ -330,7 +330,11 @@
       "FUCHSIA_BUILD_DIR": "[START_DIR]/out/debug-x86-64",
       "FUCHSIA_OUT_DIR": "[START_DIR]/out"
     },
-    "name": "run tests"
+    "name": "run tests",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
   },
   {
     "cmd": [
@@ -353,7 +357,8 @@
   },
   {
     "name": "$result",
+    "reason": "Step('run tests') failed with return_code 1",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]

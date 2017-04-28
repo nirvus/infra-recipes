@@ -175,10 +175,11 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
     # startup, to deal with a possible race condition where QEMU is not
     # forwarding the port by the time run_tests tries to connect.
     with api.step.context(context):
-      api.step('run tests', run_tests_cmd)
-
-    # Workaround for: https://fuchsia.atlassian.net/browse/TO-273
-    api.step('sleep', ['sleep', '3'])
+      try:
+        api.step('run tests', run_tests_cmd)
+      finally:
+        # Workaround for: https://fuchsia.atlassian.net/browse/TO-273
+        api.step('sleep', ['sleep', '3'])
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
@@ -225,6 +226,12 @@ def GenTests(api):
       target='x86-64',
       tests='tests.json',
   )
+  yield api.test('failed_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='tests.json',
+  ) + api.step_data('run tests', retcode=1)
   yield api.test('no_goma') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
