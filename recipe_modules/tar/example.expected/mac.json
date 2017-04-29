@@ -1,0 +1,130 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure bsdtar"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "--root",
+      "[START_DIR]/cipd",
+      "--list",
+      "fuchsia/tools/bsdtar/mac-amd64 latest",
+      "--json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure bsdtar.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "touch",
+      "[TMP_BASE]/tar-example_tmp_1/a"
+    ],
+    "name": "touch a"
+  },
+  {
+    "cmd": [
+      "touch",
+      "[TMP_BASE]/tar-example_tmp_1/b"
+    ],
+    "name": "touch b"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[TMP_BASE]/tar-example_tmp_1/sub/dir",
+      "511"
+    ],
+    "name": "makedirs mkdirs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "touch",
+      "[TMP_BASE]/tar-example_tmp_1/sub/dir/c"
+    ],
+    "name": "touch c"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bsdtar",
+      "-cf",
+      "[TMP_BASE]/tar-example_tmp_1/more.tar.gz",
+      "-z",
+      "-C",
+      "[TMP_BASE]/tar-example_tmp_1",
+      "a",
+      "b",
+      "-C",
+      "[TMP_BASE]/tar-example_tmp_1/sub",
+      "dir/c"
+    ],
+    "name": "taring more"
+  },
+  {
+    "cmd": [
+      "echo",
+      "[TMP_BASE]/tar-example_tmp_1/more.tar.gz"
+    ],
+    "name": "report"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bsdtar",
+      "-xf",
+      "[TMP_BASE]/tar-example_tmp_1/output.tar",
+      "-C",
+      "[TMP_BASE]/tar-example_tmp_1/output",
+      "-v"
+    ],
+    "name": "untaring"
+  },
+  {
+    "cmd": [
+      "find"
+    ],
+    "cwd": "[TMP_BASE]/tar-example_tmp_1/output",
+    "name": "listing"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::shutil]/resources/rmtree.py",
+      "[TMP_BASE]/tar-example_tmp_1"
+    ],
+    "name": "rmtree [TMP_BASE]/tar-example_tmp_1"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
