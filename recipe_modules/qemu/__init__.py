@@ -7,3 +7,5 @@ DEPS = [
   'recipe_engine/raw_io',
   'recipe_engine/step',
 ]
+
+DISABLE_STRICT_COVERAGE = True
