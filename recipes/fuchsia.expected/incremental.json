@@ -127,12 +127,12 @@
   },
   {
     "cmd": [
-      "[CACHE]/fuchsia/scripts/build-sysroot.sh",
+      "[CACHE]/fuchsia/scripts/build-magenta.sh",
       "-c",
       "-t",
       "x86_64"
     ],
-    "name": "build sysroot"
+    "name": "build magenta"
   },
   {
     "cmd": [],

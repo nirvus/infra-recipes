@@ -66,18 +66,18 @@ def Checkout(api, start_dir, patch_ref, patch_gerrit_url, build_variant,
     if patch_ref is not None:
       api.jiri.patch(patch_ref, host=patch_gerrit_url)
 
-def BuildSysroot(api, start_dir, release_build, target):
-  sysroot_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
-  build_sysroot_cmd = [
-    start_dir.join('scripts/build-sysroot.sh'),
+def BuildMagenta(api, start_dir, release_build, target):
+  magenta_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
+  build_magenta_cmd = [
+    start_dir.join('scripts/build-magenta.sh'),
     '-c',
-    '-t', sysroot_target,
+    '-t', magenta_target,
   ]
 
   if release_build:
-    build_sysroot_cmd.append('-r')
+    build_magenta_cmd.append('-r')
 
-  api.step('build sysroot', build_sysroot_cmd)
+  api.step('build magenta', build_magenta_cmd)
 
 @contextmanager
 def GomaContext(api, use_goma):
@@ -206,7 +206,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   Checkout(api, start_dir, patch_ref, patch_gerrit_url, build_variant, manifest,
            remote)
-  BuildSysroot(api, start_dir, release_build, target)
+  BuildMagenta(api, start_dir, release_build, target)
   BuildFuchsia(api, start_dir, release_build, target, gn_target,
                fuchsia_build_dir, modules, tests, use_goma)
 
