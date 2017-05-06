@@ -130,8 +130,7 @@
       "[START_DIR]/scripts/build-magenta.sh",
       "-c",
       "-t",
-      "x86_64",
-      "-r"
+      "x86_64"
     ],
     "name": "build magenta"
   },

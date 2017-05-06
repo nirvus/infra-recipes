@@ -66,17 +66,13 @@ def Checkout(api, start_dir, patch_ref, patch_gerrit_url, build_variant,
     if patch_ref is not None:
       api.jiri.patch(patch_ref, host=patch_gerrit_url)
 
-def BuildMagenta(api, start_dir, release_build, target):
+def BuildMagenta(api, start_dir, target):
   magenta_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
   build_magenta_cmd = [
     start_dir.join('scripts/build-magenta.sh'),
     '-c',
     '-t', magenta_target,
   ]
-
-  if release_build:
-    build_magenta_cmd.append('-r')
-
   api.step('build magenta', build_magenta_cmd)
 
 @contextmanager
@@ -206,7 +202,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   Checkout(api, start_dir, patch_ref, patch_gerrit_url, build_variant, manifest,
            remote)
-  BuildMagenta(api, start_dir, release_build, target)
+  BuildMagenta(api, start_dir, target)
   BuildFuchsia(api, start_dir, release_build, target, gn_target,
                fuchsia_build_dir, modules, tests, use_goma)
 
