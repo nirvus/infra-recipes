@@ -53,7 +53,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.step.active_result.presentation.properties['got_revision'] = revision
 
   if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url)
+    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   api.go.ensure_go()
 

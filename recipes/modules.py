@@ -52,7 +52,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 
   if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url)
+    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   # The make script defaults to a debug build unless specified otherwise. It
   # also always hardcodes x86-64 as the target architecture. Since this is

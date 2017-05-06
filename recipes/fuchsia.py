@@ -64,7 +64,7 @@ def Checkout(api, start_dir, patch_ref, patch_gerrit_url, build_variant,
       step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 
     if patch_ref is not None:
-      api.jiri.patch(patch_ref, host=patch_gerrit_url)
+      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
 def BuildMagenta(api, start_dir, target):
   magenta_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]

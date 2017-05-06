@@ -131,6 +131,7 @@
       "patch",
       "-host",
       "fuchsia-review.googlesource.com",
+      "-rebase=true",
       "refs/changes/89/456789/12"
     ],
     "cwd": "[START_DIR]",
