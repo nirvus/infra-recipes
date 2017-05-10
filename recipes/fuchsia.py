@@ -9,10 +9,13 @@ from contextlib import contextmanager
 from recipe_engine.config import Enum, List, ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
+import hashlib
+
 
 DEPS = [
   'infra/cipd',
   'infra/goma',
+  'infra/gsutil',
   'infra/jiri',
   'infra/qemu',
   'recipe_engine/path',
@@ -59,9 +62,12 @@ def Checkout(api, start_dir, patch_ref, patch_gerrit_url, build_variant,
       api.jiri.import_manifest(manifest, remote, overwrite=True)
       api.jiri.clean(all=True)
       api.jiri.update(gc=True)
-      step_result = api.jiri.snapshot(api.raw_io.output())
-      snapshot = step_result.raw_io.output
-      step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
+      if not api.properties.get('tryjob', False):
+        snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
+        step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
+        digest = hashlib.sha1(step_result.raw_io.output).hexdigest()
+        api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
+                          unauthenticated_url=True)
 
     if patch_ref is not None:
       api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
@@ -195,6 +201,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
 
   api.jiri.ensure_jiri()
+  api.gsutil.ensure_gsutil()
   if use_goma:
     api.goma.ensure_goma()
   if tests:
@@ -258,4 +265,5 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      tryjob=True,
   )

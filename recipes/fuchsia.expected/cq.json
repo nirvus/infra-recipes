@@ -31,6 +31,36 @@
   },
   {
     "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "--root",
+      "[START_DIR]/cipd/gsutil",
+      "--list",
+      "infra/tools/gsutil/linux-amd64 latest",
+      "--json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "ensure_goma"
   },
   {
@@ -105,25 +135,6 @@
     "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri update"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "snapshot",
-      "/path/to/tmp/"
-    ],
-    "cwd": "[START_DIR]",
-    "infra_step": true,
-    "name": "jiri snapshot",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@jiri.snapshot@@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@<manifest>@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@  <projects>@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@    <project name=\"manifest\" path=\"manifest\" remote=\"https://fuchsia.googlesource.com/manifest\" revision=\"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"/>@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@  </projects>@@@",
-      "@@@STEP_LOG_LINE@jiri.snapshot@</manifest>@@@",
-      "@@@STEP_LOG_END@jiri.snapshot@@@"
-    ]
   },
   {
     "cmd": [
