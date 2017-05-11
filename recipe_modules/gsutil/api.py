@@ -105,7 +105,7 @@ class GSUtilApi(recipe_api.RecipeApi):
 
         self.m.cipd.ensure(
             gsutil_dir, {'infra/tools/gsutil': version or 'latest'})
-        self._gsutil_tool = gsutil_dir.join('bin', 'gsutil')
+        self._gsutil_tool = gsutil_dir.join('gsutil')
 
         return self._gsutil_tool
 

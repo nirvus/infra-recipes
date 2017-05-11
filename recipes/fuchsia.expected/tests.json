@@ -182,7 +182,7 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/gsutil/bin/gsutil",
+      "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
