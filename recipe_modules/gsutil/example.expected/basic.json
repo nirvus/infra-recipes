@@ -10,7 +10,7 @@
       "--root",
       "[START_DIR]/cipd/gsutil",
       "--list",
-      "infra/tools/gsutil/linux-amd64 latest",
+      "infra/tools/gsutil latest",
       "--json-output",
       "/path/to/tmp/json"
     ],
@@ -22,7 +22,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",

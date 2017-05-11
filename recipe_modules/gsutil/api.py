@@ -101,12 +101,10 @@ class GSUtilApi(recipe_api.RecipeApi):
   def ensure_gsutil(self, version=None):
     with self.m.step.nest('ensure_gsutil'):
       with self.m.step.context({'infra_step': True}):
-        gsutil_package = ('infra/tools/gsutil/%s' %
-            self.m.cipd.platform_suffix())
         gsutil_dir = self.m.path['start_dir'].join('cipd', 'gsutil')
 
         self.m.cipd.ensure(
-            gsutil_dir, {gsutil_package: version or 'latest'})
+            gsutil_dir, {'infra/tools/gsutil': version or 'latest'})
         self._gsutil_tool = gsutil_dir.join('bin', 'gsutil')
 
         return self._gsutil_tool
