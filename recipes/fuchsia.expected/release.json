@@ -159,9 +159,9 @@
     ],
     "cwd": "[START_DIR]",
     "infra_step": true,
-    "name": "gsutil cp",
+    "name": "upload jiri.snapshot",
     "~followup_annotations": [
-      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/jiri/snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97@@@"
+      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia/jiri/snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97@@@"
     ]
   },
   {

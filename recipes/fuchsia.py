@@ -67,7 +67,9 @@ def Checkout(api, start_dir, patch_ref, patch_gerrit_url, build_variant,
         step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
         digest = hashlib.sha1(step_result.raw_io.output).hexdigest()
         api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
-                          unauthenticated_url=True)
+            link_name='jiri.snapshot',
+            name='upload jiri.snapshot',
+            unauthenticated_url=True)
 
     if patch_ref is not None:
       api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
