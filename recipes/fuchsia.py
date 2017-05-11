@@ -103,6 +103,7 @@ def BuildFuchsia(api, start_dir, release_build, target, gn_target,
       start_dir.join('packages/gn/gen.py'),
       '--target_cpu=%s' % gn_target,
       '--modules=%s' % ','.join(modules),
+      '--with-dart-analysis',
     ]
 
     if use_goma:
