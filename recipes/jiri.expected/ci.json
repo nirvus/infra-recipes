@@ -186,6 +186,113 @@
     "name": "go test"
   },
   {
+    "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "--root",
+      "[START_DIR]/cipd/gsutil",
+      "--list",
+      "infra/tools/gsutil latest",
+      "--json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/go/src/fuchsia.googlesource.com/jiri/jiri",
+      "[TMP_BASE]/jiri_tmp_1"
+    ],
+    "name": "copy jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-build",
+      "--in",
+      "[TMP_BASE]/jiri_tmp_1",
+      "--name",
+      "fuchsia/tools/jiri/linux-amd64",
+      "--out",
+      "[TMP_BASE]/jiri.cipd",
+      "--json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "build linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "[TMP_BASE]/jiri.cipd",
+      "--json-output",
+      "/path/to/tmp/json",
+      "--service-account-json",
+      "/creds/service_accounts/service-account-cipd-builder.json",
+      "--ref",
+      "latest",
+      "--tag",
+      "git_repository:https://fuchsia.googlesource.com/jiri",
+      "--tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+    ],
+    "name": "register fuchsia/tools/jiri/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/jiri.cipd",
+      "gs://fuchsia/jiri/linux-amd64/40-chars-fake-of-the-package-instance_id"
+    ],
+    "name": "gsutil cp",
+    "~followup_annotations": [
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/jiri/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
+    ]
+  },
+  {
     "name": "$result",
     "recipe_result": {
       "got_revision": "c22471f4e3f842ae18dd9adec82ed9eb78ed1127"

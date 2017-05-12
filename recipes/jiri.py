@@ -14,8 +14,10 @@ DEPS = [
   'infra/jiri',
   'infra/git',
   'infra/go',
+  'infra/gsutil',
   'recipe_engine/context',
   'recipe_engine/path',
+  'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'recipe_engine/shutil',
@@ -81,6 +83,36 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(env={'GOPATH': gopath}):
     api.go('test', 'fuchsia.googlesource.com/jiri/cmd/jiri')
 
+  if not api.properties.get('tryjob', False):
+    api.gsutil.ensure_gsutil()
+
+    api.cipd.set_service_account_credentials(
+        api.cipd.default_bot_service_account_credentials)
+
+    staging_dir = api.path.mkdtemp('jiri')
+    api.shutil.copy('copy jiri', jiri_dir.join('jiri'), staging_dir)
+    cipd_pkg_name = 'fuchsia/tools/jiri/' + api.cipd.platform_suffix()
+    cipd_pkg_file = api.path['tmp_base'].join('jiri.cipd')
+
+    api.cipd.build(
+      input_dir=staging_dir,
+      package_name=cipd_pkg_name,
+      output_package=cipd_pkg_file,
+    )
+    step_result = api.cipd.register(
+      package_name=cipd_pkg_name,
+      package_path=cipd_pkg_file,
+      refs=['latest'],
+      tags={
+        'git_repository': 'https://fuchsia.googlesource.com/jiri',
+        'git_revision': revision,
+      },
+    )
+
+    api.gsutil.upload('fuchsia', cipd_pkg_file,
+      '/'.join(['jiri', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']]),
+      unauthenticated_url=True)
+
   return RETURN_SCHEMA.new(got_revision=revision)
 
 
@@ -96,4 +128,5 @@ def GenTests(api):
       manifest='jiri',
       remote='https://fuchsia.googlesource.com/manifest',
       target='linux-amd64',
+      tryjob=True,
   )
