@@ -99,7 +99,6 @@
       "[CACHE]/git",
       "-shared"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri init"
   },
@@ -111,7 +110,6 @@
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri import"
   },
@@ -121,7 +119,6 @@
       "project",
       "-clean-all"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri project clean"
   },
@@ -132,7 +129,6 @@
       "-autoupdate=false",
       "-gc=true"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri update"
   },
@@ -142,7 +138,6 @@
       "snapshot",
       "[TMP_BASE]/jiri.snapshot"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "jiri snapshot"
   },
@@ -157,7 +152,6 @@
       "[TMP_BASE]/jiri.snapshot",
       "gs://fuchsia/jiri/snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
     ],
-    "cwd": "[START_DIR]",
     "infra_step": true,
     "name": "upload jiri.snapshot",
     "~followup_annotations": [

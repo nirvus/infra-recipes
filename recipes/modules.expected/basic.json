@@ -168,7 +168,6 @@
       "make",
       "presubmit-cq"
     ],
-    "cwd": "[START_DIR]",
     "env": {
       "GOMA": "1",
       "GOMA_DIR": "[START_DIR]/cipd/goma",
