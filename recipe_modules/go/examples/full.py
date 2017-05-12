@@ -16,6 +16,7 @@ def RunSteps(api):
   # First, you need a go distribution.
   api.go.ensure_go()
   api.go.ensure_go(version='go_version:1.6')
+  assert api.go.go_root
   assert api.go.go_executable
 
   # Build a go package.

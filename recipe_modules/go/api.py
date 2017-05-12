@@ -13,7 +13,6 @@ class GoApi(recipe_api.RecipeApi):
   def __init__(self, *args, **kwargs):
     super(GoApi, self).__init__(*args, **kwargs)
     self._go_dir = None
-    self._go_version = None
 
   def __call__(self, *args, **kwargs):
     """Return a Go command step."""
@@ -39,6 +38,10 @@ class GoApi(recipe_api.RecipeApi):
                            {go_package: version or 'release'})
 
         return self._go_dir
+
+  @property
+  def go_root(self):
+    return self._go_dir
 
   @property
   def go_executable(self):
