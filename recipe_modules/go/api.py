@@ -20,17 +20,17 @@ class GoApi(recipe_api.RecipeApi):
     assert self._go_dir
 
     name = kwargs.pop('name', 'go ' + args[0])
-    new_env = self.m.step.get_from_context('env', {})
+    new_env = self.m.context.env
     new_env.setdefault('GOROOT', self._go_dir)
 
-    with self.m.step.context({'env': new_env}):
+    with self.m.context(env=new_env):
       go_cmd = [self.go_executable]
       return self.m.step(name, go_cmd + list(args or []), **kwargs)
 
   def ensure_go(self, version=None):
     """Ensures that go distribution is installed."""
     with self.m.step.nest('ensure_go'):
-      with self.m.step.context({'infra_step': True}):
+      with self.m.context(infra_steps=True):
         go_package = ('fuchsia/go/%s' %
             self.m.cipd.platform_suffix())
         self._go_dir = self.m.path['start_dir'].join('cipd', 'go')

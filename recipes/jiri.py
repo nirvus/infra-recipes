@@ -14,6 +14,7 @@ DEPS = [
   'infra/jiri',
   'infra/git',
   'infra/go',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
@@ -44,7 +45,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target):
   api.jiri.ensure_jiri()
 
-  with api.step.context({'infra_step': True}):
+  with api.context(infra_steps=True):
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote, overwrite=True)
     api.jiri.clean(all=True)
@@ -61,25 +62,23 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       'go', 'src', 'fuchsia.googlesource.com', 'jiri')
 
   with api.step.nest('ensure_packages'):
-    with api.step.context({'infra_step': True}):
+    with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       api.cipd.ensure(cipd_dir, {
         'fuchsia/tools/cmake/${platform}': 'latest',
         'fuchsia/tools/ninja/${platform}': 'latest',
       })
 
-  ctx = {
-    'env': {
-      'CMAKE_PROGRAM': cipd_dir.join('bin', 'cmake'),
-      'NINJA_PROGRAM': cipd_dir.join('ninja'),
-      'GO_PROGRAM': api.go.go_executable
-    }
+  env = {
+    'CMAKE_PROGRAM': cipd_dir.join('bin', 'cmake'),
+    'NINJA_PROGRAM': cipd_dir.join('ninja'),
+    'GO_PROGRAM': api.go.go_executable
   }
-  with api.step.context(ctx):
+  with api.context(env=env):
     api.step('build jiri', [jiri_dir.join('scripts', 'build.sh')])
 
   gopath = api.path['start_dir'].join('go')
-  with api.step.context({'env': {'GOPATH': gopath}}):
+  with api.context(env={'GOPATH': gopath}):
     api.go('test', 'fuchsia.googlesource.com/jiri/cmd/jiri')
 
   return RETURN_SCHEMA.new(got_revision=revision)

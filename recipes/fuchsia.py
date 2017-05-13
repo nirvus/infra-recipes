@@ -18,6 +18,7 @@ DEPS = [
   'infra/gsutil',
   'infra/jiri',
   'infra/qemu',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
@@ -56,8 +57,8 @@ TEST_RUNNER_PORT = 8342
 
 def Checkout(api, start_dir, patch_ref, patch_gerrit_url, build_variant,
              manifest, remote):
-  with api.step.context({'cwd': start_dir}):
-    with api.step.context({'infra_step': True}):
+  with api.context(cwd=start_dir):
+    with api.context(infra_steps=True):
       api.jiri.init()
       api.jiri.import_manifest(manifest, remote, overwrite=True)
       api.jiri.clean(all=True)
@@ -169,17 +170,15 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
       '--no-loglistener',
     ]
 
-    context = {
-      'env': {
-        'FUCHSIA_OUT_DIR': fuchsia_out_dir,
-        'FUCHSIA_BUILD_DIR': fuchsia_build_dir,
-      },
+    env = {
+      'FUCHSIA_OUT_DIR': fuchsia_out_dir,
+      'FUCHSIA_BUILD_DIR': fuchsia_build_dir,
     }
 
     # TODO(bgoldman): Update run_test so that it retries the TCP connection at
     # startup, to deal with a possible race condition where QEMU is not
     # forwarding the port by the time run_tests tries to connect.
-    with api.step.context(context):
+    with api.context(env=env):
       try:
         api.step('run tests', run_tests_cmd)
       finally:

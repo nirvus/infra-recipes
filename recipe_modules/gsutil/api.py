@@ -43,11 +43,11 @@ class GSUtilApi(recipe_api.RecipeApi):
       'GSUtil:software_update_check_period=0',
     ])
 
-    env = self.m.step.get_from_context('env', {})
+    env = self.m.context.env
     if self._boto_config:
       env.setdefault('BOTO_CONFIG', self._boto_config)
 
-    with self.m.step.context({'env': env}):
+    with self.m.context(env=env):
       return self.m.python(name, self._gsutil_tool, cmd_prefix + list(args), **kwargs)
 
   @recipe_api.non_step
@@ -100,7 +100,7 @@ class GSUtilApi(recipe_api.RecipeApi):
 
   def ensure_gsutil(self, version=None):
     with self.m.step.nest('ensure_gsutil'):
-      with self.m.step.context({'infra_step': True}):
+      with self.m.context(infra_steps=True):
         gsutil_dir = self.m.path['start_dir'].join('cipd', 'gsutil')
 
         self.m.cipd.ensure(

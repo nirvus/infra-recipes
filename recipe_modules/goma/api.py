@@ -65,7 +65,7 @@ print jobs
 
   def ensure_goma(self, canary=False):
     with self.m.step.nest('ensure_goma'):
-      with self.m.step.context({'infra_step': True}):
+      with self.m.context(infra_steps=True):
         self.m.cipd.set_service_account_credentials(
             self.service_account_json_path)
 
@@ -96,7 +96,7 @@ print jobs
       'GOMA_CACHE_DIR': self.m.path['cache'].join('goma'),
       'GOMA_SERVICE_ACCOUNT_JSON_FILE': self.service_account_json_path,
     }
-    with self.m.step.context({'env': env}):
+    with self.m.context(env=env):
       yield
 
   def start(self, env=None, **kwargs):
@@ -109,8 +109,7 @@ print jobs
     assert not self._goma_started
 
     # GLOG_log_dir should not be set.
-    cur_env = self.m.step.get_from_context('env')
-    assert cur_env is None or 'GLOG_log_dir' not in env, (
+    assert 'GLOG_log_dir' not in self.m.context.env, (
       'GLOG_log_dir must not be set in env during goma.start()')
 
     with self.goma_env():

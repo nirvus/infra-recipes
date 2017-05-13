@@ -17,7 +17,7 @@ class TarApi(recipe_api.RecipeApi):
   def ensure_tar(self, version=None):
     """Ensures that bsdtar is installed."""
     with self.m.step.nest('ensure bsdtar'):
-      with self.m.step.context({'infra_step': True}):
+      with self.m.context(infra_steps=True):
         bsdtar_package = ('fuchsia/tools/bsdtar/%s' %
             self.m.cipd.platform_suffix())
         bsdtar_dir = self.m.path['start_dir'].join('cipd')
@@ -72,7 +72,7 @@ class TarPackage(object):
       archive_name: name of the file in the archive, if non-None
     """
     if not dir:
-      dir = self._module.m.step.get_from_context('cwd')
+      dir = self._module.m.context.cwd
     assert dir.is_parent_of(path), path
     self._entries.setdefault(str(dir), []).append(str(path))
 

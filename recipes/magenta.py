@@ -14,6 +14,7 @@ DEPS = [
   'infra/cipd',
   'infra/jiri',
   'infra/qemu',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
@@ -51,7 +52,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              toolchain):
   api.jiri.ensure_jiri()
 
-  with api.step.context({'infra_step': True}):
+  with api.context(infra_steps=True):
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote)
     api.jiri.clean()
@@ -78,11 +79,8 @@ dm poweroff''')
   if toolchain == 'clang':
     build_args.append('USE_CLANG=true')
 
-  ctx = {
-    'cwd': api.path['start_dir'].join('magenta'),
-    'env': {'USER_AUTORUN': path},
-  }
-  with api.step.context(ctx):
+  with api.context(cwd=api.path['start_dir'].join('magenta'),
+                   env={'USER_AUTORUN': path}):
     api.step('build', build_args)
 
   api.qemu.ensure_qemu()

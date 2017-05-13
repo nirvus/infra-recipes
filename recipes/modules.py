@@ -11,6 +11,7 @@ from recipe_engine.recipe_api import Property
 DEPS = [
   'infra/goma',
   'infra/jiri',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
@@ -38,7 +39,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
-  with api.step.context({'infra_step': True}):
+  with api.context(infra_steps=True):
     api.jiri.init()
     api.jiri.import_manifest('userspace',
                              'https://fuchsia.googlesource.com/manifest')
@@ -68,7 +69,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   }
 
   with api.goma.build_with_goma():
-    with api.step.context(ctx):
+    with api.context(**ctx):
       api.step('build and run presubmit tests', ['make', 'presubmit-cq'])
 
   return RETURN_SCHEMA.new(got_revision=revision)

@@ -35,7 +35,7 @@ class GitApi(recipe_api.RecipeApi):
     if not self.m.path.exists(path):
       self.m.shutil.makedirs('makedirs', path)
 
-    with self.m.step.context({'cwd': path}):
+    with self.m.context(cwd=path):
       if self.m.path.exists(path.join('.git')): # pragma: no cover
         self('config', '--remove-section', 'remote.%s' % remote, **kwargs)
       else:

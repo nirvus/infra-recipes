@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 DEPS = [
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/shutil',
@@ -25,7 +26,7 @@ def RunSteps(api):
   # Build a tar file.
   package = api.tar.create(temp.join('more.tar.gz'), 'gzip')
   package.add(temp.join('a'), temp)
-  with api.step.context({'cwd': temp}):
+  with api.context(cwd=temp):
     package.add(temp.join('b'))
   package.add(temp.join('sub', 'dir', 'c'), temp.join('sub'))
   package.tar('taring more')
@@ -37,7 +38,7 @@ def RunSteps(api):
   api.tar.extract('untaring', temp.join('output.tar'), temp.join('output'),
                   verbose=True)
   # List untarped content.
-  with api.step.context({'cwd': temp.join('output')}):
+  with api.context(cwd=temp.join('output')):
     api.step('listing', ['find'])
   # Clean up.
   api.shutil.rmtree(temp)

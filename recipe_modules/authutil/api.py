@@ -18,7 +18,7 @@ class AuthutilApi(recipe_api.RecipeApi):
 
   def ensure_authutil(self, version=None):
     with self.m.step.nest('ensure_authutil'):
-      with self.m.step.context({'infra_step': True}):
+      with self.m.context(infra_steps=True):
         authutil_package = ('infra/tools/authutil/%s' %
             self.m.cipd.platform_suffix())
         authutil_dir = self.m.path['start_dir'].join('cipd', 'authutil')

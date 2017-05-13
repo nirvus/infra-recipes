@@ -15,7 +15,7 @@ class QemuApi(recipe_api.RecipeApi):
     self._qemu_dir = None
 
   def _get_command(self, action, arch, kernel, smp=4, memory=2048, kvm=False,
-      initrd=None, cmdline=None, netdev=None, devices=[]):
+      initrd=None, cmdline=None, netdev=None, devices=()):
     """Builds the command-line args for the run or start actions."""
     cmd = [
       self.resource('qemu.py'),
@@ -38,7 +38,7 @@ class QemuApi(recipe_api.RecipeApi):
 
   def ensure_qemu(self, version=None):
     with self.m.step.nest('ensure_qemu'):
-      with self.m.step.context({'infra_step': True}):
+      with self.m.context(infra_steps=True):
         qemu_package = ('fuchsia/tools/qemu/%s' %
             self.m.cipd.platform_suffix())
         self._qemu_dir = self.m.path['start_dir'].join('cipd', 'qemu')

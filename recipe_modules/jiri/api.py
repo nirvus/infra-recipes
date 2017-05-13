@@ -21,7 +21,7 @@ class JiriApi(recipe_api.RecipeApi):
 
   def ensure_jiri(self, version=None):
     with self.m.step.nest('ensure_jiri'):
-      with self.m.step.context({'infra_step': True}):
+      with self.m.context(infra_steps=True):
         jiri_package = ('fuchsia/tools/jiri/%s' %
             self.m.cipd.platform_suffix())
         cipd_dir = self.m.path['start_dir'].join('cipd', 'jiri')

@@ -10,6 +10,7 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
   'infra/jiri',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
@@ -31,7 +32,7 @@ RETURN_SCHEMA = ReturnSchema(
 def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
   api.jiri.ensure_jiri()
 
-  with api.step.context({'infra_step': True}):
+  with api.context(infra_steps=True):
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote)
     api.jiri.clean()
@@ -43,7 +44,7 @@ def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   # Start the cobalt build process.
-  with api.step.context({'cwd': api.path['start_dir'].join('cobalt')}):
+  with api.context(cwd=api.path['start_dir'].join('cobalt')):
     for step in ["setup", "build", "test"]:
       api.step(step, ["./cobaltb.py", step])
 
