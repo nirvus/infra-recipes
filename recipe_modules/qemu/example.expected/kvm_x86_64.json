@@ -45,10 +45,44 @@
       "disk.img",
       "--cmdline",
       "foo=bar",
+      "--netdev",
+      "user,id=net0",
+      "--device",
+      "e1000,netdev=net0",
       "bzImaze"
     ],
     "name": "test",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "start",
+      "--executable",
+      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
+      "--memory",
+      "2048",
+      "--smp",
+      "4",
+      "--arch",
+      "x86_64",
+      "bzImage"
+    ],
+    "name": "start qemu"
+  },
+  {
+    "cmd": [
+      "cmd"
+    ],
+    "name": "run cmd"
+  },
+  {
+    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "stop",
+      "--log"
+    ],
+    "name": "stop qemu and read log"
   },
   {
     "name": "$result",

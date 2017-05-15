@@ -24,7 +24,13 @@ def RunSteps(api, arch, kvm):
   assert api.qemu.qemu_executable(arch)
 
   # Run an image through QEMU.
-  api.qemu.run('test', arch, 'bzImaze', kvm=kvm, initrd='disk.img', cmdline='foo=bar')
+  api.qemu.run('test', arch, 'bzImaze',
+      kvm=kvm, initrd='disk.img', cmdline='foo=bar', netdev='user,id=net0',
+      devices=['e1000,netdev=net0'])
+
+  # Run QEMU in the background.
+  with api.qemu.background_run(arch, 'bzImage', kvm=kvm):
+    api.step('run cmd', ['cmd'])
 
 
 def GenTests(api):
