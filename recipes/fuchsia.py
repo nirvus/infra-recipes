@@ -95,9 +95,7 @@ def GomaContext(api, use_goma):
 def BuildFuchsia(api, start_dir, release_build, target, gn_target,
                  fuchsia_build_dir, modules, tests, use_goma):
   if tests:
-    # boot_test_modular starts up the test runner.
-    # TODO(bgoldman): create a more general package for running tests.
-    modules.append('boot_test_modular')
+    modules.append('boot_test_runner')
 
   with api.step.nest('build fuchsia'), GomaContext(api, use_goma):
     gen_cmd = [
