@@ -115,6 +115,15 @@
     "name": "git status"
   },
   {
+    "cmd": [
+      "git",
+      "rebase",
+      "origin/master"
+    ],
+    "cwd": "[START_DIR]/foo",
+    "name": "git rebase"
+  },
+  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0

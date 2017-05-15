@@ -30,6 +30,9 @@ def RunSteps(api):
     # You can invoke arbitrary command on api.git.
     api.git('status', config={'foo': 'bar'})
 
+    # You can use api.git.rebase to rebase the current branch onto another one
+    api.git.rebase(branch='master', remote='origin')
+
 
 def GenTests(api):
   yield api.test('basic')

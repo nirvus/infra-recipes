@@ -66,6 +66,14 @@ class GitApi(recipe_api.RecipeApi):
       self('clean', '-f', '-d', '-x', **kwargs)
       return step.stdout.strip()
 
+  def rebase(self, branch='master', remote='origin', **kwargs):
+    """Run rebase HEAD onto branch"""
+    try:
+      self('rebase', '%s/%s' % (remote, branch), **kwargs)
+    except self.m.step.StepFailure: # pragma: no cover
+      self('rebase', '--abort', **kwargs)
+      raise
+
   def get_hash(self, commit='HEAD', **kwargs):
     """Find and return the hash of the given commit."""
     return self('show', commit, '--format=%H', '-s',
