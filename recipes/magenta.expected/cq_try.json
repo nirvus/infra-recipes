@@ -134,7 +134,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "msleep 500\nruntests\nmsleep 250\ndm poweroff",
+      "msleep 500\nruntests\nmsleep 3000\ndm poweroff",
       "[TMP_BASE]/magenta_tmp/autorun"
     ],
     "name": "write autorun"

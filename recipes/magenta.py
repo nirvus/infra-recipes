@@ -68,7 +68,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   path = tmp_dir.join('autorun')
   api.shutil.write('write autorun', path, '''msleep 500
 runtests
-msleep 250
+msleep 3000
 dm poweroff''')
 
   build_args = [
