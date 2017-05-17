@@ -26,7 +26,7 @@ def RunSteps(api, arch, kvm):
   # Run an image through QEMU.
   api.qemu.run('test', arch, 'bzImaze',
       kvm=kvm, initrd='disk.img', cmdline='foo=bar', netdev='user,id=net0',
-      devices=['e1000,netdev=net0'])
+      devices=['e1000,netdev=net0'], shutdown_pattern='goodbye')
 
   # Run QEMU in the background.
   with api.qemu.background_run(arch, 'bzImage', kvm=kvm):

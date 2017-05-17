@@ -15,7 +15,8 @@ class QemuApi(recipe_api.RecipeApi):
     self._qemu_dir = None
 
   def _get_command(self, action, arch, kernel, smp=4, memory=2048, kvm=False,
-      initrd=None, cmdline=None, netdev=None, devices=()):
+      initrd=None, cmdline=None, netdev=None, devices=(),
+      shutdown_pattern=None):
     """Builds the command-line args for the run or start actions."""
     cmd = [
       self.resource('qemu.py'),
@@ -33,6 +34,8 @@ class QemuApi(recipe_api.RecipeApi):
       cmd.extend(['--netdev', netdev])
     for device in devices:
       cmd.extend(['--device', device])
+    if shutdown_pattern:
+      cmd.extend(['--shutdown_pattern', shutdown_pattern])
     cmd.append(kernel)
     return cmd
 

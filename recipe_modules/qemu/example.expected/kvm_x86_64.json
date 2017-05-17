@@ -49,6 +49,8 @@
       "user,id=net0",
       "--device",
       "e1000,netdev=net0",
+      "--shutdown_pattern",
+      "goodbye",
       "bzImaze"
     ],
     "name": "test",

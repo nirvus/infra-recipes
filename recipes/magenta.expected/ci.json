@@ -123,14 +123,13 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "msleep 500\nruntests\nmsleep 3000\ndm poweroff",
+      "msleep 500\nruntests\ndm poweroff",
       "[TMP_BASE]/magenta_tmp/autorun"
     ],
     "name": "write autorun",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
       "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@msleep 3000@@@",
       "@@@STEP_LOG_LINE@autorun.sh@dm poweroff@@@",
       "@@@STEP_LOG_END@autorun.sh@@@"
     ]
@@ -191,9 +190,38 @@
       "x86_64",
       "--initrd",
       "[START_DIR]/magenta/build-magenta-pc-x86-64/bootdata.bin",
+      "--cmdline",
+      "userboot=bin/core-tests",
+      "--shutdown_pattern",
+      "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
       "[START_DIR]/magenta/build-magenta-pc-x86-64/magenta.bin"
     ],
-    "name": "test",
+    "name": "run core tests",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@qemu.stdout@CASES: 1 SUCCESS: 1 FAILED: 0@@@",
+      "@@@STEP_LOG_END@qemu.stdout@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "run",
+      "--executable",
+      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
+      "--memory",
+      "2048",
+      "--smp",
+      "4",
+      "--arch",
+      "x86_64",
+      "--initrd",
+      "[START_DIR]/magenta/build-magenta-pc-x86-64/bootdata.bin",
+      "--shutdown_pattern",
+      "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
+      "[START_DIR]/magenta/build-magenta-pc-x86-64/magenta.bin"
+    ],
+    "name": "run booted tests",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@qemu.stdout@SUMMARY: Ran 2 tests: 0 failed@@@",

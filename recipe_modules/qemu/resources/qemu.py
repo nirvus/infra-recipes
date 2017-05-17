@@ -7,12 +7,37 @@ import argparse
 import fcntl
 import os
 import platform
+import re
 import select
 import signal
 import socket
 import subprocess
 import sys
 import time
+
+
+class Shutdown(Exception):
+  """Signals that QEMU should be shut down."""
+  pass
+
+
+class LineEmitter(object):
+  """Converts a stream of text into lines."""
+
+  def __init__(self, line_callback):
+    self.line_callback = line_callback
+    self.pending = []
+
+  def process(self, chunk):
+    pos = chunk.rfind('\n')
+    if pos == -1:
+      self.pending.append(chunk)
+    else:
+      pos += 1
+      self.pending.append(chunk[:pos])
+      for line in ''.join(self.pending).splitlines(True):
+        self.line_callback(line)
+      self.pending = [chunk[pos:]]
 
 
 def is_kvm_supported(arch):
@@ -57,8 +82,11 @@ def main():
     parser.add_argument('--initrd', type=str, default=None)
     parser.add_argument('--cmdline', type=str, default=None)
     parser.add_argument('--executable', type=str, required=True)
+    parser.add_argument('--append', type=str, default=None)
     parser.add_argument('--netdev', type=str, default=None)
     parser.add_argument('--device', type=str, action='append', default=[])
+    parser.add_argument('--shutdown_pattern', type=str, default=None,
+        help='regex that triggers shutdown if it matches any line of output')
     parser.add_argument('kernel', type=str, default=None)
 
   stop_parser.add_argument('--log', dest='log', action='store_true',
@@ -118,14 +146,28 @@ def main():
     with open('qemu.pid', 'w') as pidfile:
       pidfile.write(str(qemu.pid) + '\n')
 
+  if args.shutdown_pattern:
+    shutdown_pattern = re.compile(args.shutdown_pattern)
+  else:
+    shutdown_pattern = None
+
+  def process_line(line):
+    stdout.write(line)
+    stdout.flush()
+    if shutdown_pattern and shutdown_pattern.search(line):
+      raise Shutdown()
+
+  line_emitter = LineEmitter(process_line)
   return_code = None
 
   while True:
     if qemu.poll() is not None:
       break
     if select.select([qemu.stdout], [], [], 60)[0]:
-      stdout.write(qemu.stdout.read())
-      stdout.flush()
+      try:
+        line_emitter.process(qemu.stdout.read())
+      except Shutdown:
+        break
     else:
       return_code = 2
       break

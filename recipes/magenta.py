@@ -26,7 +26,11 @@ DEPS = [
 
 TARGETS = ['magenta-qemu-arm64', 'magenta-pc-x86-64']
 
-TEST_MATCH = re.compile(r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed')
+# Test summary from the core tests, which run directly from userboot.
+CORE_TESTS_MATCH = r'CASES: +(\d+) +SUCCESS: +(\d+) +FAILED: +(?P<failed>\d+)'
+
+# Test summary from the runtests command on a booted system.
+BOOTED_TESTS_MATCH = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
 
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
@@ -45,6 +49,27 @@ PROPERTIES = {
 RETURN_SCHEMA = ReturnSchema(
   got_revision=Single(str)
 )
+
+
+def RunTests(api, name, *args, **kwargs):
+  step_result = None
+  try:
+    step_result = api.qemu.run(name, *args, **kwargs)
+  except StepFailure as error:
+    step_result = error.result
+    raise
+  finally:
+    if step_result is not None:
+      lines = step_result.stdout.splitlines()
+      step_result.presentation.logs['qemu.stdout'] = lines
+
+  m = re.search(kwargs['shutdown_pattern'], step_result.stdout)
+  if not m:
+    step_result.presentation.status = api.step.WARNING
+    raise api.step.StepWarning('Test output missing')
+  elif int(m.group('failed')) > 0:
+    step_result.presentation.status = api.step.FAILURE
+    raise api.step.StepFailure(m.group(0))
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -69,7 +94,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   autorun = [
     'msleep 500',
     'runtests',
-    'msleep 3000',
     'dm poweroff',
   ]
   step_result = api.shutil.write('write autorun', path, '\n'.join(autorun))
@@ -93,33 +117,28 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     'magenta-qemu-arm64': 'aarch64',
     'magenta-pc-x86-64': 'x86_64',
   }[target]
+
   build_dir = 'build-%s' % target + ('-clang' if toolchain == 'clang' else '')
-  image = {
+  bootdata_path = api.path['start_dir'].join(
+      'magenta', build_dir, 'bootdata.bin')
+
+  image_name = {
     'aarch64': 'magenta.elf',
     'x86_64': 'magenta.bin',
   }[arch]
+  image_path = api.path['start_dir'].join('magenta', build_dir, image_name)
 
-  try:
-    step_result = api.qemu.run('test', arch,
-        api.path['start_dir'].join('magenta', build_dir, image), kvm=True,
-        initrd=api.path['start_dir'].join('magenta', build_dir, 'bootdata.bin'),
-        step_test_data=lambda:
-            api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed')
-    )
-  except StepFailure as error:
-    step_result = error.result
-    raise
-  finally:
-    lines = step_result.stdout.splitlines()
-    step_result.presentation.logs['qemu.stdout'] = lines
+  # Run core tests with userboot.
+  RunTests(api, 'run core tests', arch, image_path, kvm=True,
+      initrd=bootdata_path, cmdline='userboot=bin/core-tests',
+      shutdown_pattern=CORE_TESTS_MATCH, step_test_data=lambda:
+          api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
-  m = TEST_MATCH.search(step_result.stdout)
-  if not m:
-    step_result.presentation.status = api.step.WARNING
-    raise api.step.StepWarning('Test output missing')
-  elif int(m.group('failed')) > 0:
-    step_result.presentation.status = api.step.FAILURE
-    raise api.step.StepFailure(m.group(0))
+  # Boot and run tests.
+  RunTests(api, 'run booted tests', arch, image_path, kvm=True,
+      initrd=bootdata_path, shutdown_pattern=BOOTED_TESTS_MATCH,
+      step_test_data=lambda:
+          api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 
   return RETURN_SCHEMA.new(got_revision=revision)
 
@@ -130,7 +149,7 @@ def GenTests(api):
                     remote='https://fuchsia.googlesource.com/manifest',
                     target='magenta-pc-x86-64',
                     toolchain='gcc') +
-     api.step_data('test',
+     api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('cq_try') +
      api.properties.tryserver(
@@ -145,10 +164,10 @@ def GenTests(api):
                     remote='https://fuchsia.googlesource.com/manifest',
                     target='magenta-pc-x86-64',
                     toolchain='gcc') +
-      api.step_data('test', retcode=1))
+      api.step_data('run booted tests', retcode=1))
   yield (api.test('test_ouput') +
      api.properties(manifest='magenta',
                     remote='https://fuchsia.googlesource.com/manifest',
                     target='magenta-pc-x86-64',
                     toolchain='gcc') +
-     api.step_data('test', api.raw_io.stream_output('')))
+     api.step_data('run booted tests', api.raw_io.stream_output('')))
