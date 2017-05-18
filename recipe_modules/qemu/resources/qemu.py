@@ -7,47 +7,12 @@ import argparse
 import fcntl
 import os
 import platform
-import re
+import select
 import signal
 import socket
 import subprocess
 import sys
 import time
-import threading
-
-from Queue import Queue, Empty
-
-
-class Watchdog(object):
-  '''A timer that can be repeatedly reset.'''
-
-  def __init__(self, timeout, function, args):
-    self.timeout = timeout
-    self.function = function
-    self.args = args
-    self.timer = threading.Timer(self.timeout, self.function, self.args)
-
-  def start(self):
-    self.timer.start()
-
-  def reset(self):
-    self.timer.cancel()
-    self.timer = threading.Timer(self.timeout, self.function, self.args)
-    self.timer.start()
-
-  def stop(self):
-    self.timer.cancel()
-
-
-def enqueue(stdout, queue, done):
-  while not done.isSet():
-    try:
-      output = stdout.read()
-      if not output:
-        break
-      queue.put(output)
-    except IOError:
-      pass
 
 
 def is_kvm_supported(arch):
@@ -148,30 +113,17 @@ def main():
     with open('qemu.pid', 'w') as pidfile:
       pidfile.write(str(qemu.pid) + '\n')
 
-  done = threading.Event()
+  return_code = None
 
-  queue = Queue()
-  thread = threading.Thread(target=enqueue, args=(qemu.stdout, queue, done))
-  thread.daemon = True
-  thread.start()
-
-  timeout = threading.Event()
-  watchdog = Watchdog(60, lambda s: s.set(), [timeout])
-  watchdog.start()
-
-  while not timeout.isSet():
-    try:
-      line = queue.get(False, 1.0)
-    except Empty:
-      if qemu.poll() is not None:
-        watchdog.stop()
-        break
-    else:
-      watchdog.reset()
-      stdout.write(line)
+  while True:
+    if qemu.poll() is not None:
+      break
+    if select.select([qemu.stdout], [], [], 60)[0]:
+      stdout.write(qemu.stdout.read())
       stdout.flush()
-
-  done.set()
+    else:
+      return_code = 2
+      break
 
   if qemu.poll() is None:
     qemu.kill()
@@ -179,7 +131,10 @@ def main():
   if daemon:
     os.remove('qemu.pid')
 
-  return qemu.returncode
+  if return_code is None:
+    return qemu.returncode
+  else:
+    return return_code
 
 
 if __name__ == '__main__':
