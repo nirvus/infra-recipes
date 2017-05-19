@@ -46,6 +46,9 @@ PROPERTIES = {
                          default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
                       default=['default']),
+  'boot_module': Property(kind=str,
+                          help='Package to build that specifies boot behavior.',
+                          default=None),
   'tests': Property(kind=str, help='Path to config file listing tests to run',
                     default=None),
   'use_goma': Property(kind=bool, help='Whether to use goma to compile',
@@ -93,9 +96,12 @@ def GomaContext(api, use_goma):
       yield
 
 def BuildFuchsia(api, start_dir, release_build, target, gn_target,
-                 fuchsia_build_dir, modules, tests, use_goma):
-  if tests:
-    modules.append('boot_test_runner')
+                 fuchsia_build_dir, modules, boot_module, tests, use_goma):
+  if tests and not boot_module:
+    boot_module = 'boot_test_runner'
+
+  if boot_module:
+    modules.append(boot_module)
 
   with api.step.nest('build fuchsia'), GomaContext(api, use_goma):
     gen_cmd = [
@@ -185,7 +191,7 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
-             build_variant, build_type, modules, tests, use_goma):
+             build_variant, build_type, modules, boot_module, tests, use_goma):
   # Tests are currently broken on arm64.
   if target == 'arm64':
     tests = None
@@ -211,7 +217,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
            remote)
   BuildMagenta(api, start_dir, target)
   BuildFuchsia(api, start_dir, release_build, target, gn_target,
-               fuchsia_build_dir, modules, tests, use_goma)
+               fuchsia_build_dir, modules, boot_module, tests, use_goma)
 
   if tests:
     RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
@@ -228,6 +234,13 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='tests.json',
+  )
+  yield api.test('boot_module') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='tests.json',
+      boot_module='boot_special',
   )
   yield api.test('failed_tests') + api.properties(
       manifest='fuchsia',
