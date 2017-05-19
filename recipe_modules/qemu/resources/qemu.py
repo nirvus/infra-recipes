@@ -22,7 +22,12 @@ def is_kvm_supported(arch):
 
 
 def stop_qemu():
-  pid = int(open('qemu.pid').read())
+  try:
+    pid = int(open('qemu.pid').read())
+  except IOError:
+    # If shutdown already happened, qemu.pid will have been cleaned up.
+    return
+
   os.kill(pid, signal.SIGTERM)
 
   while True:
