@@ -7,7 +7,7 @@
 import re
 
 from recipe_engine.config import Enum, ReturnSchema, Single
-from recipe_engine.recipe_api import Property
+from recipe_engine.recipe_api import Property, StepFailure
 
 
 DEPS = [
@@ -95,13 +95,20 @@ dm poweroff''')
     'x86_64': 'magenta.bin',
   }[arch]
 
-  step_result = api.qemu.run('test', arch,
-      api.path['start_dir'].join('magenta', build_dir, image), kvm=True,
-      initrd=api.path['start_dir'].join('magenta', build_dir, 'bootdata.bin'),
-      step_test_data=lambda:
-          api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed')
-  )
-  step_result.presentation.logs['qemu.stdout'] = step_result.stdout.splitlines()
+  try:
+    step_result = api.qemu.run('test', arch,
+        api.path['start_dir'].join('magenta', build_dir, image), kvm=True,
+        initrd=api.path['start_dir'].join('magenta', build_dir, 'bootdata.bin'),
+        step_test_data=lambda:
+            api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed')
+    )
+  except StepFailure as error:
+    step_result = error.result
+    raise
+  finally:
+    lines = step_result.stdout.splitlines()
+    step_result.presentation.logs['qemu.stdout'] = lines
+
   m = TEST_MATCH.search(step_result.stdout)
   if not m:
     step_result.presentation.status = api.step.WARNING
@@ -115,23 +122,29 @@ dm poweroff''')
 
 def GenTests(api):
   yield (api.test('ci') +
-         api.properties(manifest='magenta',
-                        remote='https://fuchsia.googlesource.com/manifest',
-                        target='magenta-pc-x86-64',
-                        toolchain='gcc') +
-         api.step_data('test',
-             api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
+     api.properties(manifest='magenta',
+                    remote='https://fuchsia.googlesource.com/manifest',
+                    target='magenta-pc-x86-64',
+                    toolchain='gcc') +
+     api.step_data('test',
+         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('cq_try') +
-         api.properties.tryserver(
-             gerrit_project='magenta',
-             patch_gerrit_url='fuchsia-review.googlesource.com',
-             manifest='magenta',
-             remote='https://fuchsia.googlesource.com/manifest',
-             target='magenta-pc-x86-64',
-             toolchain='clang'))
+     api.properties.tryserver(
+         gerrit_project='magenta',
+         patch_gerrit_url='fuchsia-review.googlesource.com',
+         manifest='magenta',
+         remote='https://fuchsia.googlesource.com/manifest',
+         target='magenta-pc-x86-64',
+         toolchain='clang'))
+  yield (api.test('failed_qemu') +
+      api.properties(manifest='magenta',
+                    remote='https://fuchsia.googlesource.com/manifest',
+                    target='magenta-pc-x86-64',
+                    toolchain='gcc') +
+      api.step_data('test', retcode=1))
   yield (api.test('test_ouput') +
-         api.properties(manifest='magenta',
-                        remote='https://fuchsia.googlesource.com/manifest',
-                        target='magenta-pc-x86-64',
-                        toolchain='gcc') +
-         api.step_data('test', api.raw_io.stream_output('')))
+     api.properties(manifest='magenta',
+                    remote='https://fuchsia.googlesource.com/manifest',
+                    target='magenta-pc-x86-64',
+                    toolchain='gcc') +
+     api.step_data('test', api.raw_io.stream_output('')))
