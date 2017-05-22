@@ -137,7 +137,14 @@
       "msleep 500\nruntests\nmsleep 3000\ndm poweroff",
       "[TMP_BASE]/magenta_tmp/autorun"
     ],
-    "name": "write autorun"
+    "name": "write autorun",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@msleep 3000@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@dm poweroff@@@",
+      "@@@STEP_LOG_END@autorun.sh@@@"
+    ]
   },
   {
     "cmd": [
