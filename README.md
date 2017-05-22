@@ -123,7 +123,7 @@ To debug a single test, you can do this, which limits the test run to a single
 test and runs it in pdb:
 
 ```
-python recipes.py test run --filter [recipe_name].[test_name]
+python recipes.py test debug --filter [recipe_name].[test_name]
 ```
 
 ### End-to-end testing
