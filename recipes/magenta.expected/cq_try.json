@@ -202,33 +202,6 @@
       "x86_64",
       "--initrd",
       "[START_DIR]/magenta/build-magenta-pc-x86-64-clang/bootdata.bin",
-      "--cmdline",
-      "userboot=bin/core-tests",
-      "--shutdown_pattern",
-      "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
-      "[START_DIR]/magenta/build-magenta-pc-x86-64-clang/magenta.bin"
-    ],
-    "name": "run core tests",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@qemu.stdout@CASES: 1 SUCCESS: 1 FAILED: 0@@@",
-      "@@@STEP_LOG_END@qemu.stdout@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
-      "run",
-      "--executable",
-      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
-      "--memory",
-      "2048",
-      "--smp",
-      "4",
-      "--arch",
-      "x86_64",
-      "--initrd",
-      "[START_DIR]/magenta/build-magenta-pc-x86-64-clang/bootdata.bin",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
       "[START_DIR]/magenta/build-magenta-pc-x86-64-clang/magenta.bin"
