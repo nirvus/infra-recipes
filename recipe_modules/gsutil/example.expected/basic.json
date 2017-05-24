@@ -48,9 +48,6 @@
       "[TMP_BASE]/file",
       "gs://example/path/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil cp",
     "~followup_annotations": [
       "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/example/path/to/file@@@"
@@ -78,9 +75,6 @@
       "[TMP_BASE]/file",
       "gs://example/path/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil cp (2)",
     "~followup_annotations": [
       "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/example/path/to/file@@@"
@@ -97,9 +91,6 @@
       "gs://example/some/random/path/**",
       "gs://example/staging"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil cp (3)"
   },
   {
@@ -113,9 +104,6 @@
       "gs://example/path/to/file",
       "[TMP_BASE]/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil download url"
   },
   {
@@ -129,9 +117,6 @@
       "gs://example/staging/to/file",
       "[TMP_BASE]/erang"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil cp (4)"
   },
   {
@@ -146,9 +131,6 @@
       "example",
       "path/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil signurl"
   },
   {
@@ -161,9 +143,6 @@
       "rm",
       "gs://example/staging/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil rm"
   },
   {
@@ -176,9 +155,6 @@
       "ls",
       "gs://example/foo"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil ls"
   },
   {
@@ -192,9 +168,6 @@
       "gs://example/path/to/file",
       "gs://example/staging/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil cp (5)",
     "~followup_annotations": [
       "@@@STEP_LINK@gsutil.copy@https://storage.cloud.google.com/example/staging/to/file@@@"
@@ -210,9 +183,6 @@
       "cat",
       "gs://example/foo"
     ],
-    "env": {
-      "BOTO_CONFIG": "/creds/.boto"
-    },
     "name": "gsutil cat"
   },
   {
