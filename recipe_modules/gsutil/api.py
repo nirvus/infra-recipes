@@ -51,7 +51,8 @@ class GSUtilApi(recipe_api.RecipeApi):
       return self.m.python(name, self._gsutil_tool, cmd_prefix + list(args), **kwargs)
 
   @recipe_api.non_step
-  def urlnormalize(self, url):
+  def normalize(self, url):
+    """Normalize a GS URL using the gs:// URL prefix."""
     gs_prefix = 'gs://'
     # Defines the regex that matches a normalized URL.
     for prefix in (
@@ -62,6 +63,11 @@ class GSUtilApi(recipe_api.RecipeApi):
       if url.startswith(prefix):
         return gs_prefix + url[len(prefix):]
     raise AssertionError("%s cannot be normalized" % url)
+
+  @recipe_api.non_step
+  def join(self, *parts):
+    """Constructs a GS path from composite parts."""
+    return '/'.join(p.strip('/') for p in parts)
 
   @classmethod
   def _http_url(cls, bucket, dest, unauthenticated_url=False):

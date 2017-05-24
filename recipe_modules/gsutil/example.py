@@ -14,7 +14,7 @@ def RunSteps(api):
 
   local_file = api.path['tmp_base'].join('file')
   bucket = 'example'
-  cloud_file = 'path/to/file'
+  cloud_file = api.gsutil.join('path/', 'to', 'file/')
 
   api.gsutil.upload(bucket, local_file, cloud_file,
       metadata={
@@ -42,14 +42,14 @@ def RunSteps(api):
       'gs://%s/staging' % bucket)
 
   api.gsutil('cp',
-      api.gsutil.urlnormalize('https://storage.cloud.google.com/' + bucket + '/' + cloud_file),
+      api.gsutil.normalize('https://storage.cloud.google.com/' + bucket + '/' + cloud_file),
       local_file,
       name='gsutil download url')
 
   # Non-normalized URL.
   try:
     api.gsutil('cp',
-        api.gsutil.urlnormalize('https://someotherservice.localhost'),
+        api.gsutil.normalize('https://someotherservice.localhost'),
         local_file,
         name='gsutil download url')
   except AssertionError:
