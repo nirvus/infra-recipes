@@ -123,14 +123,13 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "msleep 500\nruntests\ndm poweroff",
+      "msleep 500\nruntests",
       "[TMP_BASE]/magenta_tmp/autorun"
     ],
     "name": "write autorun",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
       "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@dm poweroff@@@",
       "@@@STEP_LOG_END@autorun.sh@@@"
     ]
   },

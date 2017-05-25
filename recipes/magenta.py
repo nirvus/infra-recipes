@@ -91,11 +91,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   tmp_dir = api.path['tmp_base'].join('magenta_tmp')
   api.shutil.makedirs('tmp', tmp_dir)
   path = tmp_dir.join('autorun')
-  autorun = [
-    'msleep 500',
-    'runtests',
-    'dm poweroff',
-  ]
+  autorun = ['msleep 500', 'runtests']
   step_result = api.shutil.write('write autorun', path, '\n'.join(autorun))
   step_result.presentation.logs['autorun.sh'] = autorun
 
