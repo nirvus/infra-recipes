@@ -208,6 +208,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   api.jiri.ensure_jiri()
   api.gsutil.ensure_gsutil()
+  api.gsutil.set_boto_config(api.gsutil.default_boto_config)
   if use_goma:
     api.goma.ensure_goma()
   if tests:

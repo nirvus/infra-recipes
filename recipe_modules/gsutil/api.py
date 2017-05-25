@@ -13,6 +13,14 @@ class GSUtilApi(recipe_api.RecipeApi):
   def __init__(self, *args, **kwargs):
     super(GSUtilApi, self).__init__(*args, **kwargs)
     self._gsutil_tool = None
+    self._boto_config = None
+
+  def set_boto_config(self, path):
+    self._boto_config = path
+
+  @property
+  def default_boto_config(self):
+    return self.m.path.expanduser(self.m.path.join('~', '.boto'))
 
   def __call__(self, *args, **kwargs):
     """Return a step to run arbitrary gsutil command."""
@@ -39,7 +47,12 @@ class GSUtilApi(recipe_api.RecipeApi):
       'GSUtil:software_update_check_period=0',
     ])
 
-    return self.m.python(name, self._gsutil_tool, cmd_prefix + list(args), **kwargs)
+    env = self.m.context.env
+    if self._boto_config:
+      env.setdefault('BOTO_CONFIG', self._boto_config)
+
+    with self.m.context(env=env):
+      return self.m.python(name, self._gsutil_tool, cmd_prefix + list(args), **kwargs)
 
   @recipe_api.non_step
   def normalize(self, url):

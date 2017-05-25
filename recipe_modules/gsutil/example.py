@@ -10,6 +10,7 @@ DEPS = [
 
 def RunSteps(api):
   api.gsutil.ensure_gsutil()
+  api.gsutil.set_boto_config(api.gsutil.default_boto_config)
 
   local_file = api.path['tmp_base'].join('file')
   bucket = 'example'
