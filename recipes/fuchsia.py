@@ -189,8 +189,8 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
     symbolize_cmd = [
       start_dir.join('magenta', 'scripts', 'symbolize'),
       '--no-echo',
-      '--file',
-      'qemu.stdout',
+      '--file', 'qemu.stdout',
+      '--build-dir', fuchsia_build_dir,
     ]
     step_result = api.step('symbolize', symbolize_cmd,
         stdout=api.raw_io.output(),

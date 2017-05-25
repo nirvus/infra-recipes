@@ -386,7 +386,9 @@
       "[START_DIR]/magenta/scripts/symbolize",
       "--no-echo",
       "--file",
-      "qemu.stdout"
+      "qemu.stdout",
+      "--build-dir",
+      "[START_DIR]/out/debug-x86-64"
     ],
     "name": "symbolize",
     "stdout": "/path/to/tmp/"
