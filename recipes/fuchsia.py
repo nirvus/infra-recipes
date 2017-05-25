@@ -165,29 +165,43 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
       netdev=netdev,
       devices=['e1000,netdev=net0'])
 
-  with qemu:
-    run_tests_cmd = [
-      start_dir.join('apps/test_runner/src/run_test'),
-      '--test_file', start_dir.join(tests),
-      '--server', '127.0.0.1',
-      '--port', str(TEST_RUNNER_PORT),
-      '--no-loglistener',
-    ]
+  try:
+    with qemu:
+      run_tests_cmd = [
+        start_dir.join('apps/test_runner/src/run_test'),
+        '--test_file', start_dir.join(tests),
+        '--server', '127.0.0.1',
+        '--port', str(TEST_RUNNER_PORT),
+        '--no-loglistener',
+      ]
 
-    env = {
-      'FUCHSIA_OUT_DIR': fuchsia_out_dir,
-      'FUCHSIA_BUILD_DIR': fuchsia_build_dir,
-    }
+      env = {
+        'FUCHSIA_OUT_DIR': fuchsia_out_dir,
+        'FUCHSIA_BUILD_DIR': fuchsia_build_dir,
+      }
 
-    # TODO(bgoldman): Update run_test so that it retries the TCP connection at
-    # startup, to deal with a possible race condition where QEMU is not
-    # forwarding the port by the time run_tests tries to connect.
-    with api.context(env=env):
-      try:
+      # TODO(bgoldman): Update run_test so that it retries the TCP connection at
+      # startup, to deal with a possible race condition where QEMU is not
+      # forwarding the port by the time run_test tries to connect.
+      with api.context(env=env):
         api.step('run tests', run_tests_cmd)
-      finally:
-        # Workaround for: https://fuchsia.atlassian.net/browse/TO-273
-        api.step('sleep', ['sleep', '3'])
+  finally:
+    symbolize_cmd = [
+      start_dir.join('magenta', 'scripts', 'symbolize'),
+      '--no-echo',
+      '--file',
+      'qemu.stdout',
+    ]
+    step_result = api.step('symbolize', symbolize_cmd,
+        stdout=api.raw_io.output(),
+        step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+    lines = step_result.stdout.splitlines()
+    if lines:
+      # If symbolize found any backtraces in qemu.stdout, mark the symbolize
+      # step as failed to indicate that it should be looked at.
+      step_result.presentation.logs['symbolized backtraces'] = lines
+      step_result.presentation.status = api.step.FAILURE
+
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
@@ -249,6 +263,13 @@ def GenTests(api):
       target='x86-64',
       tests='tests.json',
   ) + api.step_data('run tests', retcode=1)
+  yield api.test('backtrace') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='tests.json',
+  ) + api.step_data('run tests', retcode=1,
+  ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
   yield api.test('no_goma') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',

@@ -375,22 +375,21 @@
   },
   {
     "cmd": [
-      "sleep",
-      "3"
-    ],
-    "env": {
-      "FUCHSIA_BUILD_DIR": "[START_DIR]/out/debug-x86-64",
-      "FUCHSIA_OUT_DIR": "[START_DIR]/out"
-    },
-    "name": "sleep"
-  },
-  {
-    "cmd": [
       "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
       "stop",
       "--log"
     ],
     "name": "stop qemu and read log"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/magenta/scripts/symbolize",
+      "--no-echo",
+      "--file",
+      "qemu.stdout"
+    ],
+    "name": "symbolize",
+    "stdout": "/path/to/tmp/"
   },
   {
     "name": "$result",

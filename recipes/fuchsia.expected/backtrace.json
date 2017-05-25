@@ -228,7 +228,7 @@
     "cmd": [
       "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=x86-64",
-      "--modules=default,boot_special",
+      "--modules=default,boot_test_runner",
       "--with-dart-analysis",
       "--goma=[START_DIR]/cipd/goma"
     ],
@@ -367,7 +367,11 @@
       "FUCHSIA_BUILD_DIR": "[START_DIR]/out/debug-x86-64",
       "FUCHSIA_OUT_DIR": "[START_DIR]/out"
     },
-    "name": "run tests"
+    "name": "run tests",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
   },
   {
     "cmd": [
@@ -385,11 +389,18 @@
       "qemu.stdout"
     ],
     "name": "symbolize",
-    "stdout": "/path/to/tmp/"
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@symbolized backtraces@bt1@@@",
+      "@@@STEP_LOG_LINE@symbolized backtraces@bt2@@@",
+      "@@@STEP_LOG_END@symbolized backtraces@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
   },
   {
     "name": "$result",
+    "reason": "Step('run tests') failed with return_code 1",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]
