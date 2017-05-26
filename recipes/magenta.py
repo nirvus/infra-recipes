@@ -44,6 +44,7 @@ PROPERTIES = {
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
   'toolchain': Property(kind=Enum('gcc', 'clang'), help='Toolchain to use'),
+  'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True)
 }
 
 RETURN_SCHEMA = ReturnSchema(
@@ -74,7 +75,7 @@ def RunTests(api, name, *args, **kwargs):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
-             toolchain):
+             toolchain, run_tests):
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
@@ -107,7 +108,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                    env={'USER_AUTORUN': path}):
     api.step('build', build_args)
 
-  api.qemu.ensure_qemu()
+  if run_tests:
+    api.qemu.ensure_qemu()
 
   arch = {
     'magenta-qemu-arm64': 'aarch64',
@@ -125,10 +127,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   image_path = api.path['start_dir'].join('magenta', build_dir, image_name)
 
   # Boot and run tests.
-  RunTests(api, 'run booted tests', arch, image_path, kvm=True,
-      initrd=bootdata_path, shutdown_pattern=BOOTED_TESTS_MATCH,
-      step_test_data=lambda:
-          api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
+  if run_tests:
+    RunTests(api, 'run booted tests', arch, image_path, kvm=True,
+        initrd=bootdata_path, shutdown_pattern=BOOTED_TESTS_MATCH,
+        step_test_data=lambda:
+            api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 
   return RETURN_SCHEMA.new(got_revision=revision)
 
@@ -149,6 +152,13 @@ def GenTests(api):
          remote='https://fuchsia.googlesource.com/manifest',
          target='magenta-pc-x86-64',
          toolchain='clang'))
+  yield (api.test('no_run_tests') +
+     api.properties.tryserver(
+         manifest='magenta',
+         remote='https://fuchsia.googlesource.com/manifest',
+         target='magenta-pc-x86-64',
+         toolchain='clang',
+         run_tests=False))
   yield (api.test('failed_qemu') +
       api.properties(manifest='magenta',
                     remote='https://fuchsia.googlesource.com/manifest',
