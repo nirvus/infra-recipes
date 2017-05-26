@@ -126,6 +126,50 @@ test and runs it in pdb:
 python recipes.py test debug --filter [recipe_name].[test_name]
 ```
 
+### Choosing unit test cases
+
+When you write new recipes or change existing recipes, your basic goal with unit
+testing should be to cover all of your code and to check the expected output to
+see if it makes sense. So if you create a new conditional, you should add a new
+test case.
+
+For example, let's say you're adding a feature to a simple recipe:
+
+```
+PROPERTIES = {
+  'word': Property(kind=str, default=None),
+}
+
+def RunSteps(api, word):
+  api.step('say the word', ['echo', word])
+
+def GenTests(api):
+  yield api.test('hello', word='hello')
+```
+
+And let's say you want to add a feature where it refuses to say "goodbye". So
+you change it to look like this:
+
+```
+def RunSteps(api, word):
+  if word == 'goodbye':
+    word = 'farewell'
+  api.step('say the word', ['echo', word])
+```
+
+To make sure everything works as expected, you should add a new test case for
+your new conditional:
+
+```
+def GenTests(api):
+  yield api.test('hello', word='hello')
+  yield api.test('no_goodbye', word='goodbye')
+```
+
+There will now be two generated files when you run `test train`: one called
+`hello.json` and one called `no_goodbye.json`, each showing what commands the
+recipe would have run depending on how the `word` property is set.
+
 ### End-to-end testing
 
 Unit tests should be the first thing you try to verify that your code runs. But
