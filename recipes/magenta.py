@@ -24,7 +24,12 @@ DEPS = [
   'recipe_engine/tempfile',
 ]
 
-TARGETS = ['magenta-qemu-arm64', 'magenta-pc-x86-64']
+TARGETS = [
+  'magenta-qemu-arm64',
+  'magenta-pc-x86-64',
+  'magenta-rpi3-arm64',
+  'magenta-hikey960-arm64'
+]
 
 # Test summary from the core tests, which run directly from userboot.
 CORE_TESTS_MATCH = r'CASES: +(\d+) +SUCCESS: +(\d+) +FAILED: +(?P<failed>\d+)'
