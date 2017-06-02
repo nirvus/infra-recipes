@@ -172,7 +172,6 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
         '--test_file', start_dir.join(tests),
         '--server', '127.0.0.1',
         '--port', str(TEST_RUNNER_PORT),
-        '--no-loglistener',
       ]
 
       env = {

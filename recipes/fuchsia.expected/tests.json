@@ -360,8 +360,7 @@
       "--server",
       "127.0.0.1",
       "--port",
-      "8342",
-      "--no-loglistener"
+      "8342"
     ],
     "env": {
       "FUCHSIA_BUILD_DIR": "[START_DIR]/out/debug-x86-64",
