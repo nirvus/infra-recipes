@@ -131,8 +131,7 @@ def BuildFuchsia(api, start_dir, release_build, target, gn_target,
 
     api.step('ninja', ninja_cmd)
 
-def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
-             fuchsia_build_dir, build_type, tests):
+def RunTests(api, start_dir, target, fuchsia_build_dir, tests):
   magenta_build_dir = {
     'arm64': 'build-magenta-qemu-arm64',
     'x86-64': 'build-magenta-pc-x86-64',
@@ -173,17 +172,7 @@ def RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
         '--server', '127.0.0.1',
         '--port', str(TEST_RUNNER_PORT),
       ]
-
-      env = {
-        'FUCHSIA_OUT_DIR': fuchsia_out_dir,
-        'FUCHSIA_BUILD_DIR': fuchsia_build_dir,
-      }
-
-      # TODO(bgoldman): Update run_test so that it retries the TCP connection at
-      # startup, to deal with a possible race condition where QEMU is not
-      # forwarding the port by the time run_test tries to connect.
-      with api.context(env=env):
-        api.step('run tests', run_tests_cmd)
+      api.step('run tests', run_tests_cmd)
   finally:
     symbolize_cmd = [
       start_dir.join('magenta', 'scripts', 'symbolize'),
@@ -216,8 +205,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   release_build = (build_type == 'release')
   gn_target = {'arm64': 'aarch64', 'x86-64': 'x86-64'}[target]
-  fuchsia_out_dir = start_dir.join('out')
-  fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
+  fuchsia_build_dir = start_dir.join('out', '%s-%s' % (build_type, gn_target))
 
   api.jiri.ensure_jiri()
   api.gsutil.ensure_gsutil()
@@ -234,8 +222,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                fuchsia_build_dir, modules, boot_module, tests, use_goma)
 
   if tests:
-    RunTests(api, start_dir, target, gn_target, fuchsia_out_dir,
-             fuchsia_build_dir, build_type, tests)
+    RunTests(api, start_dir, target, fuchsia_build_dir, tests)
 
 def GenTests(api):
   yield api.test('default') + api.properties(
