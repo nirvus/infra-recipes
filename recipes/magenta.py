@@ -166,6 +166,13 @@ def GenTests(api):
          target='magenta-pc-x86-64',
          toolchain='clang',
          run_tests=False))
+  yield (api.test('build_rpi') +
+     api.properties.tryserver(
+         manifest='magenta',
+         remote='https://fuchsia.googlesource.com/manifest',
+         target='magenta-rpi3-arm64',
+         toolchain='clang',
+         run_tests=False))
   yield (api.test('failed_qemu') +
       api.properties(manifest='magenta',
                     remote='https://fuchsia.googlesource.com/manifest',
