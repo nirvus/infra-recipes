@@ -117,6 +117,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.qemu.ensure_qemu()
 
   arch = {
+    'magenta-hikey960-arm64': 'aarch64',
+    'magenta-rpi3-arm64': 'aarch64',
     'magenta-qemu-arm64': 'aarch64',
     'magenta-pc-x86-64': 'x86_64',
   }[target]
