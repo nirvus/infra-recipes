@@ -27,7 +27,7 @@ class JiriApi(recipe_api.RecipeApi):
         cipd_dir = self.m.path['start_dir'].join('cipd', 'jiri')
 
         self.m.cipd.ensure(cipd_dir,
-                           {jiri_package: version or 'latest'})
+                           {jiri_package: version or 'stable'})
         self._jiri_executable = cipd_dir.join('jiri')
 
         return self._jiri_executable
