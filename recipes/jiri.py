@@ -60,6 +60,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   api.go.ensure_go()
 
+  staging_dir = api.path.mkdtemp('jiri')
   jiri_dir = api.path['start_dir'].join(
       'go', 'src', 'fuchsia.googlesource.com', 'jiri')
 
@@ -76,7 +77,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     'NINJA_PROGRAM': cipd_dir.join('ninja'),
     'GO_PROGRAM': api.go.go_executable
   }
-  with api.context(env=env):
+  with api.context(cwd=staging_dir, env=env):
     api.step('build jiri', [jiri_dir.join('scripts', 'build.sh')])
 
   gopath = api.path['start_dir'].join('go')
@@ -89,29 +90,30 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.cipd.set_service_account_credentials(
         api.cipd.default_bot_service_account_credentials)
 
-    staging_dir = api.path.mkdtemp('jiri')
-    api.shutil.copy('copy jiri', jiri_dir.join('jiri'), staging_dir)
     cipd_pkg_name = 'fuchsia/tools/jiri/' + api.cipd.platform_suffix()
     cipd_pkg_file = api.path['tmp_base'].join('jiri.cipd')
 
     api.cipd.build(
-      input_dir=staging_dir,
-      package_name=cipd_pkg_name,
-      output_package=cipd_pkg_file,
+        input_dir=staging_dir,
+        package_name=cipd_pkg_name,
+        output_package=cipd_pkg_file,
     )
     step_result = api.cipd.register(
-      package_name=cipd_pkg_name,
-      package_path=cipd_pkg_file,
-      refs=['latest'],
-      tags={
-        'git_repository': 'https://fuchsia.googlesource.com/jiri',
-        'git_revision': revision,
-      },
+        package_name=cipd_pkg_name,
+        package_path=cipd_pkg_file,
+        refs=['latest'],
+        tags={
+          'git_repository': 'https://fuchsia.googlesource.com/jiri',
+          'git_revision': revision,
+        },
     )
 
-    api.gsutil.upload('fuchsia', cipd_pkg_file,
-      '/'.join(['jiri', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']]),
-      unauthenticated_url=True)
+    api.gsutil.upload(
+        'fuchsia',
+        cipd_pkg_file,
+        api.gsutil.join('jiri', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
+        unauthenticated_url=True
+    )
 
   return RETURN_SCHEMA.new(got_revision=revision)
 

@@ -177,6 +177,7 @@
     "cmd": [
       "[START_DIR]/go/src/fuchsia.googlesource.com/jiri/scripts/build.sh"
     ],
+    "cwd": "[TMP_BASE]/jiri_tmp_1",
     "env": {
       "CMAKE_PROGRAM": "[START_DIR]/cipd/bin/cmake",
       "GO_PROGRAM": "[START_DIR]/cipd/go/bin/go",
