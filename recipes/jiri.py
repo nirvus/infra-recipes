@@ -16,6 +16,7 @@ DEPS = [
   'infra/go',
   'infra/gsutil',
   'recipe_engine/context',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
@@ -41,6 +42,43 @@ PROPERTIES = {
 RETURN_SCHEMA = ReturnSchema(
   got_revision=Single(str)
 )
+
+
+def UploadPackage(api, revision, staging_dir):
+  api.gsutil.ensure_gsutil()
+
+  api.cipd.set_service_account_credentials(
+      api.cipd.default_bot_service_account_credentials)
+
+  cipd_pkg_name = 'fuchsia/tools/jiri/' + api.cipd.platform_suffix()
+
+  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if step.json.output['result']:
+    return
+
+  cipd_pkg_file = api.path['tmp_base'].join('jiri.cipd')
+
+  api.cipd.build(
+      input_dir=staging_dir,
+      package_name=cipd_pkg_name,
+      output_package=cipd_pkg_file,
+  )
+  step_result = api.cipd.register(
+      package_name=cipd_pkg_name,
+      package_path=cipd_pkg_file,
+      refs=['latest'],
+      tags={
+        'git_repository': 'https://fuchsia.googlesource.com/jiri',
+        'git_revision': revision,
+      },
+  )
+
+  api.gsutil.upload(
+      'fuchsia',
+      cipd_pkg_file,
+      api.gsutil.join('jiri', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
+      unauthenticated_url=True
+  )
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -85,50 +123,28 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.go('test', 'fuchsia.googlesource.com/jiri/cmd/jiri')
 
   if not api.properties.get('tryjob', False):
-    api.gsutil.ensure_gsutil()
-
-    api.cipd.set_service_account_credentials(
-        api.cipd.default_bot_service_account_credentials)
-
-    cipd_pkg_name = 'fuchsia/tools/jiri/' + api.cipd.platform_suffix()
-    cipd_pkg_file = api.path['tmp_base'].join('jiri.cipd')
-
-    api.cipd.build(
-        input_dir=staging_dir,
-        package_name=cipd_pkg_name,
-        output_package=cipd_pkg_file,
-    )
-    step_result = api.cipd.register(
-        package_name=cipd_pkg_name,
-        package_path=cipd_pkg_file,
-        refs=['latest'],
-        tags={
-          'git_repository': 'https://fuchsia.googlesource.com/jiri',
-          'git_revision': revision,
-        },
-    )
-
-    api.gsutil.upload(
-        'fuchsia',
-        cipd_pkg_file,
-        api.gsutil.join('jiri', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
-        unauthenticated_url=True
-    )
+    UploadPackage(api, revision, staging_dir)
 
   return RETURN_SCHEMA.new(got_revision=revision)
 
 
 def GenTests(api):
-  yield api.test('ci') + api.properties(
-      manifest='jiri',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='linux-amd64',
-  )
-  yield api.test('cq_try') + api.properties.tryserver(
-      gerrit_project='jiri',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='jiri',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='linux-amd64',
-      tryjob=True,
-  )
+  yield (api.test('ci') +
+    api.properties(manifest='jiri',
+                   remote='https://fuchsia.googlesource.com/manifest',
+                   target='linux-amd64'))
+  yield (api.test('ci_new') +
+    api.properties(manifest='jiri',
+                   remote='https://fuchsia.googlesource.com/manifest',
+                   target='linux-amd64') +
+    api.step_data('cipd search fuchsia/tools/jiri/linux-amd64 git_revision:' +
+                  api.jiri.example_revision,
+                  api.json.output({'result': []})))
+  yield (api.test('cq_try') +
+    api.properties.tryserver(
+        gerrit_project='jiri',
+        patch_gerrit_url='fuchsia-review.googlesource.com',
+        manifest='jiri',
+        remote='https://fuchsia.googlesource.com/manifest',
+        target='linux-amd64',
+        tryjob=True))

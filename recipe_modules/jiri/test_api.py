@@ -7,6 +7,10 @@ from recipe_engine import recipe_test_api
 
 class JiriTestApi(recipe_test_api.RecipeTestApi):
 
+  @property
+  def example_revision(self):
+    return "c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+
   def example_project(self, projects):
     assert projects is not None
     return self.m.json.output([
@@ -14,7 +18,7 @@ class JiriTestApi(recipe_test_api.RecipeTestApi):
           "name": project,
           "path": "/path/to/repo",
           "remote": "https://fuchsia.googlesource.com/repo",
-          "revision": "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+          "revision": self.example_revision,
           "current_branch": "",
           "branches": [
               "(HEAD detached at c22471f)",
