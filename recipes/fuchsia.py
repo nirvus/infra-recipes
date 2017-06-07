@@ -16,8 +16,10 @@ DEPS = [
   'infra/cipd',
   'infra/goma',
   'infra/gsutil',
+  'infra/hash',
   'infra/jiri',
   'infra/qemu',
+  'infra/tar',
   'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -74,14 +76,16 @@ def Checkout(api, patch_ref, patch_gerrit_url, manifest, remote):
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
+
 def BuildMagenta(api, target):
   magenta_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
   build_magenta_cmd = [
-    api.path['start_dir'].join('scripts/build-magenta.sh'),
+    api.path['start_dir'].join('scripts', 'build-magenta.sh'),
     '-c',
     '-t', magenta_target,
   ]
   api.step('build magenta', build_magenta_cmd)
+
 
 @contextmanager
 def GomaContext(api, use_goma):
@@ -90,6 +94,7 @@ def GomaContext(api, use_goma):
   else:
     with api.goma.build_with_goma():
       yield
+
 
 def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
                  modules, boot_module, tests, use_goma):
@@ -101,7 +106,7 @@ def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
 
   with api.step.nest('build fuchsia'), GomaContext(api, use_goma):
     gen_cmd = [
-      api.path['start_dir'].join('packages/gn/gen.py'),
+      api.path['start_dir'].join('packages', 'gn', 'gen.py'),
       '--target_cpu=%s' % gn_target,
       '--modules=%s' % ','.join(modules),
       '--with-dart-analysis',
@@ -116,7 +121,7 @@ def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
     api.step('gen', gen_cmd)
 
     ninja_cmd = [
-      api.path['start_dir'].join('buildtools/ninja'),
+      api.path['start_dir'].join('buildtools', 'ninja'),
       '-C', fuchsia_build_dir,
     ]
 
@@ -126,6 +131,7 @@ def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
         ninja_cmd.extend(['-j', api.platform.cpu_count])
 
     api.step('ninja', ninja_cmd)
+
 
 def RunTests(api, target, fuchsia_build_dir, tests):
   magenta_build_dir = {
@@ -163,7 +169,7 @@ def RunTests(api, target, fuchsia_build_dir, tests):
   try:
     with qemu:
       run_tests_cmd = [
-        api.path['start_dir'].join('apps/test_runner/src/run_test'),
+        api.path['start_dir'].join('apps', 'test_runner', 'src', 'run_test'),
         '--test_file', api.path['start_dir'].join(tests),
         '--server', '127.0.0.1',
         '--port', str(TEST_RUNNER_PORT),
@@ -187,6 +193,25 @@ def RunTests(api, target, fuchsia_build_dir, tests):
       step_result.presentation.status = api.step.FAILURE
 
 
+def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):
+  api.tar.ensure_tar()
+
+  package = api.tar.create(api.path['tmp_base'].join('fuchsia.tar.gz'), 'gzip')
+  package.add(fuchsia_build_dir.join('user.bootfs'), fuchsia_build_dir)
+  package.add(magenta_build_dir.join('bootdata.bin'), magenta_build_dir)
+  package.add(magenta_build_dir.join('magenta.elf'), magenta_build_dir)
+  if target == 'x86-64':
+    package.add(magenta_build_dir.join('magenta.bin'), magenta_build_dir)
+    package.add(magenta_build_dir.join('bootloader', 'bootx64.efi'), magenta_build_dir)
+  package.tar('tar fuchsia')
+  digest = api.hash.sha1('hash archive', package.archive,
+                         test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
+  api.gsutil.upload('fuchsia', package.archive, 'archives/' + digest,
+      link_name='fuchsia.tar.gz',
+      name='upload fuchsia.tar.gz',
+      unauthenticated_url=True)
+
+
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
              build_type, modules, boot_module, tests, use_goma):
@@ -196,7 +221,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   release_build = (build_type == 'release')
   gn_target = {'arm64': 'aarch64', 'x86-64': 'x86-64'}[target]
-  fuchsia_build_dir = api.path['start_dir'].join('out', '%s-%s' % (build_type, gn_target))
+  fuchsia_out_dir = api.path['start_dir'].join('out')
+  fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
+
+  magenta_target = {
+    'arm64': 'magenta-qemu-arm64',
+    'x86-64': 'magenta-pc-x86-64'
+  }[target]
+  magenta_build_dir = fuchsia_out_dir.join('build-magenta', 'build-%s' % magenta_target)
 
   api.jiri.ensure_jiri()
   api.gsutil.ensure_gsutil()
@@ -213,6 +245,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   if tests:
     RunTests(api, target, fuchsia_build_dir, tests)
+
+  if not api.properties.get('tryjob', False):
+    UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir)
+
 
 def GenTests(api):
   yield api.test('default') + api.properties(

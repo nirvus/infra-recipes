@@ -1,0 +1,85 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "md5",
+      "[START_DIR]/file"
+    ],
+    "infra_step": true,
+    "name": "md5",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[START_DIR]/file"
+    ],
+    "infra_step": true,
+    "name": "sha1",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha224",
+      "[START_DIR]/file"
+    ],
+    "infra_step": true,
+    "name": "sha224",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha256",
+      "[START_DIR]/file"
+    ],
+    "infra_step": true,
+    "name": "sha256",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha384",
+      "[START_DIR]/file"
+    ],
+    "infra_step": true,
+    "name": "sha384",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha512",
+      "[START_DIR]/file"
+    ],
+    "infra_step": true,
+    "name": "sha512",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
