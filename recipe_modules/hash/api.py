@@ -19,7 +19,7 @@ class HashApi(recipe_api.RecipeApi):
       stdout=self.m.raw_io.output(),
       step_test_data=step_test_data,
       infra_step=True)
-    return result.stdout
+    return result.stdout.strip()
 
   def md5(self, name, source, test_data=''):
     return self(name, source, 'md5', test_data)
