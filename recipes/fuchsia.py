@@ -206,7 +206,7 @@ def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):
   package.tar('tar fuchsia')
   digest = api.hash.sha1('hash archive', package.archive,
                          test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
-  api.gsutil.upload('fuchsia', package.archive, 'archives/' + digest,
+  api.gsutil.upload('fuchsia-archive', package.archive, digest,
       link_name='fuchsia.tar.gz',
       name='upload fuchsia.tar.gz',
       unauthenticated_url=True)

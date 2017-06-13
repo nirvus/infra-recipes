@@ -371,14 +371,14 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[TMP_BASE]/fuchsia.tar.gz",
-      "gs://fuchsia/archives/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "env": {
       "BOTO_CONFIG": "[HOME]/.boto"
     },
     "name": "upload fuchsia.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.googleapis.com/fuchsia/archives/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.googleapis.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {
