@@ -208,8 +208,7 @@ def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):
                          test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
   api.gsutil.upload('fuchsia-archive', package.archive, digest,
       link_name='fuchsia.tar.gz',
-      name='upload fuchsia.tar.gz',
-      unauthenticated_url=True)
+      name='upload fuchsia.tar.gz')
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,

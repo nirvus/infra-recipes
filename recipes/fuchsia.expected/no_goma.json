@@ -244,7 +244,7 @@
     },
     "name": "upload fuchsia.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.googleapis.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {
