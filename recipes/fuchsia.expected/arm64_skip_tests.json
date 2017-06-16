@@ -143,7 +143,9 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -152,9 +154,6 @@
       "[TMP_BASE]/jiri.snapshot",
       "gs://fuchsia/jiri/snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
     "infra_step": true,
     "name": "upload jiri.snapshot",
     "~followup_annotations": [
@@ -361,7 +360,9 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -370,9 +371,7 @@
       "[TMP_BASE]/fuchsia.tar.gz",
       "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "upload fuchsia.tar.gz",
     "~followup_annotations": [
       "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"

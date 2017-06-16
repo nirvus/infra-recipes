@@ -31,7 +31,9 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-h",
@@ -48,9 +50,7 @@
       "[TMP_BASE]/file",
       "gs://example/path/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil cp",
     "~followup_annotations": [
       "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/example/path/to/file@@@"
@@ -58,7 +58,9 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-h",
@@ -78,9 +80,7 @@
       "[TMP_BASE]/file",
       "gs://example/path/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil cp (2)",
     "~followup_annotations": [
       "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/example/path/to/file@@@"
@@ -88,7 +88,9 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -97,14 +99,14 @@
       "gs://example/some/random/path/**",
       "gs://example/staging"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil cp (3)"
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -113,14 +115,14 @@
       "gs://example/path/to/file",
       "[TMP_BASE]/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil download url"
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -129,14 +131,14 @@
       "gs://example/staging/to/file",
       "[TMP_BASE]/erang"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil cp (4)"
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -146,14 +148,14 @@
       "example",
       "path/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil signurl"
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -161,14 +163,14 @@
       "rm",
       "gs://example/staging/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil rm"
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -176,14 +178,14 @@
       "ls",
       "gs://example/foo"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil ls"
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -192,9 +194,7 @@
       "gs://example/path/to/file",
       "gs://example/staging/to/file"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil cp (5)",
     "~followup_annotations": [
       "@@@STEP_LINK@gsutil.copy@https://storage.cloud.google.com/example/staging/to/file@@@"
@@ -202,7 +202,9 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -210,9 +212,7 @@
       "cat",
       "gs://example/foo"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "gsutil cat"
   },
   {

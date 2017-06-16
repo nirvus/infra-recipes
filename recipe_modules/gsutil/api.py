@@ -13,20 +13,12 @@ class GSUtilApi(recipe_api.RecipeApi):
   def __init__(self, *args, **kwargs):
     super(GSUtilApi, self).__init__(*args, **kwargs)
     self._gsutil_tool = None
-    self._boto_config = None
-
-  def set_boto_config(self, path):
-    self._boto_config = path
-
-  @property
-  def default_boto_config(self):
-    return self.m.path.expanduser(self.m.path.join('~', '.boto'))
 
   def __call__(self, *args, **kwargs):
     """Return a step to run arbitrary gsutil command."""
     assert self._gsutil_tool
     name = kwargs.pop('name', 'gsutil ' + args[0])
-
+    infra_step = kwargs.pop('infra_step', True)
     cmd_prefix = []
     # Note that metadata arguments have to be passed before the command.
     metadata = kwargs.pop('metadata', [])
@@ -46,13 +38,9 @@ class GSUtilApi(recipe_api.RecipeApi):
       '-o',
       'GSUtil:software_update_check_period=0',
     ])
-
-    env = self.m.context.env
-    if self._boto_config:
-      env.setdefault('BOTO_CONFIG', self._boto_config)
-
-    with self.m.context(env=env):
-      return self.m.python(name, self._gsutil_tool, cmd_prefix + list(args), **kwargs)
+    return self.m.python(name, self._gsutil_tool, cmd_prefix + list(args),
+                         venv=self.resource('gsutil.vpython'),
+                         infra_step=infra_step, **kwargs)
 
   @recipe_api.non_step
   def normalize(self, url):

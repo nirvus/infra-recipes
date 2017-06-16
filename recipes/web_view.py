@@ -42,7 +42,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target):
   api.jiri.ensure_jiri()
   api.gsutil.ensure_gsutil()
-  api.gsutil.set_boto_config(api.gsutil.default_boto_config)
   api.goma.ensure_goma()
 
   with api.context(infra_steps=True):

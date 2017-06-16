@@ -300,7 +300,9 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -309,9 +311,7 @@
       "[START_DIR]/out/release-x86-64/x64-shared/libwebkit.so",
       "gs://fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/libwebkit.so"
     ],
-    "env": {
-      "BOTO_CONFIG": "[HOME]/.boto"
-    },
+    "infra_step": true,
     "name": "upload libwebkit.so",
     "~followup_annotations": [
       "@@@STEP_LINK@libwebkit.so@https://storage.googleapis.com/fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/libwebkit.so@@@"

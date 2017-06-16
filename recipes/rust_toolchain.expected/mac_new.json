@@ -271,7 +271,9 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
       "-o",
@@ -280,6 +282,7 @@
       "[TMP_BASE]/rust_tmp_1/rust.cipd",
       "gs://fuchsia/rust/mac-amd64/40-chars-fake-of-the-package-instance_id"
     ],
+    "infra_step": true,
     "name": "gsutil cp",
     "~followup_annotations": [
       "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/rust/mac-amd64/40-chars-fake-of-the-package-instance_id@@@"
