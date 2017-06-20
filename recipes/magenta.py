@@ -28,7 +28,9 @@ TARGETS = [
   'magenta-qemu-arm64',
   'magenta-pc-x86-64',
   'magenta-rpi3-arm64',
-  'magenta-hikey960-arm64'
+  'magenta-hikey960-arm64',
+  'pc-x86-64-test',
+  'qemu-virt-a53-test'
 ]
 
 # Test summary from the core tests, which run directly from userboot.
@@ -121,6 +123,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     'magenta-rpi3-arm64': 'aarch64',
     'magenta-qemu-arm64': 'aarch64',
     'magenta-pc-x86-64': 'x86_64',
+    'pc-x86-64-test': 'x86_64',
+    'qemu-virt-a53-test': 'aarch64',
   }[target]
 
   build_dir = 'build-%s' % target + ('-clang' if toolchain == 'clang' else '')
