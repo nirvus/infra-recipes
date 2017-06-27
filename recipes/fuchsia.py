@@ -52,7 +52,9 @@ PROPERTIES = {
   'tests': Property(kind=str, help='Path to config file listing tests to run',
                     default=None),
   'use_goma': Property(kind=bool, help='Whether to use goma to compile',
-                       default=True)
+                       default=True),
+  'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
+                      default=[]),
 }
 
 TEST_RUNNER_PORT = 8342
@@ -97,7 +99,7 @@ def GomaContext(api, use_goma):
 
 
 def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
-                 modules, boot_module, tests, use_goma):
+                 modules, boot_module, tests, use_goma, gn_args):
   if tests and not boot_module:
     boot_module = 'boot_test_runner'
 
@@ -117,6 +119,10 @@ def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
 
     if release_build:
       gen_cmd.append('--release')
+
+    for arg in gn_args:
+      gen_cmd.append('--args')
+      gen_cmd.append(arg)
 
     api.step('gen', gen_cmd)
 
@@ -213,7 +219,7 @@ def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
-             build_type, modules, boot_module, tests, use_goma):
+             build_type, modules, boot_module, tests, use_goma, gn_args):
   # Tests are currently broken on arm64.
   if target == 'arm64':
     tests = None
@@ -239,7 +245,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   Checkout(api, patch_ref, patch_gerrit_url, manifest, remote)
   BuildMagenta(api, target)
   BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
-               modules, boot_module, tests, use_goma)
+               modules, boot_module, tests, use_goma, gn_args)
 
   if tests:
     RunTests(api, target, fuchsia_build_dir, tests)
@@ -305,4 +311,13 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tryjob=True,
+  )
+  yield api.test('gn_args') + api.properties.tryserver(
+      gerrit_project='fuchsia',
+      patch_gerrit_url='fuchsia-review.googlesource.com',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tryjob=True,
+      gn_args=['super_arg=false', 'less_super_arg=true'],
   )
