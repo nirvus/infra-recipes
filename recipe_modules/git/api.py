@@ -32,8 +32,7 @@ class GitApi(recipe_api.RecipeApi):
       path = path or path.rsplit('/', 1)[-1] # ssh://host:repo/foobar/.git
       path = self.m.path['start_dir'].join(path)
 
-    if not self.m.path.exists(path):
-      self.m.shutil.makedirs('makedirs', path)
+    self.m.file.ensure_directory('makedirs', path)
 
     with self.m.context(cwd=path):
       if self.m.path.exists(path.join('.git')): # pragma: no cover

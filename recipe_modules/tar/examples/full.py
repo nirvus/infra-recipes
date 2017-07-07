@@ -4,9 +4,9 @@
 
 DEPS = [
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/platform',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'tar',
 ]
@@ -20,7 +20,7 @@ def RunSteps(api):
   temp = api.path.mkdtemp('tar-example')
   api.step('touch a', ['touch', temp.join('a')])
   api.step('touch b', ['touch', temp.join('b')])
-  api.shutil.makedirs('mkdirs', temp.join('sub', 'dir'))
+  api.file.ensure_directory('mkdirs', temp.join('sub', 'dir'))
   api.step('touch c', ['touch', temp.join('sub', 'dir', 'c')])
 
   # Build a tar file.
@@ -41,7 +41,7 @@ def RunSteps(api):
   with api.context(cwd=temp.join('output')):
     api.step('listing', ['find'])
   # Clean up.
-  api.shutil.rmtree(temp)
+  api.file.rmtree('rmtree %s' % temp, temp)
 
 
 def GenTests(api):

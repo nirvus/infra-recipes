@@ -16,12 +16,12 @@ DEPS = [
   'infra/gsutil',
   'infra/jiri',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/tempfile',
 ]
@@ -71,14 +71,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   staging_dir = api.path.mkdtemp('clang')
   pkg_name = 'clang+llvm-x86_64-%s' % api.platform.name.replace('mac', 'darwin')
   pkg_dir = staging_dir.join(pkg_name)
-  api.shutil.makedirs('create pkg dir', pkg_dir)
+  api.file.ensure_directory('create pkg dir', pkg_dir)
 
   # build binutils
   # TODO: remove this once we have objcopy/strip replacement
   binutils_dir = api.path['start_dir'].join('third_party', 'binutils-gdb')
 
   build_dir = staging_dir.join('binutils_build_dir')
-  api.shutil.makedirs('create build dir', build_dir)
+  api.file.ensure_directory('create build dir', build_dir)
 
   install_dir = staging_dir.join('binutils_install_dir')
 
@@ -103,13 +103,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'install-strip-binutils',
       ])
 
-  api.shutil.makedirs('create bin dir', pkg_dir.join('bin'))
-  api.shutil.copy('copy objcopy',
-                  install_dir.join('bin', 'objcopy'),
-                  pkg_dir.join('bin', 'objcopy'))
-  api.shutil.copy('copy strip',
-                  install_dir.join('bin', 'strip'),
-                  pkg_dir.join('bin', 'strip'))
+  api.file.ensure_directory('create bin dir', pkg_dir.join('bin'))
+  api.file.copy('copy objcopy',
+                install_dir.join('bin', 'objcopy'),
+                pkg_dir.join('bin', 'objcopy'))
+  api.file.copy('copy strip',
+                install_dir.join('bin', 'strip'),
+                pkg_dir.join('bin', 'strip'))
 
   # build magenta
   magenta_dir = api.path['start_dir'].join('magenta')
@@ -127,7 +127,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   clang_dir = llvm_dir.join('tools', 'clang')
 
   build_dir = staging_dir.join('llvm_build_dir')
-  api.shutil.makedirs('create build dir', build_dir)
+  api.file.ensure_directory('create build dir', build_dir)
 
   toolchain_dir = api.path['start_dir'].join('buildtools', 'toolchain')
 

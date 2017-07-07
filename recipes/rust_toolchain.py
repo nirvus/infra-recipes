@@ -20,7 +20,7 @@ DEPS = [
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
-  'recipe_engine/shutil',
+  'recipe_engine/file',
   'recipe_engine/step',
   'recipe_engine/tempfile',
   'recipe_engine/url',
@@ -87,9 +87,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.step('install %s rust-std' % target,
         [staging_dir.join(rust_std_nightly, 'install.sh'), '--prefix=%s' % rust_dir])
 
-  for f in api.shutil.glob('glob', rust_dir.join('**/manifest-*'),
-                           test_data=[rust_dir.join('lib/rustlib/manifest-rustc')]):
-    api.shutil.remove('remove %s' % f, f)
+  api.file.rmglob('remove manifests', rust_dir, 'manifest-*')
 
   step_result = api.step('rust version',
       [rust_dir.join('bin', 'rustc'), '--version'],

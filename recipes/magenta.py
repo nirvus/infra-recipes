@@ -15,11 +15,11 @@ DEPS = [
   'infra/jiri',
   'infra/qemu',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/tempfile',
 ]
@@ -97,11 +97,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   tmp_dir = api.path['tmp_base'].join('magenta_tmp')
-  api.shutil.makedirs('tmp', tmp_dir)
+  api.file.ensure_directory('makedirs tmp', tmp_dir)
   path = tmp_dir.join('autorun')
   autorun = ['msleep 500', 'runtests']
-  step_result = api.shutil.write('write autorun', path, '\n'.join(autorun))
-  step_result.presentation.logs['autorun.sh'] = autorun
+  api.file.write_text('write autorun', path, '\n'.join(autorun))
+  api.step.active_result.presentation.logs['autorun.sh'] = autorun
 
   build_args = [
     'make',

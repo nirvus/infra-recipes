@@ -10,15 +10,15 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
   'infra/cipd',
-  'infra/gsutil',
   'infra/go',
+  'infra/gsutil',
   'infra/jiri',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/tempfile',
 ]
@@ -60,15 +60,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   staging_dir = api.path.mkdtemp('go')
   pkg_dir = staging_dir.join('go')
-  api.shutil.makedirs('create pkg dir', pkg_dir)
+  api.file.ensure_directory('create pkg dir', pkg_dir)
   for dir in ['bin', 'lib', 'pkg', 'src', 'misc']:
-    api.shutil.copytree('copy %s' % dir, go_dir.join(dir), pkg_dir.join(dir))
+    api.file.copytree('copy %s' % dir, go_dir.join(dir), pkg_dir.join(dir))
 
   api.path.mock_add_paths(pkg_dir)
   assert api.path.exists(pkg_dir), (
     'Package directory %s does not exist' % (pkg_dir))
 
-  go_version = api.shutil.read('read go version', go_dir.join('VERSION.cache'), test_data='go1.8')
+  go_version = api.file.read_text('read go version', go_dir.join('VERSION.cache'), test_data='go1.8')
   assert go_version, 'Cannot determine Go version'
 
   platform = '%s-%s' % (
