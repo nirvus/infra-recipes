@@ -59,7 +59,7 @@ PROPERTIES = {
 TEST_RUNNER_PORT = 8342
 
 
-def Checkout(api, patch_ref, patch_gerrit_url, manifest, remote):
+def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
   with api.context(infra_steps=True):
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote, overwrite=True)
@@ -76,6 +76,8 @@ def Checkout(api, patch_ref, patch_gerrit_url, manifest, remote):
 
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+    if patch_project == 'manifest':
+      api.jiri.update(local_manifest=True)
 
 
 def BuildMagenta(api, target):
@@ -241,7 +243,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if tests:
     api.qemu.ensure_qemu()
 
-  Checkout(api, patch_ref, patch_gerrit_url, manifest, remote)
+  Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote)
   BuildMagenta(api, target)
   BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
                modules, boot_module, tests, use_goma, gn_args)
@@ -319,4 +321,13 @@ def GenTests(api):
       target='x86-64',
       tryjob=True,
       gn_args=['super_arg=false', 'less_super_arg=true'],
+  )
+  yield api.test('manifest') + api.properties.tryserver(
+      gerrit_project='fuchsia',
+      patch_project='manifest',
+      patch_gerrit_url='fuchsia-review.googlesource.com',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tryjob=True,
   )

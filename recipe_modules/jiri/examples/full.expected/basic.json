@@ -56,7 +56,8 @@
       "update",
       "-autoupdate=false",
       "-gc=true",
-      "snapshot"
+      "snapshot",
+      "-local-manifest=true"
     ],
     "name": "jiri update"
   },

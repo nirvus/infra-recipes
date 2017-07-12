@@ -25,7 +25,7 @@ def RunSteps(api):
                            overwrite=True)
 
   # Download all projects.
-  api.jiri.update(gc=True, snapshot='snapshot')
+  api.jiri.update(gc=True, snapshot='snapshot', local_manifest=True)
 
   # Take a snapshot.
   step_result = api.jiri.snapshot(api.raw_io.output())

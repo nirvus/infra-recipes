@@ -60,7 +60,7 @@ class JiriApi(recipe_api.RecipeApi):
         **kwargs
     )
 
-  def update(self, gc=False, snapshot=None, **kwargs):
+  def update(self, gc=False, snapshot=None, local_manifest=False, **kwargs):
     cmd = [
       'update',
       '-autoupdate=false',
@@ -69,6 +69,8 @@ class JiriApi(recipe_api.RecipeApi):
       cmd.extend(['-gc=true'])
     if snapshot is not None:
       cmd.append(snapshot)
+    if local_manifest:
+      cmd.extend(['-local-manifest=true'])
 
     return self(*cmd, **kwargs)
 
