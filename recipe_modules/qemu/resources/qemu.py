@@ -80,7 +80,8 @@ def main():
     parser.add_argument('--kvm', dest='kvm', action='store_true', default=True)
     parser.add_argument('--no-kvm', dest='kvm', action='store_false')
     parser.add_argument('--initrd', type=str, default=None)
-    parser.add_argument('--cmdline', type=str, default=None)
+    parser.add_argument('--cmdline', type=str,
+                        default='TERM=dumb kernel.halt_on_panic=true')
     parser.add_argument('--executable', type=str, required=True)
     parser.add_argument('--append', type=str, default=None)
     parser.add_argument('--netdev', type=str, default=None)
@@ -110,6 +111,11 @@ def main():
     '-nographic',
     '-machine', {'aarch64': 'virt', 'x86_64': 'q35'}[args.arch],
     '-kernel', args.kernel,
+
+    # Use stdio for the guest OS only; don't attach the QEMU interactive
+    # monitor.
+    '-serial', 'stdio',
+    '-monitor', 'none',
   ]
   if args.kvm and is_kvm_supported(args.arch):
     cmd.extend(['-enable-kvm', '-cpu', 'host'])
