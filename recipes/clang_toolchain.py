@@ -78,7 +78,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   binutils_dir = api.path['start_dir'].join('third_party', 'binutils-gdb')
 
   build_dir = staging_dir.join('binutils_build_dir')
-  api.file.ensure_directory('create build dir', build_dir)
+  api.file.ensure_directory('create binutils build dir', build_dir)
 
   install_dir = staging_dir.join('binutils_install_dir')
 
@@ -127,7 +127,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   clang_dir = llvm_dir.join('tools', 'clang')
 
   build_dir = staging_dir.join('llvm_build_dir')
-  api.file.ensure_directory('create build dir', build_dir)
+  api.file.ensure_directory('create llvm build dir', build_dir)
 
   toolchain_dir = api.path['start_dir'].join('buildtools', 'toolchain')
 
@@ -140,7 +140,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '-DCMAKE_ASM_COMPILER=%s' % toolchain_dir.join(pkg_name, 'bin', 'clang'),
       '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
       '-DCMAKE_INSTALL_PREFIX=',
-      '-DFUCHSIA_SYSROOT=%s' % magenta_dir.join('build-magenta-pc-x86-64', 'sysroot'),
+      '-DFUCHSIA_x86_64_SYSROOT=%s' % magenta_dir.join('build-magenta-pc-x86-64', 'sysroot'),
+      '-DFUCHSIA_aarch64_SYSROOT=%s' % magenta_dir.join('build-magenta-qemu-arm64', 'sysroot'),
       '-C', clang_dir.join('cmake', 'caches', 'Fuchsia.cmake'),
       llvm_dir,
     ])
