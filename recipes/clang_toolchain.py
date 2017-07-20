@@ -159,7 +159,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   clang_revision = m.group(1)
   llvm_revision = m.group(2)
 
-  cipd_pkg_name = 'fuchsia/toolchain/clang/' + api.cipd.platform_suffix()
+  cipd_pkg_name = 'fuchsia/clang/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'clang_revision:' + clang_revision)
   if step.json.output['result']:
     return
@@ -202,6 +202,6 @@ def GenTests(api):
            api.properties(manifest='toolchain',
                           remote='https://fuchsia.googlesource.com/manifest') +
            api.step_data('clang version', api.raw_io.stream_output(version)) +
-           api.step_data('cipd search fuchsia/toolchain/clang/' + platform + '-amd64 ' +
+           api.step_data('cipd search fuchsia/clang/' + platform + '-amd64 ' +
                          'clang_revision:302207',
                          api.json.output({'result': []})))

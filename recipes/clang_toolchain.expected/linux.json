@@ -352,7 +352,7 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/toolchain/clang/linux-amd64",
+      "fuchsia/clang/linux-amd64",
       "--tag",
       "clang_revision:302207",
       "--json-output",
@@ -360,13 +360,13 @@
       "--service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/toolchain/clang/linux-amd64 clang_revision:302207",
+    "name": "cipd search fuchsia/clang/linux-amd64 clang_revision:302207",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/toolchain/clang/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",

@@ -352,7 +352,7 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/toolchain/clang/mac-amd64",
+      "fuchsia/clang/mac-amd64",
       "--tag",
       "clang_revision:302207",
       "--json-output",
@@ -360,7 +360,7 @@
       "--service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/toolchain/clang/mac-amd64 clang_revision:302207",
+    "name": "cipd search fuchsia/clang/mac-amd64 clang_revision:302207",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -375,7 +375,7 @@
       "--in",
       "[TMP_BASE]/clang_tmp_1/clang+llvm-x86_64-darwin",
       "--name",
-      "fuchsia/toolchain/clang/mac-amd64",
+      "fuchsia/clang/mac-amd64",
       "--out",
       "[TMP_BASE]/clang.cipd",
       "--json-output",
@@ -386,7 +386,7 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/toolchain/clang/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/clang/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
@@ -410,12 +410,12 @@
       "--tag",
       "llvm_revision:302209"
     ],
-    "name": "register fuchsia/toolchain/clang/mac-amd64",
+    "name": "register fuchsia/clang/mac-amd64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/toolchain/clang/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/clang/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
