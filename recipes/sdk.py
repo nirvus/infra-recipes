@@ -109,7 +109,11 @@ def UploadArchive(api, sdk):
     digest = api.hash.sha1(
         'hash archive', sdk, test_data='27a0c185de8bb5dba483993ff1e362bc9e2c7643')
     dest = 'sdk/linux-amd64/%s' % digest
-    api.gsutil.upload('fuchsia', sdk, dest, name='upload fuchsia-sdk')
+    api.gsutil.upload('fuchsia',
+                      sdk,
+                      dest,
+                      name='upload fuchsia-sdk',
+                      unauthenticated_url=True)
     snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
     step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
     api.gsutil.upload('fuchsia', snapshot_file, 'sdk/snapshots/' + digest,

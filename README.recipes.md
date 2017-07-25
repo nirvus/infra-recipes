@@ -481,7 +481,7 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [MakeSdk](/recipes/sdk.py#101)(api, sdk):**
 
-&mdash; **def [RunSteps](/recipes/sdk.py#121)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, use_goma):**
+&mdash; **def [RunSteps](/recipes/sdk.py#125)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, use_goma):**
 
 &mdash; **def [UploadArchive](/recipes/sdk.py#108)(api, sdk):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)

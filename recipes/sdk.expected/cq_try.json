@@ -353,7 +353,7 @@
     "infra_step": true,
     "name": "upload fuchsia-sdk",
     "~followup_annotations": [
-      "@@@STEP_LINK@gsutil.upload@https://storage.cloud.google.com/fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
     ]
   },
   {
