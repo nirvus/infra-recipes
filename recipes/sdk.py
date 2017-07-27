@@ -6,7 +6,7 @@
 
 from contextlib import contextmanager
 
-from recipe_engine.config import Enum, ReturnSchema, Single
+from recipe_engine.config import Enum, List, ReturnSchema, Single
 from recipe_engine.recipe_api import Property, StepFailure
 
 
@@ -42,6 +42,8 @@ PROPERTIES = {
                                    default=None),
   'use_goma': Property(kind=bool, help='Whether to use goma to compile',
                        default=True),
+  'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
+                      default=[]),
 }
 
 
@@ -123,7 +125,7 @@ def UploadArchive(api, sdk):
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, use_goma):
+             patch_storage, patch_repository_url, use_goma, gn_args):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
@@ -146,8 +148,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   target = 'x86-64'
   gn_target = 'x86-64'
 
-  gn_args = []
-
   fuchsia_out_dir = api.path['start_dir'].join('out')
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
 
@@ -164,8 +164,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
 def GenTests(api):
   yield (api.test('ci') +
-         api.properties())
+         api.properties(gn_args=['test']))
   yield (api.test('cq_try') +
          api.properties.tryserver(
          gerrit_project='magenta',
          patch_gerrit_url='fuchsia-review.googlesource.com'))
+  yield (api.test('no_goma') +
+         api.properties(use_goma=False))
