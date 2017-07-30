@@ -31,6 +31,7 @@
   * [jiri:examples/full](#recipes-jiri_examples_full)
   * [magenta](#recipes-magenta) &mdash; Recipe for building Magenta.
   * [modules](#recipes-modules) &mdash; Recipe for building and running pre-submit checks for the modules repo.
+  * [qemu](#recipes-qemu) &mdash; Recipe for building QEMU.
   * [qemu:examples/full](#recipes-qemu_examples_full)
   * [recipes](#recipes-recipes) &mdash; Recipe for testing Recipes.
   * [rust_toolchain](#recipes-rust_toolchain) &mdash; Recipe for building Rust toolchain.
@@ -448,6 +449,13 @@ Recipe for building Magenta.
 Recipe for building and running pre-submit checks for the modules repo.
 
 &mdash; **def [RunSteps](/recipes/modules.py#37)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project_path):**
+### *recipes* / [qemu](/recipes/qemu.py)
+
+[DEPS](/recipes/qemu.py#13): [cipd](#recipe_modules-cipd), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/shutil][recipe_engine/recipe_modules/shutil], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+
+Recipe for building QEMU.
+
+&mdash; **def [RunSteps](/recipes/qemu.py#41)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote):**
 ### *recipes* / [qemu:examples/full](/recipe_modules/qemu/examples/full.py)
 
 [DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -517,6 +525,7 @@ Recipe for building WebView.
 [recipe_engine/recipe_modules/properties]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--properties
 [recipe_engine/recipe_modules/python]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--python
 [recipe_engine/recipe_modules/raw_io]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--raw_io
+[recipe_engine/recipe_modules/shutil]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--shutil
 [recipe_engine/recipe_modules/step]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--step
 [recipe_engine/recipe_modules/tempfile]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--tempfile
 [recipe_engine/recipe_modules/time]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--time
