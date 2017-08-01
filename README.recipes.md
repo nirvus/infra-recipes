@@ -473,7 +473,7 @@ Recipe for building Rust toolchain.
 
 Recipe for building Fuchsia SDKs.
 
-&mdash; **def [BuildFuchsia](/recipes/sdk.py#68)(api, release_build, target, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/sdk.py#68)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
 
 &mdash; **def [BuildMagenta](/recipes/sdk.py#50)(api, target):**
 

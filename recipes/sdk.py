@@ -65,7 +65,7 @@ def GomaContext(api, use_goma):
       yield
 
 
-def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
+def BuildFuchsia(api, release_build, gn_target, fuchsia_build_dir,
                  modules, use_goma, gn_args):
   with api.step.nest('build fuchsia'), GomaContext(api, use_goma):
     gen_cmd = [
@@ -145,14 +145,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   modules = ['sdk']
   build_type = 'release'
   release_build = True
-  target = 'x86-64'
+  target = 'x86_64'
   gn_target = 'x86-64'
 
   fuchsia_out_dir = api.path['start_dir'].join('out')
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
 
   BuildMagenta(api, target)
-  BuildFuchsia(api, release_build, target, gn_target,
+  BuildFuchsia(api, release_build, gn_target,
                fuchsia_build_dir, modules, use_goma, gn_args)
 
   sdk = api.path.mkdtemp('sdk').join('fuchsia-sdk.tgz')
