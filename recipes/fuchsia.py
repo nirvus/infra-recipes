@@ -182,6 +182,10 @@ def RunTests(api, target, fuchsia_build_dir, tests):
         '--port', str(TEST_RUNNER_PORT),
       ]
       api.step('run tests', run_tests_cmd)
+      # Give time for output to get flushed before reading the QEMU log.
+      # TODO(bgoldman): Capture diagnostic information like FTL_LOG and
+      # backtraces synchronously.
+      api.step('sleep', ['sleep', '3'])
   finally:
     symbolize_cmd = [
       api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
