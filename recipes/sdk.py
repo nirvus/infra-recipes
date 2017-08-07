@@ -9,8 +9,11 @@ from contextlib import contextmanager
 from recipe_engine.config import Enum, List, ReturnSchema, Single
 from recipe_engine.recipe_api import Property, StepFailure
 
+import hashlib
+
 
 DEPS = [
+  'infra/cipd',
   'infra/goma',
   'infra/go',
   'infra/gsutil',
@@ -99,28 +102,50 @@ def BuildFuchsia(api, release_build, gn_target, fuchsia_build_dir,
     api.step('ninja', ninja_cmd)
 
 
-def MakeSdk(api, sdk):
+def MakeSdk(api, outdir, sdk):
   api.go('run',
          api.path['start_dir'].join('scripts', 'makesdk.go'),
+         '-out-dir', outdir,
          '-output', sdk,
          api.path['start_dir'])
 
 
 def UploadArchive(api, sdk):
-    digest = api.hash.sha1(
-        'hash archive', sdk, test_data='27a0c185de8bb5dba483993ff1e362bc9e2c7643')
-    dest = 'sdk/linux-amd64/%s' % digest
-    api.gsutil.upload('fuchsia',
-                      sdk,
-                      dest,
-                      name='upload fuchsia-sdk %s' % digest,
-                      unauthenticated_url=True)
-    snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
-    step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
-    api.gsutil.upload('fuchsia', snapshot_file, 'sdk/snapshots/' + digest,
-                      link_name='jiri.snapshot',
-                      name='upload jiri.snapshot',
-                      unauthenticated_url=True)
+  digest = api.hash.sha1(
+      'hash archive', sdk, test_data='27a0c185de8bb5dba483993ff1e362bc9e2c7643')
+  api.gsutil.upload(
+      'fuchsia',
+      sdk,
+      'sdk/linux-amd64/%s' % digest,
+      name='upload fuchsia-sdk %s' % digest,
+      unauthenticated_url=True
+  )
+
+
+def UploadPackage(api, outdir, digest):
+  cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
+  cipd_pkg_file = api.path['tmp_base'].join('sdk.cipd')
+
+  api.cipd.build(
+      input_dir=outdir,
+      package_name=cipd_pkg_name,
+      output_package=cipd_pkg_file,
+  )
+  step_result = api.cipd.register(
+      package_name=cipd_pkg_name,
+      package_path=cipd_pkg_file,
+      refs=['latest'],
+      tags={
+        'jiri_snapshot': digest,
+      },
+  )
+
+  api.gsutil.upload(
+      'fuchsia',
+      cipd_pkg_file,
+      '/'.join(['sdk', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']]),
+      unauthenticated_url=True
+  )
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -137,6 +162,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'fuchsia', 'https://fuchsia.googlesource.com/manifest')
     api.jiri.clean(all=True)
     api.jiri.update(gc=True)
+    if not api.properties.get('tryjob', False):
+      snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
+      step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
+      digest = hashlib.sha1(step_result.raw_io.output).hexdigest()
+      api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
+          link_name='jiri.snapshot',
+          name='upload jiri.snapshot',
+          unauthenticated_url=True)
 
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
@@ -154,11 +187,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   BuildFuchsia(api, release_build, gn_target,
                fuchsia_build_dir, modules, use_goma, gn_args)
 
-  sdk = api.path.mkdtemp('sdk').join('fuchsia-sdk.tgz')
-  MakeSdk(api, sdk)
+  outdir = api.path.mkdtemp('sdk')
+  sdk = api.path['tmp_base'].join('fuchsia-sdk.tgz')
+  MakeSdk(api, outdir, sdk)
 
   if not api.properties.get('tryjob', False):
     UploadArchive(api, sdk)
+    UploadPackage(api, outdir, digest)
 
 
 def GenTests(api):

@@ -164,6 +164,34 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
+      "snapshot",
+      "[TMP_BASE]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "jiri snapshot"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/jiri.snapshot",
+      "gs://fuchsia/jiri/snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia/jiri/snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
       "patch",
       "-host",
       "fuchsia-review.googlesource.com",
@@ -322,8 +350,10 @@
       "[START_DIR]/cipd/go/bin/go",
       "run",
       "[START_DIR]/scripts/makesdk.go",
+      "-out-dir",
+      "[TMP_BASE]/sdk_tmp_1",
       "-output",
-      "[TMP_BASE]/sdk_tmp_1/fuchsia-sdk.tgz",
+      "[TMP_BASE]/fuchsia-sdk.tgz",
       "[START_DIR]"
     ],
     "env": {
@@ -338,7 +368,7 @@
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
       "-a",
       "sha1",
-      "[TMP_BASE]/sdk_tmp_1/fuchsia-sdk.tgz"
+      "[TMP_BASE]/fuchsia-sdk.tgz"
     ],
     "infra_step": true,
     "name": "hash archive",
@@ -354,7 +384,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[TMP_BASE]/sdk_tmp_1/fuchsia-sdk.tgz",
+      "[TMP_BASE]/fuchsia-sdk.tgz",
       "gs://fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
     ],
     "infra_step": true,
@@ -365,11 +395,52 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "snapshot",
-      "[TMP_BASE]/jiri.snapshot"
+      "cipd",
+      "pkg-build",
+      "--in",
+      "[TMP_BASE]/sdk_tmp_1",
+      "--name",
+      "fuchsia/sdk/linux-amd64",
+      "--out",
+      "[TMP_BASE]/sdk.cipd",
+      "--json-output",
+      "/path/to/tmp/json"
     ],
-    "name": "jiri snapshot"
+    "name": "build linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/sdk/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "[TMP_BASE]/sdk.cipd",
+      "--json-output",
+      "/path/to/tmp/json",
+      "--service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json",
+      "--ref",
+      "latest",
+      "--tag",
+      "jiri_snapshot:8ac5404b688b34f2d34d1c8a648413aca30b7a97"
+    ],
+    "name": "register fuchsia/sdk/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/sdk/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
@@ -381,13 +452,13 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[TMP_BASE]/jiri.snapshot",
-      "gs://fuchsia/sdk/snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
+      "[TMP_BASE]/sdk.cipd",
+      "gs://fuchsia/sdk/linux-amd64/40-chars-fake-of-the-package-instance_id"
     ],
     "infra_step": true,
-    "name": "upload jiri.snapshot",
+    "name": "gsutil cp",
     "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia/sdk/snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
     ]
   },
   {

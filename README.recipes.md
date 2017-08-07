@@ -477,21 +477,23 @@ Recipe for building Rust toolchain.
 &mdash; **def [RunSteps](/recipes/rust_toolchain.py#46)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url):**
 ### *recipes* / [sdk](/recipes/sdk.py)
 
-[DEPS](/recipes/sdk.py#13): [go](#recipe_modules-go), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/sdk.py#15): [cipd](#recipe_modules-cipd), [go](#recipe_modules-go), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Fuchsia SDKs.
 
-&mdash; **def [BuildFuchsia](/recipes/sdk.py#67)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/sdk.py#70)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
 
-&mdash; **def [BuildMagenta](/recipes/sdk.py#50)(api, target):**
+&mdash; **def [BuildMagenta](/recipes/sdk.py#53)(api, target):**
 
-&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#58)(api, use_goma):**
+&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#61)(api, use_goma):**
 
-&mdash; **def [MakeSdk](/recipes/sdk.py#102)(api, sdk):**
+&mdash; **def [MakeSdk](/recipes/sdk.py#105)(api, outdir, sdk):**
 
-&mdash; **def [RunSteps](/recipes/sdk.py#126)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, use_goma, gn_args):**
+&mdash; **def [RunSteps](/recipes/sdk.py#151)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, use_goma, gn_args):**
 
-&mdash; **def [UploadArchive](/recipes/sdk.py#109)(api, sdk):**
+&mdash; **def [UploadArchive](/recipes/sdk.py#113)(api, sdk):**
+
+&mdash; **def [UploadPackage](/recipes/sdk.py#125)(api, outdir, digest):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)
