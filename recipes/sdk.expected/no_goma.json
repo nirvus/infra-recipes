@@ -136,7 +136,16 @@
       "-t",
       "x86_64"
     ],
-    "name": "build magenta"
+    "name": "build magenta x86_64"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-magenta.sh",
+      "-c",
+      "-t",
+      "aarch64"
+    ],
+    "name": "build magenta aarch64"
   },
   {
     "cmd": [],

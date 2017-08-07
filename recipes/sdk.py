@@ -53,7 +53,7 @@ def BuildMagenta(api, target):
       '-c',
       '-t', target,
   ]
-  api.step('build magenta', build_magenta_cmd)
+  api.step('build magenta ' + target, build_magenta_cmd)
 
 
 @contextmanager
@@ -145,13 +145,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   modules = ['sdk']
   build_type = 'release'
   release_build = True
-  target = 'x86_64'
   gn_target = 'x86-64'
 
   fuchsia_out_dir = api.path['start_dir'].join('out')
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
 
-  BuildMagenta(api, target)
+  BuildMagenta(api, 'x86_64')
+  BuildMagenta(api, 'aarch64')
   BuildFuchsia(api, release_build, gn_target,
                fuchsia_build_dir, modules, use_goma, gn_args)
 
