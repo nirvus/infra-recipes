@@ -173,35 +173,37 @@ def RunTests(api, target, fuchsia_build_dir, tests):
       netdev=netdev,
       devices=['e1000,netdev=net0'])
 
-  try:
-    with qemu:
-      run_tests_cmd = [
-        api.path['start_dir'].join('apps', 'test_runner', 'src', 'run_test'),
-        '--test_file', api.path['start_dir'].join(tests),
-        '--server', '127.0.0.1',
-        '--port', str(TEST_RUNNER_PORT),
-      ]
+  with qemu:
+    run_tests_cmd = [
+      api.path['start_dir'].join('apps', 'test_runner', 'src', 'run_test'),
+      '--test_file', api.path['start_dir'].join(tests),
+      '--server', '127.0.0.1',
+      '--port', str(TEST_RUNNER_PORT),
+    ]
+    try:
       api.step('run tests', run_tests_cmd)
+    finally:
       # Give time for output to get flushed before reading the QEMU log.
       # TODO(bgoldman): Capture diagnostic information like FTL_LOG and
       # backtraces synchronously.
       api.step('sleep', ['sleep', '3'])
-  finally:
-    symbolize_cmd = [
-      api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
-      '--no-echo',
-      '--file', 'qemu.stdout',
-      '--build-dir', fuchsia_build_dir,
-    ]
-    step_result = api.step('symbolize', symbolize_cmd,
-        stdout=api.raw_io.output(),
-        step_test_data=lambda: api.raw_io.test_api.stream_output(''))
-    lines = step_result.stdout.splitlines()
-    if lines:
-      # If symbolize found any backtraces in qemu.stdout, mark the symbolize
-      # step as failed to indicate that it should be looked at.
-      step_result.presentation.logs['symbolized backtraces'] = lines
-      step_result.presentation.status = api.step.FAILURE
+
+      symbolize_cmd = [
+        api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
+        '--no-echo',
+        '--file', 'qemu.stdout',
+        '--build-dir', fuchsia_build_dir,
+      ]
+      step_result = api.step('symbolize', symbolize_cmd,
+          stdout=api.raw_io.output(),
+          step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+
+      lines = step_result.stdout.splitlines()
+      if lines:
+        # If symbolize found any backtraces in qemu.stdout, mark the symbolize
+        # step as failed to indicate that it should be looked at.
+        step_result.presentation.logs['symbolized backtraces'] = lines
+        step_result.presentation.status = api.step.FAILURE
 
 
 def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):

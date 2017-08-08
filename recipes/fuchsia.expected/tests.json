@@ -372,14 +372,6 @@
   },
   {
     "cmd": [
-      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
-      "stop",
-      "--log"
-    ],
-    "name": "stop qemu and read log"
-  },
-  {
-    "cmd": [
       "[START_DIR]/magenta/scripts/symbolize",
       "--no-echo",
       "--file",
@@ -389,6 +381,14 @@
     ],
     "name": "symbolize",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "stop",
+      "--log"
+    ],
+    "name": "stop qemu and read log"
   },
   {
     "cmd": [],

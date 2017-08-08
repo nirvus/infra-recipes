@@ -369,11 +369,10 @@
   },
   {
     "cmd": [
-      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
-      "stop",
-      "--log"
+      "sleep",
+      "3"
     ],
-    "name": "stop qemu and read log"
+    "name": "sleep"
   },
   {
     "cmd": [
@@ -392,6 +391,14 @@
       "@@@STEP_LOG_END@symbolized backtraces@@@",
       "@@@STEP_FAILURE@@@"
     ]
+  },
+  {
+    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "stop",
+      "--log"
+    ],
+    "name": "stop qemu and read log"
   },
   {
     "name": "$result",
