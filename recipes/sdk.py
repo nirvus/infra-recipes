@@ -50,7 +50,6 @@ PROPERTIES = {
 def BuildMagenta(api, target):
   build_magenta_cmd = [
       api.path['start_dir'].join('scripts', 'build-magenta.sh'),
-      '-c',
       '-t', target,
   ]
   api.step('build magenta ' + target, build_magenta_cmd)

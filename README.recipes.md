@@ -481,17 +481,17 @@ Recipe for building Rust toolchain.
 
 Recipe for building Fuchsia SDKs.
 
-&mdash; **def [BuildFuchsia](/recipes/sdk.py#68)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/sdk.py#67)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
 
 &mdash; **def [BuildMagenta](/recipes/sdk.py#50)(api, target):**
 
-&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#59)(api, use_goma):**
+&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#58)(api, use_goma):**
 
-&mdash; **def [MakeSdk](/recipes/sdk.py#103)(api, sdk):**
+&mdash; **def [MakeSdk](/recipes/sdk.py#102)(api, sdk):**
 
-&mdash; **def [RunSteps](/recipes/sdk.py#127)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, use_goma, gn_args):**
+&mdash; **def [RunSteps](/recipes/sdk.py#126)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, use_goma, gn_args):**
 
-&mdash; **def [UploadArchive](/recipes/sdk.py#110)(api, sdk):**
+&mdash; **def [UploadArchive](/recipes/sdk.py#109)(api, sdk):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)

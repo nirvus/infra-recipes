@@ -132,7 +132,6 @@
   {
     "cmd": [
       "[START_DIR]/scripts/build-magenta.sh",
-      "-c",
       "-t",
       "x86_64"
     ],
@@ -141,7 +140,6 @@
   {
     "cmd": [
       "[START_DIR]/scripts/build-magenta.sh",
-      "-c",
       "-t",
       "aarch64"
     ],
