@@ -77,7 +77,7 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
     if patch_project == 'manifest':
-      api.jiri.update(local_manifest=True)
+      api.jiri.update(gc=True, local_manifest=True)
 
 
 def BuildMagenta(api, target):
