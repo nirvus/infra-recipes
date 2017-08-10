@@ -439,9 +439,9 @@ Recipe for building Jiri.
 
 Recipe for building Magenta.
 
-&mdash; **def [RunSteps](/recipes/magenta.py#83)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, toolchain, run_tests):**
+&mdash; **def [RunSteps](/recipes/magenta.py#91)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, toolchain, run_tests):**
 
-&mdash; **def [RunTests](/recipes/magenta.py#62)(api, name, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/magenta.py#70)(api, name, \*args, \*\*kwargs):**
 ### *recipes* / [modules](/recipes/modules.py)
 
 [DEPS](/recipes/modules.py#11): [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

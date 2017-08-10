@@ -33,6 +33,13 @@ TARGETS = [
   'qemu-virt-a53-test'
 ]
 
+# toolchain: (['make', 'args'], 'builddir-suffix')
+TOOLCHAINS = {
+  'gcc': ([], ''),
+  'clang': (['USE_CLANG=true'], '-clang'),
+  'asan': (['USE_ASAN=true'], '-asan'),
+}
+
 # Test summary from the core tests, which run directly from userboot.
 CORE_TESTS_MATCH = r'CASES: +(\d+) +SUCCESS: +(\d+) +FAILED: +(?P<failed>\d+)'
 
@@ -50,7 +57,8 @@ PROPERTIES = {
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
-  'toolchain': Property(kind=Enum('gcc', 'clang'), help='Toolchain to use'),
+  'toolchain': Property(kind=Enum(*(TOOLCHAINS.keys())),
+                        help='Toolchain to use'),
   'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True)
 }
 
@@ -103,13 +111,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.file.write_text('write autorun', path, '\n'.join(autorun))
   api.step.active_result.presentation.logs['autorun.sh'] = autorun
 
+  tc_args, tc_suffix = TOOLCHAINS[toolchain]
   build_args = [
     'make',
     '-j%s' % api.platform.cpu_count,
     target
-  ]
-  if toolchain == 'clang':
-    build_args.append('USE_CLANG=true')
+  ] + tc_args
 
   with api.context(cwd=api.path['start_dir'].join('magenta'),
                    env={'USER_AUTORUN': path}):
@@ -127,7 +134,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     'qemu-virt-a53-test': 'aarch64',
   }[target]
 
-  build_dir = 'build-%s' % target + ('-clang' if toolchain == 'clang' else '')
+  build_dir = 'build-%s' % target + tc_suffix
   bootdata_path = api.path['start_dir'].join(
       'magenta', build_dir, 'bootdata.bin')
 
@@ -159,6 +166,13 @@ def GenTests(api):
                     remote='https://fuchsia.googlesource.com/manifest',
                     target='magenta-pc-x86-64',
                     toolchain='gcc') +
+     api.step_data('run booted tests',
+         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
+  yield (api.test('asan') +
+     api.properties(manifest='magenta',
+                    remote='https://fuchsia.googlesource.com/manifest',
+                    target='magenta-pc-x86-64',
+                    toolchain='asan') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('cq_try') +
