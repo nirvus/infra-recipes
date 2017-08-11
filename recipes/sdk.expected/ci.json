@@ -416,7 +416,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "--service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json",
+      "/creds/service_accounts/service-account-cipd-builder.json",
       "--ref",
       "latest",
       "--tag",
