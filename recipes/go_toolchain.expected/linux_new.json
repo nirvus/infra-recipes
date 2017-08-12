@@ -349,12 +349,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[TMP_BASE]/go.cipd",
-      "gs://fuchsia/golang/linux-amd64/40-chars-fake-of-the-package-instance_id"
+      "gs://fuchsia/go/linux-amd64/40-chars-fake-of-the-package-instance_id"
     ],
     "infra_step": true,
     "name": "gsutil cp",
     "~followup_annotations": [
-      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/golang/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/go/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
     ]
   },
   {

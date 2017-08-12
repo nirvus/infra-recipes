@@ -104,7 +104,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      api.gsutil.join('golang', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
+      api.gsutil.join('go', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
       unauthenticated_url=True
   )
 
