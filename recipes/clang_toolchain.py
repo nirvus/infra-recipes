@@ -129,15 +129,22 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   build_dir = staging_dir.join('llvm_build_dir')
   api.file.ensure_directory('create llvm build dir', build_dir)
 
-  toolchain_dir = api.path['start_dir'].join('buildtools', 'toolchain')
+  platform = '%s-%s' % (
+      api.platform.name,
+      {
+          32: 'x86',
+          64: 'x64',
+      }[api.platform.bits],
+  )
+  toolchain_dir = api.path['start_dir'].join('buildtools', platform, 'clang')
 
   with api.context(cwd=build_dir):
     api.step('configure clang', [
       cipd_dir.join('bin', 'cmake'),
       '-GNinja',
-      '-DCMAKE_C_COMPILER=%s' % toolchain_dir.join(pkg_name, 'bin', 'clang'),
-      '-DCMAKE_CXX_COMPILER=%s' % toolchain_dir.join(pkg_name, 'bin', 'clang++'),
-      '-DCMAKE_ASM_COMPILER=%s' % toolchain_dir.join(pkg_name, 'bin', 'clang'),
+      '-DCMAKE_C_COMPILER=%s' % toolchain_dir.join('bin', 'clang'),
+      '-DCMAKE_CXX_COMPILER=%s' % toolchain_dir.join('bin', 'clang++'),
+      '-DCMAKE_ASM_COMPILER=%s' % toolchain_dir.join('bin', 'clang'),
       '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
       '-DCMAKE_INSTALL_PREFIX=',
       '-DFUCHSIA_x86_64_SYSROOT=%s' % magenta_dir.join('build-magenta-pc-x86-64', 'sysroot'),

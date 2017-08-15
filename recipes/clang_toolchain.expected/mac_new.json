@@ -307,9 +307,9 @@
     "cmd": [
       "[START_DIR]/cipd/bin/cmake",
       "-GNinja",
-      "-DCMAKE_C_COMPILER=[START_DIR]/buildtools/toolchain/clang+llvm-x86_64-darwin/bin/clang",
-      "-DCMAKE_CXX_COMPILER=[START_DIR]/buildtools/toolchain/clang+llvm-x86_64-darwin/bin/clang++",
-      "-DCMAKE_ASM_COMPILER=[START_DIR]/buildtools/toolchain/clang+llvm-x86_64-darwin/bin/clang",
+      "-DCMAKE_C_COMPILER=[START_DIR]/buildtools/mac-x64/clang/bin/clang",
+      "-DCMAKE_CXX_COMPILER=[START_DIR]/buildtools/mac-x64/clang/bin/clang++",
+      "-DCMAKE_ASM_COMPILER=[START_DIR]/buildtools/mac-x64/clang/bin/clang",
       "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
       "-DCMAKE_INSTALL_PREFIX=",
       "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/magenta/build-magenta-pc-x86-64/sysroot",
