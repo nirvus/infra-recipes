@@ -53,8 +53,6 @@ AuthutilApi allows generating OAuth2 tokens from locally stored secrets.
 This is a thin wrapper over the authutil go executable, which itself calls
 https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 
-&mdash; **def [\_\_init\_\_](/recipe_modules/authutil/api.py#15)(self, \*args, \*\*kwargs):**
-
 &mdash; **def [ensure\_authutil](/recipe_modules/authutil/api.py#19)(self, version=None):**
 
 &mdash; **def [get\_token](/recipe_modules/authutil/api.py#32)(self, account, scopes=None, lifetime_sec=None):**
@@ -65,8 +63,6 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 #### **class [CIPDApi](/recipe_modules/cipd/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 CIPDApi provides support for CIPD.
-
-&mdash; **def [\_\_init\_\_](/recipe_modules/cipd/api.py#12)(self, \*args, \*\*kwargs):**
 
 &mdash; **def [build](/recipe_modules/cipd/api.py#38)(self, input_dir, output_package, package_name, install_mode=None):**
 
@@ -120,8 +116,6 @@ GitApi provides support for Git.
 
 Return a git command step.
 
-&mdash; **def [\_\_init\_\_](/recipe_modules/git/api.py#15)(self, \*args, \*\*kwargs):**
-
 &mdash; **def [checkout](/recipe_modules/git/api.py#26)(self, url, path=None, ref=None, remote=None, file=None, \*\*kwargs):**
 
 Checkout a given ref and return the checked out revision.
@@ -149,8 +143,6 @@ GoApi provides support for Go.
 
 Return a Go command step.
 
-&mdash; **def [\_\_init\_\_](/recipe_modules/go/api.py#13)(self, \*args, \*\*kwargs):**
-
 &mdash; **def [ensure\_go](/recipe_modules/go/api.py#29)(self, version=None):**
 
 Ensures that go distribution is installed.
@@ -170,8 +162,6 @@ Program is output to a temp file and run when this step executes.
 #### **class [GomaApi](/recipe_modules/goma/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 GomaApi contains helper functions for using goma.
-
-&mdash; **def [\_\_init\_\_](/recipe_modules/goma/api.py#13)(self, \*\*kwargs):**
 
 &emsp; **@contextmanager**<br>&mdash; **def [build\_with\_goma](/recipe_modules/goma/api.py#158)(self, env=None):**
 
@@ -226,8 +216,6 @@ GSUtilApi provides support for GSUtil.
 
 Return a step to run arbitrary gsutil command.
 
-&mdash; **def [\_\_init\_\_](/recipe_modules/gsutil/api.py#13)(self, \*args, \*\*kwargs):**
-
 &mdash; **def [copy](/recipe_modules/gsutil/api.py#118)(self, src_bucket, src, dst_bucket, dst, link_name='gsutil.copy', unauthenticated_url=False, \*\*kwargs):**
 
 &mdash; **def [ensure\_gsutil](/recipe_modules/gsutil/api.py#99)(self, version=None):**
@@ -248,8 +236,6 @@ Normalize a GS URL using the gs:// URL prefix.
 #### **class [HashApi](/recipe_modules/hash/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 HashApi provides file hashing functionality.
-
-&mdash; **def [\_\_call\_\_](/recipe_modules/hash/api.py#11)(self, name, source, algorithm, test_data=''):**
 
 &mdash; **def [md5](/recipe_modules/hash/api.py#24)(self, name, source, test_data=''):**
 
@@ -273,8 +259,6 @@ JiriApi provides support for Jiri managed checkouts.
 &mdash; **def [\_\_call\_\_](/recipe_modules/jiri/api.py#15)(self, \*args, \*\*kwargs):**
 
 Return a jiri command step.
-
-&mdash; **def [\_\_init\_\_](/recipe_modules/jiri/api.py#11)(self, \*args, \*\*kwargs):**
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#77)(self, all=False, \*\*kwargs):**
 
@@ -301,8 +285,6 @@ Return a jiri command step.
 
 QemuApi provides support for QEMU.
 
-&mdash; **def [\_\_init\_\_](/recipe_modules/qemu/api.py#13)(self, \*args, \*\*kwargs):**
-
 &emsp; **@contextmanager**<br>&mdash; **def [background\_run](/recipe_modules/qemu/api.py#55)(self, \*args, \*\*kwargs):**
 
 &mdash; **def [ensure\_qemu](/recipe_modules/qemu/api.py#42)(self, version=None):**
@@ -318,8 +300,6 @@ QemuApi provides support for QEMU.
 
 ServiceAccountApi provides access to service account keys.
 
-&mdash; **def [\_\_init\_\_](/recipe_modules/service_account/api.py#11)(self, \*args, \*\*kwargs):**
-
 &mdash; **def [get\_json\_path](/recipe_modules/service_account/api.py#17)(self, account):**
 ### *recipe_modules* / [tar](/recipe_modules/tar)
 
@@ -328,8 +308,6 @@ ServiceAccountApi provides access to service account keys.
 #### **class [TarApi](/recipe_modules/tar/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 Provides steps to tar and untar files.
-
-&mdash; **def [\_\_init\_\_](/recipe_modules/tar/api.py#13)(self, \*args, \*\*kwargs):**
 
 &mdash; **def [create](/recipe_modules/tar/api.py#31)(self, archive, compression=None):**
 
@@ -451,7 +429,7 @@ Recipe for building and running pre-submit checks for the modules repo.
 &mdash; **def [RunSteps](/recipes/modules.py#37)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project_path):**
 ### *recipes* / [qemu](/recipes/qemu.py)
 
-[DEPS](/recipes/qemu.py#13): [cipd](#recipe_modules-cipd), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/shutil][recipe_engine/recipe_modules/shutil], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/qemu.py#13): [cipd](#recipe_modules-cipd), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building QEMU.
 
@@ -519,18 +497,17 @@ Recipe for building WebView.
 
 &mdash; **def [RunSteps](/recipes/web_view.py#41)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target):**
 
-[recipe_engine/recipe_modules/context]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--context
-[recipe_engine/recipe_modules/file]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--file
-[recipe_engine/recipe_modules/json]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--json
-[recipe_engine/recipe_modules/path]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--path
-[recipe_engine/recipe_modules/platform]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--platform
-[recipe_engine/recipe_modules/properties]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--properties
-[recipe_engine/recipe_modules/python]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--python
-[recipe_engine/recipe_modules/raw_io]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--raw_io
-[recipe_engine/recipe_modules/shutil]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--shutil
-[recipe_engine/recipe_modules/step]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--step
-[recipe_engine/recipe_modules/tempfile]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--tempfile
-[recipe_engine/recipe_modules/time]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--time
-[recipe_engine/recipe_modules/url]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/README.recipes.md#recipe_modules--url
-[recipe_engine/wkt/RecipeApi]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/recipe_engine/recipe_api.py#L884
-[recipe_engine/wkt/non_step]: https://github.com/luci/recipes-py/blob/26475d6816d9e1f79dc23d0cf5714e6fda5573aa/recipe_engine/recipe_api.py#L594
+[recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-context
+[recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-file
+[recipe_engine/recipe_modules/json]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-json
+[recipe_engine/recipe_modules/path]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-path
+[recipe_engine/recipe_modules/platform]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-platform
+[recipe_engine/recipe_modules/properties]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-properties
+[recipe_engine/recipe_modules/python]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-python
+[recipe_engine/recipe_modules/raw_io]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-raw_io
+[recipe_engine/recipe_modules/step]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-step
+[recipe_engine/recipe_modules/tempfile]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-tempfile
+[recipe_engine/recipe_modules/time]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-time
+[recipe_engine/recipe_modules/url]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/README.recipes.md#recipe_modules-url
+[recipe_engine/wkt/RecipeApi]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/recipe_engine/recipe_api.py#992
+[recipe_engine/wkt/non_step]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/da5c50e930c48067d1ffecf7a47c3065da5e0fe5/recipe_engine/recipe_api.py#702

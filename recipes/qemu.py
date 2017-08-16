@@ -16,11 +16,11 @@ DEPS = [
   'infra/jiri',
   'recipe_engine/context',
   'recipe_engine/json',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/tempfile',
 ]
@@ -56,7 +56,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   staging_dir = api.path.mkdtemp('qemu')
   pkg_dir = staging_dir.join('qemu')
-  api.shutil.makedirs('create pkg dir', pkg_dir)
+  api.file.ensure_directory('create pkg dir', pkg_dir)
 
   qemu_dir = api.path['start_dir'].join('third_party', 'qemu')
   build_dir = api.path.mkdtemp('build')
