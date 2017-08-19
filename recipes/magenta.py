@@ -16,10 +16,12 @@ DEPS = [
   'infra/qemu',
   'recipe_engine/context',
   'recipe_engine/file',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
+  'recipe_engine/source_manifest',
   'recipe_engine/step',
   'recipe_engine/tempfile',
 ]
@@ -99,7 +101,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote)
     api.jiri.clean()
-    update_result = api.jiri.update()
+    api.jiri.update()
+
+    step_result = api.jiri.snapshot(
+        api.raw_io.output(name='snapshot'),
+        source_manifest=api.json.output(name='source manifest'))
+    api.source_manifest.set_json_manifest('checkout', step_result.json.output)
+
     revision = api.jiri.project('magenta').json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 

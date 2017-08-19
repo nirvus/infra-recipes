@@ -106,9 +106,16 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def snapshot(self, file, step_test_data=None, **kwargs):
+  def snapshot(self, file, source_manifest=None, step_test_data=None, **kwargs):
+    cmd = [ 'snapshot' ]
+    if source_manifest:
+      cmd.extend(['-source-manifest', source_manifest])
+    cmd.extend([file])
+    if not step_test_data:
+      step_test_data = lambda: (self.test_api.example_snapshot() +
+                                self.test_api.example_source_manifest())
     return self(
-        'snapshot', file,
-        step_test_data=step_test_data or self.test_api.example_snapshot,
+        *cmd,
+        step_test_data=step_test_data,
         **kwargs
     )

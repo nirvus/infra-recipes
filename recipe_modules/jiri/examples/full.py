@@ -4,6 +4,7 @@
 
 DEPS = [
   'jiri',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
@@ -28,7 +29,9 @@ def RunSteps(api):
   api.jiri.update(gc=True, snapshot='snapshot', local_manifest=True)
 
   # Take a snapshot.
-  step_result = api.jiri.snapshot(api.raw_io.output())
+  step_result = api.jiri.snapshot(
+      api.raw_io.output(name='snapshot'),
+      source_manifest=api.json.output(name='source manifest'))
   snapshot = step_result.raw_io.output
   step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 

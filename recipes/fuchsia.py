@@ -21,10 +21,12 @@ DEPS = [
   'infra/qemu',
   'infra/tar',
   'recipe_engine/context',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
+  'recipe_engine/source_manifest',
   'recipe_engine/step',
 ]
 
@@ -65,10 +67,15 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
     api.jiri.import_manifest(manifest, remote, overwrite=True)
     api.jiri.clean(all=True)
     api.jiri.update(gc=True)
+
+    snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
+    step_result = api.jiri.snapshot(
+        api.raw_io.output(name='snapshot', leak_to=snapshot_file),
+        source_manifest=api.json.output(name='source manifest'))
+    api.source_manifest.set_json_manifest('checkout', step_result.json.output)
     if not api.properties.get('tryjob', False):
-      snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
-      step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
-      digest = hashlib.sha1(step_result.raw_io.output).hexdigest()
+      digest = api.hash.sha1('hash snapshot', snapshot_file,
+                             test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
       api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
           link_name='jiri.snapshot',
           name='upload jiri.snapshot',

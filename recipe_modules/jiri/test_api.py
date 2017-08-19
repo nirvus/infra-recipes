@@ -36,3 +36,15 @@ class JiriTestApi(recipe_test_api.RecipeTestApi):
   </projects>
 </manifest>
 ''')
+
+  def example_source_manifest(self):
+    return self.m.json.output({
+      'directories': {
+        'manifest': {
+          'git_checkout': {
+            'repo_url': 'https://fuchsia.googlesource.com/manifest',
+            'revision': '4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b',
+          }
+        }
+      }
+    }, name='source manifest')
