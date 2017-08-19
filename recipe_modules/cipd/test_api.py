@@ -73,17 +73,17 @@ class CIPDTestApi(recipe_test_api.RecipeTestApi):
         'registered_ts': tstamp,
         'refs': [
           {
-              'ref': ref,
-              'modified_by': user,
-              'modified_ts': tstamp,
+            'ref': ref,
+            'modified_by': user,
+            'modified_ts': tstamp,
           }
           for ref in (['latest'] if test_data_refs is None else test_data_refs)
         ],
         'tags': [
           {
-              'tag': tag,
-              'registered_by': user,
-              'registered_ts': tstamp,
+            'tag': tag,
+            'registered_by': user,
+            'registered_ts': tstamp,
           }
           for tag in ([
               'buildbot_build:some.waterfall/builder/1234',

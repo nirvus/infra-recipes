@@ -18,6 +18,7 @@
 **[Recipes](#Recipes)**
   * [authutil:examples/full](#recipes-authutil_examples_full)
   * [cipd:examples/full](#recipes-cipd_examples_full)
+  * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
   * [cobalt](#recipes-cobalt) &mdash; Recipe for building and testing Cobalt.
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
@@ -60,23 +61,67 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 
 [DEPS](/recipe_modules/cipd/__init__.py#1): [service\_account](#recipe_modules-service_account), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [CIPDApi](/recipe_modules/cipd/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [CIPDApi](/recipe_modules/cipd/api.py#148)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-CIPDApi provides support for CIPD.
+CIPDApi provides basic support for CIPD.
 
-&mdash; **def [build](/recipe_modules/cipd/api.py#38)(self, input_dir, output_package, package_name, install_mode=None):**
+This assumes that `cipd` (or `cipd.exe` or `cipd.bat` on windows) has been
+installed somewhere in $PATH.
 
-&mdash; **def [create](/recipe_modules/cipd/api.py#76)(self, pkg_def, refs=None, tags=None):**
+&mdash; **def [build](/recipe_modules/cipd/api.py#212)(self, input_dir, output_package, package_name, install_mode=None):**
 
-Creates a package based on YAML package definition file.
+Builds, but does not upload, a cipd package from a directory.
+
+Args:
+  input_dir (Path) - the directory to build the package from.
+  output_package (Path) - the file to write the package to.
+  package_name (str) - the name of the cipd package as it would appear when
+    uploaded to the cipd package server.
+  install_mode (None|'copy'|'symlink') - the mechanism that the cipd client
+    should use when installing this package. If None, defaults to the
+    platform default ('copy' on windows, 'symlink' on everything else).
+
+&mdash; **def [create\_from\_pkg](/recipe_modules/cipd/api.py#309)(self, pkg_def, refs=None, tags=None):**
+
+Builds and uploads a package based on a PackageDefinition object.
 
 This builds and uploads the package in one step.
 
-&emsp; **@property**<br>&mdash; **def [default\_bot\_service\_account\_credentials](/recipe_modules/cipd/api.py#19)(self):**
+Args:
+  pkg_def (PackageDefinition) - The description of the package we want to
+    create.
+  refs (list(str)) - A list of ref names to set for the package instance.
+  tags (dict(str, str)) - A map of tag name -> value to set for the package
+                          instance.
 
-&mdash; **def [describe](/recipe_modules/cipd/api.py#182)(self, package_name, version, test_data_refs=None, test_data_tags=None):**
+Returns the JSON 'result' section, e.g.: {
+  "package": "infra/tools/cipd/android-amd64",
+  "instance_id": "433bfdf86c0bb82d1eee2d1a0473d3709c25d2c4"
+}
 
-&mdash; **def [ensure](/recipe_modules/cipd/api.py#97)(self, root, packages):**
+&mdash; **def [create\_from\_yaml](/recipe_modules/cipd/api.py#289)(self, pkg_def, refs=None, tags=None):**
+
+Builds and uploads a package based on on-disk YAML package definition
+file.
+
+This builds and uploads the package in one step.
+
+Args:
+  pkg_def (Path) - The path to the yaml file.
+  refs (list(str)) - A list of ref names to set for the package instance.
+  tags (dict(str, str)) - A map of tag name -> value to set for the package
+                          instance.
+
+Returns the JSON 'result' section, e.g.: {
+  "package": "infra/tools/cipd/android-amd64",
+  "instance_id": "433bfdf86c0bb82d1eee2d1a0473d3709c25d2c4"
+}
+
+&emsp; **@property**<br>&mdash; **def [default\_bot\_service\_account\_credentials](/recipe_modules/cipd/api.py#183)(self):**
+
+&mdash; **def [describe](/recipe_modules/cipd/api.py#415)(self, package_name, version, test_data_refs=None, test_data_tags=None):**
+
+&mdash; **def [ensure](/recipe_modules/cipd/api.py#330)(self, root, packages):**
 
 Ensures that packages are installed in a given root dir.
 
@@ -87,7 +132,11 @@ packages must be a mapping from package name to its version, where
 If installing a package requires credentials, call
 ``set_service_account_credentials`` before calling this function.
 
-&mdash; **def [platform\_suffix](/recipe_modules/cipd/api.py#23)(self):**
+&emsp; **@property**<br>&mdash; **def [executable](/recipe_modules/cipd/api.py#179)(self):**
+
+&mdash; **def [initialize](/recipe_modules/cipd/api.py#173)(self):**
+
+&mdash; **def [platform\_suffix](/recipe_modules/cipd/api.py#187)(self, name=None, arch=None, bits=None):**
 
 Use to get full package name that is platform indepdent.
 
@@ -95,15 +144,19 @@ Example:
   >>> 'my/package/%s' % api.cipd.platform_suffix()
   'my/package/linux-amd64'
 
-&mdash; **def [register](/recipe_modules/cipd/api.py#56)(self, package_name, package_path, refs=None, tags=None):**
+Optional platform bits and architecture may be supplied to generate CIPD
+suffixes for other platforms. If any are omitted, the current platform
+parameters will be used.
 
-&mdash; **def [search](/recipe_modules/cipd/api.py#164)(self, package_name, tag):**
+&mdash; **def [register](/recipe_modules/cipd/api.py#241)(self, package_name, package_path, refs=None, tags=None):**
 
-&mdash; **def [set\_ref](/recipe_modules/cipd/api.py#144)(self, package_name, version, refs):**
+&mdash; **def [search](/recipe_modules/cipd/api.py#397)(self, package_name, tag):**
 
-&mdash; **def [set\_service\_account\_credentials](/recipe_modules/cipd/api.py#16)(self, path):**
+&mdash; **def [set\_ref](/recipe_modules/cipd/api.py#377)(self, package_name, version, refs):**
 
-&mdash; **def [set\_tag](/recipe_modules/cipd/api.py#124)(self, package_name, version, tags):**
+&mdash; **def [set\_service\_account\_credentials](/recipe_modules/cipd/api.py#176)(self, path):**
+
+&mdash; **def [set\_tag](/recipe_modules/cipd/api.py#357)(self, package_name, version, tags):**
 ### *recipe_modules* / [git](/recipe_modules/git)
 
 [DEPS](/recipe_modules/git/__init__.py#1): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -329,9 +382,14 @@ Step to uncompress |tar_file| file.
 &mdash; **def [RunSteps](/recipe_modules/authutil/examples/full.py#30)(api, scopes, lifetime_sec):**
 ### *recipes* / [cipd:examples/full](/recipe_modules/cipd/examples/full.py)
 
-[DEPS](/recipe_modules/cipd/examples/full.py#5): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/cipd/examples/full.py#8): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-&mdash; **def [RunSteps](/recipe_modules/cipd/examples/full.py#14)(api):**
+&mdash; **def [RunSteps](/recipe_modules/cipd/examples/full.py#28)(api, use_pkg, pkg_files, pkg_dirs, ver_files, install_mode):**
+### *recipes* / [cipd:examples/platform\_suffix](/recipe_modules/cipd/examples/platform_suffix.py)
+
+[DEPS](/recipe_modules/cipd/examples/platform_suffix.py#9): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+&mdash; **def [RunSteps](/recipe_modules/cipd/examples/platform_suffix.py#24)(api, arch_override, bits_override, expect_error):**
 ### *recipes* / [clang\_toolchain](/recipes/clang_toolchain.py)
 
 [DEPS](/recipes/clang_toolchain.py#14): [cipd](#recipe_modules-cipd), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]

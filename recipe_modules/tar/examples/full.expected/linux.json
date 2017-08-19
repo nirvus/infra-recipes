@@ -7,11 +7,11 @@
     "cmd": [
       "cipd",
       "ensure",
-      "--root",
+      "-root",
       "[START_DIR]/cipd",
-      "--list",
+      "-ensure-file",
       "fuchsia/tools/bsdtar/linux-amd64 latest",
-      "--json-output",
+      "-json-output",
       "/path/to/tmp/json"
     ],
     "infra_step": true,

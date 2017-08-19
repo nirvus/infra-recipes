@@ -7,11 +7,11 @@
     "cmd": [
       "cipd",
       "ensure",
-      "--root",
+      "-root",
       "[START_DIR]/cipd/jiri",
-      "--list",
+      "-ensure-file",
       "fuchsia/tools/jiri/linux-amd64 stable",
-      "--json-output",
+      "-json-output",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
@@ -37,11 +37,11 @@
     "cmd": [
       "cipd",
       "ensure",
-      "--root",
+      "-root",
       "[START_DIR]/cipd/gsutil",
-      "--list",
+      "-ensure-file",
       "infra/tools/gsutil latest",
-      "--json-output",
+      "-json-output",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
@@ -174,11 +174,11 @@
     "cmd": [
       "cipd",
       "ensure",
-      "--root",
+      "-root",
       "[START_DIR]/cipd",
-      "--list",
+      "-ensure-file",
       "fuchsia/tools/bsdtar/linux-amd64 latest",
-      "--json-output",
+      "-json-output",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
