@@ -410,7 +410,7 @@ Recipe for building and testing Cobalt.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#102)(api, release_build, target, gn_target, fuchsia_build_dir, modules, boot_module, tests, use_goma, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#102)(api, build_type, target, gn_target, fuchsia_build_dir, modules, boot_module, tests, use_goma, gn_args):**
 
 &mdash; **def [BuildMagenta](/recipes/fuchsia.py#83)(api, target):**
 
@@ -418,11 +418,11 @@ Recipe for building Fuchsia and running tests.
 
 &emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/fuchsia.py#93)(api, use_goma):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#227)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, boot_module, tests, use_goma, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#234)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, boot_module, tests, use_goma, gn_args):**
 
-&mdash; **def [RunTests](/recipes/fuchsia.py#143)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTests](/recipes/fuchsia.py#150)(api, target, fuchsia_build_dir, tests):**
 
-&mdash; **def [UploadArchive](/recipes/fuchsia.py#209)(api, target, magenta_build_dir, fuchsia_build_dir):**
+&mdash; **def [UploadArchive](/recipes/fuchsia.py#216)(api, target, magenta_build_dir, fuchsia_build_dir):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -475,9 +475,9 @@ Recipe for building Jiri.
 
 Recipe for building Magenta.
 
-&mdash; **def [RunSteps](/recipes/magenta.py#91)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, toolchain, run_tests):**
+&mdash; **def [RunSteps](/recipes/magenta.py#93)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, toolchain, run_tests):**
 
-&mdash; **def [RunTests](/recipes/magenta.py#70)(api, name, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/magenta.py#72)(api, name, \*args, \*\*kwargs):**
 ### *recipes* / [modules](/recipes/modules.py)
 
 [DEPS](/recipes/modules.py#11): [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

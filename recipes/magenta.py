@@ -38,6 +38,8 @@ TOOLCHAINS = {
   'gcc': ([], ''),
   'clang': (['USE_CLANG=true'], '-clang'),
   'asan': (['USE_ASAN=true'], '-asan'),
+  'lto': (['USE_LTO=true', 'USE_THINLTO=false'], '-lto'),
+  'thinlto': (['USE_LTO=true', 'USE_THINLTO=true'], '-thinlto'),
 }
 
 # Test summary from the core tests, which run directly from userboot.
@@ -118,6 +120,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     target
   ] + tc_args
 
+  if toolchain == 'thinlto':
+    build_args.append('THINLTO_CACHE_DIR=' +
+                      str(api.path['cache'].join('thinlto')))
+
   with api.context(cwd=api.path['start_dir'].join('magenta'),
                    env={'USER_AUTORUN': path}):
     api.step('build', build_args)
@@ -173,6 +179,20 @@ def GenTests(api):
                     remote='https://fuchsia.googlesource.com/manifest',
                     target='magenta-pc-x86-64',
                     toolchain='asan') +
+     api.step_data('run booted tests',
+         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
+  yield (api.test('lto') +
+     api.properties(manifest='magenta',
+                    remote='https://fuchsia.googlesource.com/manifest',
+                    target='magenta-pc-x86-64',
+                    toolchain='lto') +
+     api.step_data('run booted tests',
+         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
+  yield (api.test('thinlto') +
+     api.properties(manifest='magenta',
+                    remote='https://fuchsia.googlesource.com/manifest',
+                    target='magenta-pc-x86-64',
+                    toolchain='thinlto') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('cq_try') +

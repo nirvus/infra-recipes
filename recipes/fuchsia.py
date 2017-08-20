@@ -41,8 +41,8 @@ PROPERTIES = {
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
-  'build_type': Property(kind=Enum('debug', 'release'), help='The build type',
-                         default='debug'),
+  'build_type': Property(kind=Enum('debug', 'release', 'thinlto', 'lto'),
+                         help='The build type', default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
                       default=['default']),
   'boot_module': Property(kind=str,
@@ -99,7 +99,7 @@ def GomaContext(api, use_goma):
       yield
 
 
-def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
+def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
                  modules, boot_module, tests, use_goma, gn_args):
   if tests and not boot_module:
     boot_module = 'boot_test_runner'
@@ -118,8 +118,15 @@ def BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
     if use_goma:
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
 
-    if release_build:
+    if build_type in ['release', 'lto', 'thinlto']:
       gen_cmd.append('--release')
+
+    if build_type == 'lto':
+      gen_cmd.append('--lto=full')
+    elif build_type == 'thinlto':
+      gen_cmd.append('--lto=thin')
+      gn_args.append('thinlto_cache_dir=\"%s\"' %
+                     str(api.path['cache'].join('thinlto')))
 
     for arg in gn_args:
       gen_cmd.append('--args')
@@ -231,10 +238,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if target == 'arm64':
     tests = None
 
-  release_build = (build_type == 'release')
   gn_target = {'arm64': 'aarch64', 'x86-64': 'x86-64'}[target]
   fuchsia_out_dir = api.path['start_dir'].join('out')
-  fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
+  if build_type in ['release', 'lto', 'thinlto']:
+    build_dir = 'release'
+  else:
+    build_dir = 'debug'
+  fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_dir, gn_target))
 
   magenta_target = {
     'arm64': 'magenta-qemu-arm64',
@@ -251,7 +261,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote)
   BuildMagenta(api, target)
-  BuildFuchsia(api, release_build, target, gn_target, fuchsia_build_dir,
+  BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
                modules, boot_module, tests, use_goma, gn_args)
 
   if tests:
@@ -310,6 +320,18 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       build_type='release'
+  )
+  yield api.test('lto') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      build_type='lto'
+  )
+  yield api.test('thinlto') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      build_type='thinlto'
   )
   yield api.test('cq') + api.properties.tryserver(
       gerrit_project='fuchsia',
