@@ -110,9 +110,12 @@ def MakeSdk(api, outdir, sdk):
          api.path['start_dir'])
 
 
-def UploadArchive(api, sdk):
-  digest = api.hash.sha1(
+def PackageArchive(api, sdk):
+  return api.hash.sha1(
       'hash archive', sdk, test_data='27a0c185de8bb5dba483993ff1e362bc9e2c7643')
+
+
+def UploadArchive(api, sdk, digest):
   api.gsutil.upload(
       'fuchsia',
       sdk,
@@ -120,6 +123,13 @@ def UploadArchive(api, sdk):
       name='upload fuchsia-sdk %s' % digest,
       unauthenticated_url=True
   )
+  snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
+  step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
+  api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
+      link_name='jiri.snapshot',
+      name='upload jiri.snapshot',
+          unauthenticated_url=True)
+
 
 
 def UploadPackage(api, outdir, digest):
@@ -165,14 +175,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'fuchsia', 'https://fuchsia.googlesource.com/manifest')
     api.jiri.clean(all=True)
     api.jiri.update(gc=True)
-    if not api.properties.get('tryjob', False):
-      snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
-      step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
-      digest = hashlib.sha1(step_result.raw_io.output).hexdigest()
-      api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
-          link_name='jiri.snapshot',
-          name='upload jiri.snapshot',
-          unauthenticated_url=True)
 
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
@@ -195,7 +197,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   MakeSdk(api, outdir, sdk)
 
   if not api.properties.get('tryjob', False):
-    UploadArchive(api, sdk)
+    digest = PackageArchive(api, sdk)
+    UploadArchive(api, sdk, digest)
     UploadPackage(api, outdir, digest)
 
 
