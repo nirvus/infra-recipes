@@ -222,11 +222,33 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "msleep 500\nruntests /system/test",
+      "[TMP_BASE]/autorun"
+    ],
+    "infra_step": true,
+    "name": "write autorun",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@runtests /system/test@@@",
+      "@@@STEP_LOG_END@autorun.sh@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/scripts/build-magenta.sh",
       "-c",
       "-t",
       "x86_64"
     ],
+    "env": {
+      "USER_AUTORUN": "[TMP_BASE]/autorun"
+    },
     "name": "build magenta"
   },
   {
@@ -255,7 +277,7 @@
     "cmd": [
       "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=x86-64",
-      "--modules=default,boot_test_runner",
+      "--modules=boot_headless",
       "--with-dart-analysis",
       "--goma=[START_DIR]/cipd/goma"
     ],
@@ -360,7 +382,7 @@
   {
     "cmd": [
       "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
-      "start",
+      "run",
       "--executable",
       "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
       "--memory",
@@ -371,60 +393,34 @@
       "x86_64",
       "--initrd",
       "[START_DIR]/out/debug-x86-64/user.bootfs",
-      "--netdev",
-      "user,id=net0,hostfwd=tcp::8342-:8342",
-      "--device",
-      "e1000,netdev=net0",
+      "--shutdown_pattern",
+      "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
       "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64/magenta.bin"
     ],
-    "name": "start qemu"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/apps/test_runner/src/run_test",
-      "--test_file",
-      "[START_DIR]/tests.json",
-      "--server",
-      "127.0.0.1",
-      "--port",
-      "8342"
-    ],
     "name": "run tests",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_LINE@qemu log@SUMMARY: Ran 2 tests: 1 failed@@@",
+      "@@@STEP_LOG_END@qemu log@@@"
     ]
-  },
-  {
-    "cmd": [
-      "sleep",
-      "3"
-    ],
-    "name": "sleep"
   },
   {
     "cmd": [
       "[START_DIR]/magenta/scripts/symbolize",
       "--no-echo",
-      "--file",
-      "qemu.stdout",
       "--build-dir",
       "[START_DIR]/out/debug-x86-64"
     ],
     "name": "symbolize",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
-      "stop",
-      "--log"
-    ],
-    "name": "stop qemu and read log"
+    "stdin": "SUMMARY: Ran 2 tests: 1 failed",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_FAILURE@@@"
+    ]
   },
   {
     "name": "$result",
-    "reason": "Step('run tests') failed with return_code 1",
+    "reason": "SUMMARY: Ran 2 tests: 1 failed",
     "recipe_result": null,
     "status_code": 1
   }
