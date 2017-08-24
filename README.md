@@ -188,16 +188,24 @@ of what that file might look like, for the `fuchsia.py` recipe:
 {
   "remote": "https://fuchsia.googlesource.com/manifest",
   "manifest": "fuchsia",
-  "build_type": "release",
+  "build_type": "debug",
   "target": "x86-64",
   "use_goma": false,
-  "tests": "apps/test_runner/config/fuchsia.json"
+  "modules": ["test_runner_dev"],
+  "tests": "runtests /system/test",
+  "use_autorun": true
 }
 ```
 
 Setting `use_goma` to false is currently necessary for local testing of the
 Fuchsia recipes, due to the fact that they try to use a service account with
 Goma.
+
+Since every end-to-end test run of the Fuchsia recipe involves compiling
+Fuchsia from scratch, the above examples uses the "test_runner_dev" module,
+which only includes example test binaries. It's much faster to compile than the
+default Fuchsia image, and it should give you enough information to test the
+recipe.
 
 ## Existing Fuchsia recipes
 

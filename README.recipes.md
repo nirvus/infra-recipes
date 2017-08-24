@@ -406,23 +406,25 @@ Recipe for building and testing Cobalt.
 &mdash; **def [RunSteps](/recipes/cobalt.py#33)(api, patch_gerrit_url, patch_ref, manifest, remote):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#15): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia.py#16): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#109)(api, build_type, target, gn_target, fuchsia_build_dir, modules, boot_module, tests, use_goma, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#125)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, use_goma, gn_args):**
 
-&mdash; **def [BuildMagenta](/recipes/fuchsia.py#90)(api, target):**
+&mdash; **def [BuildMagenta](/recipes/fuchsia.py#95)(api, target, tests):**
 
-&mdash; **def [Checkout](/recipes/fuchsia.py#64)(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):**
+&mdash; **def [Checkout](/recipes/fuchsia.py#69)(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):**
 
-&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/fuchsia.py#100)(api, use_goma):**
+&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/fuchsia.py#116)(api, use_goma):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#241)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, boot_module, tests, use_goma, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#324)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, tests, use_autorun, use_goma, gn_args):**
 
-&mdash; **def [RunTests](/recipes/fuchsia.py#157)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#235)(api, target, fuchsia_build_dir):**
 
-&mdash; **def [UploadArchive](/recipes/fuchsia.py#223)(api, target, magenta_build_dir, fuchsia_build_dir):**
+&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#170)(api, target, fuchsia_build_dir, tests):**
+
+&mdash; **def [UploadArchive](/recipes/fuchsia.py#306)(api, target, magenta_build_dir, fuchsia_build_dir):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

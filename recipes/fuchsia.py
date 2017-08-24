@@ -7,9 +7,10 @@
 from contextlib import contextmanager
 
 from recipe_engine.config import Enum, List, ReturnSchema, Single
-from recipe_engine.recipe_api import Property
+from recipe_engine.recipe_api import Property, StepFailure
 
 import hashlib
+import re
 
 
 DEPS = [
@@ -22,6 +23,7 @@ DEPS = [
   'infra/tar',
   'recipe_engine/context',
   'recipe_engine/json',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
@@ -31,6 +33,10 @@ DEPS = [
 ]
 
 TARGETS = ['arm64', 'x86-64']
+
+TEST_SUMMARY = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
+
+TEST_RUNNER_PORT = 8342
 
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
@@ -47,18 +53,17 @@ PROPERTIES = {
                          help='The build type', default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
                       default=['default']),
-  'boot_module': Property(kind=str,
-                          help='Package to build that specifies boot behavior.',
-                          default=None),
-  'tests': Property(kind=str, help='Path to config file listing tests to run',
+  'tests': Property(kind=str,
+                    help='Path to config file listing tests to run, or (when using autorun) command to run tests',
                     default=None),
+  'use_autorun': Property(kind=bool,
+                          help='Whether to use autorun for tests',
+                          default=False),
   'use_goma': Property(kind=bool, help='Whether to use goma to compile',
                        default=True),
   'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
                       default=[]),
 }
-
-TEST_RUNNER_PORT = 8342
 
 
 def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
@@ -87,14 +92,25 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
       api.jiri.update(gc=True, local_manifest=True)
 
 
-def BuildMagenta(api, target):
+def BuildMagenta(api, target, tests):
+  if tests:
+    autorun = ['msleep 500', tests]
+    autorun_path = api.path['tmp_base'].join('autorun')
+    api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
+    api.step.active_result.presentation.logs['autorun.sh'] = autorun
+    build_env = {'USER_AUTORUN': autorun_path}
+  else:
+    build_env = {}
+
   magenta_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
   build_magenta_cmd = [
     api.path['start_dir'].join('scripts', 'build-magenta.sh'),
     '-c',
     '-t', magenta_target,
   ]
-  api.step('build magenta', build_magenta_cmd)
+
+  with api.context(env=build_env):
+    api.step('build magenta', build_magenta_cmd)
 
 
 @contextmanager
@@ -107,12 +123,9 @@ def GomaContext(api, use_goma):
 
 
 def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-                 modules, boot_module, tests, use_goma, gn_args):
-  if tests and not boot_module:
-    boot_module = 'boot_test_runner'
-
-  if boot_module:
-    modules.append(boot_module)
+                 modules, tests, use_autorun, use_goma, gn_args):
+  if tests and not use_autorun:
+    modules.append('boot_test_runner')
 
   with api.step.nest('build fuchsia'), GomaContext(api, use_goma):
     gen_cmd = [
@@ -154,7 +167,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
     api.step('ninja', ninja_cmd)
 
 
-def RunTests(api, target, fuchsia_build_dir, tests):
+def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
   magenta_build_dir = {
     'arm64': 'build-magenta-qemu-arm64',
     'x86-64': 'build-magenta-pc-x86-64',
@@ -219,6 +232,76 @@ def RunTests(api, target, fuchsia_build_dir, tests):
         step_result.presentation.logs['symbolized backtraces'] = lines
         step_result.presentation.status = api.step.FAILURE
 
+def RunTestsWithAutorun(api, target, fuchsia_build_dir):
+  magenta_build_dir = {
+    'arm64': 'build-magenta-qemu-arm64',
+    'x86-64': 'build-magenta-pc-x86-64',
+  }[target]
+
+  magenta_image_name = {
+    'arm64': 'magenta.elf',
+    'x86-64': 'magenta.bin',
+  }[target]
+
+  magenta_image_path = api.path['start_dir'].join(
+    'out', 'build-magenta', magenta_build_dir, magenta_image_name)
+
+  bootfs_path = fuchsia_build_dir.join('user.bootfs')
+
+  qemu_arch = {
+    'arm64': 'aarch64',
+    'x86-64': 'x86_64',
+  }[target]
+
+  step_result = None
+
+  try:
+    step_result = api.qemu.run(
+        'run tests',
+        qemu_arch,
+        magenta_image_path,
+        kvm=True,
+        memory=4096,
+        initrd=bootfs_path,
+        shutdown_pattern=TEST_SUMMARY)
+  except StepFailure as error:
+    step_result = error.result
+    if error.retcode == 2:
+      message = "Tests timed out"
+    else:
+      message = "QEMU failure"
+    raise api.step.StepFailure(message)
+  finally:
+    if step_result is not None:
+      qemu_log = step_result.stdout
+      step_result.presentation.logs['qemu log'] = qemu_log.splitlines()
+
+      symbolize_cmd = [
+        api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
+        '--no-echo',
+        '--build-dir', fuchsia_build_dir,
+      ]
+
+      step_result = api.step('symbolize', symbolize_cmd,
+          stdin=api.raw_io.input(data=qemu_log),
+          stdout=api.raw_io.output(),
+          step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+
+      lines = step_result.stdout.splitlines()
+      if lines:
+        # If symbolize found any backtraces in qemu.stdout, mark the symbolize
+        # step as failed to indicate that it should be looked at.
+        step_result.presentation.logs['symbolized backtraces'] = lines
+        step_result.presentation.status = api.step.FAILURE
+
+  m = re.search(TEST_SUMMARY, qemu_log)
+  if not m:
+    step_result.presentation.status = api.step.WARNING
+    raise api.step.StepWarning('Test output missing')
+  elif int(m.group('failed')) > 0:
+    step_result.presentation.status = api.step.FAILURE
+    raise api.step.StepFailure(m.group(0))
+
 
 def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):
   api.tar.ensure_tar()
@@ -240,8 +323,8 @@ def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
-             build_type, modules, boot_module, tests, use_goma, gn_args):
-  # Tests are currently broken on arm64.
+             build_type, modules, tests, use_autorun, use_goma, gn_args):
+  # Tests are too slow on arm64.
   if target == 'arm64':
     tests = None
 
@@ -267,35 +350,32 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.qemu.ensure_qemu()
 
   Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote)
-  BuildMagenta(api, target)
+
+  if use_autorun:
+    BuildMagenta(api, target, tests)
+  else:
+    BuildMagenta(api, target, None)
+
   BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-               modules, boot_module, tests, use_goma, gn_args)
+               modules, tests, use_autorun, use_goma, gn_args)
 
   if tests:
-    RunTests(api, target, fuchsia_build_dir, tests)
+    if use_autorun:
+      RunTestsWithAutorun(api, target, fuchsia_build_dir)
+    else:
+      RunTestsWithTCP(api, target, fuchsia_build_dir, tests)
 
   if not api.properties.get('tryjob', False):
     UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir)
 
 
 def GenTests(api):
-  yield api.test('default') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-  )
+  # Test cases for running Fuchsia tests over TCP.
   yield api.test('tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='tests.json',
-  )
-  yield api.test('boot_module') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-      tests='tests.json',
-      boot_module='boot_special',
   )
   yield api.test('failed_tests') + api.properties(
       manifest='fuchsia',
@@ -310,6 +390,50 @@ def GenTests(api):
       tests='tests.json',
   ) + api.step_data('run tests', retcode=1,
   ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
+
+  # Test cases for running Fuchsia tests with autorun.
+  yield api.test('autorun_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_autorun=True,
+  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed'))
+  yield api.test('autorun_failed_qemu') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_autorun=True,
+  ) + api.step_data('run tests', retcode=1)
+  yield api.test('autorun_tests_timeout') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_autorun=True,
+  ) + api.step_data('run tests', retcode=2)
+  yield api.test('autorun_failed_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_autorun=True,
+  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
+  yield api.test('autorun_backtrace') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_autorun=True,
+  ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
+
+  # Test cases for skipping Fuchsia tests.
+  yield api.test('default') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+  )
   yield api.test('no_goma') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -319,20 +443,20 @@ def GenTests(api):
   yield api.test('arm64_skip_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      tests='tests.json',
       target='arm64',
+      tests='tests.json'
   )
   yield api.test('release') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
-      build_type='release'
+      build_type='release',
   )
   yield api.test('lto') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
-      build_type='lto'
+      build_type='lto',
   )
   yield api.test('thinlto') + api.properties(
       manifest='fuchsia',
