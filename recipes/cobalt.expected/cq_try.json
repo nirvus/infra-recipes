@@ -108,6 +108,40 @@
     "name": "jiri patch"
   },
   {
+    "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "infra/cmake/${platform} version:3.9.1\ninfra/ninja/${platform} version:1.7.2",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.9.1---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.7.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "./cobaltb.py",
       "setup"
@@ -118,6 +152,10 @@
   {
     "cmd": [
       "./cobaltb.py",
+      "--cmake_path",
+      "[START_DIR]/cipd/bin/cmake",
+      "--ninja_path",
+      "[START_DIR]/cipd/ninja",
       "build"
     ],
     "cwd": "[START_DIR]/cobalt",

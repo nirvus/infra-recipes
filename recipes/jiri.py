@@ -105,8 +105,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       api.cipd.ensure(cipd_dir, {
-        'fuchsia/tools/cmake/${platform}': 'latest',
-        'fuchsia/tools/ninja/${platform}': 'latest',
+        'infra/cmake/${platform}': 'version:3.9.1',
+        'infra/ninja/${platform}': 'version:1.7.2',
       })
 
   env = {
