@@ -55,10 +55,9 @@ def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
   # Start the cobalt build process.
   with api.context(cwd=api.path['start_dir'].join('cobalt')):
     api.step('setup', ['./cobaltb.py', 'setup'])
-    api.step('build', ['./cobaltb.py',
+    api.step('build', ['./cobaltb.py', 'build',
                        '--cmake_path', cipd_dir.join('bin', 'cmake'),
-                       '--ninja_path', cipd_dir.join('ninja'),
-                       'build'])
+                       '--ninja_path', cipd_dir.join('ninja')])
     api.step('test', ['./cobaltb.py', 'test'])
 
   return RETURN_SCHEMA.new(got_revision=revision)

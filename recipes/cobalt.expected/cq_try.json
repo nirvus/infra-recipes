@@ -152,11 +152,11 @@
   {
     "cmd": [
       "./cobaltb.py",
+      "build",
       "--cmake_path",
       "[START_DIR]/cipd/bin/cmake",
       "--ninja_path",
-      "[START_DIR]/cipd/ninja",
-      "build"
+      "[START_DIR]/cipd/ninja"
     ],
     "cwd": "[START_DIR]/cobalt",
     "name": "build"
