@@ -92,38 +92,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_qemu"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/qemu",
-      "-ensure-file",
-      "fuchsia/tools/qemu/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
-    ],
-    "infra_step": true,
-    "name": "ensure_qemu.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/qemu/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
@@ -222,33 +190,11 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "msleep 500\nruntests /system/test",
-      "[TMP_BASE]/autorun"
-    ],
-    "infra_step": true,
-    "name": "write autorun",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@runtests /system/test@@@",
-      "@@@STEP_LOG_END@autorun.sh@@@"
-    ]
-  },
-  {
-    "cmd": [
       "[START_DIR]/scripts/build-magenta.sh",
       "-c",
       "-t",
       "x86_64"
     ],
-    "env": {
-      "USER_AUTORUN": "[TMP_BASE]/autorun"
-    },
     "name": "build magenta"
   },
   {
@@ -277,7 +223,7 @@
     "cmd": [
       "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=x86-64",
-      "--modules=boot_headless",
+      "--modules=default",
       "--with-dart-analysis",
       "--goma=[START_DIR]/cipd/goma"
     ],
@@ -380,48 +326,90 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure bsdtar"
+  },
+  {
     "cmd": [
-      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
-      "run",
-      "--executable",
-      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
-      "--memory",
-      "4096",
-      "--smp",
-      "4",
-      "--arch",
-      "x86_64",
-      "--initrd",
-      "[START_DIR]/out/debug-x86-64/user.bootfs",
-      "--shutdown_pattern",
-      "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
-      "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64/magenta.bin"
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/tools/bsdtar/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
     ],
-    "name": "run tests",
-    "stdout": "/path/to/tmp/",
+    "infra_step": true,
+    "name": "ensure bsdtar.ensure_installed",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@qemu log@qemu@@@",
-      "@@@STEP_LOG_END@qemu log@@@"
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
     "cmd": [
-      "[START_DIR]/magenta/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "[START_DIR]/out/debug-x86-64"
+      "[START_DIR]/cipd/bsdtar",
+      "-cf",
+      "[TMP_BASE]/fuchsia.tar.gz",
+      "-z",
+      "-C",
+      "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64",
+      "bootdata.bin",
+      "magenta.elf",
+      "magenta.bin",
+      "bootloader/bootx64.efi",
+      "-C",
+      "[START_DIR]/out/debug-x86-64",
+      "user.bootfs"
     ],
-    "name": "symbolize",
-    "stdin": "qemu",
-    "stdout": "/path/to/tmp/",
+    "name": "tar fuchsia"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[TMP_BASE]/fuchsia.tar.gz"
+    ],
+    "infra_step": true,
+    "name": "hash archive",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/fuchsia.tar.gz",
+      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+    ],
+    "infra_step": true,
+    "name": "upload fuchsia.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_WARNINGS@@@"
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {
     "name": "$result",
-    "reason": "Test output missing",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]
