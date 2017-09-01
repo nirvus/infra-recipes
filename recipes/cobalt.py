@@ -44,20 +44,10 @@ def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
   if patch_ref is not None:
     api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
-  with api.step.nest('ensure_packages'):
-    with api.context(infra_steps=True):
-      cipd_dir = api.path['start_dir'].join('cipd')
-      api.cipd.ensure(cipd_dir, {
-        'infra/cmake/${platform}': 'version:3.9.1',
-        'infra/ninja/${platform}': 'version:1.7.2',
-      })
-
   # Start the cobalt build process.
   with api.context(cwd=api.path['start_dir'].join('cobalt')):
     api.step('setup', ['./cobaltb.py', 'setup'])
-    api.step('build', ['./cobaltb.py', 'build',
-                       '--cmake_path', cipd_dir.join('bin', 'cmake'),
-                       '--ninja_path', cipd_dir.join('ninja')])
+    api.step('build', ['./cobaltb.py', 'build'])
     api.step('test', ['./cobaltb.py', 'test'])
 
   return RETURN_SCHEMA.new(got_revision=revision)
