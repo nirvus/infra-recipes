@@ -418,13 +418,13 @@ Recipe for building Fuchsia and running tests.
 
 &emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/fuchsia.py#116)(api, use_goma):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#324)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, tests, use_autorun, use_goma, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#332)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, tests, use_autorun, use_goma, gn_args):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#235)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#236)(api, target, fuchsia_build_dir):**
 
 &mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#170)(api, target, fuchsia_build_dir, tests):**
 
-&mdash; **def [UploadArchive](/recipes/fuchsia.py#306)(api, target, magenta_build_dir, fuchsia_build_dir):**
+&mdash; **def [UploadArchive](/recipes/fuchsia.py#314)(api, target, magenta_build_dir, fuchsia_build_dir):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

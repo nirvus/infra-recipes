@@ -401,21 +401,8 @@
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
-      "@@@STEP_LOG_LINE@qemu log@qemu@@@",
-      "@@@STEP_LOG_END@qemu log@@@",
       "@@@STEP_FAILURE@@@"
     ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/magenta/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "[START_DIR]/out/debug-x86-64"
-    ],
-    "name": "symbolize",
-    "stdin": "qemu",
-    "stdout": "/path/to/tmp/"
   },
   {
     "name": "$result",

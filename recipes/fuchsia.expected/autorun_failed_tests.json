@@ -401,7 +401,8 @@
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@qemu log@SUMMARY: Ran 2 tests: 1 failed@@@",
-      "@@@STEP_LOG_END@qemu log@@@"
+      "@@@STEP_LOG_END@qemu log@@@",
+      "@@@STEP_FAILURE@@@"
     ]
   },
   {
@@ -413,10 +414,7 @@
     ],
     "name": "symbolize",
     "stdin": "SUMMARY: Ran 2 tests: 1 failed",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_FAILURE@@@"
-    ]
+    "stdout": "/path/to/tmp/"
   },
   {
     "name": "$result",

@@ -7,7 +7,7 @@
 from contextlib import contextmanager
 
 from recipe_engine.config import Enum, List, ReturnSchema, Single
-from recipe_engine.recipe_api import Property, StepFailure
+from recipe_engine.recipe_api import Property
 
 import hashlib
 import re
@@ -232,6 +232,7 @@ def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
         step_result.presentation.logs['symbolized backtraces'] = lines
         step_result.presentation.status = api.step.FAILURE
 
+
 def RunTestsWithAutorun(api, target, fuchsia_build_dir):
   magenta_build_dir = {
     'arm64': 'build-magenta-qemu-arm64',
@@ -253,10 +254,11 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
     'x86-64': 'x86_64',
   }[target]
 
-  step_result = None
+  run_tests_result = None
+  failure_reason = None
 
   try:
-    step_result = api.qemu.run(
+    run_tests_result = api.qemu.run(
         'run tests',
         qemu_arch,
         magenta_image_path,
@@ -264,43 +266,49 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
         memory=4096,
         initrd=bootfs_path,
         shutdown_pattern=TEST_SUMMARY)
-  except StepFailure as error:
-    step_result = error.result
+  except api.step.StepFailure as error:
+    run_tests_result = error.result
     if error.retcode == 2:
-      message = "Tests timed out"
+      failure_reason = 'Tests timed out'
     else:
-      message = "QEMU failure"
-    raise api.step.StepFailure(message)
-  finally:
-    if step_result is not None:
-      qemu_log = step_result.stdout
-      step_result.presentation.logs['qemu log'] = qemu_log.splitlines()
+      raise api.step.InfraFailure('QEMU failure')
 
-      symbolize_cmd = [
-        api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
-        '--no-echo',
-        '--build-dir', fuchsia_build_dir,
-      ]
+  qemu_log = run_tests_result.stdout
+  run_tests_result.presentation.logs['qemu log'] = qemu_log.splitlines()
 
-      step_result = api.step('symbolize', symbolize_cmd,
-          stdin=api.raw_io.input(data=qemu_log),
-          stdout=api.raw_io.output(),
-          step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+  if failure_reason is None:
+    m = re.search(TEST_SUMMARY, qemu_log)
+    if not m:
+      # This is an infrastructure failure because the TEST_SUMMARY pattern is
+      # also supposed to be the only thing that triggers a successful QEMU
+      # shutdown. Getting to this line means it matched in one place but not
+      # the other, which isn't Fuchsia's fault.
+      run_tests_result.presentation.status = api.step.EXCEPTION
+      failure_reason = 'Test output missing'
+    elif int(m.group('failed')) > 0:
+      run_tests_result.presentation.status = api.step.FAILURE
+      failure_reason = m.group(0)
 
-      lines = step_result.stdout.splitlines()
-      if lines:
-        # If symbolize found any backtraces in qemu.stdout, mark the symbolize
-        # step as failed to indicate that it should be looked at.
-        step_result.presentation.logs['symbolized backtraces'] = lines
-        step_result.presentation.status = api.step.FAILURE
+  symbolize_cmd = [
+    api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
+    '--no-echo',
+    '--build-dir', fuchsia_build_dir,
+  ]
 
-  m = re.search(TEST_SUMMARY, qemu_log)
-  if not m:
-    step_result.presentation.status = api.step.WARNING
-    raise api.step.StepWarning('Test output missing')
-  elif int(m.group('failed')) > 0:
-    step_result.presentation.status = api.step.FAILURE
-    raise api.step.StepFailure(m.group(0))
+  symbolize_result = api.step('symbolize', symbolize_cmd,
+      stdin=api.raw_io.input(data=qemu_log),
+      stdout=api.raw_io.output(),
+      step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+
+  symbolized_lines = symbolize_result.stdout.splitlines()
+  if symbolized_lines:
+    # If symbolize found any backtraces in qemu.stdout, mark the symbolize
+    # step as failed to indicate that it should be looked at.
+    symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
+    symbolize_result.presentation.status = api.step.FAILURE
+
+  if failure_reason is not None:
+    raise api.step.StepFailure(failure_reason)
 
 
 def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):
