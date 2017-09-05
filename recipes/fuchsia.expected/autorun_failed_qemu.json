@@ -228,7 +228,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "msleep 500\nruntests",
+      "msleep 500\nruntests\necho \"ready for fuchsia shutdown\"",
       "[TMP_BASE]/autorun"
     ],
     "infra_step": true,
@@ -236,6 +236,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
       "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@echo \"ready for fuchsia shutdown\"@@@",
       "@@@STEP_LOG_END@autorun.sh@@@"
     ]
   },
@@ -394,7 +395,7 @@
       "--initrd",
       "[START_DIR]/out/debug-x86-64/user.bootfs",
       "--shutdown_pattern",
-      "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
+      "ready for fuchsia shutdown",
       "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64/magenta.bin"
     ],
     "name": "run tests",

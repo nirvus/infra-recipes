@@ -36,6 +36,8 @@ TARGETS = ['arm64', 'x86-64']
 
 TEST_SUMMARY = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
 
+TEST_SHUTDOWN = 'ready for fuchsia shutdown'
+
 TEST_RUNNER_PORT = 8342
 
 PROPERTIES = {
@@ -94,7 +96,11 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
 
 def BuildMagenta(api, target, tests):
   if tests:
-    autorun = ['msleep 500', tests]
+    autorun = [
+      'msleep 500',
+      tests,
+      'echo "%s"' % TEST_SHUTDOWN,
+    ]
     autorun_path = api.path['tmp_base'].join('autorun')
     api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
     api.step.active_result.presentation.logs['autorun.sh'] = autorun
@@ -265,7 +271,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
         kvm=True,
         memory=4096,
         initrd=bootfs_path,
-        shutdown_pattern=TEST_SUMMARY)
+        shutdown_pattern=TEST_SHUTDOWN)
   except api.step.StepFailure as error:
     run_tests_result = error.result
     if error.retcode == 2:
@@ -279,10 +285,10 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
   if failure_reason is None:
     m = re.search(TEST_SUMMARY, qemu_log)
     if not m:
-      # This is an infrastructure failure because the TEST_SUMMARY pattern is
-      # also supposed to be the only thing that triggers a successful QEMU
-      # shutdown. Getting to this line means it matched in one place but not
-      # the other, which isn't Fuchsia's fault.
+      # This is an infrastructure failure because the TEST_SHUTDOWN string
+      # should have been triggered to get to the this point, which means the
+      # runtests command completed. runtests is supposed to output a string
+      # matching TEST_SUMMARY.
       run_tests_result.presentation.status = api.step.EXCEPTION
       failure_reason = 'Test output missing'
     elif int(m.group('failed')) > 0:
@@ -406,7 +412,7 @@ def GenTests(api):
       target='x86-64',
       tests='runtests',
       use_autorun=True,
-  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed'))
+  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_failed_qemu') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -427,7 +433,7 @@ def GenTests(api):
       target='x86-64',
       tests='runtests',
       use_autorun=True,
-  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
+  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_backtrace') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
