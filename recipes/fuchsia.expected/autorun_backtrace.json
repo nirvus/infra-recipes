@@ -401,9 +401,9 @@
     "name": "run tests",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@qemu log@qemu@@@",
+      "@@@STEP_LOG_LINE@qemu log@SUMMARY: Ran 2 tests: 1 failed@@@",
       "@@@STEP_LOG_END@qemu log@@@",
-      "@@@STEP_EXCEPTION@@@"
+      "@@@STEP_FAILURE@@@"
     ]
   },
   {
@@ -414,7 +414,7 @@
       "[START_DIR]/out/debug-x86-64"
     ],
     "name": "symbolize",
-    "stdin": "qemu",
+    "stdin": "SUMMARY: Ran 2 tests: 1 failed",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@symbolized backtraces@bt1@@@",
@@ -425,7 +425,7 @@
   },
   {
     "name": "$result",
-    "reason": "Test output missing",
+    "reason": "SUMMARY: Ran 2 tests: 1 failed",
     "recipe_result": null,
     "status_code": 1
   }

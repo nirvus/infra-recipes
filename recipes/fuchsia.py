@@ -295,25 +295,21 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
       run_tests_result.presentation.status = api.step.FAILURE
       failure_reason = m.group(0)
 
-  symbolize_cmd = [
-    api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
-    '--no-echo',
-    '--build-dir', fuchsia_build_dir,
-  ]
-
-  symbolize_result = api.step('symbolize', symbolize_cmd,
-      stdin=api.raw_io.input(data=qemu_log),
-      stdout=api.raw_io.output(),
-      step_test_data=lambda: api.raw_io.test_api.stream_output(''))
-
-  symbolized_lines = symbolize_result.stdout.splitlines()
-  if symbolized_lines:
-    # If symbolize found any backtraces in qemu.stdout, mark the symbolize
-    # step as failed to indicate that it should be looked at.
-    symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
-    symbolize_result.presentation.status = api.step.FAILURE
-
   if failure_reason is not None:
+    symbolize_cmd = [
+      api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
+      '--no-echo',
+      '--build-dir', fuchsia_build_dir,
+    ]
+    symbolize_result = api.step('symbolize', symbolize_cmd,
+        stdin=api.raw_io.input(data=qemu_log),
+        stdout=api.raw_io.output(),
+        step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+    symbolized_lines = symbolize_result.stdout.splitlines()
+    if symbolized_lines:
+      symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
+      symbolize_result.presentation.status = api.step.FAILURE
+
     raise api.step.StepFailure(failure_reason)
 
 
@@ -420,6 +416,13 @@ def GenTests(api):
       tests='runtests',
       use_autorun=True,
   ) + api.step_data('run tests', retcode=1)
+  yield api.test('autorun_no_results') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_autorun=True,
+  ) + api.step_data('run tests', api.raw_io.stream_output(TEST_SHUTDOWN))
   yield api.test('autorun_tests_timeout') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -440,6 +443,7 @@ def GenTests(api):
       target='x86-64',
       tests='runtests',
       use_autorun=True,
+  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed'),
   ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
 
   # Test cases for skipping Fuchsia tests.
