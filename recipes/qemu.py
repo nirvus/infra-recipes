@@ -122,7 +122,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     refs=['latest'],
     tags={
       'qemu_version': qemu_version,
-      'git_repository': 'qemu',
+      'git_repository': 'https://fuchsia.googlesource.com/third_party/qemu',
       'git_revision': revision,
     },
   )

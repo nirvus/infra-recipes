@@ -256,7 +256,7 @@
       "-ref",
       "latest",
       "-tag",
-      "git_repository:qemu",
+      "git_repository:https://fuchsia.googlesource.com/third_party/qemu",
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-tag",
