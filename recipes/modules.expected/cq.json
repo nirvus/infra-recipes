@@ -87,15 +87,6 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-clean"
-    ],
-    "infra_step": true,
-    "name": "jiri project clean"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-autoupdate=false"
     ],

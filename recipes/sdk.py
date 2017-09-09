@@ -171,13 +171,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   with api.context(infra_steps=True):
     api.jiri.init()
-    api.jiri.import_manifest(
-        'fuchsia', 'https://fuchsia.googlesource.com/manifest')
-    api.jiri.clean(all=True)
-    api.jiri.update(gc=True)
+    api.jiri.import_manifest('fuchsia',
+                             'https://fuchsia.googlesource.com/manifest')
+    api.jiri.update()
 
-  if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+    if patch_ref is not None:
+      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   modules = ['sdk']
   build_type = 'release'

@@ -86,14 +86,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   with api.context(infra_steps=True):
     api.jiri.init()
-    api.jiri.import_manifest(manifest, remote, overwrite=True)
-    api.jiri.clean(all=True)
-    update_result = api.jiri.update(gc=True)
+    api.jiri.import_manifest(manifest, remote)
+    api.jiri.update()
     revision = api.jiri.project('jiri').json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+    if patch_ref is not None:
+      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   api.go.ensure_go()
 

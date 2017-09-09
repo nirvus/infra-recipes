@@ -71,9 +71,8 @@ PROPERTIES = {
 def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
   with api.context(infra_steps=True):
     api.jiri.init()
-    api.jiri.import_manifest(manifest, remote, overwrite=True)
-    api.jiri.clean(all=True)
-    api.jiri.update(gc=True)
+    api.jiri.import_manifest(manifest, remote)
+    api.jiri.update()
 
     snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
     step_result = api.jiri.snapshot(
@@ -88,11 +87,10 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
           name='upload jiri.snapshot',
           unauthenticated_url=True)
 
-  if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
-    if patch_project == 'manifest':
-      api.jiri.update(gc=True, local_manifest=True)
-
+    if patch_ref is not None:
+      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+      if patch_project == 'manifest':
+        api.jiri.update(gc=True, local_manifest=True)
 
 def BuildMagenta(api, target, tests):
   if tests:

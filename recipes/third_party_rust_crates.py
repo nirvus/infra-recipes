@@ -42,8 +42,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                              'https://fuchsia.googlesource.com/manifest')
     api.jiri.import_manifest('build',
                              'https://fuchsia.googlesource.com/manifest')
-    api.jiri.clean(all=True)
-    update_result = api.jiri.update()
+    api.jiri.update()
     revision = api.jiri.project('rust-crates').json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
@@ -51,8 +50,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     snapshot = step_result.raw_io.output
     step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
 
-  if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url)
+    if patch_ref is not None:
+      api.jiri.patch(patch_ref, host=patch_gerrit_url)
 
   cmd = [
     api.path['start_dir'].join('scripts', 'check_rust_licenses.py'),

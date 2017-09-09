@@ -43,8 +43,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.jiri.init()
     api.jiri.import_manifest('userspace',
                              'https://fuchsia.googlesource.com/manifest')
-    api.jiri.clean()
-    update_result = api.jiri.update()
+    api.jiri.update()
     revision = api.jiri.project(patch_project).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 

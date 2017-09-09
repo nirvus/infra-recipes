@@ -100,7 +100,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote)
-    api.jiri.clean()
     api.jiri.update()
 
     step_result = api.jiri.snapshot(
@@ -111,8 +110,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project('magenta').json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+    if patch_ref is not None:
+      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   tmp_dir = api.path['tmp_base'].join('magenta_tmp')
   api.file.ensure_directory('makedirs tmp', tmp_dir)

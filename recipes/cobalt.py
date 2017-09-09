@@ -36,13 +36,12 @@ def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
   with api.context(infra_steps=True):
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote)
-    api.jiri.clean()
     api.jiri.update()
     revision = api.jiri.project('cobalt').json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+    if patch_ref is not None:
+      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   # Start the cobalt build process.
   with api.context(cwd=api.path['start_dir'].join('cobalt')):

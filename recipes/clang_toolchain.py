@@ -49,9 +49,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   with api.context(infra_steps=True):
     api.jiri.init()
-    api.jiri.import_manifest(manifest, remote, overwrite=True)
-    api.jiri.clean(all=True)
-    api.jiri.update(gc=True)
+    api.jiri.import_manifest(manifest, remote)
+    api.jiri.update()
     snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
     step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
     digest = hashlib.sha1(step_result.raw_io.output).hexdigest()

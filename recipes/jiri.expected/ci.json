@@ -44,7 +44,6 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "-overwrite=true",
       "jiri",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -54,18 +53,8 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-clean-all"
-    ],
-    "infra_step": true,
-    "name": "jiri project clean"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "update",
-      "-autoupdate=false",
-      "-gc=true"
+      "-autoupdate=false"
     ],
     "infra_step": true,
     "name": "jiri update"
