@@ -44,7 +44,6 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "-overwrite=true",
       "infra",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -54,21 +53,23 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-clean-all"
+      "update",
+      "-autoupdate=false"
     ],
     "infra_step": true,
-    "name": "jiri project clean"
+    "name": "jiri update"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-autoupdate=false",
-      "-gc=true"
+      "patch",
+      "-host",
+      "fuchsia-review.googlesource.com",
+      "-rebase=true",
+      "refs/changes/89/456789/12"
     ],
     "infra_step": true,
-    "name": "jiri update"
+    "name": "jiri patch"
   },
   {
     "cmd": [
@@ -84,30 +85,18 @@
       "@@@STEP_LOG_LINE@json.output@[@@@",
       "@@@STEP_LOG_LINE@json.output@  {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"master\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"name\": \"infra/recipes\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/repo\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/repo\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/infra/recipes\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/infra/recipes\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",
       "@@@STEP_LOG_END@json.output@@@",
       "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
     ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "-rebase=true",
-      "refs/changes/89/456789/12"
-    ],
-    "name": "jiri patch"
   },
   {
     "cmd": [
@@ -122,9 +111,7 @@
   },
   {
     "name": "$result",
-    "recipe_result": {
-      "got_revision": "c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
-    },
+    "recipe_result": null,
     "status_code": 0
   }
 ]

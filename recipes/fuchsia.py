@@ -70,16 +70,12 @@ PROPERTIES = {
 
 def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest(manifest, remote)
-    api.jiri.update()
-
-    snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
-    step_result = api.jiri.snapshot(
-        api.raw_io.output(name='snapshot', leak_to=snapshot_file),
-        source_manifest=api.json.output(name='source manifest'))
-    api.source_manifest.set_json_manifest('checkout', step_result.json.output)
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    if patch_ref:
+      api.jiri.update(local_manifest=True)
     if not api.properties.get('tryjob', False):
+      snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
+      api.jiri.snapshot(snapshot_file)
       digest = api.hash.sha1('hash snapshot', snapshot_file,
                              test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
       api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
@@ -87,10 +83,6 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
           name='upload jiri.snapshot',
           unauthenticated_url=True)
 
-    if patch_ref is not None:
-      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
-      if patch_project == 'manifest':
-        api.jiri.update(gc=True, local_manifest=True)
 
 def BuildMagenta(api, target, tests):
   if tests:

@@ -18,6 +18,10 @@ def RunSteps(api):
   api.jiri.ensure_jiri()
   assert api.jiri.jiri
 
+  api.jiri.checkout(
+      'minimal', 'https://fuchsia.googlesource.com',
+      'refs/changes/1/2/3', 'https://fuchsia-review.googlesource.com')
+
   # Setup a new jiri root.
   api.jiri.init('dir')
 
@@ -29,14 +33,10 @@ def RunSteps(api):
   api.jiri.update(gc=True, snapshot='snapshot', local_manifest=True)
 
   # Take a snapshot.
-  step_result = api.jiri.snapshot(
-      api.raw_io.output(name='snapshot'),
-      source_manifest=api.json.output(name='source manifest'))
-  snapshot = step_result.raw_io.output
-  step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
+  api.jiri.snapshot()
 
   # Get information about the project.
-  api.jiri.project('test')
+  api.jiri.project(['test'])
 
   # Patch in an existing change.
   api.jiri.patch('refs/changes/1/2/3',

@@ -153,18 +153,6 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "-rebase=true",
-      "refs/changes/89/456789/12"
-    ],
-    "infra_step": true,
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
       "[START_DIR]/scripts/build-magenta.sh",
       "-t",
       "x86_64"

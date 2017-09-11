@@ -4,7 +4,6 @@
 
 """Recipe for building Jiri."""
 
-from recipe_engine.config import ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 from recipe_engine import config
 
@@ -37,10 +36,6 @@ PROPERTIES = {
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=str, help='Target to build'),
 }
-
-RETURN_SCHEMA = ReturnSchema(
-  got_revision=Single(str)
-)
 
 
 def UploadPackage(api, revision, staging_dir):
@@ -83,18 +78,12 @@ def UploadPackage(api, revision, staging_dir):
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target):
   api.jiri.ensure_jiri()
+  api.go.ensure_go()
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest(manifest, remote)
-    api.jiri.update()
-    revision = api.jiri.project('jiri').json.output[0]['revision']
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    revision = api.jiri.project(['jiri']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
-
-    if patch_ref is not None:
-      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
-
-  api.go.ensure_go()
 
   staging_dir = api.path.mkdtemp('jiri')
   jiri_dir = api.path['start_dir'].join(
@@ -122,8 +111,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   if not api.properties.get('tryjob', False):
     UploadPackage(api, revision, staging_dir)
-
-  return RETURN_SCHEMA.new(got_revision=revision)
 
 
 def GenTests(api):

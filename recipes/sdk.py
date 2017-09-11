@@ -124,12 +124,11 @@ def UploadArchive(api, sdk, digest):
       unauthenticated_url=True
   )
   snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
-  step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
+  api.jiri.snapshot(snapshot_file)
   api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
       link_name='jiri.snapshot',
       name='upload jiri.snapshot',
-          unauthenticated_url=True)
-
+      unauthenticated_url=True)
 
 
 def UploadPackage(api, outdir, digest):
@@ -170,13 +169,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.cipd.default_bot_service_account_credentials)
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest('fuchsia',
-                             'https://fuchsia.googlesource.com/manifest')
-    api.jiri.update()
-
-    if patch_ref is not None:
-      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+    api.jiri.checkout('fuchsia', 'https://fuchsia.googlesource.com/manifest')
 
   modules = ['sdk']
   build_type = 'release'

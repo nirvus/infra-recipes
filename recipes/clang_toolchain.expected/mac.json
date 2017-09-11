@@ -100,6 +100,19 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[TMP_BASE]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "hash snapshot",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
       "vpython",
       "-spec",
       "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",

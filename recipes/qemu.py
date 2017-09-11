@@ -47,10 +47,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.cipd.default_bot_service_account_credentials)
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest(manifest, remote)
-    api.jiri.update()
-    revision = api.jiri.project('third_party/qemu').json.output[0]['revision']
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    revision = api.jiri.project(['third_party/qemu']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
   staging_dir = api.path.mkdtemp('qemu')

@@ -47,18 +47,23 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def project(self, *projects, **kwargs):
+  def project(self, projects, test_data=None):
     cmd = [
       'project',
       '-json-output', self.m.json.output(),
-    ] + list(projects)
-    kwargs.setdefault('name', 'jiri project')
+    ] + projects
 
-    return self(
-        *cmd,
-        step_test_data=lambda: self.test_api.example_project(projects),
-        **kwargs
-    )
+    if test_data is None:
+      test_data = [{
+          "name": p,
+          "path": "/path/to/" + p,
+          "remote": "https://fuchsia.googlesource.com/" + p,
+          "revision": "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+          "current_branch": "",
+          "branches": [ "(HEAD detached at c22471f)" ]
+      } for p in projects]
+
+    return self(*cmd, step_test_data=lambda: self.test_api.project(test_data))
 
   def update(self, gc=False, snapshot=None, local_manifest=False, **kwargs):
     cmd = [
@@ -106,16 +111,27 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def snapshot(self, file, source_manifest=None, step_test_data=None, **kwargs):
-    cmd = [ 'snapshot' ]
-    if source_manifest:
-      cmd.extend(['-source-manifest', source_manifest])
-    cmd.extend([file])
-    if not step_test_data:
-      step_test_data = lambda: (self.test_api.example_snapshot() +
-                                self.test_api.example_source_manifest())
-    return self(
-        *cmd,
-        step_test_data=step_test_data,
-        **kwargs
-    )
+  def snapshot(self, file=None, test_data=None, **kwargs):
+    cmd = [
+      'snapshot',
+      self.m.raw_io.output(leak_to=file),
+    ]
+    if test_data is None:
+      test_data = self.test_api.example_snapshot
+    step = self(*cmd, step_test_data=lambda: self.test_api.snapshot(test_data), **kwargs)
+    return step.raw_io.output
+
+  def checkout(self, manifest, remote, patch_ref=None, patch_gerrit_url=None):
+    self.init()
+    self.import_manifest(manifest, remote)
+    self.update()
+    if patch_ref:
+      self.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+
+    # TODO(phosek): remove this once snapshot supports -source-manifest
+    #step = self('snapshot',
+    #  '-source-manifest', self.m.json.output(name='source manifest'),
+    #  self.m.raw_io.output(),
+    #  step_test_data=lambda: self.m.json.test_api.output(self.test_api.example_source_manifest, name='source manifest'))
+    #manifest = step.json.output
+    #self.m.source_manifest.set_json_manifest('checkout', manifest)

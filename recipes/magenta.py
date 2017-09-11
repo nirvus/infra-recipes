@@ -6,7 +6,7 @@
 
 import re
 
-from recipe_engine.config import Enum, ReturnSchema, Single
+from recipe_engine.config import Enum
 from recipe_engine.recipe_api import Property, StepFailure
 
 
@@ -66,10 +66,6 @@ PROPERTIES = {
   'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True)
 }
 
-RETURN_SCHEMA = ReturnSchema(
-  got_revision=Single(str)
-)
-
 
 def RunTests(api, name, *args, **kwargs):
   step_result = None
@@ -98,20 +94,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest(manifest, remote)
-    api.jiri.update()
-
-    step_result = api.jiri.snapshot(
-        api.raw_io.output(name='snapshot'),
-        source_manifest=api.json.output(name='source manifest'))
-    api.source_manifest.set_json_manifest('checkout', step_result.json.output)
-
-    revision = api.jiri.project('magenta').json.output[0]['revision']
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    revision = api.jiri.project(['magenta']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
-
-    if patch_ref is not None:
-      api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
 
   tmp_dir = api.path['tmp_base'].join('magenta_tmp')
   api.file.ensure_directory('makedirs tmp', tmp_dir)
@@ -169,8 +154,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         initrd=bootdata_path, shutdown_pattern=BOOTED_TESTS_MATCH,
         step_test_data=lambda:
             api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
-
-  return RETURN_SCHEMA.new(got_revision=revision)
 
 
 def GenTests(api):

@@ -27,10 +27,6 @@ PROPERTIES = {
                                    default=None),
 }
 
-RETURN_SCHEMA = ReturnSchema(
-  got_revision=Single(str)
-)
-
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url):
@@ -43,15 +39,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.jiri.import_manifest('build',
                              'https://fuchsia.googlesource.com/manifest')
     api.jiri.update()
-    revision = api.jiri.project('rust-crates').json.output[0]['revision']
+    revision = api.jiri.project(['rust-crates']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
-
-    step_result = api.jiri.snapshot(api.raw_io.output())
-    snapshot = step_result.raw_io.output
-    step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
-
-    if patch_ref is not None:
-      api.jiri.patch(patch_ref, host=patch_gerrit_url)
 
   cmd = [
     api.path['start_dir'].join('scripts', 'check_rust_licenses.py'),
@@ -60,8 +49,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.path['start_dir'].join('third_party', 'rust-crates', 'vendor'),
   ]
   api.step('verify licenses', cmd)
-
-  return RETURN_SCHEMA.new(got_revision=revision)
 
 
 def GenTests(api):

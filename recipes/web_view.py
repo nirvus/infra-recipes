@@ -4,7 +4,7 @@
 
 """Recipe for building WebView."""
 
-from recipe_engine.config import Enum, List, ReturnSchema, Single
+from recipe_engine.config import Enum, List
 from recipe_engine.recipe_api import Property
 
 
@@ -33,10 +33,6 @@ PROPERTIES = {
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
 }
 
-RETURN_SCHEMA = ReturnSchema(
-  got_revision=Single(str)
-)
-
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target):
@@ -45,10 +41,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.goma.ensure_goma()
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest(manifest, remote)
-    api.jiri.update()
-    revision = api.jiri.project('third_party/webkit').json.output[0]['revision']
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    revision = api.jiri.project(['third_party/webkit']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
   build_magenta_cmd = [
@@ -84,8 +78,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       link_name='libwebkit.so',
       name='upload libwebkit.so',
       unauthenticated_url=True)
-
-  return RETURN_SCHEMA.new(got_revision=revision)
 
 
 def GenTests(api):

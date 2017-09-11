@@ -4,7 +4,6 @@
 
 """Recipe for building and running pre-submit checks for the modules repo."""
 
-from recipe_engine.config import ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
 
@@ -26,33 +25,19 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
+  'manifest': Property(kind=str, help='Jiri manifest to use'),
+  'remote': Property(kind=str, help='Remote manifest repository'),
   'project_path': Property(kind=str, help='Project path', default=None),
 }
 
-RETURN_SCHEMA = ReturnSchema(
-  got_revision=Single(str)
-)
-
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, project_path):
+             patch_storage, patch_repository_url, manifest, remote, project_path):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest('userspace',
-                             'https://fuchsia.googlesource.com/manifest')
-    api.jiri.update()
-    revision = api.jiri.project(patch_project).json.output[0]['revision']
-    api.step.active_result.presentation.properties['got_revision'] = revision
-
-    step_result = api.jiri.snapshot(api.raw_io.output())
-    snapshot = step_result.raw_io.output
-    step_result.presentation.logs['jiri.snapshot'] = snapshot.splitlines()
-
-  if patch_ref is not None:
-    api.jiri.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+    api.jiri.checkout('userspace', remote, patch_ref, patch_gerrit_url)
 
   # The make script defaults to a debug build unless specified otherwise. It
   # also always hardcodes x86-64 as the target architecture. Since this is
@@ -71,15 +56,17 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     with api.context(**ctx):
       api.step('build and run presubmit tests', ['make', 'presubmit-cq'])
 
-  return RETURN_SCHEMA.new(got_revision=revision)
-
 
 def GenTests(api):
   yield api.test('basic') + api.properties(
       patch_project='modules/common',
+      manifest='userspace',
+      remote='https://fuchsia.googlesource.com/manifest',
   )
   yield api.test('cq') + api.properties.tryserver(
       gerrit_project='modules/common',
       patch_gerrit_url='fuchsia-review.googlesource.com',
+      manifest='userspace',
+      remote='https://fuchsia.googlesource.com/manifest',
       project_path='apps/modules/common',
   )

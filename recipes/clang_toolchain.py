@@ -8,12 +8,12 @@ from recipe_engine.config import Enum, ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
 import re
-import hashlib
 
 
 DEPS = [
   'infra/cipd',
   'infra/gsutil',
+  'infra/hash',
   'infra/jiri',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -48,12 +48,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.cipd.default_bot_service_account_credentials)
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest(manifest, remote)
-    api.jiri.update()
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
     snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
-    step_result = api.jiri.snapshot(api.raw_io.output(leak_to=snapshot_file))
-    digest = hashlib.sha1(step_result.raw_io.output).hexdigest()
+    api.jiri.snapshot(snapshot_file)
+    digest = api.hash.sha1('hash snapshot', snapshot_file,
+                           test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
     api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
         link_name='jiri.snapshot',
         name='upload jiri.snapshot',

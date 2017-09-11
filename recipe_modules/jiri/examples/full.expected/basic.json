@@ -35,10 +35,48 @@
       "init",
       "-cache",
       "[CACHE]/git",
+      "-shared"
+    ],
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "minimal",
+      "https://fuchsia.googlesource.com"
+    ],
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-autoupdate=false"
+    ],
+    "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-rebase=true",
+      "refs/changes/1/2/3"
+    ],
+    "name": "jiri patch"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-cache",
+      "[CACHE]/git",
       "-shared",
       "dir"
     ],
-    "name": "jiri init"
+    "name": "jiri init (2)"
   },
   {
     "cmd": [
@@ -48,7 +86,7 @@
       "minimal",
       "https://fuchsia.googlesource.com"
     ],
-    "name": "jiri import"
+    "name": "jiri import (2)"
   },
   {
     "cmd": [
@@ -59,31 +97,15 @@
       "snapshot",
       "-local-manifest=true"
     ],
-    "name": "jiri update"
+    "name": "jiri update (2)"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "snapshot",
-      "-source-manifest",
-      "/path/to/tmp/json",
       "/path/to/tmp/"
     ],
-    "name": "jiri snapshot",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
-      "@@@STEP_LOG_END@json.output[source manifest]@@@",
-      "@@@STEP_LOG_END@jiri.snapshot@@@"
-    ]
+    "name": "jiri snapshot"
   },
   {
     "cmd": [
@@ -98,13 +120,12 @@
       "@@@STEP_LOG_LINE@json.output@[@@@",
       "@@@STEP_LOG_LINE@json.output@  {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"master\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"name\": \"test\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/repo\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/repo\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/test\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/test\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",
@@ -121,7 +142,7 @@
       "-force=true",
       "refs/changes/1/2/3"
     ],
-    "name": "jiri patch"
+    "name": "jiri patch (2)"
   },
   {
     "cmd": [

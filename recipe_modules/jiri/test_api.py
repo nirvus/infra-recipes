@@ -8,43 +8,36 @@ from recipe_engine import recipe_test_api
 class JiriTestApi(recipe_test_api.RecipeTestApi):
 
   @property
-  def example_revision(self):
-    return "c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+  def example_revision(self): # pragma: no cover
+    return 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127'
 
-  def example_project(self, projects):
-    assert projects is not None
-    return self.m.json.output([
-      {
-          "name": project,
-          "path": "/path/to/repo",
-          "remote": "https://fuchsia.googlesource.com/repo",
-          "revision": self.example_revision,
-          "current_branch": "",
-          "branches": [
-              "(HEAD detached at c22471f)",
-              "master"
-          ]
-      }
-      for project in projects
-    ])
-
+  @property
   def example_snapshot(self):
-    return self.m.raw_io.output('''
-<manifest>
+    return '''<manifest>
   <projects>
     <project name="manifest" path="manifest" remote="https://fuchsia.googlesource.com/manifest" revision="4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b"/>
   </projects>
-</manifest>
-''')
+</manifest>'''
 
-  def example_source_manifest(self):
-    return self.m.json.output({
-      'directories': {
-        'manifest': {
-          'git_checkout': {
-            'repo_url': 'https://fuchsia.googlesource.com/manifest',
-            'revision': '4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b',
-          }
-        }
-      }
-    }, name='source manifest')
+  #@property
+  #def example_source_manifest(self):
+  #  return {
+  #    'directories': {
+  #      'manifest': {
+  #        'git_checkout': {
+  #          'repo_url': 'https://fuchsia.googlesource.com/manifest',
+  #          'revision': '4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b',
+  #        }
+  #      }
+  #    }
+  #  }
+
+  def project(self, projects):
+    """Provides test mock for the `project` method."""
+    assert projects is not None
+    return self.m.json.output(projects)
+
+  def snapshot(self, data):
+    """Provides test mock for the `snapshot` method."""
+    assert data is not None
+    return self.m.raw_io.output(data, name='snapshot')
