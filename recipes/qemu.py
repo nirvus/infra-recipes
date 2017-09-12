@@ -58,6 +58,18 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   qemu_dir = api.path['start_dir'].join('third_party', 'qemu')
   build_dir = api.path.mkdtemp('build')
 
+  extra_options = {
+    'linux': [
+      '--extra-ldflags=-static-libstdc++',
+      '--disable-gtk',
+      '--enable-sdl=internal',
+      '--enable-kvm'
+    ],
+    'mac': [
+      '--enable-cocoa',
+    ],
+  }[api.platform.name]
+
   with api.context(cwd=build_dir):
     api.step('configure qemu', [
       qemu_dir.join('configure'),
@@ -86,7 +98,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '--disable-smartcard',
       '--disable-tools',
       '--disable-tasn1',
-    ])
+    ] + extra_options)
     api.step('build qemu', [
       'make',
       '-j%s' % api.platform.cpu_count,

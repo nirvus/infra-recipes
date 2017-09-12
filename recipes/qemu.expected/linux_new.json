@@ -189,7 +189,11 @@
       "--disable-libusb",
       "--disable-smartcard",
       "--disable-tools",
-      "--disable-tasn1"
+      "--disable-tasn1",
+      "--extra-ldflags=-static-libstdc++",
+      "--disable-gtk",
+      "--enable-sdl=internal",
+      "--enable-kvm"
     ],
     "cwd": "[TMP_BASE]/build_tmp_2",
     "name": "configure qemu"

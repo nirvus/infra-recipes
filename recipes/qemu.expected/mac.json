@@ -189,7 +189,8 @@
       "--disable-libusb",
       "--disable-smartcard",
       "--disable-tools",
-      "--disable-tasn1"
+      "--disable-tasn1",
+      "--enable-cocoa"
     ],
     "cwd": "[TMP_BASE]/build_tmp_2",
     "name": "configure qemu"
