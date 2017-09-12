@@ -19,18 +19,18 @@ class JiriTestApi(recipe_test_api.RecipeTestApi):
   </projects>
 </manifest>'''
 
-  #@property
-  #def example_source_manifest(self):
-  #  return {
-  #    'directories': {
-  #      'manifest': {
-  #        'git_checkout': {
-  #          'repo_url': 'https://fuchsia.googlesource.com/manifest',
-  #          'revision': '4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b',
-  #        }
-  #      }
-  #    }
-  #  }
+  @property
+  def example_source_manifest(self):
+    return {
+      'directories': {
+        'manifest': {
+          'git_checkout': {
+            'repo_url': 'https://fuchsia.googlesource.com/manifest',
+            'revision': '4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b',
+          }
+        }
+      }
+    }
 
   def project(self, projects):
     """Provides test mock for the `project` method."""
@@ -41,3 +41,8 @@ class JiriTestApi(recipe_test_api.RecipeTestApi):
     """Provides test mock for the `snapshot` method."""
     assert data is not None
     return self.m.raw_io.output(data, name='snapshot')
+
+  def source_manifest(self, data):
+    """Provides test mock for the `source_manifest` method."""
+    assert data is not None
+    return self.m.json.output(data, name='source manifest')

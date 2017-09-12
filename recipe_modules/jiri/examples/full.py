@@ -32,8 +32,15 @@ def RunSteps(api):
   # Download all projects.
   api.jiri.update(gc=True, snapshot='snapshot', local_manifest=True)
 
+  # Run hooks separately.
+  api.jiri.update(run_hooks=False)
+  api.jiri.run_hooks(local_manifest=True)
+
   # Take a snapshot.
   api.jiri.snapshot()
+
+  # Emit source manifest.
+  api.jiri.source_manifest()
 
   # Get information about the project.
   api.jiri.project(['test'])

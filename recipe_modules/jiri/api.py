@@ -65,19 +65,27 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, step_test_data=lambda: self.test_api.project(test_data))
 
-  def update(self, gc=False, snapshot=None, local_manifest=False, **kwargs):
+  def update(self, gc=False, run_hooks=True, snapshot=None, local_manifest=False, **kwargs):
     cmd = [
       'update',
       '-autoupdate=false',
     ]
     if gc:
-      cmd.extend(['-gc=true'])
+      cmd.append('-gc=true')
+    if local_manifest:
+      cmd.append('-local-manifest=true')
+    if not run_hooks:
+      cmd.append('-run-hooks=false')
     if snapshot is not None:
       cmd.append(snapshot)
-    if local_manifest:
-      cmd.extend(['-local-manifest=true'])
 
     return self(*cmd, **kwargs)
+
+  def run_hooks(self, local_manifest=False):
+    cmd = ['run-hooks']
+    if local_manifest:
+      cmd.append('-local-manifest=true')
+    return self(*cmd)
 
   def clean(self, all=False, **kwargs):
     cmd = [
@@ -114,24 +122,30 @@ class JiriApi(recipe_api.RecipeApi):
   def snapshot(self, file=None, test_data=None, **kwargs):
     cmd = [
       'snapshot',
-      self.m.raw_io.output(leak_to=file),
+      self.m.raw_io.output(name='snapshot', leak_to=file),
     ]
     if test_data is None:
       test_data = self.test_api.example_snapshot
     step = self(*cmd, step_test_data=lambda: self.test_api.snapshot(test_data), **kwargs)
     return step.raw_io.output
 
+  def source_manifest(self, file=None, test_data=None, **kwargs):
+    cmd = [
+      'source-manifest',
+      self.m.json.output(name='source manifest', leak_to=file),
+    ]
+    if test_data is None:
+      test_data = self.test_api.example_source_manifest
+    step = self(*cmd, step_test_data=lambda: self.test_api.source_manifest(test_data), **kwargs)
+    return step.json.output
+
   def checkout(self, manifest, remote, patch_ref=None, patch_gerrit_url=None):
     self.init()
     self.import_manifest(manifest, remote)
-    self.update()
+    self.update(run_hooks=False)
     if patch_ref:
       self.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+    self.run_hooks()
 
-    # TODO(phosek): remove this once snapshot supports -source-manifest
-    #step = self('snapshot',
-    #  '-source-manifest', self.m.json.output(name='source manifest'),
-    #  self.m.raw_io.output(),
-    #  step_test_data=lambda: self.m.json.test_api.output(self.test_api.example_source_manifest, name='source manifest'))
-    #manifest = step.json.output
-    #self.m.source_manifest.set_json_manifest('checkout', manifest)
+    manifest = self.source_manifest()
+    self.m.source_manifest.set_json_manifest('checkout', manifest)
