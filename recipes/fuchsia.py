@@ -72,7 +72,7 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
     if patch_ref:
-      api.jiri.update(local_manifest=True)
+      api.jiri.update(gc=True, local_manifest=True)
     if not api.properties.get('tryjob', False):
       snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
       api.jiri.snapshot(snapshot_file)
