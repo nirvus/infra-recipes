@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Recipe for building Magenta."""
+"""Recipe for building Zircon."""
 
 import re
 
@@ -27,10 +27,10 @@ DEPS = [
 ]
 
 TARGETS = [
-  'magenta-qemu-arm64',
-  'magenta-pc-x86-64',
-  'magenta-rpi3-arm64',
-  'magenta-hikey960-arm64',
+  'zircon-qemu-arm64',
+  'zircon-pc-x86-64',
+  'zircon-rpi3-arm64',
+  'zircon-hikey960-arm64',
   'pc-x86-64-test',
   'qemu-virt-a53-test'
 ]
@@ -95,10 +95,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
-    revision = api.jiri.project(['magenta']).json.output[0]['revision']
+    revision = api.jiri.project(['zircon']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  tmp_dir = api.path['tmp_base'].join('magenta_tmp')
+  tmp_dir = api.path['tmp_base'].join('zircon_tmp')
   api.file.ensure_directory('makedirs tmp', tmp_dir)
   path = tmp_dir.join('autorun')
   autorun = ['msleep 500', 'runtests']
@@ -116,7 +116,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     build_args.append('THINLTO_CACHE_DIR=' +
                       str(api.path['cache'].join('thinlto')))
 
-  with api.context(cwd=api.path['start_dir'].join('magenta'),
+  with api.context(cwd=api.path['start_dir'].join('zircon'),
                    env={'USER_AUTORUN': path}):
     api.step('build', build_args)
 
@@ -124,23 +124,23 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.qemu.ensure_qemu()
 
   arch = {
-    'magenta-hikey960-arm64': 'aarch64',
-    'magenta-rpi3-arm64': 'aarch64',
-    'magenta-qemu-arm64': 'aarch64',
-    'magenta-pc-x86-64': 'x86_64',
+    'zircon-hikey960-arm64': 'aarch64',
+    'zircon-rpi3-arm64': 'aarch64',
+    'zircon-qemu-arm64': 'aarch64',
+    'zircon-pc-x86-64': 'x86_64',
     'pc-x86-64-test': 'x86_64',
     'qemu-virt-a53-test': 'aarch64',
   }[target]
 
   build_dir = 'build-%s' % target + tc_suffix
   bootdata_path = api.path['start_dir'].join(
-      'magenta', build_dir, 'bootdata.bin')
+      'zircon', build_dir, 'bootdata.bin')
 
   image_name = {
-    'aarch64': 'magenta.elf',
-    'x86_64': 'magenta.bin',
+    'aarch64': 'zircon.elf',
+    'x86_64': 'zircon.bin',
   }[arch]
-  image_path = api.path['start_dir'].join('magenta', build_dir, image_name)
+  image_path = api.path['start_dir'].join('zircon', build_dir, image_name)
 
   if run_tests:
     # Run core tests with userboot.
@@ -158,64 +158,64 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
 def GenTests(api):
   yield (api.test('ci') +
-     api.properties(manifest='magenta',
+     api.properties(manifest='zircon',
                     remote='https://fuchsia.googlesource.com/manifest',
-                    target='magenta-pc-x86-64',
+                    target='zircon-pc-x86-64',
                     toolchain='gcc') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('asan') +
-     api.properties(manifest='magenta',
+     api.properties(manifest='zircon',
                     remote='https://fuchsia.googlesource.com/manifest',
-                    target='magenta-pc-x86-64',
+                    target='zircon-pc-x86-64',
                     toolchain='asan') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('lto') +
-     api.properties(manifest='magenta',
+     api.properties(manifest='zircon',
                     remote='https://fuchsia.googlesource.com/manifest',
-                    target='magenta-pc-x86-64',
+                    target='zircon-pc-x86-64',
                     toolchain='lto') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('thinlto') +
-     api.properties(manifest='magenta',
+     api.properties(manifest='zircon',
                     remote='https://fuchsia.googlesource.com/manifest',
-                    target='magenta-pc-x86-64',
+                    target='zircon-pc-x86-64',
                     toolchain='thinlto') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('cq_try') +
      api.properties.tryserver(
-         gerrit_project='magenta',
+         gerrit_project='zircon',
          patch_gerrit_url='fuchsia-review.googlesource.com',
-         manifest='magenta',
+         manifest='zircon',
          remote='https://fuchsia.googlesource.com/manifest',
-         target='magenta-pc-x86-64',
+         target='zircon-pc-x86-64',
          toolchain='clang'))
   yield (api.test('no_run_tests') +
      api.properties.tryserver(
-         manifest='magenta',
+         manifest='zircon',
          remote='https://fuchsia.googlesource.com/manifest',
-         target='magenta-pc-x86-64',
+         target='zircon-pc-x86-64',
          toolchain='clang',
          run_tests=False))
   yield (api.test('build_rpi') +
      api.properties.tryserver(
-         manifest='magenta',
+         manifest='zircon',
          remote='https://fuchsia.googlesource.com/manifest',
-         target='magenta-rpi3-arm64',
+         target='zircon-rpi3-arm64',
          toolchain='clang',
          run_tests=False))
   yield (api.test('failed_qemu') +
-      api.properties(manifest='magenta',
+      api.properties(manifest='zircon',
                     remote='https://fuchsia.googlesource.com/manifest',
-                    target='magenta-pc-x86-64',
+                    target='zircon-pc-x86-64',
                     toolchain='gcc') +
       api.step_data('run booted tests', retcode=1))
   yield (api.test('test_ouput') +
-     api.properties(manifest='magenta',
+     api.properties(manifest='zircon',
                     remote='https://fuchsia.googlesource.com/manifest',
-                    target='magenta-pc-x86-64',
+                    target='zircon-pc-x86-64',
                     toolchain='gcc') +
      api.step_data('run booted tests', api.raw_io.stream_output('')))

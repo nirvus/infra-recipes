@@ -44,7 +44,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "magenta",
+      "zircon",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "infra_step": true,
@@ -96,7 +96,7 @@
       "project",
       "-json-output",
       "/path/to/tmp/json",
-      "magenta"
+      "zircon"
     ],
     "infra_step": true,
     "name": "jiri project",
@@ -107,9 +107,9 @@
       "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"magenta\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/magenta\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/magenta\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"zircon\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/zircon\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/zircon\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",
@@ -127,7 +127,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/magenta_tmp"
+      "[TMP_BASE]/zircon_tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp"
@@ -141,7 +141,7 @@
       "/path/to/tmp/json",
       "copy",
       "msleep 500\nruntests",
-      "[TMP_BASE]/magenta_tmp/autorun"
+      "[TMP_BASE]/zircon_tmp/autorun"
     ],
     "infra_step": true,
     "name": "write autorun",
@@ -155,18 +155,100 @@
     "cmd": [
       "make",
       "-j2",
-      "magenta-pc-x86-64",
-      "USE_CLANG=true"
+      "zircon-pc-x86-64"
     ],
-    "cwd": "[START_DIR]/magenta",
+    "cwd": "[START_DIR]/zircon",
     "env": {
-      "USER_AUTORUN": "[TMP_BASE]/magenta_tmp/autorun"
+      "USER_AUTORUN": "[TMP_BASE]/zircon_tmp/autorun"
     },
     "name": "build"
   },
   {
+    "cmd": [],
+    "name": "ensure_qemu"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/qemu",
+      "-ensure-file",
+      "fuchsia/tools/qemu/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_qemu.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/qemu/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "run",
+      "--executable",
+      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
+      "--memory",
+      "2048",
+      "--smp",
+      "4",
+      "--arch",
+      "x86_64",
+      "--initrd",
+      "[START_DIR]/zircon/build-zircon-pc-x86-64/bootdata.bin",
+      "--cmdline",
+      "userboot=bin/core-tests",
+      "--shutdown_pattern",
+      "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
+      "[START_DIR]/zircon/build-zircon-pc-x86-64/zircon.bin"
+    ],
+    "name": "run core tests",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@qemu.stdout@CASES: 1 SUCCESS: 1 FAILED: 0@@@",
+      "@@@STEP_LOG_END@qemu.stdout@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
+      "run",
+      "--executable",
+      "[START_DIR]/cipd/qemu/bin/qemu-system-x86_64",
+      "--memory",
+      "2048",
+      "--smp",
+      "4",
+      "--arch",
+      "x86_64",
+      "--initrd",
+      "[START_DIR]/zircon/build-zircon-pc-x86-64/bootdata.bin",
+      "--shutdown_pattern",
+      "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
+      "[START_DIR]/zircon/build-zircon-pc-x86-64/zircon.bin"
+    ],
+    "name": "run booted tests",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@qemu.stdout@@@",
+      "@@@STEP_WARNINGS@@@"
+    ]
+  },
+  {
     "name": "$result",
+    "reason": "Test output missing",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]

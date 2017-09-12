@@ -30,7 +30,7 @@
   * [hash:examples/full](#recipes-hash_examples_full)
   * [jiri](#recipes-jiri) &mdash; Recipe for building Jiri.
   * [jiri:examples/full](#recipes-jiri_examples_full)
-  * [magenta](#recipes-magenta) &mdash; Recipe for building Magenta.
+  * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
   * [modules](#recipes-modules) &mdash; Recipe for building and running pre-submit checks for the modules repo.
   * [qemu](#recipes-qemu) &mdash; Recipe for building QEMU.
   * [qemu:examples/full](#recipes-qemu_examples_full)
@@ -418,7 +418,7 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [BuildFuchsia](/recipes/fuchsia.py#121)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, use_goma, gn_args):**
 
-&mdash; **def [BuildMagenta](/recipes/fuchsia.py#87)(api, target, tests):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#87)(api, target, tests):**
 
 &mdash; **def [Checkout](/recipes/fuchsia.py#71)(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):**
 
@@ -430,7 +430,7 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#166)(api, target, fuchsia_build_dir, tests):**
 
-&mdash; **def [UploadArchive](/recipes/fuchsia.py#306)(api, target, magenta_build_dir, fuchsia_build_dir):**
+&mdash; **def [UploadArchive](/recipes/fuchsia.py#306)(api, target, zircon_build_dir, fuchsia_build_dir):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -477,15 +477,15 @@ Recipe for building Jiri.
 [DEPS](/recipe_modules/jiri/examples/full.py#5): [jiri](#recipe_modules-jiri), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 &mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#16)(api):**
-### *recipes* / [magenta](/recipes/magenta.py)
+### *recipes* / [zircon](/recipes/zircon.py)
 
-[DEPS](/recipes/magenta.py#13): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/zircon.py#13): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
-Recipe for building Magenta.
+Recipe for building Zircon.
 
-&mdash; **def [RunSteps](/recipes/magenta.py#91)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, toolchain, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#91)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, toolchain, run_tests):**
 
-&mdash; **def [RunTests](/recipes/magenta.py#70)(api, name, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/zircon.py#70)(api, name, \*args, \*\*kwargs):**
 ### *recipes* / [modules](/recipes/modules.py)
 
 [DEPS](/recipes/modules.py#10): [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -527,7 +527,7 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [BuildFuchsia](/recipes/sdk.py#70)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
 
-&mdash; **def [BuildMagenta](/recipes/sdk.py#53)(api, target):**
+&mdash; **def [BuildZircon](/recipes/sdk.py#53)(api, target):**
 
 &emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#61)(api, use_goma):**
 

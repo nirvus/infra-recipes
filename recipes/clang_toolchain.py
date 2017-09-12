@@ -109,11 +109,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                 install_dir.join('bin', 'strip'),
                 pkg_dir.join('bin', 'strip'))
 
-  # build magenta
-  magenta_dir = api.path['start_dir'].join('magenta')
+  # build zircon
+  zircon_dir = api.path['start_dir'].join('zircon')
 
-  for target in ['magenta-qemu-arm64', 'magenta-pc-x86-64']:
-    with api.context(cwd=magenta_dir):
+  for target in ['zircon-qemu-arm64', 'zircon-pc-x86-64']:
+    with api.context(cwd=zircon_dir):
       api.step('build %s' % target, [
         'make',
         '-j%s' % api.platform.cpu_count,
@@ -145,8 +145,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '-DCMAKE_ASM_COMPILER=%s' % toolchain_dir.join('bin', 'clang'),
       '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
       '-DCMAKE_INSTALL_PREFIX=',
-      '-DFUCHSIA_x86_64_SYSROOT=%s' % magenta_dir.join('build-magenta-pc-x86-64', 'sysroot'),
-      '-DFUCHSIA_aarch64_SYSROOT=%s' % magenta_dir.join('build-magenta-qemu-arm64', 'sysroot'),
+      '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-zircon-pc-x86-64', 'sysroot'),
+      '-DFUCHSIA_aarch64_SYSROOT=%s' % zircon_dir.join('build-zircon-qemu-arm64', 'sysroot'),
       '-C', clang_dir.join('cmake', 'caches', 'Fuchsia.cmake'),
       llvm_dir,
     ])
