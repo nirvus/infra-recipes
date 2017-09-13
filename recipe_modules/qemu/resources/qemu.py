@@ -80,8 +80,7 @@ def main():
     parser.add_argument('--kvm', dest='kvm', action='store_true', default=True)
     parser.add_argument('--no-kvm', dest='kvm', action='store_false')
     parser.add_argument('--initrd', type=str, default=None)
-    parser.add_argument('--cmdline', type=str,
-                        default='TERM=dumb kernel.halt_on_panic=true')
+    parser.add_argument('--cmdline', type=str, default=None)
     parser.add_argument('--executable', type=str, required=True)
     parser.add_argument('--append', type=str, default=None)
     parser.add_argument('--netdev', type=str, default=None)
@@ -126,12 +125,14 @@ def main():
     }[args.arch])
   if args.initrd:
     cmd.extend(['-initrd', args.initrd])
-  if args.cmdline:
-    cmd.extend(['-append', args.cmdline])
   if args.netdev:
     cmd.extend(['-netdev', args.netdev])
   for device in args.device:
     cmd.extend(['-device', device])
+  cmdline = 'TERM=dumb kernel.halt_on_panic=true'
+  if args.cmdline:
+    cmdline += ' ' + args.cmdline
+  cmd.extend(['-append', cmdline])
 
   print ' '.join(cmd)
 
