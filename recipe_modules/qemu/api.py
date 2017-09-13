@@ -63,9 +63,11 @@ class QemuApi(recipe_api.RecipeApi):
 
   def run(self, step_name, *args, **kwargs):
     step_test_data = kwargs.pop('step_test_data', None)
+    timeout = kwargs.pop('timeout', None)
     return self.m.step(
         step_name,
         self._get_command('run', *args, **kwargs),
+        timeout=timeout,
         stdin=self.m.raw_io.input(''),
         stdout=self.m.raw_io.output(),
         step_test_data=step_test_data or

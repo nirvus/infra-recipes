@@ -215,6 +215,7 @@
     ],
     "name": "run core tests",
     "stdout": "/path/to/tmp/",
+    "timeout": 600,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@qemu.stdout@CASES: 1 SUCCESS: 1 FAILED: 0@@@",
       "@@@STEP_LOG_END@qemu.stdout@@@"
@@ -240,6 +241,7 @@
     ],
     "name": "run booted tests",
     "stdout": "/path/to/tmp/",
+    "timeout": 600,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@qemu.stdout@SUMMARY: Ran 2 tests: 1 failed@@@",
       "@@@STEP_LOG_END@qemu.stdout@@@",
