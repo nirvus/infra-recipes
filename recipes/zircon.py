@@ -164,12 +164,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     # Run core tests with userboot.
     RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
         initrd=bootdata_path, cmdline='userboot=bin/core-tests',
-        shutdown_pattern=CORE_TESTS_MATCH, timeout=600, step_test_data=lambda:
+        shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
             api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
     # Boot and run tests.
     RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=True,
-        initrd=bootdata_path, shutdown_pattern=BOOTED_TESTS_MATCH, timeout=600,
+        initrd=bootdata_path, shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200,
         step_test_data=lambda:
             api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 

@@ -215,7 +215,7 @@
     ],
     "name": "run core tests",
     "stdout": "/path/to/tmp/",
-    "timeout": 600,
+    "timeout": 300,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@qemu.stdout@CASES: 1 SUCCESS: 1 FAILED: 0@@@",
       "@@@STEP_LOG_END@qemu.stdout@@@"
@@ -241,7 +241,7 @@
     ],
     "name": "run booted tests",
     "stdout": "/path/to/tmp/",
-    "timeout": 600,
+    "timeout": 1200,
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
