@@ -241,8 +241,7 @@
     "name": "run booted tests",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_END@qemu.stdout@@@",
-      "@@@STEP_WARNINGS@@@"
+      "@@@STEP_LOG_END@qemu.stdout@@@"
     ]
   },
   {

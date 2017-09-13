@@ -63,18 +63,6 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "-rebase=true",
-      "refs/changes/89/456789/12"
-    ],
-    "infra_step": true,
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "run-hooks"
     ],
     "infra_step": true,
@@ -167,8 +155,7 @@
     "cmd": [
       "make",
       "-j2",
-      "zircon-pc-x86-64",
-      "USE_CLANG=true"
+      "zircon-pc-x86-64"
     ],
     "cwd": "[START_DIR]/zircon",
     "env": {
@@ -219,12 +206,12 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-clang/bootdata.bin",
+      "[START_DIR]/zircon/build-zircon-pc-x86-64/bootdata.bin",
       "--cmdline",
       "userboot=bin/core-tests",
       "--shutdown_pattern",
       "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-clang/zircon.bin"
+      "[START_DIR]/zircon/build-zircon-pc-x86-64/zircon.bin"
     ],
     "name": "run core tests",
     "stdout": "/path/to/tmp/",
@@ -246,10 +233,10 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-clang/bootdata.bin",
+      "[START_DIR]/zircon/build-zircon-pc-x86-64/bootdata.bin",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-clang/zircon.bin"
+      "[START_DIR]/zircon/build-zircon-pc-x86-64/zircon.bin"
     ],
     "name": "run booted tests",
     "stdout": "/path/to/tmp/",
@@ -264,11 +251,17 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-clang"
+      "[START_DIR]/zircon/build-zircon-pc-x86-64"
     ],
     "name": "symbolize",
     "stdin": "SUMMARY: Ran 2 tests: 1 failed",
-    "stdout": "/path/to/tmp/"
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@symbolized backtrace@bt1@@@",
+      "@@@STEP_LOG_LINE@symbolized backtrace@bt2@@@",
+      "@@@STEP_LOG_END@symbolized backtrace@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
   },
   {
     "name": "$result",

@@ -67,25 +67,45 @@ PROPERTIES = {
 }
 
 
-def RunTests(api, name, *args, **kwargs):
+def RunTests(api, name, build_dir, *args, **kwargs):
   step_result = None
+  failure_reason = None
   try:
     step_result = api.qemu.run(name, *args, **kwargs)
   except StepFailure as error:
     step_result = error.result
-    raise
-  finally:
-    if step_result is not None:
-      lines = step_result.stdout.splitlines()
-      step_result.presentation.logs['qemu.stdout'] = lines
+    if error.retcode == 2:
+      failure_reason = 'Test timed out'
+    else:
+      raise api.step.InfraFailure('QEMU failure')
 
-  m = re.search(kwargs['shutdown_pattern'], step_result.stdout)
-  if not m:
-    step_result.presentation.status = api.step.WARNING
-    raise api.step.StepWarning('Test output missing')
-  elif int(m.group('failed')) > 0:
-    step_result.presentation.status = api.step.FAILURE
-    raise api.step.StepFailure(m.group(0))
+  qemu_log = step_result.stdout
+  step_result.presentation.logs['qemu.stdout'] = qemu_log.splitlines()
+
+  if failure_reason is None:
+    m = re.search(kwargs['shutdown_pattern'], qemu_log)
+    if not m:
+      raise api.step.InfraFailure('Test output missing')
+    elif int(m.group('failed')) > 0:
+      step_result.presentation.status = api.step.FAILURE
+      failure_reason = m.group(0)
+
+  if failure_reason is not None:
+    symbolize_cmd = [
+      api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
+      '--no-echo',
+      '--build-dir', build_dir,
+    ]
+    symbolize_result = api.step('symbolize', symbolize_cmd,
+        stdin=api.raw_io.input(data=qemu_log),
+        stdout=api.raw_io.output(),
+        step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+    symbolized_lines = symbolize_result.stdout.splitlines()
+    if symbolized_lines:
+      symbolize_result.presentation.logs['symbolized backtrace'] = symbolized_lines
+      symbolize_result.presentation.status = api.step.FAILURE
+
+    raise api.step.StepFailure(failure_reason)
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -132,25 +152,23 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     'qemu-virt-a53-test': 'aarch64',
   }[target]
 
-  build_dir = 'build-%s' % target + tc_suffix
-  bootdata_path = api.path['start_dir'].join(
-      'zircon', build_dir, 'bootdata.bin')
+  build_dir = api.path['start_dir'].join('zircon', 'build-%s' % target + tc_suffix)
+  bootdata_path = build_dir.join('bootdata.bin')
 
-  image_name = {
+  image_path = build_dir.join({
     'aarch64': 'zircon.elf',
     'x86_64': 'zircon.bin',
-  }[arch]
-  image_path = api.path['start_dir'].join('zircon', build_dir, image_name)
+  }[arch])
 
   if run_tests:
     # Run core tests with userboot.
-    RunTests(api, 'run core tests', arch, image_path, kvm=True,
+    RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
         initrd=bootdata_path, cmdline='userboot=bin/core-tests',
         shutdown_pattern=CORE_TESTS_MATCH, step_test_data=lambda:
             api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
     # Boot and run tests.
-    RunTests(api, 'run booted tests', arch, image_path, kvm=True,
+    RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=True,
         initrd=bootdata_path, shutdown_pattern=BOOTED_TESTS_MATCH,
         step_test_data=lambda:
             api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
@@ -213,9 +231,21 @@ def GenTests(api):
                     target='zircon-pc-x86-64',
                     toolchain='gcc') +
       api.step_data('run booted tests', retcode=1))
-  yield (api.test('test_ouput') +
-     api.properties(manifest='zircon',
+  yield (api.test('qemu_timeout') +
+      api.properties(manifest='zircon',
                     remote='https://fuchsia.googlesource.com/manifest',
                     target='zircon-pc-x86-64',
                     toolchain='gcc') +
-     api.step_data('run booted tests', api.raw_io.stream_output('')))
+      api.step_data('run booted tests', retcode=2))
+  yield (api.test('test_ouput') +
+      api.properties(manifest='zircon',
+                     remote='https://fuchsia.googlesource.com/manifest',
+                     target='zircon-pc-x86-64',
+                     toolchain='gcc') +
+      api.step_data('run booted tests', api.raw_io.stream_output('')))
+  yield (api.test('symbolized_output') +
+      api.properties(manifest='zircon',
+                     remote='https://fuchsia.googlesource.com/manifest',
+                     target='zircon-pc-x86-64',
+                     toolchain='gcc') +
+      api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n')))

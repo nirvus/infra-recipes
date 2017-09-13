@@ -242,14 +242,12 @@
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
-      "@@@STEP_LOG_LINE@qemu.stdout@SUMMARY: Ran 2 tests: 1 failed@@@",
-      "@@@STEP_LOG_END@qemu.stdout@@@",
       "@@@STEP_FAILURE@@@"
     ]
   },
   {
     "name": "$result",
-    "reason": "Step('run booted tests') failed with return_code 1",
+    "reason": "QEMU failure",
     "recipe_result": null,
     "status_code": 1
   }
