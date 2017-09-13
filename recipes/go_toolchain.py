@@ -79,6 +79,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   cipd_pkg_name = 'fuchsia/go/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
+    api.step('Package is up-to-date', cmd=None)
     return
   cipd_pkg_file = api.path['tmp_base'].join('go.cipd')
 
@@ -92,7 +93,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'go_version': go_version,
+        'version': go_version,
         'git_repository': 'https://fuchsia.googlesource.com/third_party/go',
         'git_revision': revision,
       },

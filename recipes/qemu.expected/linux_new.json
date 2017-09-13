@@ -231,13 +231,13 @@
       "search",
       "fuchsia/qemu/linux-amd64",
       "-tag",
-      "qemu_version:v2.8.0-15-g28cd8b6577-dirty",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/qemu/linux-amd64 qemu_version:v2.8.0-15-g28cd8b6577-dirty",
+    "name": "cipd search fuchsia/qemu/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -285,7 +285,7 @@
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-tag",
-      "qemu_version:v2.8.0-15-g28cd8b6577-dirty"
+      "version:2.8.0"
     ],
     "name": "register fuchsia/qemu/linux-amd64",
     "~followup_annotations": [

@@ -244,7 +244,7 @@
       "-tag",
       "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
       "-tag",
-      "rust_version:1.19.0-nightly"
+      "version:1.19.0-nightly"
     ],
     "name": "register fuchsia/rust/linux-amd64",
     "~followup_annotations": [

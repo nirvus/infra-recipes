@@ -109,14 +109,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   step_result = api.step('qemu version',
       [build_dir.join('x86_64-softmmu', 'qemu-system-x86_64'), '--version'],
       stdout=api.raw_io.output())
-  m = re.search(r'\(([a-z0-9.-]+)\)', step_result.stdout)
+  m = re.search(r'version ([0-9.-]+)', step_result.stdout)
   assert m, 'Cannot determine QEMU version'
   qemu_version = m.group(1)
 
   cipd_pkg_name = 'fuchsia/qemu/' + api.cipd.platform_suffix()
-  step = api.cipd.search(cipd_pkg_name, 'qemu_version:' + qemu_version)
+  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
-    # This package already exists, no need to reupload it.
+    api.step('Package is up-to-date', cmd=None)
     return
   cipd_pkg_file = api.path['tmp_base'].join('qemu.cipd')
 
@@ -130,7 +130,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     package_path=cipd_pkg_file,
     refs=['latest'],
     tags={
-      'qemu_version': qemu_version,
+      'version': qemu_version,
       'git_repository': 'https://fuchsia.googlesource.com/third_party/qemu',
       'git_revision': revision,
     },
@@ -158,5 +158,5 @@ def GenTests(api):
                           remote='https://fuchsia.googlesource.com/manifest') +
            api.step_data('qemu version', api.raw_io.stream_output(version)) +
            api.step_data('cipd search fuchsia/qemu/' + platform + '-amd64 ' +
-                         'qemu_version:v2.8.0-15-g28cd8b6577-dirty',
+                         'git_revision:' + api.jiri.example_revision,
                          api.json.output({'result': []})))

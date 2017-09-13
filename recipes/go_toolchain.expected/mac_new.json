@@ -346,7 +346,7 @@
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-tag",
-      "go_version:go1.8"
+      "version:go1.8"
     ],
     "name": "register fuchsia/go/mac-amd64",
     "~followup_annotations": [

@@ -123,6 +123,32 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "-json-output",
+      "/path/to/tmp/json",
+      "third_party/clang"
+    ],
+    "infra_step": true,
+    "name": "jiri project",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"third_party/clang\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/third_party/clang\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/third_party/clang\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
       "snapshot",
       "[TMP_BASE]/jiri.snapshot"
     ],
@@ -393,13 +419,13 @@
       "search",
       "fuchsia/clang/linux-amd64",
       "-tag",
-      "clang_revision:302207",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/clang/linux-amd64 clang_revision:302207",
+    "name": "cipd search fuchsia/clang/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -443,11 +469,11 @@
       "-ref",
       "latest",
       "-tag",
-      "clang_revision:302207",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-tag",
       "jiri_snapshot:8ac5404b688b34f2d34d1c8a648413aca30b7a97",
       "-tag",
-      "llvm_revision:302209"
+      "version:5.0.0"
     ],
     "name": "register fuchsia/clang/linux-amd64",
     "~followup_annotations": [

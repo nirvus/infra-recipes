@@ -49,6 +49,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    revision = api.jiri.project(['third_party/clang']).json.output[0]['revision']
     snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
     api.jiri.snapshot(snapshot_file)
     digest = api.hash.sha1('hash snapshot', snapshot_file,
@@ -162,14 +163,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   step_result = api.step('clang version',
       [build_dir.join('bin', 'clang'), '--version'],
       stdout=api.raw_io.output())
-  m = re.search(r'\([^ ]+ (\w+)\) \([^ ]+ (\w+)\)', step_result.stdout)
+  m = re.search(r'version ([0-9.-]+)', step_result.stdout)
   assert m, 'Cannot determine Clang version'
-  clang_revision = m.group(1)
-  llvm_revision = m.group(2)
+  clang_version = m.group(1)
 
   cipd_pkg_name = 'fuchsia/clang/' + api.cipd.platform_suffix()
-  step = api.cipd.search(cipd_pkg_name, 'clang_revision:' + clang_revision)
+  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
+    api.step('Package is up-to-date', cmd=None)
     return
   cipd_pkg_file = api.path['tmp_base'].join('clang.cipd')
 
@@ -183,8 +184,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'clang_revision': clang_revision,
-        'llvm_revision': llvm_revision,
+        'version': clang_version,
+        'git_revision': revision,
         'jiri_snapshot': digest,
       },
   )
@@ -211,5 +212,5 @@ def GenTests(api):
                           remote='https://fuchsia.googlesource.com/manifest') +
            api.step_data('clang version', api.raw_io.stream_output(version)) +
            api.step_data('cipd search fuchsia/clang/' + platform + '-amd64 ' +
-                         'clang_revision:302207',
+                         'git_revision:' + api.jiri.example_revision,
                          api.json.output({'result': []})))

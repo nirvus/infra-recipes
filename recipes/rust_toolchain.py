@@ -96,11 +96,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.raw_io.test_api.stream_output('rustc 1.19.0-nightly (75b056812 2017-05-15)'))
   m = re.search(r'rustc ([0-9a-z.-]+)', step_result.stdout)
   assert m, 'Cannot determine Rust version'
-  rust_version = m.group(1)
+  version = m.group(1)
 
   cipd_pkg_name = 'fuchsia/rust/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + sha)
   if step.json.output['result']:
+    api.step('Package is up-to-date', cmd=None)
     return
   cipd_pkg_file = staging_dir.join('rust.cipd')
 
@@ -114,7 +115,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'rust_version': rust_version,
+        'version': version,
         'git_repository': RUST_GIT,
         'git_revision': sha,
       },
