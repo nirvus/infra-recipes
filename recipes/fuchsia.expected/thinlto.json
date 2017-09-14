@@ -195,12 +195,12 @@
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-magenta.sh",
+      "[START_DIR]/scripts/build-zircon.sh",
       "-c",
       "-t",
       "x86_64"
     ],
-    "name": "build magenta"
+    "name": "build zircon"
   },
   {
     "cmd": [],
@@ -373,10 +373,10 @@
       "[TMP_BASE]/fuchsia.tar.gz",
       "-z",
       "-C",
-      "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64",
+      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64",
       "bootdata.bin",
-      "magenta.elf",
-      "magenta.bin",
+      "zircon.elf",
+      "zircon.bin",
       "bootloader/bootx64.efi",
       "-C",
       "[START_DIR]/out/release-x86-64",

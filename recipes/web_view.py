@@ -45,12 +45,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project(['third_party/webkit']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  build_magenta_cmd = [
-    api.path['start_dir'].join('scripts/build-magenta.sh'),
+  build_zircon_cmd = [
+    api.path['start_dir'].join('scripts/build-zircon.sh'),
     '-c',
     '-t', target,
   ]
-  api.step('build magenta', build_magenta_cmd)
+  api.step('build zircon', build_zircon_cmd)
 
   gen_target = {'aarch64': 'aarch64', 'x86_64': 'x86-64'}[target]
   fuchsia_build_dir = api.path['start_dir'].join('out', 'release-%s' % gen_target)

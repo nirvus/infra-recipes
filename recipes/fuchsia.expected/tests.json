@@ -227,12 +227,12 @@
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-magenta.sh",
+      "[START_DIR]/scripts/build-zircon.sh",
       "-c",
       "-t",
       "x86_64"
     ],
-    "name": "build magenta"
+    "name": "build zircon"
   },
   {
     "cmd": [],
@@ -380,7 +380,7 @@
       "user,id=net0,hostfwd=tcp::8342-:8342",
       "--device",
       "e1000,netdev=net0",
-      "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64/magenta.bin"
+      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64/zircon.bin"
     ],
     "name": "start qemu"
   },
@@ -405,7 +405,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/magenta/scripts/symbolize",
+      "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--file",
       "qemu.stdout",
@@ -462,10 +462,10 @@
       "[TMP_BASE]/fuchsia.tar.gz",
       "-z",
       "-C",
-      "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64",
+      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64",
       "bootdata.bin",
-      "magenta.elf",
-      "magenta.bin",
+      "zircon.elf",
+      "zircon.bin",
       "bootloader/bootx64.efi",
       "-C",
       "[START_DIR]/out/debug-x86-64",

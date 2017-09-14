@@ -181,12 +181,12 @@
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-magenta.sh",
+      "[START_DIR]/scripts/build-zircon.sh",
       "-c",
       "-t",
       "x86_64"
     ],
-    "name": "build magenta"
+    "name": "build zircon"
   },
   {
     "cmd": [],

@@ -247,7 +247,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-magenta.sh",
+      "[START_DIR]/scripts/build-zircon.sh",
       "-c",
       "-t",
       "x86_64"
@@ -255,7 +255,7 @@
     "env": {
       "USER_AUTORUN": "[TMP_BASE]/autorun"
     },
-    "name": "build magenta"
+    "name": "build zircon"
   },
   {
     "cmd": [],
@@ -401,7 +401,7 @@
       "[START_DIR]/out/debug-x86-64/user.bootfs",
       "--shutdown_pattern",
       "ready for fuchsia shutdown",
-      "[START_DIR]/out/build-magenta/build-magenta-pc-x86-64/magenta.bin"
+      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64/zircon.bin"
     ],
     "name": "run tests",
     "stdout": "/path/to/tmp/",

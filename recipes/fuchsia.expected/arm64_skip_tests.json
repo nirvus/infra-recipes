@@ -195,12 +195,12 @@
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-magenta.sh",
+      "[START_DIR]/scripts/build-zircon.sh",
       "-c",
       "-t",
       "aarch64"
     ],
-    "name": "build magenta"
+    "name": "build zircon"
   },
   {
     "cmd": [],
@@ -369,9 +369,9 @@
       "[TMP_BASE]/fuchsia.tar.gz",
       "-z",
       "-C",
-      "[START_DIR]/out/build-magenta/build-magenta-qemu-arm64",
+      "[START_DIR]/out/build-zircon/build-zircon-qemu-arm64",
       "bootdata.bin",
-      "magenta.elf",
+      "zircon.elf",
       "-C",
       "[START_DIR]/out/debug-aarch64",
       "user.bootfs"

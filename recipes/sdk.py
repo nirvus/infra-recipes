@@ -50,12 +50,12 @@ PROPERTIES = {
 }
 
 
-def BuildMagenta(api, target):
-  build_magenta_cmd = [
-      api.path['start_dir'].join('scripts', 'build-magenta.sh'),
+def BuildZircon(api, target):
+  build_zircon_cmd = [
+      api.path['start_dir'].join('scripts', 'build-zircon.sh'),
       '-t', target,
   ]
-  api.step('build magenta ' + target, build_magenta_cmd)
+  api.step('build zircon ' + target, build_zircon_cmd)
 
 
 @contextmanager
@@ -179,8 +179,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   fuchsia_out_dir = api.path['start_dir'].join('out')
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
 
-  BuildMagenta(api, 'x86_64')
-  BuildMagenta(api, 'aarch64')
+  BuildZircon(api, 'x86_64')
+  BuildZircon(api, 'aarch64')
   BuildFuchsia(api, release_build, gn_target,
                fuchsia_build_dir, modules, use_goma, gn_args)
 
@@ -199,7 +199,7 @@ def GenTests(api):
          api.properties(gn_args=['test']))
   yield (api.test('cq_try') +
          api.properties.tryserver(
-         gerrit_project='magenta',
+         gerrit_project='zircon',
          patch_gerrit_url='fuchsia-review.googlesource.com'))
   yield (api.test('no_goma') +
          api.properties(use_goma=False))

@@ -84,7 +84,7 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
           unauthenticated_url=True)
 
 
-def BuildMagenta(api, target, tests):
+def BuildZircon(api, target, tests):
   if tests:
     autorun = [
       'msleep 500',
@@ -98,15 +98,15 @@ def BuildMagenta(api, target, tests):
   else:
     build_env = {}
 
-  magenta_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
-  build_magenta_cmd = [
-    api.path['start_dir'].join('scripts', 'build-magenta.sh'),
+  zircon_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
+  build_zircon_cmd = [
+    api.path['start_dir'].join('scripts', 'build-zircon.sh'),
     '-c',
-    '-t', magenta_target,
+    '-t', zircon_target,
   ]
 
   with api.context(env=build_env):
-    api.step('build magenta', build_magenta_cmd)
+    api.step('build zircon', build_zircon_cmd)
 
 
 @contextmanager
@@ -164,18 +164,18 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
 
 
 def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
-  magenta_build_dir = {
-    'arm64': 'build-magenta-qemu-arm64',
-    'x86-64': 'build-magenta-pc-x86-64',
+  zircon_build_dir = {
+    'arm64': 'build-zircon-qemu-arm64',
+    'x86-64': 'build-zircon-pc-x86-64',
   }[target]
 
-  magenta_image_name = {
-    'arm64': 'magenta.elf',
-    'x86-64': 'magenta.bin',
+  zircon_image_name = {
+    'arm64': 'zircon.elf',
+    'x86-64': 'zircon.bin',
   }[target]
 
-  magenta_image_path = api.path['start_dir'].join(
-    'out', 'build-magenta', magenta_build_dir, magenta_image_name)
+  zircon_image_path = api.path['start_dir'].join(
+    'out', 'build-zircon', zircon_build_dir, zircon_image_name)
 
   bootfs_path = fuchsia_build_dir.join('user.bootfs')
 
@@ -189,7 +189,7 @@ def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
 
   qemu = api.qemu.background_run(
       qemu_arch,
-      magenta_image_path,
+      zircon_image_path,
       kvm=True,
       memory=4096,
       initrd=bootfs_path,
@@ -212,7 +212,7 @@ def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
       api.step('sleep', ['sleep', '3'])
 
       symbolize_cmd = [
-        api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
+        api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
         '--no-echo',
         '--file', 'qemu.stdout',
         '--build-dir', fuchsia_build_dir,
@@ -230,18 +230,18 @@ def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
 
 
 def RunTestsWithAutorun(api, target, fuchsia_build_dir):
-  magenta_build_dir = {
-    'arm64': 'build-magenta-qemu-arm64',
-    'x86-64': 'build-magenta-pc-x86-64',
+  zircon_build_dir = {
+    'arm64': 'build-zircon-qemu-arm64',
+    'x86-64': 'build-zircon-pc-x86-64',
   }[target]
 
-  magenta_image_name = {
-    'arm64': 'magenta.elf',
-    'x86-64': 'magenta.bin',
+  zircon_image_name = {
+    'arm64': 'zircon.elf',
+    'x86-64': 'zircon.bin',
   }[target]
 
-  magenta_image_path = api.path['start_dir'].join(
-    'out', 'build-magenta', magenta_build_dir, magenta_image_name)
+  zircon_image_path = api.path['start_dir'].join(
+    'out', 'build-zircon', zircon_build_dir, zircon_image_name)
 
   bootfs_path = fuchsia_build_dir.join('user.bootfs')
 
@@ -257,7 +257,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
     run_tests_result = api.qemu.run(
         'run tests',
         qemu_arch,
-        magenta_image_path,
+        zircon_image_path,
         kvm=True,
         memory=4096,
         initrd=bootfs_path,
@@ -287,7 +287,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
 
   if failure_reason is not None:
     symbolize_cmd = [
-      api.path['start_dir'].join('magenta', 'scripts', 'symbolize'),
+      api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
       '--no-echo',
       '--build-dir', fuchsia_build_dir,
     ]
@@ -303,16 +303,16 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
     raise api.step.StepFailure(failure_reason)
 
 
-def UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir):
+def UploadArchive(api, target, zircon_build_dir, fuchsia_build_dir):
   api.tar.ensure_tar()
 
   package = api.tar.create(api.path['tmp_base'].join('fuchsia.tar.gz'), 'gzip')
   package.add(fuchsia_build_dir.join('user.bootfs'), fuchsia_build_dir)
-  package.add(magenta_build_dir.join('bootdata.bin'), magenta_build_dir)
-  package.add(magenta_build_dir.join('magenta.elf'), magenta_build_dir)
+  package.add(zircon_build_dir.join('bootdata.bin'), zircon_build_dir)
+  package.add(zircon_build_dir.join('zircon.elf'), zircon_build_dir)
   if target == 'x86-64':
-    package.add(magenta_build_dir.join('magenta.bin'), magenta_build_dir)
-    package.add(magenta_build_dir.join('bootloader', 'bootx64.efi'), magenta_build_dir)
+    package.add(zircon_build_dir.join('zircon.bin'), zircon_build_dir)
+    package.add(zircon_build_dir.join('bootloader', 'bootx64.efi'), zircon_build_dir)
   package.tar('tar fuchsia')
   digest = api.hash.sha1('hash archive', package.archive,
                          test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
@@ -336,11 +336,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     build_dir = 'debug'
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_dir, gn_target))
 
-  magenta_target = {
-    'arm64': 'magenta-qemu-arm64',
-    'x86-64': 'magenta-pc-x86-64'
+  zircon_target = {
+    'arm64': 'zircon-qemu-arm64',
+    'x86-64': 'zircon-pc-x86-64'
   }[target]
-  magenta_build_dir = fuchsia_out_dir.join('build-magenta', 'build-%s' % magenta_target)
+  zircon_build_dir = fuchsia_out_dir.join('build-zircon', 'build-%s' % zircon_target)
 
   api.jiri.ensure_jiri()
   api.gsutil.ensure_gsutil()
@@ -352,9 +352,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote)
 
   if use_autorun:
-    BuildMagenta(api, target, tests)
+    BuildZircon(api, target, tests)
   else:
-    BuildMagenta(api, target, None)
+    BuildZircon(api, target, None)
 
   BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
                modules, tests, use_autorun, use_goma, gn_args)
@@ -366,7 +366,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       RunTestsWithTCP(api, target, fuchsia_build_dir, tests)
 
   if not api.properties.get('tryjob', False):
-    UploadArchive(api, target, magenta_build_dir, fuchsia_build_dir)
+    UploadArchive(api, target, zircon_build_dir, fuchsia_build_dir)
 
 
 def GenTests(api):

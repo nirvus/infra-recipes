@@ -418,7 +418,7 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [BuildFuchsia](/recipes/fuchsia.py#121)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, use_goma, gn_args):**
 
-&mdash; **def [BuildMagenta](/recipes/fuchsia.py#87)(api, target, tests):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#87)(api, target, tests):**
 
 &mdash; **def [Checkout](/recipes/fuchsia.py#71)(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):**
 
@@ -430,7 +430,7 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#166)(api, target, fuchsia_build_dir, tests):**
 
-&mdash; **def [UploadArchive](/recipes/fuchsia.py#306)(api, target, magenta_build_dir, fuchsia_build_dir):**
+&mdash; **def [UploadArchive](/recipes/fuchsia.py#306)(api, target, zircon_build_dir, fuchsia_build_dir):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -518,7 +518,7 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [BuildFuchsia](/recipes/sdk.py#70)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
 
-&mdash; **def [BuildMagenta](/recipes/sdk.py#53)(api, target):**
+&mdash; **def [BuildZircon](/recipes/sdk.py#53)(api, target):**
 
 &emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#61)(api, use_goma):**
 
