@@ -138,6 +138,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   )
   toolchain_dir = api.path['start_dir'].join('buildtools', platform, 'clang')
 
+  extra_options = {
+    'linux': [
+      '-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++',
+      '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++',
+    ],
+    'mac': [],
+  }[api.platform.name]
+
   with api.context(cwd=build_dir):
     api.step('configure clang', [
       cipd_dir.join('bin', 'cmake'),
@@ -151,6 +159,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '-DCMAKE_INSTALL_PREFIX=',
       '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-zircon-pc-x86-64', 'sysroot'),
       '-DFUCHSIA_aarch64_SYSROOT=%s' % zircon_dir.join('build-zircon-qemu-arm64', 'sysroot'),
+    ] + extra_options + [
       '-C', clang_dir.join('cmake', 'caches', 'Fuchsia.cmake'),
       llvm_dir,
     ])
