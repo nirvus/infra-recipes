@@ -198,7 +198,7 @@ def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
 
   with qemu:
     run_tests_cmd = [
-      api.path['start_dir'].join('apps', 'test_runner', 'src', 'run_test'),
+      api.path['start_dir'].join('garnet', 'bin', 'test_runner', 'run_test'),
       '--test_file', api.path['start_dir'].join(tests),
       '--server', '127.0.0.1',
       '--port', str(TEST_RUNNER_PORT),

@@ -386,7 +386,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/apps/test_runner/src/run_test",
+      "[START_DIR]/garnet/bin/test_runner/run_test",
       "--test_file",
       "[START_DIR]/tests.json",
       "--server",
