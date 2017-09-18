@@ -60,6 +60,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.path['start_dir'].join('packages/gn/gen.py'),
       '--target_cpu=%s' % gen_target,
       '--modules=webkit',
+      '--args', 'use_prebuilt_webkit=false',
       '--goma=%s' % api.goma.goma_dir,
       '--release',
     ])
