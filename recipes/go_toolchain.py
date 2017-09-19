@@ -111,11 +111,11 @@ def GenTests(api):
   for platform in ('linux', 'mac'):
     yield (api.test(platform) +
            api.platform.name(platform) +
-           api.properties(manifest='runtimes/go',
+           api.properties(manifest='runtimes/go_head',
                           remote='https://fuchsia.googlesource.com/manifest'))
     yield (api.test(platform + '_new') +
            api.platform.name(platform) +
-           api.properties(manifest='runtimes/go',
+           api.properties(manifest='runtimes/go_head',
                           remote='https://fuchsia.googlesource.com/manifest') +
            api.step_data('cipd search fuchsia/go/%s-amd64 git_revision:%s' %
                          (platform, api.jiri.example_revision),

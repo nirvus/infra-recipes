@@ -104,7 +104,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "runtimes/go",
+      "runtimes/go_head",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "infra_step": true,
