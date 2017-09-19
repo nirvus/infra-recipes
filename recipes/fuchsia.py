@@ -54,7 +54,7 @@ PROPERTIES = {
   'build_type': Property(kind=Enum('debug', 'release', 'thinlto', 'lto'),
                          help='The build type', default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
-                      default=['default']),
+                      default=['package/gn/default']),
   'tests': Property(kind=str,
                     help='Path to config file listing tests to run, or (when using autorun) command to run tests',
                     default=None),
@@ -121,7 +121,7 @@ def GomaContext(api, use_goma):
 def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
                  modules, tests, use_autorun, use_goma, gn_args):
   if tests and not use_autorun:
-    modules.append('boot_test_runner')
+    modules.append('packages/gn/boot_test_runner')
 
   with api.step.nest('build fuchsia'), GomaContext(api, use_goma):
     gen_cmd = [
