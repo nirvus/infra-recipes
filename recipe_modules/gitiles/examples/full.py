@@ -22,8 +22,8 @@ def GenTests(api):
   yield (
       api.test('basic')
       + api.gitiles.refs('refs',
-          'refs/heads/A',
-          'refs/heads/B',
+          ('refs/heads/A', None),
+          ('refs/heads/B', None),
       )
       + api.gitiles.log(
           'gitiles log: refs/heads/A',

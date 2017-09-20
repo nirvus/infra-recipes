@@ -17,7 +17,7 @@ class GitilesTestApi(recipe_test_api.RecipeTestApi):
     return self.step_data(
         step_name,
         self.m.json.output({
-          ref: None for ref in refs
+          ref[0]: ref[1] for ref in refs
         })
     )
 

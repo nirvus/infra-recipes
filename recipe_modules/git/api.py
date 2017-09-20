@@ -23,7 +23,7 @@ class GitApi(recipe_api.RecipeApi):
       git_cmd.extend(['-c', '%s=%s' % (k, v)])
     return self.m.step(name, git_cmd + list(args), **kwargs)
 
-  def checkout(self, url, path=None, ref=None, remote=None, file=None, **kwargs):
+  def checkout(self, url, path=None, ref=None, remote='origin', file=None, **kwargs):
     """Checkout a given ref and return the checked out revision."""
     if not path:
       path = url.rsplit('/', 1)[-1]

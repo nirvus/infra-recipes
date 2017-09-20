@@ -17,7 +17,7 @@ class GitilesApi(recipe_api.RecipeApi):
   def ensure_gitiles(self, version=None):
     with self.m.step.nest('ensure_gitiles'):
       with self.m.context(infra_steps=True):
-        gitiles_package = ('infra/tools/gitiles/%s' %
+        gitiles_package = ('infra/tools/luci/gitiles/%s' %
             self.m.cipd.platform_suffix())
         gitiles_dir = self.m.path['start_dir'].join('cipd', 'gitiles')
 

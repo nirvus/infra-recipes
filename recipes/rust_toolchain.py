@@ -13,84 +13,160 @@ import re
 DEPS = [
   'infra/cipd',
   'infra/git',
+  'infra/gitiles',
   'infra/gsutil',
-  'infra/tar',
+  'infra/jiri',
+  'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
+  'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/file',
   'recipe_engine/step',
-  'recipe_engine/tempfile',
   'recipe_engine/url',
 ]
 
+RUST_FUCHSIA_GIT = 'https://fuchsia.googlesource.com/third_party/rust'
+
 PROPERTIES = {
-  'category': Property(kind=str, help='Build category', default=None),
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'patch_storage': Property(kind=str, help='Patch location', default=None),
-  'patch_repository_url': Property(kind=str, help='URL to a Git repository',
-                                   default=None),
+  'url': Property(kind=str, help='Git repository URL', default=RUST_FUCHSIA_GIT),
+  'ref': Property(kind=str, help='Git reference', default='refs/heads/master'),
 }
 
-RUST_GIT = 'https://github.com/rust-lang/rust'
-RUST_BUILDS = 'https://s3.amazonaws.com/rust-lang-ci/rustc-builds/'
-RUST_BUILDS_ALT = 'https://s3.amazonaws.com/rust-lang-ci/rustc-builds-alt/'
+BUILD_CONFIG = '''
+[llvm]
+optimize = true
+static-libstdcpp = true
+ninja = true
+targets = "X86;AArch64"
 
-GIT_HASH_RE = re.compile('([0-9a-f]{40})', re.IGNORECASE)
+[build]
+target = ["x86_64-unknown-fuchsia", "aarch64-unknown-fuchsia"]
+docs = false
+extended = true
+openssl-static = true
+
+[install]
+prefix = "{prefix}"
+sysconfdir = "etc"
+
+[rust]
+optimize = true
+
+[target.x86_64-unknown-fuchsia]
+cc = "{cc}"
+cxx = "{cxx}"
+ar = "{ar}"
+linker = "{cc}"
+
+[target.aarch64-unknown-fuchsia]
+cc = "{cc}"
+cxx = "{cxx}"
+ar = "{ar}"
+linker = "{cc}"
+
+[dist]
+'''
+
+CARGO_CONFIG = '''
+[target.x86_64-unknown-fuchsia]
+linker = "{linker}"
+ar = "{ar}"
+rustflags = ["-C", "link-arg=--target=x86_64-unknown-fuchsia", "-C", "link-arg=--sysroot={x86_64_sysroot}"]
+
+[target.aarch64-unknown-fuchsia]
+linker = "{linker}"
+ar = "{ar}"
+rustflags = ["-C", "link-arg=--target=aarch64-unknown-fuchsia", "-C", "link-arg=--sysroot={aarch64_sysroot}"]
+'''
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url):
-  api.tar.ensure_tar()
+def RunSteps(api, url, ref):
+  api.gitiles.ensure_gitiles()
   api.gsutil.ensure_gsutil()
+  api.jiri.ensure_jiri()
 
   api.cipd.set_service_account_credentials(
       api.cipd.default_bot_service_account_credentials)
 
+  cipd_pkg_name = 'fuchsia/rust/' + api.cipd.platform_suffix()
+  revision = api.gitiles.refs(url).get(ref, None)
+  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if step.json.output['result']:
+    api.step('Package is up-to-date', cmd=None)
+    return
+
+  with api.context(infra_steps=True):
+    api.jiri.init()
+    api.jiri.import_manifest('manifest', 'https://fuchsia.googlesource.com/zircon', 'zircon')
+    api.jiri.update()
+
+    rust_dir = api.path['start_dir'].join('rust')
+    api.git.checkout(url, rust_dir, ref=revision)
+
+  with api.step.nest('ensure_packages'):
+    with api.context(infra_steps=True):
+      cipd_dir = api.path['start_dir'].join('cipd')
+      api.cipd.ensure(cipd_dir, {
+        'infra/cmake/${platform}': 'version:3.9.2',
+        'infra/ninja/${platform}': 'version:1.8.2',
+        'infra/swig/${platform}': 'version:3.0.12',
+        'fuchsia/clang/${platform}': 'latest',
+      })
+
+  # build zircon
+  zircon_dir = api.path['start_dir'].join('zircon')
+
+  for target in ['zircon-qemu-arm64', 'zircon-pc-x86-64']:
+    with api.context(cwd=zircon_dir):
+      api.step('build %s' % target, [
+        'make',
+        '-j%s' % api.platform.cpu_count,
+        target,
+      ])
+
+  # build rust
   staging_dir = api.path.mkdtemp('rust')
+  build_dir = staging_dir.join('build')
+  api.file.ensure_directory('build', build_dir)
+  pkg_dir = staging_dir.join('rust')
 
-  step = api.git('ls-remote', RUST_GIT, 'refs/heads/master',
-      stdout=api.raw_io.output())
-  sha = GIT_HASH_RE.search(step.stdout).group(1)
-
-  target = '%s-%s' % (
-    {
-      32: 'i686',
-      64: 'x86_64',
-    }[api.platform.bits],
-    {
-      'linux': 'unknown-linux-gnu',
-      'mac': 'apple-darwin',
-    }[api.platform.name],
+  config_file = build_dir.join('config.toml')
+  api.file.write_text('write config.toml',
+      config_file,
+      BUILD_CONFIG.format(
+          prefix=pkg_dir,
+          cc=cipd_dir.join('bin', 'clang'),
+          cxx=cipd_dir.join('bin', 'clang++'),
+          ar=cipd_dir.join('bin', 'llvm-ar'),
+      )
   )
-  rust_nightly = 'rust-nightly-' + target
-  rust_nightly_filename = 'rust-nightly-%s.tar.gz' % target
-  rust_nightly_archive = staging_dir.join(rust_nightly_filename)
-  api.url.get_file(RUST_BUILDS_ALT + sha + '/' + rust_nightly_filename, rust_nightly_archive)
 
-  rust_dir = staging_dir.join('rust-%s' % target)
-  api.tar.extract('extract rust', rust_nightly_archive, dir=staging_dir)
-  api.step('install rust',
-      [staging_dir.join(rust_nightly, 'install.sh'), '--prefix=%s' % rust_dir])
+  cargo_dir = staging_dir.join('.cargo')
+  api.file.ensure_directory('.cargo', cargo_dir)
+  api.file.write_text('write config',
+      cargo_dir.join('config'),
+      CARGO_CONFIG.format(
+          linker=cipd_dir.join('bin', 'clang'),
+          ar=cipd_dir.join('bin', 'llvm-ar'),
+          x86_64_sysroot=zircon_dir.join('build-zircon-pc-x86-64', 'sysroot'),
+          aarch64_sysroot=zircon_dir.join('build-zircon-qemu-arm64', 'sysroot'),
+      ),
+  )
 
-  for target in ['x86_64-unknown-fuchsia', 'aarch64-unknown-fuchsia']:
-    rust_std_nightly = 'rust-std-nightly-' + target
-    rust_std_nightly_filename = 'rust-std-nightly-%s.tar.gz' % target
-    rust_std_nightly_archive = staging_dir.join(rust_nightly_filename)
-    api.url.get_file(RUST_BUILDS + sha + '/' + rust_std_nightly_filename, rust_std_nightly_archive)
+  env = {'CARGO_HOME': cargo_dir}
+  env_prefixes = {'PATH': [cipd_dir, cipd_dir.join('bin')]}
+  with api.context(cwd=build_dir, env=env, env_prefixes=env_prefixes):
+    api.python(
+      'rust install',
+      rust_dir.join('x.py'),
+      args=['install', '--config', config_file])
 
-    api.tar.extract('extract %s rust-std' % target, rust_std_nightly_archive, dir=staging_dir)
-    api.step('install %s rust-std' % target,
-        [staging_dir.join(rust_std_nightly, 'install.sh'), '--prefix=%s' % rust_dir])
-
-  api.file.rmglob('remove manifests', rust_dir, 'manifest-*')
-
+  # package rust
   step_result = api.step('rust version',
-      [rust_dir.join('bin', 'rustc'), '--version'],
+      [pkg_dir.join('bin', 'rustc'), '--version'],
       stdout=api.raw_io.output(),
       step_test_data=lambda:
       api.raw_io.test_api.stream_output('rustc 1.19.0-nightly (75b056812 2017-05-15)'))
@@ -98,15 +174,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   assert m, 'Cannot determine Rust version'
   version = m.group(1)
 
-  cipd_pkg_name = 'fuchsia/rust/' + api.cipd.platform_suffix()
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + sha)
-  if step.json.output['result']:
-    api.step('Package is up-to-date', cmd=None)
-    return
   cipd_pkg_file = staging_dir.join('rust.cipd')
 
   api.cipd.build(
-      input_dir=rust_dir,
+      input_dir=pkg_dir,
       package_name=cipd_pkg_name,
       output_package=cipd_pkg_file,
   )
@@ -116,8 +187,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       refs=['latest'],
       tags={
         'version': version,
-        'git_repository': RUST_GIT,
-        'git_revision': sha,
+        'git_repository': RUST_FUCHSIA_GIT,
+        'git_revision': revision,
       },
   )
 
@@ -134,10 +205,10 @@ def GenTests(api):
   for platform in ('linux', 'mac'):
     yield (api.test(platform) +
            api.platform.name(platform) +
-           api.step_data('git ls-remote', api.raw_io.stream_output(revision)))
+           api.gitiles.refs('refs', ('refs/heads/master', revision)))
     yield (api.test(platform + '_new') +
            api.platform.name(platform) +
-           api.step_data('git ls-remote', api.raw_io.stream_output(revision)) +
+           api.gitiles.refs('refs', ('refs/heads/master', revision)) +
            api.step_data('cipd search fuchsia/rust/' + platform + '-amd64 ' +
-                         'git_revision:' + revision,
+                         'git_revision:'+revision,
                          api.json.output({'result': []})))

@@ -1,28 +1,28 @@
 [
   {
     "cmd": [],
-    "name": "ensure bsdtar"
+    "name": "ensure_gitiles"
   },
   {
     "cmd": [
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd",
+      "[START_DIR]/cipd/gitiles",
       "-ensure-file",
-      "fuchsia/tools/bsdtar/linux-amd64 latest",
+      "infra/tools/luci/gitiles/linux-amd64 latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure bsdtar.ensure_installed",
+    "name": "ensure_gitiles.ensure_installed",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -60,129 +60,51 @@
     ]
   },
   {
-    "cmd": [
-      "git",
-      "ls-remote",
-      "https://github.com/rust-lang/rust",
-      "refs/heads/master"
-    ],
-    "name": "git ls-remote",
-    "stdout": "/path/to/tmp/"
+    "cmd": [],
+    "name": "ensure_jiri"
   },
   {
     "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::url]/resources/pycurl.py",
-      "--url",
-      "https://s3.amazonaws.com/rust-lang-ci/rustc-builds-alt/75b05681239cb309a23fcb4f8864f177e5aa62da/rust-nightly-x86_64-unknown-linux-gnu.tar.gz",
-      "--status-json",
-      "/path/to/tmp/json",
-      "--outfile",
-      "[TMP_BASE]/rust_tmp_1/rust-nightly-x86_64-unknown-linux-gnu.tar.gz"
-    ],
-    "name": "GET https://s3.amazonaws.com/rust-lang-ci/rustc-builds-alt/75b05681239cb309a23fcb4f8864f177e5aa62da/rust-nightly-x86_64-unknown-linux-gnu.tar.gz"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "-xf",
-      "[TMP_BASE]/rust_tmp_1/rust-nightly-x86_64-unknown-linux-gnu.tar.gz",
-      "-C",
-      "[TMP_BASE]/rust_tmp_1"
-    ],
-    "name": "extract rust"
-  },
-  {
-    "cmd": [
-      "[TMP_BASE]/rust_tmp_1/rust-nightly-x86_64-unknown-linux-gnu/install.sh",
-      "--prefix=[TMP_BASE]/rust_tmp_1/rust-x86_64-unknown-linux-gnu"
-    ],
-    "name": "install rust"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::url]/resources/pycurl.py",
-      "--url",
-      "https://s3.amazonaws.com/rust-lang-ci/rustc-builds/75b05681239cb309a23fcb4f8864f177e5aa62da/rust-std-nightly-x86_64-unknown-fuchsia.tar.gz",
-      "--status-json",
-      "/path/to/tmp/json",
-      "--outfile",
-      "[TMP_BASE]/rust_tmp_1/rust-nightly-x86_64-unknown-linux-gnu.tar.gz"
-    ],
-    "name": "GET https://s3.amazonaws.com/rust-lang-ci/rustc-builds/75b05681239cb309a23fcb4f8864f177e5aa62da/rust-std-nightly-x86_64-unknown-fuchsia.tar.gz"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "-xf",
-      "[TMP_BASE]/rust_tmp_1/rust-nightly-x86_64-unknown-linux-gnu.tar.gz",
-      "-C",
-      "[TMP_BASE]/rust_tmp_1"
-    ],
-    "name": "extract x86_64-unknown-fuchsia rust-std"
-  },
-  {
-    "cmd": [
-      "[TMP_BASE]/rust_tmp_1/rust-std-nightly-x86_64-unknown-fuchsia/install.sh",
-      "--prefix=[TMP_BASE]/rust_tmp_1/rust-x86_64-unknown-linux-gnu"
-    ],
-    "name": "install x86_64-unknown-fuchsia rust-std"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::url]/resources/pycurl.py",
-      "--url",
-      "https://s3.amazonaws.com/rust-lang-ci/rustc-builds/75b05681239cb309a23fcb4f8864f177e5aa62da/rust-std-nightly-aarch64-unknown-fuchsia.tar.gz",
-      "--status-json",
-      "/path/to/tmp/json",
-      "--outfile",
-      "[TMP_BASE]/rust_tmp_1/rust-nightly-x86_64-unknown-linux-gnu.tar.gz"
-    ],
-    "name": "GET https://s3.amazonaws.com/rust-lang-ci/rustc-builds/75b05681239cb309a23fcb4f8864f177e5aa62da/rust-std-nightly-aarch64-unknown-fuchsia.tar.gz"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "-xf",
-      "[TMP_BASE]/rust_tmp_1/rust-nightly-x86_64-unknown-linux-gnu.tar.gz",
-      "-C",
-      "[TMP_BASE]/rust_tmp_1"
-    ],
-    "name": "extract aarch64-unknown-fuchsia rust-std"
-  },
-  {
-    "cmd": [
-      "[TMP_BASE]/rust_tmp_1/rust-std-nightly-aarch64-unknown-fuchsia/install.sh",
-      "--prefix=[TMP_BASE]/rust_tmp_1/rust-x86_64-unknown-linux-gnu"
-    ],
-    "name": "install aarch64-unknown-fuchsia rust-std"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmglob",
-      "[TMP_BASE]/rust_tmp_1/rust-x86_64-unknown-linux-gnu",
-      "manifest-*"
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "remove manifests"
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
-      "[TMP_BASE]/rust_tmp_1/rust-x86_64-unknown-linux-gnu/bin/rustc",
-      "--version"
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
+      "-json-output",
+      "/path/to/tmp/json",
+      "https://fuchsia.googlesource.com/third_party/rust",
+      "refs/heads"
     ],
-    "name": "rust version",
-    "stdout": "/path/to/tmp/"
+    "name": "refs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/master\": \"75b05681239cb309a23fcb4f8864f177e5aa62da\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
@@ -206,10 +128,273 @@
   },
   {
     "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
+      "-cache",
+      "[CACHE]/git",
+      "-shared"
+    ],
+    "infra_step": true,
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "-name",
+      "zircon",
+      "manifest",
+      "https://fuchsia.googlesource.com/zircon"
+    ],
+    "infra_step": true,
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-autoupdate=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/rust"
+    ],
+    "infra_step": true,
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/rust",
+    "infra_step": true,
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/rust"
+    ],
+    "cwd": "[START_DIR]/rust",
+    "infra_step": true,
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin"
+    ],
+    "cwd": "[START_DIR]/rust",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "75b05681239cb309a23fcb4f8864f177e5aa62da"
+    ],
+    "cwd": "[START_DIR]/rust",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/rust",
+    "infra_step": true,
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/rust",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/clang/${platform} latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\ninfra/swig/${platform} version:3.0.12",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-cipd-builder.json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.9.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.0.12--\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/swig/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "zircon-qemu-arm64"
+    ],
+    "cwd": "[START_DIR]/zircon",
+    "name": "build zircon-qemu-arm64"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "zircon-pc-x86-64"
+    ],
+    "cwd": "[START_DIR]/zircon",
+    "name": "build zircon-pc-x86-64"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/rust_tmp_1/build"
+    ],
+    "infra_step": true,
+    "name": "build"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "\n[llvm]\noptimize = true\nstatic-libstdcpp = true\nninja = true\ntargets = \"X86;AArch64\"\n\n[build]\ntarget = [\"x86_64-unknown-fuchsia\", \"aarch64-unknown-fuchsia\"]\ndocs = false\nextended = true\nopenssl-static = true\n\n[install]\nprefix = \"[TMP_BASE]/rust_tmp_1/rust\"\nsysconfdir = \"etc\"\n\n[rust]\noptimize = true\n\n[target.x86_64-unknown-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[target.aarch64-unknown-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[dist]\n",
+      "[TMP_BASE]/rust_tmp_1/build/config.toml"
+    ],
+    "infra_step": true,
+    "name": "write config.toml"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/rust_tmp_1/.cargo"
+    ],
+    "infra_step": true,
+    "name": ".cargo"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "\n[target.x86_64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=x86_64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/zircon/build-zircon-pc-x86-64/sysroot\"]\n\n[target.aarch64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=aarch64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/zircon/build-zircon-qemu-arm64/sysroot\"]\n",
+      "[TMP_BASE]/rust_tmp_1/.cargo/config"
+    ],
+    "infra_step": true,
+    "name": "write config"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/rust/x.py",
+      "install",
+      "--config",
+      "[TMP_BASE]/rust_tmp_1/build/config.toml"
+    ],
+    "cwd": "[TMP_BASE]/rust_tmp_1/build",
+    "env": {
+      "CARGO_HOME": "[TMP_BASE]/rust_tmp_1/.cargo"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd",
+        "[START_DIR]/cipd/bin"
+      ]
+    },
+    "name": "rust install"
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/rust_tmp_1/rust/bin/rustc",
+      "--version"
+    ],
+    "name": "rust version",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
       "cipd",
       "pkg-build",
       "-in",
-      "[TMP_BASE]/rust_tmp_1/rust-x86_64-unknown-linux-gnu",
+      "[TMP_BASE]/rust_tmp_1/rust",
       "-name",
       "fuchsia/rust/linux-amd64",
       "-out",
@@ -240,7 +425,7 @@
       "-ref",
       "latest",
       "-tag",
-      "git_repository:https://github.com/rust-lang/rust",
+      "git_repository:https://fuchsia.googlesource.com/third_party/rust",
       "-tag",
       "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
       "-tag",
