@@ -171,7 +171,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     api.jiri.checkout('fuchsia', 'https://fuchsia.googlesource.com/manifest')
 
-  modules = ['sdk']
+  modules = ['packages/gn/sdk']
   build_type = 'release'
   release_build = True
   gn_target = 'x86-64'

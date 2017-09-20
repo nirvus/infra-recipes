@@ -224,7 +224,7 @@
     "cmd": [
       "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=x86-64",
-      "--modules=sdk",
+      "--modules=packages/gn/sdk",
       "--ignore-skia",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
