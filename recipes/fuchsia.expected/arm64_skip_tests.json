@@ -228,7 +228,7 @@
     "cmd": [
       "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=aarch64",
-      "--modules=package/gn/default",
+      "--modules=packages/gn/default",
       "--with-dart-analysis",
       "--goma=[START_DIR]/cipd/goma"
     ],

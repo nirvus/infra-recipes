@@ -54,7 +54,7 @@ PROPERTIES = {
   'build_type': Property(kind=Enum('debug', 'release', 'thinlto', 'lto'),
                          help='The build type', default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
-                      default=['package/gn/default']),
+                      default=['packages/gn/default']),
   'tests': Property(kind=str,
                     help='Path to config file listing tests to run, or (when using autorun) command to run tests',
                     default=None),
