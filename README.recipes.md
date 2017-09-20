@@ -6,6 +6,7 @@
   * [authutil](#recipe_modules-authutil)
   * [cipd](#recipe_modules-cipd)
   * [git](#recipe_modules-git)
+  * [gitiles](#recipe_modules-gitiles)
   * [go](#recipe_modules-go)
   * [goma](#recipe_modules-goma)
   * [gsutil](#recipe_modules-gsutil)
@@ -25,6 +26,7 @@
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia_roller](#recipes-fuchsia_roller) &mdash; Recipe for rolling Fuchsia layers into upper layers.
   * [git:examples/full](#recipes-git_examples_full)
+  * [gitiles:examples/full](#recipes-gitiles_examples_full)
   * [go:examples/full](#recipes-go_examples_full)
   * [go_toolchain](#recipes-go_toolchain) &mdash; Recipe for building Go toolchain.
   * [goma:examples/full](#recipes-goma_examples_full)
@@ -190,6 +192,47 @@ Find and return the timestamp of the given commit.
 &mdash; **def [rebase](/recipe_modules/git/api.py#74)(self, branch='master', remote='origin', \*\*kwargs):**
 
 Run rebase HEAD onto branch
+### *recipe_modules* / [gitiles](/recipe_modules/gitiles)
+
+[DEPS](/recipe_modules/gitiles/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+
+#### **class [GitilesApi](/recipe_modules/gitiles/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+Module for polling a Git repository using the Gitiles web interface.
+
+&mdash; **def [ensure\_gitiles](/recipe_modules/gitiles/api.py#17)(self, version=None):**
+
+&mdash; **def [fetch](/recipe_modules/gitiles/api.py#75)(self, url, file_path, branch='master', step_name=None, timeout=None, test_data=None):**
+
+Downloads raw file content from a Gitiles repository.
+
+Args:
+  url (str): base URL to the repository.
+  file_path (str): relative path to the file from the repository root.
+  branch (str): branch of the repository.
+  step_name (str): custom name for this step (optional).
+  timeout (int): number of seconds to wait before failing.
+
+Returns:
+  Raw file content.
+
+&mdash; **def [log](/recipe_modules/gitiles/api.py#51)(self, url, treeish, limit=0, step_name=None, test_data={}):**
+
+Returns the most recent commits for treeish object.
+
+Args:
+  url (str): base URL of the remote repository.
+  treeish (str): tree object identifier.
+  limit (int): number of commits to limit the fetching to.
+  step_name (str): custom name for this step (optional).
+
+&mdash; **def [refs](/recipe_modules/gitiles/api.py#30)(self, url, refspath='refs/heads', step_name='refs', test_data=[]):**
+
+Resolves each ref in a repository to git revision
+
+Args:
+  url (str): URL of the remote repository.
+  refspath (str): limits which refs to resolve.
 ### *recipe_modules* / [go](/recipe_modules/go)
 
 [DEPS](/recipe_modules/go/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -466,6 +509,11 @@ Recipe for rolling Fuchsia layers into upper layers.
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
 
 &mdash; **def [RunSteps](/recipe_modules/git/examples/full.py#18)(api):**
+### *recipes* / [gitiles:examples/full](/recipe_modules/gitiles/examples/full.py)
+
+[DEPS](/recipe_modules/gitiles/examples/full.py#5): [gitiles](#recipe_modules-gitiles), [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+
+&mdash; **def [RunSteps](/recipe_modules/gitiles/examples/full.py#11)(api):**
 ### *recipes* / [go:examples/full](/recipe_modules/go/examples/full.py)
 
 [DEPS](/recipe_modules/go/examples/full.py#5): [go](#recipe_modules-go), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
