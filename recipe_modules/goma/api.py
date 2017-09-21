@@ -12,9 +12,12 @@ class GomaApi(recipe_api.RecipeApi):
 
   def __init__(self, **kwargs):
     super(GomaApi, self).__init__(**kwargs)
+
+    # Flag to represent local goma module running.
+    self._is_local = False
+
     self._goma_dir = None
     self._goma_started = False
-
     self._goma_jobs = None
 
   @property
@@ -63,7 +66,24 @@ print jobs
 
     return self._goma_jobs
 
+  @property
+  def goma_ctl(self):
+    return self.m.path.join(self._goma_dir, 'goma_ctl.py')
+
+  @property
+  def goma_dir(self):
+    assert self._goma_dir
+    return self._goma_dir
+
+  def set_goma_dir(self, goma_dir): # pragma: no cover
+    """ This function is for local recipe test only."""
+    self._goma_dir = goma_dir
+    self._is_local = True
+
   def ensure_goma(self, canary=False):
+    if self._is_local: # pragma: no cover
+      return self._goma_dir
+
     with self.m.step.nest('ensure_goma'):
       with self.m.context(infra_steps=True):
         self.m.cipd.set_service_account_credentials(
@@ -80,26 +100,18 @@ print jobs
 
         return self._goma_dir
 
-  @property
-  def goma_ctl(self):
-    return self.m.path.join(self._goma_dir, 'goma_ctl.py')
-
-  @property
-  def goma_dir(self):
-    assert self._goma_dir
-    return self._goma_dir
-
   @contextmanager
-  def goma_env(self):
-    env = {
-      'GOMA_DEPS_CACHE_FILE': 'goma_deps_cache',
-      'GOMA_CACHE_DIR': self.m.path['cache'].join('goma'),
-      'GOMA_SERVICE_ACCOUNT_JSON_FILE': self.service_account_json_path,
-    }
+  def goma_env(self, env):
+    if 'GOMA_DEPS_CACHE_FILE' not in env:
+      env['GOMA_DEPS_CACHE_FILE'] = 'goma_deps_cache'
+    if 'GOMA_CACHE_DIR' not in env:
+      env['GOMA_CACHE_DIR'] = self.m.path['cache'].join('goma')
+    if not self._is_local:
+      env['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = self.service_account_json_path
     with self.m.context(env=env):
       yield
 
-  def start(self, env=None, **kwargs):
+  def start(self, env={}, **kwargs):
     """Start goma compiler_proxy.
 
     A user MUST execute ensure_goma beforehand.
@@ -112,7 +124,7 @@ print jobs
     assert 'GLOG_log_dir' not in self.m.context.env, (
       'GLOG_log_dir must not be set in env during goma.start()')
 
-    with self.goma_env():
+    with self.goma_env(env):
       try:
         self.m.python(
             name='start_goma',
@@ -130,7 +142,7 @@ print jobs
           pass
         raise e
 
-  def stop(self, **kwargs):
+  def stop(self, env={}, **kwargs):
     """Stop goma compiler_proxy.
 
     A user MUST execute start beforehand.
@@ -143,7 +155,7 @@ print jobs
     assert self._goma_started
 
     with self.m.step.defer_results():
-      with self.goma_env():
+      with self.goma_env(env):
         self.m.python(name='goma_jsonstatus', script=self.goma_ctl,
                       args=['jsonstatus', self.json_path],
                       **kwargs)
@@ -156,7 +168,7 @@ print jobs
     self._goma_started = False
 
   @contextmanager
-  def build_with_goma(self, env=None):
+  def build_with_goma(self, env={}):
     """Make context wrapping goma start/stop.
 
     Raises:
@@ -167,4 +179,4 @@ print jobs
     try:
       yield
     finally:
-      self.stop()
+      self.stop(env)

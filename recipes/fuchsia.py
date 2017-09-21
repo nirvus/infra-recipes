@@ -61,8 +61,7 @@ PROPERTIES = {
   'use_autorun': Property(kind=bool,
                           help='Whether to use autorun for tests',
                           default=False),
-  'use_goma': Property(kind=bool, help='Whether to use goma to compile',
-                       default=True),
+  'goma_dir': Property(kind=str, help='Path to goma', default=None),
   'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
                       default=[]),
 }
@@ -112,58 +111,50 @@ def BuildZircon(api, target, tests):
     api.step('build zircon', build_zircon_cmd)
 
 
-@contextmanager
-def GomaContext(api, use_goma):
-  if not use_goma:
-    yield
-  else:
-    with api.goma.build_with_goma():
-      yield
-
-
 def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-                 modules, tests, use_autorun, use_goma, gn_args):
+                 modules, tests, use_autorun, gn_args):
   if tests and not use_autorun:
     modules.append('packages/gn/boot_test_runner')
 
-  with api.step.nest('build fuchsia'), GomaContext(api, use_goma):
-    gen_cmd = [
-      api.path['start_dir'].join('packages', 'gn', 'gen.py'),
-      '--target_cpu=%s' % gn_target,
-      '--modules=%s' % ','.join(modules),
-      '--with-dart-analysis',
-    ]
+  goma_env = {}
+  if api.properties.get('goma_local_cache', False):
+    goma_env['GOMA_LOCAL_OUTPUT_CACHE_DIR'] = api.path['cache'].join('goma', 'localoutputcache')
 
-    if use_goma:
+  with api.step.nest('build fuchsia'):
+    with api.goma.build_with_goma(env=goma_env):
+      gen_cmd = [
+        api.path['start_dir'].join('packages', 'gn', 'gen.py'),
+        '--target_cpu=%s' % gn_target,
+        '--modules=%s' % ','.join(modules),
+        '--with-dart-analysis',
+      ]
+
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
 
-    if build_type in ['release', 'lto', 'thinlto']:
-      gen_cmd.append('--release')
+      if build_type in ['release', 'lto', 'thinlto']:
+        gen_cmd.append('--release')
 
-    if build_type == 'lto':
-      gen_cmd.append('--lto=full')
-    elif build_type == 'thinlto':
-      gen_cmd.append('--lto=thin')
-      gn_args.append('thinlto_cache_dir=\"%s\"' %
-                     str(api.path['cache'].join('thinlto')))
+      if build_type == 'lto':
+        gen_cmd.append('--lto=full')
+      elif build_type == 'thinlto':
+        gen_cmd.append('--lto=thin')
+        gn_args.append('thinlto_cache_dir=\"%s\"' %
+                       str(api.path['cache'].join('thinlto')))
 
-    for arg in gn_args:
-      gen_cmd.append('--args')
-      gen_cmd.append(arg)
+      for arg in gn_args:
+        gen_cmd.append('--args')
+        gen_cmd.append(arg)
 
-    api.step('gen', gen_cmd)
+      api.step('gen', gen_cmd)
 
-    ninja_cmd = [
-      api.path['start_dir'].join('buildtools', 'ninja'),
-      '-C', fuchsia_build_dir,
-    ]
+      ninja_cmd = [
+        api.path['start_dir'].join('buildtools', 'ninja'),
+        '-C', fuchsia_build_dir,
+      ]
 
-    if use_goma:
-        ninja_cmd.extend(['-j', api.goma.recommended_goma_jobs])
-    else:
-        ninja_cmd.extend(['-j', api.platform.cpu_count])
+      ninja_cmd.extend(['-j', api.goma.recommended_goma_jobs])
 
-    api.step('ninja', ninja_cmd)
+      api.step('ninja', ninja_cmd)
 
 
 def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
@@ -328,7 +319,7 @@ def UploadArchive(api, target, zircon_build_dir, fuchsia_build_dir):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, manifest, remote, target,
-             build_type, modules, tests, use_autorun, use_goma, gn_args):
+             build_type, modules, tests, use_autorun, goma_dir, gn_args):
   # Tests are too slow on arm64.
   if target == 'arm64':
     tests = None
@@ -347,10 +338,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   }[target]
   zircon_build_dir = fuchsia_out_dir.join('build-zircon', 'build-%s' % zircon_target)
 
+  if goma_dir:
+    api.goma.set_goma_dir(goma_dir)
+
   api.jiri.ensure_jiri()
   api.gsutil.ensure_gsutil()
-  if use_goma:
-    api.goma.ensure_goma()
+  api.goma.ensure_goma()
   if tests:
     api.qemu.ensure_qemu()
 
@@ -362,7 +355,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     BuildZircon(api, target, None)
 
   BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-               modules, tests, use_autorun, use_goma, gn_args)
+               modules, tests, use_autorun, gn_args)
 
   if tests:
     if use_autorun:
@@ -461,7 +454,13 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
-      use_goma=False,
+      goma_dir='/path/to/goma',
+  )
+  yield api.test('goma_local_cache') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      goma_local_cache=True,
   )
   yield api.test('arm64_skip_tests') + api.properties(
       manifest='fuchsia',

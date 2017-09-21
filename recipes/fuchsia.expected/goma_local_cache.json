@@ -60,6 +60,38 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure_goma"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
+    ],
+    "infra_step": true,
+    "name": "ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
@@ -178,12 +210,14 @@
     "cmd": [
       "python",
       "-u",
-      "/path/to/goma/goma_ctl.py",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
       "restart"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_LOCAL_OUTPUT_CACHE_DIR": "[CACHE]/goma/localoutputcache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
     "name": "build fuchsia.start_goma",
@@ -197,7 +231,7 @@
       "--target_cpu=x86-64",
       "--modules=packages/gn/default",
       "--with-dart-analysis",
-      "--goma=/path/to/goma"
+      "--goma=[START_DIR]/cipd/goma"
     ],
     "name": "build fuchsia.gen",
     "~followup_annotations": [
@@ -249,13 +283,15 @@
     "cmd": [
       "python",
       "-u",
-      "/path/to/goma/goma_ctl.py",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
       "jsonstatus",
-      "/path/to/goma/jsonstatus"
+      "[START_DIR]/cipd/goma/jsonstatus"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_LOCAL_OUTPUT_CACHE_DIR": "[CACHE]/goma/localoutputcache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "name": "build fuchsia.goma_jsonstatus",
     "~followup_annotations": [
@@ -266,12 +302,14 @@
     "cmd": [
       "python",
       "-u",
-      "/path/to/goma/goma_ctl.py",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
       "stat"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_LOCAL_OUTPUT_CACHE_DIR": "[CACHE]/goma/localoutputcache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "name": "build fuchsia.goma_stat",
     "~followup_annotations": [
@@ -282,12 +320,14 @@
     "cmd": [
       "python",
       "-u",
-      "/path/to/goma/goma_ctl.py",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
       "stop"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_LOCAL_OUTPUT_CACHE_DIR": "[CACHE]/goma/localoutputcache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "name": "build fuchsia.stop_goma",
     "~followup_annotations": [
@@ -307,7 +347,9 @@
       "-ensure-file",
       "fuchsia/tools/bsdtar/linux-amd64 latest",
       "-json-output",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
     ],
     "infra_step": true,
     "name": "ensure bsdtar.ensure_installed",

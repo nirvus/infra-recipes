@@ -216,39 +216,43 @@ Program is output to a temp file and run when this step executes.
 
 GomaApi contains helper functions for using goma.
 
-&emsp; **@contextmanager**<br>&mdash; **def [build\_with\_goma](/recipe_modules/goma/api.py#158)(self, env=None):**
+&emsp; **@contextmanager**<br>&mdash; **def [build\_with\_goma](/recipe_modules/goma/api.py#170)(self, env={}):**
 
 Make context wrapping goma start/stop.
 
 Raises:
     StepFailure or InfraFailure if it fails to build.
 
-&mdash; **def [ensure\_goma](/recipe_modules/goma/api.py#66)(self, canary=False):**
+&mdash; **def [ensure\_goma](/recipe_modules/goma/api.py#83)(self, canary=False):**
 
-&emsp; **@property**<br>&mdash; **def [goma\_ctl](/recipe_modules/goma/api.py#83)(self):**
+&emsp; **@property**<br>&mdash; **def [goma\_ctl](/recipe_modules/goma/api.py#69)(self):**
 
-&emsp; **@property**<br>&mdash; **def [goma\_dir](/recipe_modules/goma/api.py#87)(self):**
+&emsp; **@property**<br>&mdash; **def [goma\_dir](/recipe_modules/goma/api.py#73)(self):**
 
-&emsp; **@contextmanager**<br>&mdash; **def [goma\_env](/recipe_modules/goma/api.py#92)(self):**
+&emsp; **@contextmanager**<br>&mdash; **def [goma\_env](/recipe_modules/goma/api.py#103)(self, env):**
 
-&emsp; **@property**<br>&mdash; **def [json\_path](/recipe_modules/goma/api.py#24)(self):**
+&emsp; **@property**<br>&mdash; **def [json\_path](/recipe_modules/goma/api.py#27)(self):**
 
-&emsp; **@property**<br>&mdash; **def [recommended\_goma\_jobs](/recipe_modules/goma/api.py#29)(self):**
+&emsp; **@property**<br>&mdash; **def [recommended\_goma\_jobs](/recipe_modules/goma/api.py#32)(self):**
 
 Return the recommended number of jobs for parallel build using Goma.
 
 This function caches the _goma_jobs.
 
-&emsp; **@property**<br>&mdash; **def [service\_account\_json\_path](/recipe_modules/goma/api.py#20)(self):**
+&emsp; **@property**<br>&mdash; **def [service\_account\_json\_path](/recipe_modules/goma/api.py#23)(self):**
 
-&mdash; **def [start](/recipe_modules/goma/api.py#102)(self, env=None, \*\*kwargs):**
+&mdash; **def [set\_goma\_dir](/recipe_modules/goma/api.py#78)(self, goma_dir):**
+
+This function is for local recipe test only.
+
+&mdash; **def [start](/recipe_modules/goma/api.py#114)(self, env={}, \*\*kwargs):**
 
 Start goma compiler_proxy.
 
 A user MUST execute ensure_goma beforehand.
 It is user's responsibility to handle failure of starting compiler_proxy.
 
-&mdash; **def [stop](/recipe_modules/goma/api.py#133)(self, \*\*kwargs):**
+&mdash; **def [stop](/recipe_modules/goma/api.py#145)(self, env={}, \*\*kwargs):**
 
 Stop goma compiler_proxy.
 
@@ -416,21 +420,19 @@ Recipe for building and testing Cobalt.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#124)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, use_goma, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#114)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#90)(api, target, tests):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#89)(api, target, tests):**
 
-&mdash; **def [Checkout](/recipes/fuchsia.py#71)(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):**
+&mdash; **def [Checkout](/recipes/fuchsia.py#70)(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):**
 
-&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/fuchsia.py#115)(api, use_goma):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#320)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, tests, use_autorun, goma_dir, gn_args):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#329)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, tests, use_autorun, use_goma, gn_args):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#226)(api, target, fuchsia_build_dir):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#235)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#160)(api, target, fuchsia_build_dir, tests):**
 
-&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#169)(api, target, fuchsia_build_dir, tests):**
-
-&mdash; **def [UploadArchive](/recipes/fuchsia.py#309)(api, target, zircon_build_dir, fuchsia_build_dir):**
+&mdash; **def [UploadArchive](/recipes/fuchsia.py#300)(api, target, zircon_build_dir, fuchsia_build_dir):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
