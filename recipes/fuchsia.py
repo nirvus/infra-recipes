@@ -71,6 +71,9 @@ PROPERTIES = {
 def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    if manifest in ['garnet', 'peridot']:
+      revision = api.jiri.project([manifest]).json.output[0]['revision']
+      api.step.active_result.presentation.properties['got_revision'] = revision
     if patch_ref:
       api.jiri.update(gc=True, local_manifest=True)
     if not api.properties.get('tryjob', False):
@@ -439,6 +442,16 @@ def GenTests(api):
   # Test cases for skipping Fuchsia tests.
   yield api.test('default') + api.properties(
       manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+  )
+  yield api.test('garnet') + api.properties(
+      manifest='garnet',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+  )
+  yield api.test('peridot') + api.properties(
+      manifest='peridot',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
   )
