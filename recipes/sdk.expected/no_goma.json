@@ -168,7 +168,7 @@
   },
   {
     "cmd": [],
-    "name": "build fuchsia"
+    "name": "build fuchsia x86-64"
   },
   {
     "cmd": [
@@ -178,7 +178,7 @@
       "--ignore-skia",
       "--release"
     ],
-    "name": "build fuchsia.gen",
+    "name": "build fuchsia x86-64.gen",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -191,7 +191,37 @@
       "-j",
       "2"
     ],
-    "name": "build fuchsia.ninja",
+    "name": "build fuchsia x86-64.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build fuchsia aarch64"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/packages/gn/gen.py",
+      "--target_cpu=aarch64",
+      "--modules=packages/gn/sdk",
+      "--ignore-skia",
+      "--release"
+    ],
+    "name": "build fuchsia aarch64.gen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/ninja",
+      "-C",
+      "[START_DIR]/out/release-aarch64",
+      "-j",
+      "2"
+    ],
+    "name": "build fuchsia aarch64.ninja",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

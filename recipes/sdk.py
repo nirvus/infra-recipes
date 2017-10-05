@@ -69,7 +69,7 @@ def GomaContext(api, use_goma):
 
 def BuildFuchsia(api, release_build, gn_target, fuchsia_build_dir,
                  modules, use_goma, gn_args):
-  with api.step.nest('build fuchsia'), GomaContext(api, use_goma):
+  with api.step.nest('build fuchsia %s' % gn_target), GomaContext(api, use_goma):
     gen_cmd = [
         api.path['start_dir'].join('packages', 'gn', 'gen.py'),
         '--target_cpu=%s' % gn_target,
@@ -174,15 +174,16 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   modules = ['packages/gn/sdk']
   build_type = 'release'
   release_build = True
-  gn_target = 'x86-64'
+  gn_targets = ['x86-64', 'aarch64']
 
   fuchsia_out_dir = api.path['start_dir'].join('out')
-  fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
 
   BuildZircon(api, 'x86_64')
   BuildZircon(api, 'aarch64')
-  BuildFuchsia(api, release_build, gn_target,
-               fuchsia_build_dir, modules, use_goma, gn_args)
+  for gn_target in gn_targets:
+      fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
+      BuildFuchsia(api, release_build, gn_target,
+                   fuchsia_build_dir, modules, use_goma, gn_args)
 
   outdir = api.path.mkdtemp('sdk')
   sdk = api.path['tmp_base'].join('fuchsia-sdk.tgz')
