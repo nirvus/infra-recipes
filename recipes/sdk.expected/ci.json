@@ -136,7 +136,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "fuchsia",
+      "garnet",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "infra_step": true,

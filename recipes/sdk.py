@@ -169,7 +169,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.cipd.default_bot_service_account_credentials)
 
   with api.context(infra_steps=True):
-    api.jiri.checkout('fuchsia', 'https://fuchsia.googlesource.com/manifest')
+    api.jiri.checkout('garnet', 'https://fuchsia.googlesource.com/manifest')
 
   modules = ['packages/gn/sdk']
   build_type = 'release'
