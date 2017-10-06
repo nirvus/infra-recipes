@@ -424,7 +424,7 @@ Recipe for building Fuchsia and running tests.
 
 &emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/fuchsia.py#115)(api, use_goma):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#327)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, tests, use_autorun, use_goma, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#329)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, build_type, modules, tests, use_autorun, use_goma, gn_args):**
 
 &mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#235)(api, target, fuchsia_build_dir):**
 

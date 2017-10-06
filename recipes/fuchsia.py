@@ -316,6 +316,8 @@ def UploadArchive(api, target, zircon_build_dir, fuchsia_build_dir):
   if target == 'x86-64':
     package.add(zircon_build_dir.join('zircon.bin'), zircon_build_dir)
     package.add(zircon_build_dir.join('bootloader', 'bootx64.efi'), zircon_build_dir)
+  package.add(zircon_build_dir.join('tools', 'bootserver'), zircon_build_dir)
+  package.add(zircon_build_dir.join('tools', 'netaddr'), zircon_build_dir)
   package.tar('tar fuchsia')
   digest = api.hash.sha1('hash archive', package.archive,
                          test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')

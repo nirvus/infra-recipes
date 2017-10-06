@@ -372,6 +372,8 @@
       "[START_DIR]/out/build-zircon/build-zircon-qemu-arm64",
       "bootdata.bin",
       "zircon.elf",
+      "tools/bootserver",
+      "tools/netaddr",
       "-C",
       "[START_DIR]/out/debug-aarch64",
       "user.bootfs"

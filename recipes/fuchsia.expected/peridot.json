@@ -401,6 +401,8 @@
       "zircon.elf",
       "zircon.bin",
       "bootloader/bootx64.efi",
+      "tools/bootserver",
+      "tools/netaddr",
       "-C",
       "[START_DIR]/out/debug-x86-64",
       "user.bootfs"
