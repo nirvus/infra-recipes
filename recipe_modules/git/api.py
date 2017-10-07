@@ -65,6 +65,12 @@ class GitApi(recipe_api.RecipeApi):
       self('clean', '-f', '-d', '-x', **kwargs)
       return step.stdout.strip()
 
+  def commit(self, message, *files):
+    return self('commit', '-m', message, *files)
+
+  def push(self, ref, remote='origin'):
+    return self('push', remote, ref)
+
   def rebase(self, branch='master', remote='origin', **kwargs):
     """Run rebase HEAD onto branch"""
     try:

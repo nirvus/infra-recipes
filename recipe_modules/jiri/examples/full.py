@@ -32,6 +32,13 @@ def RunSteps(api):
   # Download all projects.
   api.jiri.update(gc=True, snapshot='snapshot', local_manifest=True)
 
+  # Edit manifest.
+  api.jiri.edit_manifest(
+      'minimal',
+      projects=['a', ('b', 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127')],
+      imports=['c', ('d', 'fc4dc762688d2263b254208f444f5c0a4b91bc07')]
+  )
+
   # Run hooks separately.
   api.jiri.update(run_hooks=False)
   api.jiri.run_hooks(local_manifest=True)

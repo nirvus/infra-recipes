@@ -5,11 +5,13 @@
 DEPS = [
   'git',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'recipe_engine/step',
+  'recipe_engine/time',
 ]
 
 
@@ -23,7 +25,9 @@ def RunSteps(api):
       remote=api.properties.get('remote'),
       file=api.properties.get('checkout_file'))
 
-  with api.context(cwd=api.properties.get('path') or api.path['start_dir'].join('fuchsia')):
+  root_dir = api.properties.get('path') or api.path['start_dir'].join('fuchsia')
+
+  with api.context(cwd=root_dir):
     api.git.get_hash()
     api.git.get_timestamp()
 
@@ -32,6 +36,17 @@ def RunSteps(api):
 
     # You can use api.git.rebase to rebase the current branch onto another one
     api.git.rebase(branch='master', remote='origin')
+
+    # Add a new file
+    api.file.write_text(
+        'drop file', root_dir.join('time.txt'), str(api.time.time()))
+    api.git('add', root_dir.join('time.txt'))
+
+    # Commit the change
+    api.git.commit('example change')
+
+    # Push it for review
+    api.git.push('HEAD:refs/for/master')
 
 
 def GenTests(api):

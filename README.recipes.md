@@ -41,6 +41,7 @@
   * [third_party_rust_crates](#recipes-third_party_rust_crates) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [web_view](#recipes-web_view) &mdash; Recipe for building WebView.
   * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
+  * [zircon_roller](#recipes-zircon_roller) &mdash; Recipe for rolling Zircon into other projects.
 ## Recipe Modules
 
 ### *recipe_modules* / [authutil](/recipe_modules/authutil)
@@ -173,15 +174,19 @@ Return a git command step.
 
 Checkout a given ref and return the checked out revision.
 
-&mdash; **def [get\_hash](/recipe_modules/git/api.py#76)(self, commit='HEAD', \*\*kwargs):**
+&mdash; **def [commit](/recipe_modules/git/api.py#68)(self, message, \*files):**
+
+&mdash; **def [get\_hash](/recipe_modules/git/api.py#82)(self, commit='HEAD', \*\*kwargs):**
 
 Find and return the hash of the given commit.
 
-&mdash; **def [get\_timestamp](/recipe_modules/git/api.py#83)(self, commit='HEAD', test_data=None, \*\*kwargs):**
+&mdash; **def [get\_timestamp](/recipe_modules/git/api.py#89)(self, commit='HEAD', test_data=None, \*\*kwargs):**
 
 Find and return the timestamp of the given commit.
 
-&mdash; **def [rebase](/recipe_modules/git/api.py#68)(self, branch='master', remote='origin', \*\*kwargs):**
+&mdash; **def [push](/recipe_modules/git/api.py#71)(self, ref, remote='origin'):**
+
+&mdash; **def [rebase](/recipe_modules/git/api.py#74)(self, branch='master', remote='origin', \*\*kwargs):**
 
 Run rebase HEAD onto branch
 ### *recipe_modules* / [go](/recipe_modules/go)
@@ -317,9 +322,11 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#144)(self, manifest, remote, patch_ref=None, patch_gerrit_url=None, project=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#162)(self, manifest, remote, patch_ref=None, patch_gerrit_url=None, project=None):**
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#90)(self, all=False, \*\*kwargs):**
+
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#109)(self, manifest, projects=None, imports=None, \*\*kwargs):**
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#22)(self, version=None):**
 
@@ -329,15 +336,15 @@ Return a jiri command step.
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#35)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#109)(self, ref, host=None, delete=False, force=False, rebase=False, \*\*kwargs):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#127)(self, ref, host=None, delete=False, force=False, rebase=False, \*\*kwargs):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#50)(self, projects, test_data=None):**
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#84)(self, local_manifest=False):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#124)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#142)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#134)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#152)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#68)(self, gc=False, run_hooks=True, snapshot=None, local_manifest=False, \*\*kwargs):**
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
@@ -435,9 +442,9 @@ Recipe for building Fuchsia and running tests.
 &mdash; **def [UploadArchive](/recipes/fuchsia.py#302)(api, target, zircon_build_dir, fuchsia_build_dir):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
-[DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
 
-&mdash; **def [RunSteps](/recipe_modules/git/examples/full.py#16)(api):**
+&mdash; **def [RunSteps](/recipe_modules/git/examples/full.py#18)(api):**
 ### *recipes* / [go:examples/full](/recipe_modules/go/examples/full.py)
 
 [DEPS](/recipe_modules/go/examples/full.py#5): [go](#recipe_modules-go), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -566,6 +573,13 @@ Recipe for building Zircon.
 &mdash; **def [RunSteps](/recipes/zircon.py#112)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
 
 &mdash; **def [RunTests](/recipes/zircon.py#71)(api, name, build_dir, \*args, \*\*kwargs):**
+### *recipes* / [zircon\_roller](/recipes/zircon_roller.py)
+
+[DEPS](/recipes/zircon_roller.py#10): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe for rolling Zircon into other projects.
+
+&mdash; **def [RunSteps](/recipes/zircon_roller.py#41)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/4d872b88fb06006ec917c6d2a3324e26c0124319/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/4d872b88fb06006ec917c6d2a3324e26c0124319/README.recipes.md#recipe_modules-file

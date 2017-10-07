@@ -106,6 +106,24 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
+  def edit_manifest(self, manifest, projects=None, imports=None, **kwargs):
+    cmd = [ 'edit' ]
+    if imports:
+      for i in imports:
+        if type(i) is str:
+          cmd.extend(['-import', i])
+        elif type(i) is tuple:
+          cmd.extend(['-import', '%s=%s' % i])
+    if projects:
+      for p in projects:
+        if type(p) is str:
+          cmd.extend(['-project', p])
+        elif type(p) is tuple:
+          cmd.extend(['-project', '%s=%s' % p])
+    cmd.extend([manifest])
+
+    return self(*cmd, **kwargs)
+
   def patch(self, ref, host=None, delete=False, force=False, rebase=False,
             **kwargs):
     cmd = [ 'patch' ]

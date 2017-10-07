@@ -133,6 +133,22 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
+      "edit",
+      "-import",
+      "c",
+      "-import",
+      "d=fc4dc762688d2263b254208f444f5c0a4b91bc07",
+      "-project",
+      "a",
+      "-project",
+      "b=c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "minimal"
+    ],
+    "name": "jiri edit"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-autoupdate=false",
       "-run-hooks=false"

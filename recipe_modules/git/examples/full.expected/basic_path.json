@@ -117,6 +117,50 @@
     "name": "git rebase"
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "1337000001.5",
+      "[START_DIR]/foo/time.txt"
+    ],
+    "cwd": "[START_DIR]/foo",
+    "infra_step": true,
+    "name": "drop file"
+  },
+  {
+    "cmd": [
+      "git",
+      "add",
+      "[START_DIR]/foo/time.txt"
+    ],
+    "cwd": "[START_DIR]/foo",
+    "name": "git add"
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-m",
+      "example change"
+    ],
+    "cwd": "[START_DIR]/foo",
+    "name": "git commit"
+  },
+  {
+    "cmd": [
+      "git",
+      "push",
+      "origin",
+      "HEAD:refs/for/master"
+    ],
+    "cwd": "[START_DIR]/foo",
+    "name": "git push"
+  },
+  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0
