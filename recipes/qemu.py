@@ -51,6 +51,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project(['third_party/qemu']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
+  with api.step.nest('ensure_packages'):
+    with api.context(infra_steps=True):
+      cipd_dir = api.path['start_dir'].join('cipd')
+      if api.platform.name == 'linux':
+        api.cipd.ensure(cipd_dir, {
+          'fuchsia/clang/${platform}': 'latest',
+          'fuchsia/sysroot/${platform}': 'latest',
+        })
+
   staging_dir = api.path.mkdtemp('qemu')
   pkg_dir = staging_dir.join('qemu')
   api.file.ensure_directory('create pkg dir', pkg_dir)
@@ -58,12 +67,19 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   qemu_dir = api.path['start_dir'].join('third_party', 'qemu')
   build_dir = api.path.mkdtemp('build')
 
+  toolchain_dir = cipd_dir.join('clang')
+  sysroot_dir = cipd_dir.join('sysroot')
+
   extra_options = {
     'linux': [
-      '--extra-ldflags=-static-libstdc++',
+      '--cc=%s' % toolchain_dir.join('bin', 'clang'),
+      '--cxx=%s' % toolchain_dir.join('bin', 'clang++'),
+      '--extra-cflags="--sysroot=%s"' % sysroot_dir,
+      '--extra-cxxflags="--sysroot=%s"' % sysroot_dir,
+      '--extra-ldflags="-static-libstdc++ --sysroot=%s"' % sysroot_dir,
       '--disable-gtk',
       '--enable-sdl=internal',
-      '--enable-kvm'
+      '--enable-kvm',
     ],
     'mac': [
       '--enable-cocoa',
@@ -98,6 +114,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '--disable-smartcard',
       '--disable-tools',
       '--disable-tasn1',
+      '--disable-opengl',
+      '--disable-werror',
     ] + extra_options)
     api.step('build qemu', [
       'make',

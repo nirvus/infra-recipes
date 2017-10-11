@@ -148,6 +148,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
     "cmd": [
       "python",
       "-u",
@@ -190,6 +194,8 @@
       "--disable-smartcard",
       "--disable-tools",
       "--disable-tasn1",
+      "--disable-opengl",
+      "--disable-werror",
       "--enable-cocoa"
     ],
     "cwd": "[TMP_BASE]/build_tmp_2",

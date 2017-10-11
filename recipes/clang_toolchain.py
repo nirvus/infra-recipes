@@ -62,11 +62,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
-      api.cipd.ensure(cipd_dir, {
+      packages = {
         'infra/cmake/${platform}': 'version:3.9.2',
         'infra/ninja/${platform}': 'version:1.8.2',
         'infra/swig/${platform}': 'version:3.0.12',
-      })
+      }
+      if api.platform.name == 'linux':
+        packages['fuchsia/sysroot/${platform}'] = 'latest'
+      api.cipd.ensure(cipd_dir, packages)
 
   staging_dir = api.path.mkdtemp('clang')
   pkg_name = 'clang+llvm-x86_64-%s' % api.platform.name.replace('mac', 'darwin')
@@ -138,10 +141,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   )
   toolchain_dir = api.path['start_dir'].join('buildtools', platform, 'clang')
 
+  toolchain_file = staging_dir.join('Toolchain.cmake')
+  if api.platform.name == 'linux':
+    api.file.write_text('write Toolchain.cmake', toolchain_file,
+                        'set(CMAKE_SYSROOT %s)' % cipd_dir.join('sysroot'))
+
   extra_options = {
     'linux': [
-      '-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++',
       '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++',
+      '-DBOOTSTRAP_CMAKE_TOOLCHAIN_FILE=%s' % toolchain_file,
     ],
     'mac': [],
   }[api.platform.name]
