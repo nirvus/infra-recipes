@@ -230,9 +230,9 @@
       "--disable-werror",
       "--cc=[START_DIR]/cipd/bin/clang",
       "--cxx=[START_DIR]/cipd/bin/clang++",
-      "--extra-cflags=\"--sysroot=[START_DIR]/cipd\"",
-      "--extra-cxxflags=\"--sysroot=[START_DIR]/cipd\"",
-      "--extra-ldflags=\"-static-libstdc++ --sysroot=[START_DIR]/cipd\"",
+      "--extra-cflags=--sysroot=[START_DIR]/cipd",
+      "--extra-cxxflags=--sysroot=[START_DIR]/cipd",
+      "--extra-ldflags=--sysroot=[START_DIR]/cipd -static-libstdc++ -Qunused-arguments",
       "--disable-gtk",
       "--enable-sdl=internal",
       "--enable-kvm"

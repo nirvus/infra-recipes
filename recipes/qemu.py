@@ -71,9 +71,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     'linux': [
       '--cc=%s' % cipd_dir.join('bin', 'clang'),
       '--cxx=%s' % cipd_dir.join('bin', 'clang++'),
-      '--extra-cflags="--sysroot=%s"' % cipd_dir,
-      '--extra-cxxflags="--sysroot=%s"' % cipd_dir,
-      '--extra-ldflags="-static-libstdc++ --sysroot=%s"' % cipd_dir,
+      '--extra-cflags=--sysroot=%s' % cipd_dir,
+      '--extra-cxxflags=--sysroot=%s' % cipd_dir,
+      # Supress warning about the unused arguments because QEMU ignores
+      # --disable-werror at configure time which triggers an error because
+      # -static-libstdc++ is unused when linking C code.
+      '--extra-ldflags=--sysroot=%s -static-libstdc++ -Qunused-arguments' % cipd_dir,
       '--disable-gtk',
       '--enable-sdl=internal',
       '--enable-kvm',
