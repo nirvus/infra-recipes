@@ -144,7 +144,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   toolchain_file = staging_dir.join('Toolchain.cmake')
   if api.platform.name == 'linux':
     api.file.write_text('write Toolchain.cmake', toolchain_file,
-                        'set(CMAKE_SYSROOT %s)' % cipd_dir.join('sysroot'))
+                        'set(CMAKE_SYSROOT %s)' % cipd_dir)
 
   extra_options = {
     'linux': [

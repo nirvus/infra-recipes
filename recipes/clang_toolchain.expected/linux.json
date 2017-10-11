@@ -378,7 +378,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set(CMAKE_SYSROOT [START_DIR]/cipd/sysroot)",
+      "set(CMAKE_SYSROOT [START_DIR]/cipd)",
       "[TMP_BASE]/clang_tmp_1/Toolchain.cmake"
     ],
     "infra_step": true,

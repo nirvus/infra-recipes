@@ -67,16 +67,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   qemu_dir = api.path['start_dir'].join('third_party', 'qemu')
   build_dir = api.path.mkdtemp('build')
 
-  toolchain_dir = cipd_dir.join('clang')
-  sysroot_dir = cipd_dir.join('sysroot')
-
   extra_options = {
     'linux': [
-      '--cc=%s' % toolchain_dir.join('bin', 'clang'),
-      '--cxx=%s' % toolchain_dir.join('bin', 'clang++'),
-      '--extra-cflags="--sysroot=%s"' % sysroot_dir,
-      '--extra-cxxflags="--sysroot=%s"' % sysroot_dir,
-      '--extra-ldflags="-static-libstdc++ --sysroot=%s"' % sysroot_dir,
+      '--cc=%s' % cipd_dir.join('bin', 'clang'),
+      '--cxx=%s' % cipd_dir.join('bin', 'clang++'),
+      '--extra-cflags="--sysroot=%s"' % cipd_dir,
+      '--extra-cxxflags="--sysroot=%s"' % cipd_dir,
+      '--extra-ldflags="-static-libstdc++ --sysroot=%s"' % cipd_dir,
       '--disable-gtk',
       '--enable-sdl=internal',
       '--enable-kvm',
