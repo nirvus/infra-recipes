@@ -67,6 +67,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   qemu_dir = api.path['start_dir'].join('third_party', 'qemu')
   build_dir = api.path.mkdtemp('build')
 
+  env = {
+    'PKG_CONFIG_SYSROOT_DIR': cipd_dir,
+    'PKG_CONFIG_PATH': cipd_dir.join('usr', 'lib', 'x86_64-linux-gnu', 'pkgconfig'),
+  } if api.platform.name == 'linux' else {}
+
   extra_options = {
     'linux': [
       '--cc=%s' % cipd_dir.join('bin', 'clang'),
@@ -86,7 +91,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     ],
   }[api.platform.name]
 
-  with api.context(cwd=build_dir):
+  with api.context(cwd=build_dir, env=env):
     api.step('configure qemu', [
       qemu_dir.join('configure'),
       '--prefix=',

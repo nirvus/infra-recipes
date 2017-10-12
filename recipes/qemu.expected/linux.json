@@ -238,6 +238,10 @@
       "--enable-kvm"
     ],
     "cwd": "[TMP_BASE]/build_tmp_2",
+    "env": {
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd"
+    },
     "name": "configure qemu"
   },
   {
@@ -246,6 +250,10 @@
       "-j2"
     ],
     "cwd": "[TMP_BASE]/build_tmp_2",
+    "env": {
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd"
+    },
     "name": "build qemu"
   },
   {
@@ -255,7 +263,9 @@
     ],
     "cwd": "[TMP_BASE]/build_tmp_2",
     "env": {
-      "DESTDIR": "[TMP_BASE]/qemu_tmp_1/qemu"
+      "DESTDIR": "[TMP_BASE]/qemu_tmp_1/qemu",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd"
     },
     "name": "install qemu"
   },
