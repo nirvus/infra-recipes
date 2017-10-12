@@ -21,6 +21,7 @@
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
   * [cobalt](#recipes-cobalt) &mdash; Recipe for building and testing Cobalt.
+  * [dart](#recipes-dart) &mdash; Builds the Fuchsia Dart test image and runs the Dart tests.
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [git:examples/full](#recipes-git_examples_full)
   * [go:examples/full](#recipes-go_examples_full)
@@ -421,6 +422,21 @@ Recipe for building Clang toolchain.
 Recipe for building and testing Cobalt.
 
 &mdash; **def [RunSteps](/recipes/cobalt.py#28)(api, patch_gerrit_url, patch_ref, manifest, remote):**
+### *recipes* / [dart](/recipes/dart.py)
+
+[DEPS](/recipes/dart.py#11): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Builds the Fuchsia Dart test image and runs the Dart tests.
+
+&mdash; **def [BuildFuchsia](/recipes/dart.py#80)(api, build_type, target, gn_target, fuchsia_build_dir):**
+
+&mdash; **def [BuildZircon](/recipes/dart.py#54)(api, target, build_type):**
+
+&mdash; **def [Checkout](/recipes/dart.py#47)(api, manifest, remote):**
+
+&mdash; **def [RunSteps](/recipes/dart.py#180)(api, manifest, remote, target, build_type, goma_dir):**
+
+&mdash; **def [RunTests](/recipes/dart.py#109)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#16): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
