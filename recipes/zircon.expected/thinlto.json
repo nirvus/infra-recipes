@@ -44,8 +44,10 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
+      "-name",
       "zircon",
-      "https://fuchsia.googlesource.com/manifest"
+      "manifest",
+      "https://fuchsia.googlesource.com/zircon"
     ],
     "infra_step": true,
     "name": "jiri import"

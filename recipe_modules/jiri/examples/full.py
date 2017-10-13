@@ -27,7 +27,7 @@ def RunSteps(api):
 
   # Import the manifest.
   api.jiri.import_manifest('minimal', 'https://fuchsia.googlesource.com',
-                           overwrite=True)
+                           name='manifest', overwrite=True)
 
   # Download all projects.
   api.jiri.update(gc=True, snapshot='snapshot', local_manifest=True)

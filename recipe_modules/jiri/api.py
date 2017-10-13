@@ -96,8 +96,10 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def import_manifest(self, manifest, remote, overwrite=False, **kwargs):
+  def import_manifest(self, manifest, remote, name=None, overwrite=False, **kwargs):
     cmd = [ 'import' ]
+    if name:
+      cmd.extend(['-name', name])
     if overwrite:
       cmd.extend(['-overwrite=true'])
     cmd.extend([manifest, remote])
@@ -139,9 +141,9 @@ class JiriApi(recipe_api.RecipeApi):
     step = self(*cmd, step_test_data=lambda: self.test_api.source_manifest(test_data), **kwargs)
     return step.json.output
 
-  def checkout(self, manifest, remote, patch_ref=None, patch_gerrit_url=None):
+  def checkout(self, manifest, remote, patch_ref=None, patch_gerrit_url=None, project=None):
     self.init()
-    self.import_manifest(manifest, remote)
+    self.import_manifest(manifest, remote, project)
     self.update(run_hooks=False)
     if patch_ref:
       self.patch(patch_ref, host=patch_gerrit_url, rebase=True)

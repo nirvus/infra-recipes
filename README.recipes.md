@@ -317,27 +317,27 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#142)(self, manifest, remote, patch_ref=None, patch_gerrit_url=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#144)(self, manifest, remote, patch_ref=None, patch_gerrit_url=None, project=None):**
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#90)(self, all=False, \*\*kwargs):**
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#22)(self, version=None):**
 
-&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#99)(self, manifest, remote, overwrite=False, \*\*kwargs):**
+&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#99)(self, manifest, remote, name=None, overwrite=False, \*\*kwargs):**
 
 &mdash; **def [init](/recipe_modules/jiri/api.py#39)(self, dir=None, \*\*kwargs):**
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#35)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#107)(self, ref, host=None, delete=False, force=False, rebase=False, \*\*kwargs):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#109)(self, ref, host=None, delete=False, force=False, rebase=False, \*\*kwargs):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#50)(self, projects, test_data=None):**
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#84)(self, local_manifest=False):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#122)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#124)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#132)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#134)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#68)(self, gc=False, run_hooks=True, snapshot=None, local_manifest=False, \*\*kwargs):**
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
@@ -563,9 +563,9 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#111)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target, toolchain, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#112)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#70)(api, name, build_dir, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/zircon.py#71)(api, name, build_dir, \*args, \*\*kwargs):**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/4d872b88fb06006ec917c6d2a3324e26c0124319/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/4d872b88fb06006ec917c6d2a3324e26c0124319/README.recipes.md#recipe_modules-file

@@ -58,6 +58,7 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
+  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
@@ -109,12 +110,12 @@ def RunTests(api, name, build_dir, *args, **kwargs):
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, manifest, remote, target,
-             toolchain, run_tests):
+             patch_storage, patch_repository_url, project, manifest, remote,
+             target, toolchain, run_tests):
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url, project)
     revision = api.jiri.project(['zircon']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
@@ -176,29 +177,33 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
 def GenTests(api):
   yield (api.test('ci') +
-     api.properties(manifest='zircon',
-                    remote='https://fuchsia.googlesource.com/manifest',
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
                     target='zircon-pc-x86-64',
                     toolchain='gcc') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('asan') +
-     api.properties(manifest='zircon',
-                    remote='https://fuchsia.googlesource.com/manifest',
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
                     target='zircon-pc-x86-64',
                     toolchain='asan') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('lto') +
-     api.properties(manifest='zircon',
-                    remote='https://fuchsia.googlesource.com/manifest',
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
                     target='zircon-pc-x86-64',
                     toolchain='lto') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('thinlto') +
-     api.properties(manifest='zircon',
-                    remote='https://fuchsia.googlesource.com/manifest',
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
                     target='zircon-pc-x86-64',
                     toolchain='thinlto') +
      api.step_data('run booted tests',
@@ -207,45 +212,52 @@ def GenTests(api):
      api.properties.tryserver(
          gerrit_project='zircon',
          patch_gerrit_url='fuchsia-review.googlesource.com',
-         manifest='zircon',
-         remote='https://fuchsia.googlesource.com/manifest',
+         project='zircon',
+         manifest='manifest',
+         remote='https://fuchsia.googlesource.com/zircon',
          target='zircon-pc-x86-64',
          toolchain='clang'))
   yield (api.test('no_run_tests') +
      api.properties.tryserver(
-         manifest='zircon',
-         remote='https://fuchsia.googlesource.com/manifest',
+         project='zircon',
+         manifest='manifest',
+         remote='https://fuchsia.googlesource.com/zircon',
          target='zircon-pc-x86-64',
          toolchain='clang',
          run_tests=False))
   yield (api.test('build_rpi') +
      api.properties.tryserver(
-         manifest='zircon',
-         remote='https://fuchsia.googlesource.com/manifest',
+         project='zircon',
+         manifest='manifest',
+         remote='https://fuchsia.googlesource.com/zircon',
          target='zircon-rpi3-arm64',
          toolchain='clang',
          run_tests=False))
   yield (api.test('failed_qemu') +
-      api.properties(manifest='zircon',
-                    remote='https://fuchsia.googlesource.com/manifest',
-                    target='zircon-pc-x86-64',
-                    toolchain='gcc') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='zircon-pc-x86-64',
+                     toolchain='gcc') +
       api.step_data('run booted tests', retcode=1))
   yield (api.test('qemu_timeout') +
-      api.properties(manifest='zircon',
-                    remote='https://fuchsia.googlesource.com/manifest',
-                    target='zircon-pc-x86-64',
-                    toolchain='gcc') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='zircon-pc-x86-64',
+                     toolchain='gcc') +
       api.step_data('run booted tests', retcode=2))
   yield (api.test('test_ouput') +
-      api.properties(manifest='zircon',
-                     remote='https://fuchsia.googlesource.com/manifest',
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
                      target='zircon-pc-x86-64',
                      toolchain='gcc') +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
   yield (api.test('symbolized_output') +
-      api.properties(manifest='zircon',
-                     remote='https://fuchsia.googlesource.com/manifest',
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
                      target='zircon-pc-x86-64',
                      toolchain='gcc') +
       api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n')))
