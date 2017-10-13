@@ -48,6 +48,7 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
+  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
@@ -67,9 +68,10 @@ PROPERTIES = {
 }
 
 
-def Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote):
+def Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
+             remote):
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url, project)
     if manifest in ['garnet', 'peridot']:
       revision = api.jiri.project([manifest]).json.output[0]['revision']
       api.step.active_result.presentation.properties['got_revision'] = revision
@@ -318,8 +320,9 @@ def UploadArchive(api, target, zircon_build_dir, fuchsia_build_dir):
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, manifest, remote, target,
-             build_type, modules, tests, use_autorun, goma_dir, gn_args):
+             patch_storage, patch_repository_url, project, manifest, remote,
+             target, build_type, modules, tests, use_autorun, goma_dir,
+             gn_args):
   # Tests are too slow on arm64.
   if target == 'arm64':
     tests = None
@@ -347,7 +350,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if tests:
     api.qemu.ensure_qemu()
 
-  Checkout(api, patch_project, patch_ref, patch_gerrit_url, manifest, remote)
+  Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
+           remote)
 
   if use_autorun:
     BuildZircon(api, target, tests)
@@ -441,8 +445,9 @@ def GenTests(api):
       target='x86-64',
   )
   yield api.test('garnet') + api.properties(
-      manifest='garnet',
-      remote='https://fuchsia.googlesource.com/manifest',
+      project='garnet',
+      manifest='manifest/garnet',
+      remote='https://fuchsia.googlesource.com/garnet',
       target='x86-64',
   )
   yield api.test('peridot') + api.properties(

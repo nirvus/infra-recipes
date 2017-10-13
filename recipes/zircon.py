@@ -118,6 +118,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url, project)
     revision = api.jiri.project(['zircon']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
+    if patch_ref:
+      api.jiri.update(gc=True, local_manifest=True)
 
   tmp_dir = api.path['tmp_base'].join('zircon_tmp')
   api.file.ensure_directory('makedirs tmp', tmp_dir)
