@@ -125,7 +125,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
       gen_cmd = [
         api.path['start_dir'].join('packages', 'gn', 'gen.py'),
         '--target_cpu=%s' % gn_target,
-        '--modules=%s' % ','.join(modules),
+        '--packages=%s' % ','.join(modules),
         '--with-dart-analysis',
       ]
 

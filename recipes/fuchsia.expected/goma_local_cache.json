@@ -229,7 +229,7 @@
     "cmd": [
       "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=x86-64",
-      "--modules=packages/gn/default",
+      "--packages=packages/gn/default",
       "--with-dart-analysis",
       "--goma=[START_DIR]/cipd/goma"
     ],
