@@ -39,6 +39,8 @@ class JiriApi(recipe_api.RecipeApi):
   def init(self, dir=None, **kwargs):
     cmd = [
       'init',
+      '-analytics-opt=false',
+      '-rewrite-sso-to-https=true',
       '-cache', self.m.path['cache'].join('git'),
       '-shared',
     ]

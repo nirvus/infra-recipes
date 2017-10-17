@@ -125,6 +125,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
       "-cache",
       "[CACHE]/git",
       "-shared"
