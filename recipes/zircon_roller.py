@@ -45,10 +45,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url, project)
 
-    project_dir = api.path['start_dir'].join(project)
+    project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):
       api.jiri.edit_manifest(manifest, imports=[('zircon', revision)])
-      api.git.commit(COMMIT_MESSAGE, manifest)
+      api.git.commit(COMMIT_MESSAGE, api.path.join(*manifest.split('/')))
       api.git.push('HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2,' +
                    'cc=fuchsia-build-notify@google.com')
 

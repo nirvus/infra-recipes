@@ -174,7 +174,7 @@ Return a git command step.
 
 Checkout a given ref and return the checked out revision.
 
-&mdash; **def [commit](/recipe_modules/git/api.py#68)(self, message, \*files):**
+&mdash; **def [commit](/recipe_modules/git/api.py#68)(self, message, \*files, \*\*kwargs):**
 
 &mdash; **def [get\_hash](/recipe_modules/git/api.py#82)(self, commit='HEAD', \*\*kwargs):**
 
@@ -184,7 +184,7 @@ Find and return the hash of the given commit.
 
 Find and return the timestamp of the given commit.
 
-&mdash; **def [push](/recipe_modules/git/api.py#71)(self, ref, remote='origin'):**
+&mdash; **def [push](/recipe_modules/git/api.py#71)(self, ref, remote='origin', \*\*kwargs):**
 
 &mdash; **def [rebase](/recipe_modules/git/api.py#74)(self, branch='master', remote='origin', \*\*kwargs):**
 
