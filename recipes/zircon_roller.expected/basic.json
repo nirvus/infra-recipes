@@ -123,7 +123,7 @@
       "git",
       "push",
       "origin",
-      "HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2,cc=fuchsia-build-notify@google.com"
+      "HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2"
     ],
     "cwd": "[START_DIR]/garnet",
     "infra_step": true,
