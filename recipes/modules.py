@@ -46,6 +46,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   ctx = {
     'cwd': api.path['start_dir'].join(project_path),
     'env': {
+      'fuchsia_root': api.path['start_dir'],
       'GOMA': 1, 'MINIMAL': 1, 'NO_ENSURE_GOMA': 1,
       'GOMA_DIR': api.goma.goma_dir,
       'PUB_CACHE': api.path['cache'].join('pub')

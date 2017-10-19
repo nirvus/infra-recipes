@@ -164,7 +164,8 @@
       "GOMA_DIR": "[START_DIR]/cipd/goma",
       "MINIMAL": "1",
       "NO_ENSURE_GOMA": "1",
-      "PUB_CACHE": "[CACHE]/pub"
+      "PUB_CACHE": "[CACHE]/pub",
+      "fuchsia_root": "[START_DIR]"
     },
     "name": "build and run presubmit tests"
   },
