@@ -198,7 +198,6 @@
       "[START_DIR]/packages/gn/gen.py",
       "--target_cpu=x86-64",
       "--packages=packages/gn/default",
-      "--with-dart-analysis",
       "--goma=/path/to/goma"
     ],
     "name": "build fuchsia.gen",

@@ -128,7 +128,6 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
         api.path['start_dir'].join('packages', 'gn', 'gen.py'),
         '--target_cpu=%s' % gn_target,
         '--packages=%s' % ','.join(modules),
-        '--with-dart-analysis',
       ]
 
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
