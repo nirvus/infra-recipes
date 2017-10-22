@@ -88,35 +88,31 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
           unauthenticated_url=True)
 
 
-def BuildZircon(api, target, tests):
-  if tests:
-    autorun = [
-      'msleep 500',
-      tests,
-      'echo "%s"' % TEST_SHUTDOWN,
-    ]
-    autorun_path = api.path['tmp_base'].join('autorun')
-    api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
-    api.step.active_result.presentation.logs['autorun.sh'] = autorun
-    build_env = {'USER_AUTORUN': autorun_path}
-  else:
-    build_env = {}
-
+def BuildZircon(api, target):
   zircon_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
   build_zircon_cmd = [
     api.path['start_dir'].join('scripts', 'build-zircon.sh'),
     '-c',
     '-t', zircon_target,
   ]
-
-  with api.context(env=build_env):
-    api.step('build zircon', build_zircon_cmd)
+  api.step('build zircon', build_zircon_cmd)
 
 
 def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
                  modules, tests, use_autorun, gn_args):
-  if tests and not use_autorun:
-    modules.append('packages/gn/boot_test_runner')
+  autorun_path = None
+  if tests:
+    if use_autorun:
+      autorun = [
+        'msleep 500',
+        tests,
+        'echo "%s"' % TEST_SHUTDOWN,
+      ]
+      autorun_path = api.path['tmp_base'].join('autorun')
+      api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
+      api.step.active_result.presentation.logs['autorun.sh'] = autorun
+    else:
+      modules.append('packages/gn/boot_test_runner')
 
   goma_env = {}
   if api.properties.get('goma_local_cache', False):
@@ -129,6 +125,9 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
         '--target_cpu=%s' % gn_target,
         '--packages=%s' % ','.join(modules),
       ]
+
+      if autorun_path:
+        gen_cmd.append('--autorun=%s' % autorun_path)
 
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
 
@@ -352,11 +351,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
            remote)
 
-  if use_autorun:
-    BuildZircon(api, target, tests)
-  else:
-    BuildZircon(api, target, None)
-
+  BuildZircon(api, target)
   BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
                modules, tests, use_autorun, gn_args)
 
