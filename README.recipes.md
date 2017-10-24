@@ -323,31 +323,31 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#164)(self, manifest, remote, patch_ref=None, patch_gerrit_url=None, project=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#167)(self, manifest, remote, patch_ref=None, patch_gerrit_url=None, project=None):**
 
-&mdash; **def [clean](/recipe_modules/jiri/api.py#92)(self, all=False, \*\*kwargs):**
+&mdash; **def [clean](/recipe_modules/jiri/api.py#95)(self, all=False, \*\*kwargs):**
 
-&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#111)(self, manifest, projects=None, imports=None, \*\*kwargs):**
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#114)(self, manifest, projects=None, imports=None, \*\*kwargs):**
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#22)(self, version=None):**
 
-&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#101)(self, manifest, remote, name=None, overwrite=False, \*\*kwargs):**
+&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#104)(self, manifest, remote, name=None, overwrite=False, \*\*kwargs):**
 
 &mdash; **def [init](/recipe_modules/jiri/api.py#39)(self, dir=None, \*\*kwargs):**
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#35)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#129)(self, ref, host=None, delete=False, force=False, rebase=False, \*\*kwargs):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#132)(self, ref, host=None, delete=False, force=False, rebase=False, \*\*kwargs):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#52)(self, projects, test_data=None):**
 
-&mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#86)(self, local_manifest=False):**
+&mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#89)(self, local_manifest=False):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#144)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#147)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#154)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#157)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [update](/recipe_modules/jiri/api.py#70)(self, gc=False, run_hooks=True, snapshot=None, local_manifest=False, \*\*kwargs):**
+&mdash; **def [update](/recipe_modules/jiri/api.py#70)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, \*\*kwargs):**
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
 
 [DEPS](/recipe_modules/qemu/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

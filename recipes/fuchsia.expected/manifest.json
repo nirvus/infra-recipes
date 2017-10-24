@@ -172,6 +172,7 @@
       "update",
       "-autoupdate=false",
       "-gc=true",
+      "-rebase-tracked",
       "-local-manifest=true"
     ],
     "infra_step": true,

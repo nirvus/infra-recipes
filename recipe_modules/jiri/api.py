@@ -67,13 +67,16 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, step_test_data=lambda: self.test_api.project(test_data))
 
-  def update(self, gc=False, run_hooks=True, snapshot=None, local_manifest=False, **kwargs):
+  def update(self, gc=False, rebase_tracked=False, local_manifest=False,
+             run_hooks=True, snapshot=None, **kwargs):
     cmd = [
       'update',
       '-autoupdate=false',
     ]
     if gc:
       cmd.append('-gc=true')
+    if rebase_tracked:
+      cmd.append('-rebase-tracked')
     if local_manifest:
       cmd.append('-local-manifest=true')
     if not run_hooks:

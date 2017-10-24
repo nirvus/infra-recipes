@@ -155,6 +155,7 @@
       "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-autoupdate=false",
+      "-rebase-tracked",
       "-run-hooks=false"
     ],
     "name": "jiri update (3)"

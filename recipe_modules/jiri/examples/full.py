@@ -40,7 +40,7 @@ def RunSteps(api):
   )
 
   # Run hooks separately.
-  api.jiri.update(run_hooks=False)
+  api.jiri.update(rebase_tracked=True, run_hooks=False)
   api.jiri.run_hooks(local_manifest=True)
 
   # Take a snapshot.
