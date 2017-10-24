@@ -51,7 +51,18 @@ def Checkout(api, manifest, remote):
     api.jiri.snapshot(snapshot_file)
 
 
-def BuildZircon(api, target, build_type):
+def BuildZircon(api, target):
+  zircon_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
+  build_zircon_cmd = [
+    api.path['start_dir'].join('scripts', 'build-zircon.sh'),
+    '-c',
+    '-t', zircon_target,
+  ]
+
+  api.step('build zircon', build_zircon_cmd)
+
+
+def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
   autorun = [
     'msleep 500',
     'cd /system/test/dart',
@@ -64,20 +75,7 @@ def BuildZircon(api, target, build_type):
   autorun_path = api.path['tmp_base'].join('autorun')
   api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
   api.step.active_result.presentation.logs['autorun.sh'] = autorun
-  build_env = {'USER_AUTORUN': autorun_path}
 
-  zircon_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
-  build_zircon_cmd = [
-    api.path['start_dir'].join('scripts', 'build-zircon.sh'),
-    '-c',
-    '-t', zircon_target,
-  ]
-
-  with api.context(env=build_env):
-    api.step('build zircon', build_zircon_cmd)
-
-
-def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
   goma_env = {}
   if api.properties.get('goma_local_cache', False):
     goma_env['GOMA_LOCAL_OUTPUT_CACHE_DIR'] = api.path['cache'].join('goma', 'localoutputcache')
@@ -93,6 +91,11 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
 
       if build_type == 'release':
         gen_cmd.append('--release')
+
+      gen_cmd.append(
+          '--args=extra_bootdata = [ "//third_party/dart:dart_test_bootfs" ]')
+
+      gen_cmd.append('--autorun=%s' % autorun_path)
 
       api.step('gen', gen_cmd)
 
@@ -198,7 +201,7 @@ def RunSteps(api, manifest, remote, target, build_type, goma_dir):
   api.goma.ensure_goma()
 
   Checkout(api, manifest, remote)
-  BuildZircon(api, target, build_type)
+  BuildZircon(api, target)
   BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir)
   RunTests(api, target, fuchsia_build_dir)
 

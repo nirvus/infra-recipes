@@ -163,6 +163,15 @@
   },
   {
     "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-c",
+      "-t",
+      "x86_64"
+    ],
+    "name": "build zircon"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -181,18 +190,6 @@
       "@@@STEP_LOG_LINE@autorun.sh@echo \"ready for fuchsia shutdown\"@@@",
       "@@@STEP_LOG_END@autorun.sh@@@"
     ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-c",
-      "-t",
-      "x86_64"
-    ],
-    "env": {
-      "USER_AUTORUN": "[TMP_BASE]/autorun"
-    },
-    "name": "build zircon"
   },
   {
     "cmd": [],
@@ -220,7 +217,9 @@
       "[START_DIR]/packages/gn/gen.py",
       "--target_cpu",
       "x86-64",
-      "--goma=/goma"
+      "--goma=/goma",
+      "--args=extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]",
+      "--autorun=[TMP_BASE]/autorun"
     ],
     "name": "build fuchsia.gen",
     "~followup_annotations": [
