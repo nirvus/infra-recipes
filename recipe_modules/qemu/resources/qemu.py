@@ -129,7 +129,7 @@ def main():
     cmd.extend(['-netdev', args.netdev])
   for device in args.device:
     cmd.extend(['-device', device])
-  cmdline = 'TERM=dumb kernel.halt_on_panic=true'
+  cmdline = 'TERM=dumb kernel.halt-on-panic=true'
   if args.cmdline:
     cmdline += ' ' + args.cmdline
   cmd.extend(['-append', cmdline])
