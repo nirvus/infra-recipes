@@ -103,7 +103,6 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
         api.path['start_dir'].join('buildtools', 'ninja'),
         '-C', fuchsia_build_dir,
         '-j', api.goma.recommended_goma_jobs,
-        'generate_dart_test_image',
       ]
 
       api.step('ninja', ninja_cmd)
@@ -123,7 +122,7 @@ def RunTests(api, target, fuchsia_build_dir):
   zircon_image_path = api.path['start_dir'].join(
     'out', 'build-zircon', zircon_build_dir, zircon_image_name)
 
-  bootfs_path = fuchsia_build_dir.join('dart_test_tree.bin')
+  bootfs_path = fuchsia_build_dir.join('user.bootfs')
 
   qemu_arch = {
     'arm64': 'aarch64',

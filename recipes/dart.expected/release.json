@@ -294,8 +294,7 @@
       "-C",
       "[START_DIR]/out/release-x86-64",
       "-j",
-      "50",
-      "generate_dart_test_image"
+      "50"
     ],
     "name": "build fuchsia.ninja",
     "~followup_annotations": [
@@ -367,7 +366,7 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/out/release-x86-64/dart_test_tree.bin",
+      "[START_DIR]/out/release-x86-64/user.bootfs",
       "--shutdown_pattern",
       "ready for fuchsia shutdown",
       "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64/zircon.bin"
