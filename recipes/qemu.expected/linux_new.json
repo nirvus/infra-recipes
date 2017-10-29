@@ -160,7 +160,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/clang/${platform} latest\nfuchsia/sysroot/${platform} latest",
+      "fuchsia/clang/${platform} latest\nfuchsia/sysroot/${platform} latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
@@ -179,6 +179,14 @@
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.9.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -199,6 +207,67 @@
     ],
     "infra_step": true,
     "name": "create pkg dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/qemu_tmp_1/sdl_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create sdl build dir"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bin/cmake",
+      "-GNinja",
+      "-DCMAKE_C_COMPILER=[START_DIR]/cipd/bin/clang",
+      "-DCMAKE_CXX_COMPILER=[START_DIR]/cipd/bin/clang++",
+      "-DCMAKE_ASM_COMPILER=[START_DIR]/cipd/bin/clang",
+      "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
+      "-DCMAKE_SYSROOT=[START_DIR]/cipd",
+      "-DCMAKE_INSTALL_PREFIX=[TMP_BASE]/qemu_tmp_1/sdl_install_dir",
+      "-DSDL_SHARED=OFF",
+      "[START_DIR]/third_party/qemu/sdl"
+    ],
+    "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
+    "name": "configure sdl"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja"
+    ],
+    "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
+    "name": "build sdl"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja",
+      "install"
+    ],
+    "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
+    "name": "install sdl"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/qemu_tmp_1/qemu_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create qemu build dir"
   },
   {
     "cmd": [
@@ -236,13 +305,14 @@
       "--extra-cxxflags=--sysroot=[START_DIR]/cipd",
       "--extra-ldflags=--sysroot=[START_DIR]/cipd -static-libstdc++ -Qunused-arguments",
       "--disable-gtk",
-      "--enable-sdl=internal",
+      "--enable-sdl=yes",
       "--enable-kvm"
     ],
-    "cwd": "[TMP_BASE]/build_tmp_2",
+    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "env": {
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
-      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd"
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd",
+      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config"
     },
     "name": "configure qemu"
   },
@@ -251,10 +321,11 @@
       "make",
       "-j2"
     ],
-    "cwd": "[TMP_BASE]/build_tmp_2",
+    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "env": {
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
-      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd"
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd",
+      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config"
     },
     "name": "build qemu"
   },
@@ -263,17 +334,18 @@
       "make",
       "install"
     ],
-    "cwd": "[TMP_BASE]/build_tmp_2",
+    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "env": {
       "DESTDIR": "[TMP_BASE]/qemu_tmp_1/qemu",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
-      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd"
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd",
+      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config"
     },
     "name": "install qemu"
   },
   {
     "cmd": [
-      "[TMP_BASE]/build_tmp_2/x86_64-softmmu/qemu-system-x86_64",
+      "[TMP_BASE]/qemu_tmp_1/qemu_build_dir/x86_64-softmmu/qemu-system-x86_64",
       "--version"
     ],
     "name": "qemu version",

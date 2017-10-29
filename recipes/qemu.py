@@ -54,23 +54,60 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
+      packages = {
+        'fuchsia/clang/${platform}': 'latest',
+      }
       if api.platform.name == 'linux':
-        api.cipd.ensure(cipd_dir, {
-          'fuchsia/clang/${platform}': 'latest',
+        packages.update({
           'fuchsia/sysroot/${platform}': 'latest',
+          'infra/cmake/${platform}': 'version:3.9.2',
+          'infra/ninja/${platform}': 'version:1.8.2',
         })
+      api.cipd.ensure(cipd_dir, packages)
 
   staging_dir = api.path.mkdtemp('qemu')
   pkg_dir = staging_dir.join('qemu')
   api.file.ensure_directory('create pkg dir', pkg_dir)
 
-  qemu_dir = api.path['start_dir'].join('third_party', 'qemu')
-  build_dir = api.path.mkdtemp('build')
+  # build SDL2
 
-  env = {
-    'PKG_CONFIG_SYSROOT_DIR': cipd_dir,
-    'PKG_CONFIG_PATH': cipd_dir.join('usr', 'lib', 'x86_64-linux-gnu', 'pkgconfig'),
-  } if api.platform.name == 'linux' else {}
+  if api.platform.name == 'linux':
+    sdl_dir = api.path['start_dir'].join('third_party', 'qemu', 'sdl')
+
+    build_dir = staging_dir.join('sdl_build_dir')
+    api.file.ensure_directory('create sdl build dir', build_dir)
+
+    install_dir = staging_dir.join('sdl_install_dir')
+
+    with api.context(cwd=build_dir):
+      api.step('configure sdl', [
+        cipd_dir.join('bin', 'cmake'),
+        '-GNinja',
+        '-DCMAKE_C_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
+        '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
+        '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
+        '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
+        '-DCMAKE_SYSROOT=%s' % cipd_dir,
+        '-DCMAKE_INSTALL_PREFIX=%s' % install_dir,
+        '-DSDL_SHARED=OFF',
+        sdl_dir,
+      ])
+      api.step('build sdl', [cipd_dir.join('ninja')])
+      api.step('install sdl', [cipd_dir.join('ninja'), 'install'])
+
+    env = {
+      'PKG_CONFIG_SYSROOT_DIR': cipd_dir,
+      'PKG_CONFIG_PATH': cipd_dir.join('usr', 'lib', 'x86_64-linux-gnu', 'pkgconfig'),
+      'SDL2_CONFIG': install_dir.join('bin', 'sdl2-config'),
+    }
+  else:
+    env = {}
+
+  # build QEMU
+
+  qemu_dir = api.path['start_dir'].join('third_party', 'qemu')
+  build_dir = staging_dir.join('qemu_build_dir')
+  api.file.ensure_directory('create qemu build dir', build_dir)
 
   extra_options = {
     'linux': [
@@ -83,7 +120,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       # -static-libstdc++ is unused when linking C code.
       '--extra-ldflags=--sysroot=%s -static-libstdc++ -Qunused-arguments' % cipd_dir,
       '--disable-gtk',
-      '--enable-sdl=internal',
+      '--enable-sdl=yes',
       '--enable-kvm',
     ],
     'mac': [

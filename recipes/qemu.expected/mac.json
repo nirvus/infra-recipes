@@ -155,6 +155,34 @@
   },
   {
     "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/clang/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-cipd-builder.json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -167,6 +195,21 @@
     ],
     "infra_step": true,
     "name": "create pkg dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/qemu_tmp_1/qemu_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create qemu build dir"
   },
   {
     "cmd": [
@@ -200,7 +243,7 @@
       "--disable-werror",
       "--enable-cocoa"
     ],
-    "cwd": "[TMP_BASE]/build_tmp_2",
+    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "name": "configure qemu"
   },
   {
@@ -208,7 +251,7 @@
       "make",
       "-j2"
     ],
-    "cwd": "[TMP_BASE]/build_tmp_2",
+    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "name": "build qemu"
   },
   {
@@ -216,7 +259,7 @@
       "make",
       "install"
     ],
-    "cwd": "[TMP_BASE]/build_tmp_2",
+    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "env": {
       "DESTDIR": "[TMP_BASE]/qemu_tmp_1/qemu"
     },
@@ -224,7 +267,7 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/build_tmp_2/x86_64-softmmu/qemu-system-x86_64",
+      "[TMP_BASE]/qemu_tmp_1/qemu_build_dir/x86_64-softmmu/qemu-system-x86_64",
       "--version"
     ],
     "name": "qemu version",
