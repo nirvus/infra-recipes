@@ -1,0 +1,137 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
+      "-cache",
+      "[CACHE]/git",
+      "-shared"
+    ],
+    "infra_step": true,
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "-name",
+      "garnet",
+      "manifest/minimal",
+      "https://fuchsia.googlesource.com/garnet"
+    ],
+    "infra_step": true,
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-autoupdate=false",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "run-hooks"
+    ],
+    "infra_step": true,
+    "name": "jiri run-hooks"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "source-manifest",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "jiri source-manifest",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
+      "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "edit",
+      "-import",
+      "zircon=fc4dc762688d2263b254208f444f5c0a4b91bc07",
+      "garnet"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "jiri edit"
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-m",
+      "Roll zircon to fc4dc76\n\nThis is an automated change created by the zircon roller.\n",
+      "manifest/minimal"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "git commit"
+  },
+  {
+    "cmd": [
+      "git",
+      "push",
+      "origin",
+      "HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "git push"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
