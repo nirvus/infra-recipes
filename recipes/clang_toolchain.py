@@ -63,6 +63,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       packages = {
+        'infra/clang/${platform}': 'latest',
         'infra/cmake/${platform}': 'version:3.9.2',
         'infra/ninja/${platform}': 'version:1.8.2',
         'infra/swig/${platform}': 'version:3.0.12',
@@ -132,15 +133,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   build_dir = staging_dir.join('llvm_build_dir')
   api.file.ensure_directory('create llvm build dir', build_dir)
 
-  platform = '%s-%s' % (
-      api.platform.name,
-      {
-          32: 'x86',
-          64: 'x64',
-      }[api.platform.bits],
-  )
-  toolchain_dir = api.path['start_dir'].join('buildtools', platform, 'clang')
-
   toolchain_file = staging_dir.join('Toolchain.cmake')
   if api.platform.name == 'linux':
     api.file.write_text('write Toolchain.cmake', toolchain_file,
@@ -158,9 +150,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.step('configure clang', [
       cipd_dir.join('bin', 'cmake'),
       '-GNinja',
-      '-DCMAKE_C_COMPILER=%s' % toolchain_dir.join('bin', 'clang'),
-      '-DCMAKE_CXX_COMPILER=%s' % toolchain_dir.join('bin', 'clang++'),
-      '-DCMAKE_ASM_COMPILER=%s' % toolchain_dir.join('bin', 'clang'),
+      '-DCMAKE_C_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
+      '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
+      '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
       '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
       '-DSWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
       '-DBOOTSTRAP_SWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
