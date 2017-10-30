@@ -226,6 +226,7 @@
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
       "-c",
+      "-H",
       "-t",
       "x86_64"
     ],

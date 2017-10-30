@@ -93,6 +93,7 @@ def BuildZircon(api, target):
   build_zircon_cmd = [
     api.path['start_dir'].join('scripts', 'build-zircon.sh'),
     '-c',
+    '-H',
     '-t', zircon_target,
   ]
   api.step('build zircon', build_zircon_cmd)
