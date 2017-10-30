@@ -63,13 +63,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       packages = {
-        'infra/clang/${platform}': 'latest',
         'infra/cmake/${platform}': 'version:3.9.2',
         'infra/ninja/${platform}': 'version:1.8.2',
         'infra/swig/${platform}': 'version:3.0.12',
+        'fuchsia/clang/${platform}': 'latest',
       }
       if api.platform.name == 'linux':
-        packages['fuchsia/sysroot/${platform}'] = 'latest'
+        packages.update({
+          'fuchsia/sysroot/${platform}': 'latest'
+        })
       api.cipd.ensure(cipd_dir, packages)
 
   staging_dir = api.path.mkdtemp('clang')
