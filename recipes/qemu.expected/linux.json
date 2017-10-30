@@ -233,6 +233,8 @@
       "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
       "-DCMAKE_SYSROOT=[START_DIR]/cipd",
       "-DCMAKE_INSTALL_PREFIX=[TMP_BASE]/qemu_tmp_1/sdl_install_dir",
+      "-DPKG_CONFIG_EXECUTABLE=",
+      "-DVIDEO_WAYLAND=OFF",
       "-DSDL_SHARED=OFF",
       "[START_DIR]/third_party/qemu/sdl"
     ],
@@ -305,7 +307,9 @@
       "--extra-cxxflags=--sysroot=[START_DIR]/cipd",
       "--extra-ldflags=--sysroot=[START_DIR]/cipd -static-libstdc++ -Qunused-arguments",
       "--disable-gtk",
-      "--enable-sdl=yes",
+      "--disable-opengl",
+      "--disable-x11",
+      "--enable-sdl",
       "--enable-kvm"
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
