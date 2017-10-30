@@ -92,6 +92,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         '-DPKG_CONFIG_EXECUTABLE=',
         '-DVIDEO_WAYLAND=OFF',
         '-DSDL_SHARED=OFF',
+        '-DSDL_STATIC_PIC=ON',
         sdl_dir,
       ])
       api.step('build sdl', [cipd_dir.join('ninja')])

@@ -236,6 +236,7 @@
       "-DPKG_CONFIG_EXECUTABLE=",
       "-DVIDEO_WAYLAND=OFF",
       "-DSDL_SHARED=OFF",
+      "-DSDL_STATIC_PIC=ON",
       "[START_DIR]/third_party/qemu/sdl"
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
