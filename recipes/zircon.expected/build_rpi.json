@@ -159,6 +159,7 @@
     "cmd": [
       "make",
       "-j2",
+      "HOST_USE_ASAN=true",
       "zircon-rpi3-arm64",
       "USE_CLANG=true"
     ],

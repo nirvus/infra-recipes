@@ -183,6 +183,7 @@
     "cmd": [
       "make",
       "-j2",
+      "HOST_USE_ASAN=true",
       "zircon-pc-x86-64",
       "USE_CLANG=true"
     ],

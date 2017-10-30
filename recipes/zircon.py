@@ -132,6 +132,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   build_args = [
     'make',
     '-j%s' % api.platform.cpu_count,
+    'HOST_USE_ASAN=true',
     target
   ] + tc_args
 
