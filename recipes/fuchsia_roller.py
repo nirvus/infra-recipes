@@ -38,7 +38,9 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, project=project)
+    api.jiri.init()
+    api.jiri.import_manifest(manifest, remote, project)
+    api.jiri.update(run_hooks=False)
 
     project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):
