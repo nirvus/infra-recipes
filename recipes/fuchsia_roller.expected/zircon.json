@@ -100,7 +100,7 @@
       "edit",
       "-import",
       "zircon=fc4dc762688d2263b254208f444f5c0a4b91bc07",
-      "garnet"
+      "manifest/garnet"
     ],
     "cwd": "[START_DIR]/garnet",
     "infra_step": true,

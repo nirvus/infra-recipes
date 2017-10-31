@@ -100,7 +100,7 @@
       "edit",
       "-import",
       "garnet=fc4dc762688d2263b254208f444f5c0a4b91bc07",
-      "peridot"
+      "manifest/peridot"
     ],
     "cwd": "[START_DIR]/peridot",
     "infra_step": true,
