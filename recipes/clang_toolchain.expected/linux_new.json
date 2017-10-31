@@ -423,14 +423,6 @@
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
-      "stage2-check-clang"
-    ],
-    "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
-    "name": "check clang"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/ninja",
       "stage2-install-distribution"
     ],
     "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
