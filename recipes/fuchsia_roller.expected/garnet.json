@@ -82,7 +82,7 @@
       "commit",
       "-m",
       "Roll garnet to fc4dc76\n\nThis is an automated change created by the garnet roller.\n",
-      "manifest/minimal"
+      "manifest/peridot"
     ],
     "cwd": "[START_DIR]/peridot",
     "infra_step": true,

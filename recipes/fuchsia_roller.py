@@ -46,7 +46,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
     with api.context(cwd=project_dir):
       api.jiri.edit_manifest(import_in, imports=[(import_from, revision)])
       api.git.commit(COMMIT_MESSAGE.format(import_from, revision[:7]),
-                     api.path.join(*manifest.split('/')))
+                     api.path.join(*import_in.split('/')))
       api.git.push('HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2')
 
 

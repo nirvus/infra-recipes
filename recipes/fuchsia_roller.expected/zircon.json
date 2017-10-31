@@ -82,7 +82,7 @@
       "commit",
       "-m",
       "Roll zircon to fc4dc76\n\nThis is an automated change created by the zircon roller.\n",
-      "manifest/minimal"
+      "manifest/garnet"
     ],
     "cwd": "[START_DIR]/garnet",
     "infra_step": true,

@@ -82,7 +82,7 @@
       "commit",
       "-m",
       "Roll peridot to fc4dc76\n\nThis is an automated change created by the peridot roller.\n",
-      "minimal"
+      "topaz"
     ],
     "cwd": "[START_DIR]/manifest",
     "infra_step": true,
