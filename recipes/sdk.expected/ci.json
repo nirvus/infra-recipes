@@ -138,8 +138,10 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
+      "-name",
       "garnet",
-      "https://fuchsia.googlesource.com/manifest"
+      "manifest/garnet",
+      "https://fuchsia.googlesource.com/garnet"
     ],
     "infra_step": true,
     "name": "jiri import"

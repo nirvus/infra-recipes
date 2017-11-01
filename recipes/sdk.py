@@ -43,6 +43,9 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
+  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
+  'manifest': Property(kind=str, help='Jiri manifest to use'),
+  'remote': Property(kind=str, help='Remote manifest repository'),
   'use_goma': Property(kind=bool, help='Whether to use goma to compile',
                        default=True),
   'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
@@ -158,7 +161,8 @@ def UploadPackage(api, outdir, digest):
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, use_goma, gn_args):
+             patch_storage, patch_repository_url, project, manifest, remote,
+             use_goma, gn_args):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
@@ -169,7 +173,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.cipd.default_bot_service_account_credentials)
 
   with api.context(infra_steps=True):
-    api.jiri.checkout('garnet', 'https://fuchsia.googlesource.com/manifest')
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url, project)
 
   modules = ['packages/gn/sdk']
   build_type = 'release'
@@ -197,10 +201,20 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
 def GenTests(api):
   yield (api.test('ci') +
-         api.properties(gn_args=['test']))
+      api.properties(project='garnet',
+          manifest='manifest/garnet',
+          remote='https://fuchsia.googlesource.com/garnet',
+          gn_args=['test']))
   yield (api.test('cq_try') +
-         api.properties.tryserver(
-         gerrit_project='zircon',
-         patch_gerrit_url='fuchsia-review.googlesource.com'))
+      api.properties.tryserver(
+          project='garnet',
+          manifest='manifest/garnet',
+          remote='https://fuchsia.googlesource.com/garnet',
+          gerrit_project='zircon',
+          patch_gerrit_url='fuchsia-review.googlesource.com'))
   yield (api.test('no_goma') +
-         api.properties(use_goma=False))
+      api.properties(
+          project='garnet',
+          manifest='manifest/garnet',
+          remote='https://fuchsia.googlesource.com/garnet',
+          use_goma=False))

@@ -549,21 +549,21 @@ Recipe for building Rust toolchain.
 
 Recipe for building Fuchsia SDKs.
 
-&mdash; **def [BuildFuchsia](/recipes/sdk.py#70)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/sdk.py#73)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/sdk.py#53)(api, target):**
+&mdash; **def [BuildZircon](/recipes/sdk.py#56)(api, target):**
 
-&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#61)(api, use_goma):**
+&emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#64)(api, use_goma):**
 
-&mdash; **def [MakeSdk](/recipes/sdk.py#105)(api, outdir, sdk):**
+&mdash; **def [MakeSdk](/recipes/sdk.py#108)(api, outdir, sdk):**
 
-&mdash; **def [PackageArchive](/recipes/sdk.py#113)(api, sdk):**
+&mdash; **def [PackageArchive](/recipes/sdk.py#116)(api, sdk):**
 
-&mdash; **def [RunSteps](/recipes/sdk.py#160)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, use_goma, gn_args):**
+&mdash; **def [RunSteps](/recipes/sdk.py#163)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, use_goma, gn_args):**
 
-&mdash; **def [UploadArchive](/recipes/sdk.py#118)(api, sdk, digest):**
+&mdash; **def [UploadArchive](/recipes/sdk.py#121)(api, sdk, digest):**
 
-&mdash; **def [UploadPackage](/recipes/sdk.py#134)(api, outdir, digest):**
+&mdash; **def [UploadPackage](/recipes/sdk.py#137)(api, outdir, digest):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)
