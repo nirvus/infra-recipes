@@ -37,7 +37,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout('userspace', remote, patch_ref, patch_gerrit_url)
+    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
 
   # The make script defaults to a debug build unless specified otherwise. It
   # also always hardcodes x86-64 as the target architecture. Since this is
@@ -61,13 +61,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 def GenTests(api):
   yield api.test('basic') + api.properties(
       patch_project='modules/common',
-      manifest='userspace',
+      manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
   )
   yield api.test('cq') + api.properties.tryserver(
       gerrit_project='modules/common',
       patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='userspace',
+      manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       project_path='apps/modules/common',
   )

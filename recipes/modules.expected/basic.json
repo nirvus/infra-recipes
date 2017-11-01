@@ -80,7 +80,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "userspace",
+      "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "infra_step": true,
