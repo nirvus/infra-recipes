@@ -43,7 +43,6 @@
   * [third_party_rust_crates](#recipes-third_party_rust_crates) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [web_view](#recipes-web_view) &mdash; Recipe for building WebView.
   * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
-  * [zircon_roller](#recipes-zircon_roller) &mdash; Recipe for rolling Zircon into other projects.
 ## Recipe Modules
 
 ### *recipe_modules* / [authutil](/recipe_modules/authutil)
@@ -450,13 +449,11 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [Checkout](/recipes/fuchsia.py#71)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#321)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#301)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, goma_dir, gn_args):**
 
 &mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#227)(api, target, fuchsia_build_dir):**
 
 &mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#161)(api, target, fuchsia_build_dir, tests):**
-
-&mdash; **def [UploadArchive](/recipes/fuchsia.py#301)(api, target, zircon_build_dir, fuchsia_build_dir):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -597,13 +594,6 @@ Recipe for building Zircon.
 &mdash; **def [RunSteps](/recipes/zircon.py#112)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
 
 &mdash; **def [RunTests](/recipes/zircon.py#71)(api, name, build_dir, \*args, \*\*kwargs):**
-### *recipes* / [zircon\_roller](/recipes/zircon_roller.py)
-
-[DEPS](/recipes/zircon_roller.py#10): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
-
-Recipe for rolling Zircon into other projects.
-
-&mdash; **def [RunSteps](/recipes/zircon_roller.py#41)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/4d872b88fb06006ec917c6d2a3324e26c0124319/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/4d872b88fb06006ec917c6d2a3324e26c0124319/README.recipes.md#recipe_modules-file

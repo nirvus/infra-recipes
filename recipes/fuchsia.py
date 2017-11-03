@@ -298,26 +298,6 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
     raise api.step.StepFailure(failure_reason)
 
 
-def UploadArchive(api, target, zircon_build_dir, fuchsia_build_dir):
-  api.tar.ensure_tar()
-
-  package = api.tar.create(api.path['tmp_base'].join('fuchsia.tar.gz'), 'gzip')
-  package.add(fuchsia_build_dir.join('user.bootfs'), fuchsia_build_dir)
-  package.add(zircon_build_dir.join('bootdata.bin'), zircon_build_dir)
-  package.add(zircon_build_dir.join('zircon.elf'), zircon_build_dir)
-  if target == 'x86-64':
-    package.add(zircon_build_dir.join('zircon.bin'), zircon_build_dir)
-    package.add(zircon_build_dir.join('bootloader', 'bootx64.efi'), zircon_build_dir)
-  package.add(zircon_build_dir.join('tools', 'bootserver'), zircon_build_dir)
-  package.add(zircon_build_dir.join('tools', 'netaddr'), zircon_build_dir)
-  package.tar('tar fuchsia')
-  digest = api.hash.sha1('hash archive', package.archive,
-                         test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
-  api.gsutil.upload('fuchsia-archive', package.archive, digest,
-      link_name='fuchsia.tar.gz',
-      name='upload fuchsia.tar.gz')
-
-
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, build_type, modules, tests, use_autorun, goma_dir,
@@ -361,9 +341,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       RunTestsWithAutorun(api, target, fuchsia_build_dir)
     else:
       RunTestsWithTCP(api, target, fuchsia_build_dir, tests)
-
-  if not api.properties.get('tryjob', False):
-    UploadArchive(api, target, zircon_build_dir, fuchsia_build_dir)
 
 
 def GenTests(api):
