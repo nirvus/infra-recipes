@@ -88,13 +88,12 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
           unauthenticated_url=True)
 
 
-def BuildZircon(api, target):
-  zircon_target = {'arm64': 'aarch64', 'x86-64': 'x86_64'}[target]
+def BuildZircon(api, zircon_project):
   build_zircon_cmd = [
     api.path['start_dir'].join('scripts', 'build-zircon.sh'),
     '-c',
     '-H',
-    '-t', zircon_target,
+    '-p', zircon_project,
   ]
   api.step('build zircon', build_zircon_cmd)
 
@@ -314,11 +313,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     build_dir = 'debug'
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_dir, gn_target))
 
-  zircon_target = {
+  zircon_project = {
     'arm64': 'zircon-qemu-arm64',
     'x86-64': 'zircon-pc-x86-64'
   }[target]
-  zircon_build_dir = fuchsia_out_dir.join('build-zircon', 'build-%s' % zircon_target)
+  zircon_build_dir = fuchsia_out_dir.join('build-zircon', 'build-%s' % zircon_project)
 
   if goma_dir:
     api.goma.set_goma_dir(goma_dir)
@@ -332,7 +331,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
            remote)
 
-  BuildZircon(api, target)
+  BuildZircon(api, zircon_project)
   BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
                modules, tests, use_autorun, gn_args)
 

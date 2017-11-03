@@ -45,10 +45,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project(['third_party/webkit']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
+  zircon_project = {
+    'aarch64': 'zircon-qemu-arm64',
+    'x86_64': 'zircon-pc-x86-64',
+  }[target]
   build_zircon_cmd = [
     api.path['start_dir'].join('scripts/build-zircon.sh'),
     '-c',
-    '-t', target,
+    '-p', zircon_project,
   ]
   api.step('build zircon', build_zircon_cmd)
 

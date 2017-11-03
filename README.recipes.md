@@ -443,17 +443,17 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#102)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#101)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#91)(api, target):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#91)(api, zircon_project):**
 
 &mdash; **def [Checkout](/recipes/fuchsia.py#71)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#301)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#300)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#227)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#226)(api, target, fuchsia_build_dir):**
 
-&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#161)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#160)(api, target, fuchsia_build_dir, tests):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -548,7 +548,7 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [BuildFuchsia](/recipes/sdk.py#73)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/sdk.py#56)(api, target):**
+&mdash; **def [BuildZircon](/recipes/sdk.py#56)(api, project):**
 
 &emsp; **@contextmanager**<br>&mdash; **def [GomaContext](/recipes/sdk.py#64)(api, use_goma):**
 

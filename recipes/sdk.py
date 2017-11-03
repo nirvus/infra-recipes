@@ -53,12 +53,12 @@ PROPERTIES = {
 }
 
 
-def BuildZircon(api, target):
+def BuildZircon(api, project):
   build_zircon_cmd = [
       api.path['start_dir'].join('scripts', 'build-zircon.sh'),
-      '-t', target,
+      '-p', project,
   ]
-  api.step('build zircon ' + target, build_zircon_cmd)
+  api.step('build ' + project, build_zircon_cmd)
 
 
 @contextmanager
@@ -182,8 +182,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   fuchsia_out_dir = api.path['start_dir'].join('out')
 
-  BuildZircon(api, 'x86_64')
-  BuildZircon(api, 'aarch64')
+  BuildZircon(api, 'zircon-pc-x86-64')
+  BuildZircon(api, 'zircon-qemu-arm64')
   for gn_target in gn_targets:
       fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
       BuildFuchsia(api, release_build, gn_target,

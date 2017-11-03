@@ -189,18 +189,18 @@
   {
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "x86_64"
+      "-p",
+      "zircon-pc-x86-64"
     ],
-    "name": "build zircon x86_64"
+    "name": "build zircon-pc-x86-64"
   },
   {
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "aarch64"
+      "-p",
+      "zircon-qemu-arm64"
     ],
-    "name": "build zircon aarch64"
+    "name": "build zircon-qemu-arm64"
   },
   {
     "cmd": [],
