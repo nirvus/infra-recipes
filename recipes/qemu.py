@@ -35,11 +35,13 @@ PROPERTIES = {
                                    default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
+  'platform': Property(kind=str, help='Cross-compile to run on platform',
+                       default=None),
 }
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, manifest, remote):
+             patch_storage, patch_repository_url, manifest, remote, platform):
   api.gsutil.ensure_gsutil()
   api.jiri.ensure_jiri()
 
@@ -51,6 +53,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project(['third_party/qemu']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
+  if not platform:
+    platform = api.cipd.platform_suffix()
+
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
@@ -59,7 +64,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       }
       if api.platform.name == 'linux':
         packages.update({
-          'fuchsia/sysroot/${platform}': 'latest',
+          'infra/sysroot/' + platform: 'latest',
           'infra/cmake/${platform}': 'version:3.9.2',
           'infra/ninja/${platform}': 'version:1.8.2',
         })
@@ -68,6 +73,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   staging_dir = api.path.mkdtemp('qemu')
   pkg_dir = staging_dir.join('qemu')
   api.file.ensure_directory('create pkg dir', pkg_dir)
+
+  target = {
+    'linux-amd64': 'x86_64-linux-gnu',
+    'linux-arm64': 'aarch64-linux-gnu',
+    'mac-amd64': 'x86_64-apple-darwin',
+  }[platform]
 
   # build SDL2
 
@@ -79,7 +90,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
     install_dir = staging_dir.join('sdl_install_dir')
 
-    with api.context(cwd=build_dir):
+    env = {
+      'CFLAGS': '--target=%s' % target,
+      'CXXFLAGS': '--target=%s' % target,
+    }
+
+    with api.context(cwd=build_dir, env=env):
       api.step('configure sdl', [
         cipd_dir.join('bin', 'cmake'),
         '-GNinja',
@@ -93,6 +109,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         '-DVIDEO_WAYLAND=OFF',
         '-DSDL_SHARED=OFF',
         '-DSDL_STATIC_PIC=ON',
+        '-DGCC_ATOMICS=ON',
         sdl_dir,
       ])
       api.step('build sdl', [cipd_dir.join('ninja')])
@@ -100,7 +117,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
     env = {
       'PKG_CONFIG_SYSROOT_DIR': cipd_dir,
-      'PKG_CONFIG_PATH': cipd_dir.join('usr', 'lib', 'x86_64-linux-gnu', 'pkgconfig'),
+      'PKG_CONFIG_PATH': cipd_dir.join('usr', 'lib', target, 'pkgconfig'),
       'SDL2_CONFIG': install_dir.join('bin', 'sdl2-config'),
     }
   else:
@@ -116,12 +133,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     'linux': [
       '--cc=%s' % cipd_dir.join('bin', 'clang'),
       '--cxx=%s' % cipd_dir.join('bin', 'clang++'),
-      '--extra-cflags=--sysroot=%s' % cipd_dir,
-      '--extra-cxxflags=--sysroot=%s -fno-exceptions -fno-rtti' % cipd_dir,
+      '--host=%s' % target,
+      '--extra-cflags=--target=%s --sysroot=%s' % (target, cipd_dir),
+      '--extra-cxxflags=--target=%s --sysroot=%s' % (target, cipd_dir),
       # Supress warning about the unused arguments because QEMU ignores
       # --disable-werror at configure time which triggers an error because
       # -static-libstdc++ is unused when linking C code.
-      '--extra-ldflags=--sysroot=%s -static-libstdc++ --rtlib=compiler-rt -Qunused-arguments' % cipd_dir,
+      '--extra-ldflags=--target=%s --sysroot=%s -static-libstdc++ --rtlib=compiler-rt -Qunused-arguments' % (target, cipd_dir),
       '--disable-gtk',
       '--disable-x11',
       '--enable-sdl',
@@ -177,7 +195,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   assert m, 'Cannot determine QEMU version'
   qemu_version = m.group(1)
 
-  cipd_pkg_name = 'fuchsia/qemu/' + api.cipd.platform_suffix()
+  cipd_pkg_name = 'fuchsia/qemu/' + platform
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
@@ -203,7 +221,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      api.gsutil.join('qemu', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
+      api.gsutil.join('qemu', platform, step_result.json.output['result']['instance_id']),
       unauthenticated_url=True
   )
 
@@ -224,3 +242,9 @@ def GenTests(api):
            api.step_data('cipd search fuchsia/qemu/' + platform + '-amd64 ' +
                          'git_revision:' + api.jiri.example_revision,
                          api.json.output({'result': []})))
+  yield (api.test('linux_arm64') +
+         api.platform.name('linux') +
+         api.properties(manifest='qemu',
+                        remote='https://fuchsia.googlesource.com/manifest',
+                        platform='linux-arm64') +
+         api.step_data('qemu version', api.raw_io.stream_output(version)))

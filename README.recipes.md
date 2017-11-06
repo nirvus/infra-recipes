@@ -658,7 +658,7 @@ Recipe for building and running pre-submit checks for the modules repo.
 
 Recipe for building QEMU.
 
-&mdash; **def [RunSteps](/recipes/qemu.py#41)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote):**
+&mdash; **def [RunSteps](/recipes/qemu.py#43)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, platform):**
 ### *recipes* / [qemu:examples/full](/recipe_modules/qemu/examples/full.py)
 
 [DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -160,7 +160,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/clang/${platform} latest\nfuchsia/sysroot/${platform} latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2",
+      "fuchsia/clang/${platform} latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\ninfra/sysroot/linux-amd64 latest",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
@@ -177,16 +177,16 @@
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.9.2---\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/sysroot/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -237,9 +237,14 @@
       "-DVIDEO_WAYLAND=OFF",
       "-DSDL_SHARED=OFF",
       "-DSDL_STATIC_PIC=ON",
+      "-DGCC_ATOMICS=ON",
       "[START_DIR]/third_party/qemu/sdl"
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
+    "env": {
+      "CFLAGS": "--target=x86_64-linux-gnu",
+      "CXXFLAGS": "--target=x86_64-linux-gnu"
+    },
     "name": "configure sdl"
   },
   {
@@ -247,6 +252,10 @@
       "[START_DIR]/cipd/ninja"
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
+    "env": {
+      "CFLAGS": "--target=x86_64-linux-gnu",
+      "CXXFLAGS": "--target=x86_64-linux-gnu"
+    },
     "name": "build sdl"
   },
   {
@@ -255,6 +264,10 @@
       "install"
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
+    "env": {
+      "CFLAGS": "--target=x86_64-linux-gnu",
+      "CXXFLAGS": "--target=x86_64-linux-gnu"
+    },
     "name": "install sdl"
   },
   {
@@ -304,9 +317,10 @@
       "--disable-werror",
       "--cc=[START_DIR]/cipd/bin/clang",
       "--cxx=[START_DIR]/cipd/bin/clang++",
-      "--extra-cflags=--sysroot=[START_DIR]/cipd",
-      "--extra-cxxflags=--sysroot=[START_DIR]/cipd -fno-exceptions -fno-rtti",
-      "--extra-ldflags=--sysroot=[START_DIR]/cipd -static-libstdc++ --rtlib=compiler-rt -Qunused-arguments",
+      "--host=x86_64-linux-gnu",
+      "--extra-cflags=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
+      "--extra-cxxflags=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
+      "--extra-ldflags=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd -static-libstdc++ --rtlib=compiler-rt -Qunused-arguments",
       "--disable-gtk",
       "--disable-x11",
       "--enable-sdl",
