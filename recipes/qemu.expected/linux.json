@@ -305,10 +305,9 @@
       "--cc=[START_DIR]/cipd/bin/clang",
       "--cxx=[START_DIR]/cipd/bin/clang++",
       "--extra-cflags=--sysroot=[START_DIR]/cipd",
-      "--extra-cxxflags=--sysroot=[START_DIR]/cipd",
-      "--extra-ldflags=--sysroot=[START_DIR]/cipd -static-libstdc++ -Qunused-arguments",
+      "--extra-cxxflags=--sysroot=[START_DIR]/cipd -fno-exceptions -fno-rtti",
+      "--extra-ldflags=--sysroot=[START_DIR]/cipd -static-libstdc++ --rtlib=compiler-rt -Qunused-arguments",
       "--disable-gtk",
-      "--disable-opengl",
       "--disable-x11",
       "--enable-sdl",
       "--enable-kvm"
