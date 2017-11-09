@@ -54,9 +54,9 @@ def GenTests(api):
   yield (api.test('zircon') +
          api.properties(project='garnet',
                         manifest='manifest/minimal',
-                        remote='https://fuchsia.googlesource.com/garnet',
                         import_in='manifest/garnet',
                         import_from='zircon',
+                        remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07'))
   yield (api.test('garnet') +
          api.properties(project='peridot',
@@ -66,9 +66,9 @@ def GenTests(api):
                         remote='https://fuchsia.googlesource.com/peridot',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07'))
   yield (api.test('peridot') +
-         api.properties(project='manifest',
-                        manifest='minimal',
-                        import_in='topaz',
+         api.properties(project='topaz',
+                        manifest='manifest/minimal',
+                        import_in='manifest/topaz',
                         import_from='peridot',
-                        remote='https://fuchsia.googlesource.com/manifest',
+                        remote='https://fuchsia.googlesource.com/topaz',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07'))

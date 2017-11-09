@@ -47,9 +47,9 @@
       "[START_DIR]/cipd/jiri/jiri",
       "import",
       "-name",
-      "manifest",
-      "minimal",
-      "https://fuchsia.googlesource.com/manifest"
+      "topaz",
+      "manifest/minimal",
+      "https://fuchsia.googlesource.com/topaz"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -70,9 +70,9 @@
       "edit",
       "-import",
       "peridot=fc4dc762688d2263b254208f444f5c0a4b91bc07",
-      "topaz"
+      "manifest/topaz"
     ],
-    "cwd": "[START_DIR]/manifest",
+    "cwd": "[START_DIR]/topaz",
     "infra_step": true,
     "name": "jiri edit"
   },
@@ -82,9 +82,9 @@
       "commit",
       "-m",
       "Roll peridot to fc4dc76\n\nThis is an automated change created by the peridot roller.\n",
-      "topaz"
+      "manifest/topaz"
     ],
-    "cwd": "[START_DIR]/manifest",
+    "cwd": "[START_DIR]/topaz",
     "infra_step": true,
     "name": "git commit"
   },
@@ -95,7 +95,7 @@
       "origin",
       "HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2"
     ],
-    "cwd": "[START_DIR]/manifest",
+    "cwd": "[START_DIR]/topaz",
     "infra_step": true,
     "name": "git push"
   },
