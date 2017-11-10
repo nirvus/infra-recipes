@@ -10,6 +10,7 @@ from recipe_engine.config import Enum, List, ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
 import hashlib
+import os
 import re
 
 
@@ -18,8 +19,10 @@ DEPS = [
   'infra/goma',
   'infra/gsutil',
   'infra/hash',
+  'infra/isolate',
   'infra/jiri',
   'infra/qemu',
+  'infra/swarming',
   'infra/tar',
   'recipe_engine/context',
   'recipe_engine/json',
@@ -62,6 +65,9 @@ PROPERTIES = {
   'use_autorun': Property(kind=bool,
                           help='Whether to use autorun for tests',
                           default=False),
+  'use_isolate': Property(kind=bool,
+                          help='Whether to run tests on another machine',
+                          default=False),
   'goma_dir': Property(kind=str, help='Path to goma', default=None),
   'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
                       default=[]),
@@ -100,15 +106,14 @@ def BuildZircon(api, zircon_project):
 
 
 def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-                 modules, tests, use_autorun, gn_args):
+                 modules, tests, use_autorun, use_isolate, gn_args):
   autorun_path = None
   if tests:
-    if use_autorun:
-      autorun = [
-        'msleep 500',
-        tests,
-        'echo "%s"' % TEST_SHUTDOWN,
-      ]
+    if use_autorun or use_isolate:
+      autorun = {
+        True:  ['msleep 500', tests, 'msleep 15000', 'dm poweroff'],
+        False: ['msleep 500', tests, 'echo "%s"' % TEST_SHUTDOWN],
+      }[use_isolate]
       autorun_path = api.path['tmp_base'].join('autorun')
       api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
       api.step.active_result.presentation.logs['autorun.sh'] = autorun
@@ -156,6 +161,88 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
       ninja_cmd.extend(['-j', api.goma.recommended_goma_jobs])
 
       api.step('ninja', ninja_cmd)
+
+
+def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
+  zircon_image_name = {
+    'arm64': 'zircon.elf',
+    'x86-64': 'zircon.bin',
+  }[target]
+
+  # Copy the images to CWD so that when we later download the artifacts appear
+  # in CWD. This eliminates having to do any arcane path logic later.
+  api.file.copy('copy zircon image', zircon_build_dir.join(zircon_image_name), api.path['start_dir'])
+  api.file.copy('copy fs image', fuchsia_build_dir.join('user.bootfs'), api.path['start_dir'])
+
+  # Hack that creates an isolate file suitable for consumption by the client.
+  #
+  # TODO(mknyszek): Replace this with new interface once the isolate recipe
+  # module is updated to use the golang isolated client.
+  isolate_str = str(api.json.dumps({
+    'variables': {
+      'files': [
+        os.path.relpath(str(api.path['start_dir'].join(zircon_image_name)), str(api.path['start_dir'])),
+        os.path.relpath(str(api.path['start_dir'].join('user.bootfs')), str(api.path['start_dir'])),
+      ]
+    }
+  }))
+  isolate_path = api.path.join(api.path['start_dir'], 'result.isolate')
+  api.file.write_text('write isolate', isolate_path, isolate_str.replace('"', '\''))
+
+  # Archive, then extract and return digest for isolated.
+  isolated_path = api.path['tmp_base'].join('result.isolated')
+  return api.isolate.archive(isolate_path, isolated_path)['result']
+
+
+def RunTestsInTask(api, target, isolated_hash):
+  zircon_image_name = {
+    'arm64': 'zircon.elf',
+    'x86-64': 'zircon.bin',
+  }[target]
+
+  qemu_arch = {
+    'arm64': 'aarch64',
+    'x86-64': 'x86_64',
+  }[target]
+
+  qemu_cmd = [
+    './qemu/bin/qemu-system-' + qemu_arch, # Dropped in by CIPD.
+    '-m', '4096',
+    '-smp', '4',
+    '-nographic',
+    '-machine', {'aarch64': 'virt', 'x86_64': 'q35'}[qemu_arch],
+    '-kernel', zircon_image_name,
+    '-serial', 'stdio',
+    '-monitor', 'none',
+    '-initrd', 'user.bootfs',
+    '-enable-kvm', '-cpu', 'host',
+  ]
+
+  qemu_cipd_arch = {
+    'arm64': 'arm64',
+    'x86-64': 'amd64',
+  }[target]
+
+  with api.context(infra_steps=True):
+    # Trigger task.
+    trigger_result = api.swarming.trigger(
+        'trigger tests',
+        qemu_cmd,
+        isolated=isolated_hash,
+        dump_json=api.path.join(api.path['tmp_base'], 'qemu_test_results.json'),
+        dimensions={
+          'pool': 'Fuchsia',
+          'os':   'Debian',
+          'cpu':  target,
+          'kvm':  '1',
+        },
+        io_timeout=60,
+        cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
+    )
+  # Collect results. This is not listed as an infra step because we want the
+  # results to be not infra steps. The collect operation itself is always an
+  # infra step.
+  api.swarming.collect('20m', requests_json=api.json.input(trigger_result.json.output))
 
 
 def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
@@ -300,8 +387,8 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, build_type, modules, tests, use_autorun, goma_dir,
-             gn_args):
+             target, build_type, modules, tests, use_autorun, use_isolate,
+             goma_dir, gn_args):
   # Tests are too slow on arm64.
   if target == 'arm64':
     tests = None
@@ -327,17 +414,24 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.gsutil.ensure_gsutil()
   api.goma.ensure_goma()
   if tests:
-    api.qemu.ensure_qemu()
+    if use_isolate:
+      api.swarming.ensure_swarming(version='latest')
+      api.isolate.ensure_isolate(version='latest')
+    else:
+      api.qemu.ensure_qemu()
 
   Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
            remote)
 
   BuildZircon(api, zircon_project)
   BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-               modules, tests, use_autorun, gn_args)
+               modules, tests, use_autorun, use_isolate, gn_args)
 
   if tests:
-    if use_autorun:
+    if use_isolate:
+      isolated = IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir)
+      RunTestsInTask(api, target, isolated)
+    elif use_autorun:
       RunTestsWithAutorun(api, target, fuchsia_build_dir)
     else:
       RunTestsWithTCP(api, target, fuchsia_build_dir, tests)
@@ -409,6 +503,29 @@ def GenTests(api):
       use_autorun=True,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed'),
   ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
+
+  # Test cases for running Fuchsia tests as a swarming task.
+  yield api.test('isolated_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_isolate=True,
+  ) + api.step_data('collect', api.swarming.collect_result())
+  yield api.test('isolated_tests_task_failure') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_isolate=True,
+  ) + api.step_data('collect', api.swarming.collect_result(task_failure=True))
+  yield api.test('isolated_tests_infra_failure') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      tests='runtests',
+      use_isolate=True,
+  ) + api.step_data('collect', api.swarming.collect_result(infra_failure=True))
 
   # Test cases for skipping Fuchsia tests.
   yield api.test('default') + api.properties(

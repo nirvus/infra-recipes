@@ -8,7 +8,7 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/luci",
+      "[START_DIR]/cipd/luci/isolate",
       "-ensure-file",
       "infra/tools/luci/isolate/linux-amd64 release",
       "-json-output",
@@ -31,7 +31,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/luci/isolate",
+      "[START_DIR]/cipd/luci/isolate/isolate",
       "archive",
       "-isolate-server",
       "isolateserver.appspot.com",
@@ -54,7 +54,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/luci/isolate",
+      "[START_DIR]/cipd/luci/isolate/isolate",
       "version"
     ],
     "name": "isolate version"

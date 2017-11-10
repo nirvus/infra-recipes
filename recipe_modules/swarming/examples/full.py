@@ -29,14 +29,22 @@ def RunSteps(api):
   )
 
   # Wait for its results.
-  api.swarming.collect('1m', requests_json=json)
+  try:
+    api.swarming.collect('1m', requests_json=json)
+  except:
+    pass
 
   # You can also wait on arbitrary task.
-  api.swarming.collect(tasks=['398db31cc90be910'], timeout=30)
+  try:
+    api.swarming.collect(tasks=['398db31cc90be910', 'a9123129aaaaaa'], timeout=30)
+  except:
+    pass
 
   # You can also run an arbitrary command.
   api.swarming('version')
 
 
 def GenTests(api):
-  yield api.test('basic')
+  yield api.test('basic') + api.step_data('collect', api.swarming.collect_result())
+  yield api.test('task_failure') + api.step_data('collect', api.swarming.collect_result(task_failure=True))
+  yield api.test('infra_failure') + api.step_data('collect', api.swarming.collect_result(infra_failure=True))

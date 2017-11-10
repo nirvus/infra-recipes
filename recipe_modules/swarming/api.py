@@ -5,12 +5,34 @@
 from recipe_engine import recipe_api
 
 
+class CollectResult(object):
+  """Wrapper object for collect results."""
+
+  def __init__(self, raw_results):
+    self._raw_results = raw_results
+    self._is_error = 'results' not in raw_results
+    if self._is_error:
+      self._output = self._raw_results['Body']
+    else:
+      self._output = self._raw_results['output']
+
+  def is_task_failure(self):
+    return (not self._is_error) and ('failure' in self._raw_results['results'])
+
+  def is_infra_failure(self):
+    return (self._is_error) or ('internal_failure' in self._raw_results['results'])
+
+  @property
+  def output(self):
+    return self._output
+
+
 class SwarmingApi(recipe_api.RecipeApi):
   """APIs for interacting with swarming."""
 
   def __init__(self, *args, **kwargs):
     super(SwarmingApi, self).__init__(*args, **kwargs)
-    self._swarming_server = 'chromium-swarm.appspot.com'
+    self._swarming_server = 'https://chromium-swarm.appspot.com'
     self._swarming_client = None
 
   def __call__(self, *args, **kwargs):
@@ -25,7 +47,7 @@ class SwarmingApi(recipe_api.RecipeApi):
       with self.m.context(infra_steps=True):
         swarming_package = ('infra/tools/luci/swarming/%s' %
             self.m.cipd.platform_suffix())
-        luci_dir = self.m.path['start_dir'].join('cipd', 'luci')
+        luci_dir = self.m.path['start_dir'].join('cipd', 'luci', 'swarming')
 
         self.m.cipd.ensure(luci_dir,
                            {swarming_package: version or 'release'})
@@ -105,6 +127,8 @@ class SwarmingApi(recipe_api.RecipeApi):
   def collect(self, timeout, requests_json=None, tasks=[]):
     """Waits on a set of Swarming tasks.
 
+    Returns both the step result as well as a set of neatly parsed results.
+
     Args:
       timeout: timeout to wait for result.
       requests_json: load details about the task(s) from the json file.
@@ -124,8 +148,25 @@ class SwarmingApi(recipe_api.RecipeApi):
       cmd.extend(['-requests-json', requests_json])
     if tasks:
       cmd.extend(tasks)
-    return self.m.step(
+    step_result = self.m.step(
         'collect',
         cmd,
+        infra_step=True,
         step_test_data=lambda: self.test_api.collect()
     )
+    parsed_results = [CollectResult(task) for task in step_result.json.output['tasks']]
+
+    # Fix presentation on collect to reflect bot results.
+    for i in range(len(parsed_results)):
+      # TODO(mknyszek): add task IDs to error results, so we can replace 'i'
+      # with a task ID.
+      step_result.presentation.logs['stdout.%s' % i] = parsed_results[i].output.split('\n')
+
+    # TODO(mknyszek): add task IDs to error results so this information can be
+    # more detailed.
+    if any([result.is_task_failure() for result in parsed_results]):
+      raise self.m.step.StepFailure('Test task failed. See logs.')
+    elif any([result.is_infra_failure() for result in parsed_results]):
+      raise self.m.step.InfraFailure('Received failure from server when trying to collect.')
+
+    return step_result

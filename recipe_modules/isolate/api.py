@@ -5,12 +5,13 @@
 from recipe_engine import recipe_api
 
 
+# TODO(mknyszek): Use golang isolated client instead.
 class IsolateApi(recipe_api.RecipeApi):
   """APIs for interacting with isolates."""
 
   def __init__(self, *args, **kwargs):
     super(IsolateApi, self).__init__(*args, **kwargs)
-    self._isolate_server = 'isolateserver.appspot.com'
+    self._isolate_server = 'https://isolateserver.appspot.com'
     self._isolate_client = None
 
   def __call__(self, *args, **kwargs):
@@ -25,7 +26,7 @@ class IsolateApi(recipe_api.RecipeApi):
       with self.m.context(infra_steps=True):
         isolate_package = ('infra/tools/luci/isolate/%s' %
             self.m.cipd.platform_suffix())
-        luci_dir = self.m.path['start_dir'].join('cipd', 'luci')
+        luci_dir = self.m.path['start_dir'].join('cipd', 'luci', 'isolate')
 
         self.m.cipd.ensure(luci_dir,
                            {isolate_package: version or 'release'})

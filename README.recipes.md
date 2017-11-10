@@ -362,15 +362,15 @@ HashApi provides file hashing functionality.
 
 [DEPS](/recipe_modules/isolate/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [IsolateApi](/recipe_modules/isolate/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [IsolateApi](/recipe_modules/isolate/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for interacting with isolates.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/isolate/api.py#16)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/isolate/api.py#17)(self, \*args, \*\*kwargs):**
 
 Return an isolate command step.
 
-&mdash; **def [archive](/recipe_modules/isolate/api.py#50)(self, isolate, isolated):**
+&mdash; **def [archive](/recipe_modules/isolate/api.py#51)(self, isolate, isolated):**
 
 All the files in the .isolate file are put in the isolate server cache.
 
@@ -378,13 +378,13 @@ Args:
   isolate: .isolate file to load the dependency data from.
   isolated: .isolated file to generate or read.
 
-&mdash; **def [ensure\_isolate](/recipe_modules/isolate/api.py#22)(self, version=None):**
+&mdash; **def [ensure\_isolate](/recipe_modules/isolate/api.py#23)(self, version=None):**
 
 Ensures that isolate client is installed.
 
-&emsp; **@property**<br>&mdash; **def [isolate\_client](/recipe_modules/isolate/api.py#36)(self):**
+&emsp; **@property**<br>&mdash; **def [isolate\_client](/recipe_modules/isolate/api.py#37)(self):**
 
-&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolate/api.py#45)(self, value):**
+&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolate/api.py#46)(self, value):**
 
 Changes URL of Isolate server to use.
 ### *recipe_modules* / [jiri](/recipe_modules/jiri)
@@ -452,34 +452,36 @@ ServiceAccountApi provides access to service account keys.
 
 [DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolate](#recipe_modules-isolate), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [SwarmingApi](/recipe_modules/swarming/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [SwarmingApi](/recipe_modules/swarming/api.py#30)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for interacting with swarming.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#16)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#38)(self, \*args, \*\*kwargs):**
 
 Return a swarming command step.
 
-&mdash; **def [collect](/recipe_modules/swarming/api.py#105)(self, timeout, requests_json=None, tasks=[]):**
+&mdash; **def [collect](/recipe_modules/swarming/api.py#127)(self, timeout, requests_json=None, tasks=[]):**
 
 Waits on a set of Swarming tasks.
+
+Returns both the step result as well as a set of neatly parsed results.
 
 Args:
   timeout: timeout to wait for result.
   requests_json: load details about the task(s) from the json file.
   tasks: list of task ids to wait on.
 
-&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#22)(self, version=None):**
+&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#44)(self, version=None):**
 
 Ensures that swarming client is installed.
 
-&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#36)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#58)(self):**
 
-&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#45)(self, value):**
+&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#67)(self, value):**
 
 Changes URL of Swarming server to use.
 
-&mdash; **def [trigger](/recipe_modules/swarming/api.py#50)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, idempotent=False, cipd_packages=None):**
+&mdash; **def [trigger](/recipe_modules/swarming/api.py#72)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, idempotent=False, cipd_packages=None):**
 
 Triggers a Swarming task.
 
@@ -567,21 +569,25 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 &mdash; **def [RunTests](/recipes/dart.py#109)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#16): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolate](#recipe_modules-isolate), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#102)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#108)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, use_isolate, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#92)(api, zircon_project):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#98)(api, zircon_project):**
 
-&mdash; **def [Checkout](/recipes/fuchsia.py#71)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
+&mdash; **def [Checkout](/recipes/fuchsia.py#77)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#301)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, goma_dir, gn_args):**
+&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#166)(api, target, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#227)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#388)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, use_isolate, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#161)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#197)(api, target, isolated_hash):**
+
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#314)(api, target, fuchsia_build_dir):**
+
+&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#248)(api, target, fuchsia_build_dir, tests):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
