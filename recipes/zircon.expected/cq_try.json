@@ -70,6 +70,8 @@
       "patch",
       "-host",
       "fuchsia-review.googlesource.com",
+      "-project",
+      "zircon",
       "-rebase=true",
       "refs/changes/89/456789/12"
     ],

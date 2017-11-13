@@ -228,6 +228,8 @@
       "patch",
       "-host",
       "https://fuchsia-review.googlesource.com",
+      "-project",
+      "test",
       "-delete=true",
       "-force=true",
       "refs/changes/1/2/3"

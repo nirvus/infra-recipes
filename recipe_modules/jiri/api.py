@@ -129,11 +129,13 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def patch(self, ref, host=None, delete=False, force=False, rebase=False,
-            **kwargs):
+  def patch(self, ref, host=None, project=None, delete=False, force=False,
+            rebase=False):
     cmd = [ 'patch' ]
     if host:
       cmd.extend(['-host', host])
+    if project:
+      cmd.extend(['-project', project])
     if delete:
       cmd.extend(['-delete=true'])
     if force:
@@ -142,7 +144,7 @@ class JiriApi(recipe_api.RecipeApi):
       cmd.extend(['-rebase=true'])
     cmd.extend([ref])
 
-    return self(*cmd, **kwargs)
+    return self(*cmd)
 
   def snapshot(self, file=None, test_data=None, **kwargs):
     cmd = [
@@ -164,12 +166,13 @@ class JiriApi(recipe_api.RecipeApi):
     step = self(*cmd, step_test_data=lambda: self.test_api.source_manifest(test_data), **kwargs)
     return step.json.output
 
-  def checkout(self, manifest, remote, patch_ref=None, patch_gerrit_url=None, project=None):
+  def checkout(self, manifest, remote, project=None, patch_ref=None,
+               patch_gerrit_url=None, patch_project=None):
     self.init()
     self.import_manifest(manifest, remote, project)
     self.update(run_hooks=False)
     if patch_ref:
-      self.patch(patch_ref, host=patch_gerrit_url, rebase=True)
+      self.patch(patch_ref, host=patch_gerrit_url, project=patch_project, rebase=True)
     self.run_hooks()
 
     manifest = self.source_manifest()

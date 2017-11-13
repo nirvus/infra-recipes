@@ -68,6 +68,8 @@
       "patch",
       "-host",
       "fuchsia-review.googlesource.com",
+      "-project",
+      "cobalt",
       "-rebase=true",
       "refs/changes/89/456789/12"
     ],

@@ -98,6 +98,8 @@
       "patch",
       "-host",
       "fuchsia-review.googlesource.com",
+      "-project",
+      "jiri",
       "-rebase=true",
       "refs/changes/89/456789/12"
     ],

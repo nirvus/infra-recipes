@@ -71,7 +71,8 @@ PROPERTIES = {
 def Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
              remote):
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url, project)
+    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
+                      patch_project)
     if manifest in ['garnet', 'peridot']:
       revision = api.jiri.project([manifest]).json.output[0]['revision']
       api.step.active_result.presentation.properties['got_revision'] = revision

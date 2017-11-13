@@ -32,6 +32,7 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                             default=None),
+  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=str, help='Target to build'),
@@ -76,12 +77,14 @@ def UploadPackage(api, revision, staging_dir):
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, manifest, remote, target):
+             patch_storage, patch_repository_url, project, manifest, remote,
+             target):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
+                      patch_project)
     revision = api.jiri.project(['jiri']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 

@@ -25,6 +25,7 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
+  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'project_path': Property(kind=str, help='Project path', default=None),
@@ -32,12 +33,14 @@ PROPERTIES = {
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, manifest, remote, project_path):
+             patch_storage, patch_repository_url, project, manifest, remote,
+             project_path):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
+                      patch_project)
 
   # The make script defaults to a debug build unless specified otherwise. It
   # also always hardcodes x86-64 as the target architecture. Since this is

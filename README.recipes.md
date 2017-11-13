@@ -399,7 +399,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#167)(self, manifest, remote, patch_ref=None, patch_gerrit_url=None, project=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#169)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None):**
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#95)(self, all=False, \*\*kwargs):**
 
@@ -413,15 +413,15 @@ Return a jiri command step.
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#35)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#132)(self, ref, host=None, delete=False, force=False, rebase=False, \*\*kwargs):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#132)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#52)(self, projects, test_data=None):**
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#89)(self, local_manifest=False):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#147)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#149)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#157)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#159)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#70)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, \*\*kwargs):**
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
@@ -549,7 +549,7 @@ Recipe for building Clang toolchain.
 
 Recipe for building and testing Cobalt.
 
-&mdash; **def [RunSteps](/recipes/cobalt.py#28)(api, patch_gerrit_url, patch_ref, manifest, remote):**
+&mdash; **def [RunSteps](/recipes/cobalt.py#30)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote):**
 ### *recipes* / [dart](/recipes/dart.py)
 
 [DEPS](/recipes/dart.py#11): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -571,17 +571,17 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#101)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#102)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#91)(api, zircon_project):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#92)(api, zircon_project):**
 
 &mdash; **def [Checkout](/recipes/fuchsia.py#71)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#300)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#301)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#226)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#227)(api, target, fuchsia_build_dir):**
 
-&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#160)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#161)(api, target, fuchsia_build_dir, tests):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -637,9 +637,9 @@ Recipe for building Go toolchain.
 
 Recipe for building Jiri.
 
-&mdash; **def [RunSteps](/recipes/jiri.py#78)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target):**
+&mdash; **def [RunSteps](/recipes/jiri.py#79)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
 
-&mdash; **def [UploadPackage](/recipes/jiri.py#41)(api, revision, staging_dir):**
+&mdash; **def [UploadPackage](/recipes/jiri.py#42)(api, revision, staging_dir):**
 ### *recipes* / [jiri:examples/full](/recipe_modules/jiri/examples/full.py)
 
 [DEPS](/recipe_modules/jiri/examples/full.py#5): [jiri](#recipe_modules-jiri), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -651,7 +651,7 @@ Recipe for building Jiri.
 
 Recipe for building and running pre-submit checks for the modules repo.
 
-&mdash; **def [RunSteps](/recipes/modules.py#34)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, project_path):**
+&mdash; **def [RunSteps](/recipes/modules.py#35)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, project_path):**
 ### *recipes* / [qemu](/recipes/qemu.py)
 
 [DEPS](/recipes/qemu.py#13): [cipd](#recipe_modules-cipd), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
@@ -670,7 +670,7 @@ Recipe for building QEMU.
 
 Recipe for testing Recipes.
 
-&mdash; **def [RunSteps](/recipes/recipes.py#27)(api, patch_gerrit_url, patch_ref, manifest, remote):**
+&mdash; **def [RunSteps](/recipes/recipes.py#29)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote):**
 ### *recipes* / [rust\_toolchain](/recipes/rust_toolchain.py)
 
 [DEPS](/recipes/rust_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gsutil](#recipe_modules-gsutil), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]
@@ -727,7 +727,7 @@ Recipe for checking licenses in the repo hosting third-party Rust crates.
 
 Recipe for building WebView.
 
-&mdash; **def [RunSteps](/recipes/web_view.py#37)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, target):**
+&mdash; **def [RunSteps](/recipes/web_view.py#38)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
 [DEPS](/recipes/zircon.py#13): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]

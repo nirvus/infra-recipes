@@ -18,17 +18,21 @@ DEPS = [
 
 PROPERTIES = {
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
+  'patch_project': Property(kind=str, help='Gerrit project', default=None),
   'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
+  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_ref, manifest, remote):
+def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
+             project, manifest, remote):
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
+                      patch_project)
     revision = api.jiri.project(['infra/recipes']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 

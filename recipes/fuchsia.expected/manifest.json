@@ -130,6 +130,8 @@
       "patch",
       "-host",
       "fuchsia-review.googlesource.com",
+      "-project",
+      "manifest",
       "-rebase=true",
       "refs/changes/89/456789/12"
     ],

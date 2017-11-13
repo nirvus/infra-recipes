@@ -115,7 +115,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url, project)
+    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
+                      patch_project)
     revision = api.jiri.project(['zircon']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
     if patch_ref:

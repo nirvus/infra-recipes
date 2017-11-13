@@ -19,8 +19,11 @@ def RunSteps(api):
   assert api.jiri.jiri
 
   api.jiri.checkout(
-      'minimal', 'https://fuchsia.googlesource.com',
-      'refs/changes/1/2/3', 'https://fuchsia-review.googlesource.com')
+      'minimal',
+      'https://fuchsia.googlesource.com',
+      patch_ref='refs/changes/1/2/3',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com'
+  )
 
   # Setup a new jiri root.
   api.jiri.init('dir')
@@ -55,6 +58,7 @@ def RunSteps(api):
   # Patch in an existing change.
   api.jiri.patch('refs/changes/1/2/3',
                  host='https://fuchsia-review.googlesource.com',
+                 project='test',
                  delete=True, force=True)
 
   # Clean up after ourselves.

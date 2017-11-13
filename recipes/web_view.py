@@ -28,6 +28,7 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
+  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
@@ -35,13 +36,14 @@ PROPERTIES = {
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, manifest, remote, target):
+             patch_storage, patch_repository_url, project, manifest, remote, target):
   api.jiri.ensure_jiri()
   api.gsutil.ensure_gsutil()
   api.goma.ensure_goma()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
+    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
+                      patch_project)
     revision = api.jiri.project(['third_party/webkit']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
