@@ -165,8 +165,8 @@
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
       "-c",
-      "-t",
-      "x86_64"
+      "-p",
+      "zircon-pc-x86-64"
     ],
     "name": "build zircon"
   },
