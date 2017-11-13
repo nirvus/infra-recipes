@@ -4,6 +4,7 @@
 
 """Recipe for building Zircon."""
 
+import contextlib
 import re
 
 from recipe_engine.config import Enum
@@ -12,6 +13,7 @@ from recipe_engine.recipe_api import Property, StepFailure
 
 DEPS = [
   'infra/cipd',
+  'infra/goma',
   'infra/jiri',
   'infra/qemu',
   'recipe_engine/context',
@@ -68,6 +70,11 @@ PROPERTIES = {
 }
 
 
+@contextlib.contextmanager
+def no_goma():
+    yield
+
+
 def RunTests(api, name, build_dir, *args, **kwargs):
   step_result = None
   failure_reason = None
@@ -112,6 +119,7 @@ def RunTests(api, name, build_dir, *args, **kwargs):
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, toolchain, run_tests):
+  api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
@@ -137,13 +145,20 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     target
   ] + tc_args
 
+  if toolchain in ['clang', 'asan']:
+    build_args.append('GOMACC=%s' % api.goma.goma_dir.join('gomacc'))
+    goma_context = api.goma.build_with_goma
+  else:
+    goma_context = no_goma
+
   if toolchain == 'thinlto':
     build_args.append('THINLTO_CACHE_DIR=' +
                       str(api.path['cache'].join('thinlto')))
 
-  with api.context(cwd=api.path['start_dir'].join('zircon'),
-                   env={'USER_AUTORUN': path}):
-    api.step('build', build_args)
+  with goma_context():
+    with api.context(cwd=api.path['start_dir'].join('zircon'),
+                     env={'USER_AUTORUN': path}):
+      api.step('build', build_args)
 
   if run_tests:
     api.qemu.ensure_qemu()

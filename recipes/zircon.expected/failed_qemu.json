@@ -1,6 +1,38 @@
 [
   {
     "cmd": [],
+    "name": "ensure_goma"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
+    ],
+    "infra_step": true,
+    "name": "ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "ensure_jiri"
   },
   {
@@ -12,7 +44,9 @@
       "-ensure-file",
       "fuchsia/tools/jiri/linux-amd64 stable",
       "-json-output",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
     ],
     "infra_step": true,
     "name": "ensure_jiri.ensure_installed",
@@ -181,7 +215,9 @@
       "-ensure-file",
       "fuchsia/tools/qemu/linux-amd64 latest",
       "-json-output",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
     ],
     "infra_step": true,
     "name": "ensure_qemu.ensure_installed",

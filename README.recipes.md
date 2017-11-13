@@ -730,13 +730,15 @@ Recipe for building WebView.
 &mdash; **def [RunSteps](/recipes/web_view.py#38)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
-[DEPS](/recipes/zircon.py#13): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/zircon.py#14): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Zircon.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#112)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#119)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#71)(api, name, build_dir, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/zircon.py#78)(api, name, build_dir, \*args, \*\*kwargs):**
+
+&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#73)():**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/4d872b88fb06006ec917c6d2a3324e26c0124319/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/4d872b88fb06006ec917c6d2a3324e26c0124319/README.recipes.md#recipe_modules-file
