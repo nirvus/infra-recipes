@@ -64,7 +64,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       }
       if api.platform.name == 'linux':
         packages.update({
-          'infra/sysroot/' + platform: 'latest',
+          'fuchsia/sysroot/' + platform: 'latest',
           'infra/cmake/${platform}': 'version:3.9.2',
           'infra/ninja/${platform}': 'version:1.8.2',
         })
@@ -91,8 +91,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     install_dir = staging_dir.join('sdl_install_dir')
 
     env = {
-      'CFLAGS': '--target=%s' % target,
-      'CXXFLAGS': '--target=%s' % target,
+      'CFLAGS': '--target=%s --sysroot=%s' % (target, cipd_dir),
+      'CXXFLAGS': '--target=%s --sysroot=%s' % (target, cipd_dir),
+      'LDFLAGS': '--target=%s --sysroot=%s' % (target, cipd_dir),
     }
 
     with api.context(cwd=build_dir, env=env):
@@ -100,6 +101,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         cipd_dir.join('bin', 'cmake'),
         '-GNinja',
         '-DCMAKE_C_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
+        '-DCMAKE_AR=%s' % cipd_dir.join('bin', 'llvm-ar'),
+        '-DCMAKE_RANLIB=%s' % cipd_dir.join('bin', 'llvm-ranlib'),
+        '-DCMAKE_NM=%s' % cipd_dir.join('bin', 'llvm-nm'),
         '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
         '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
         '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
@@ -139,7 +143,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       # Supress warning about the unused arguments because QEMU ignores
       # --disable-werror at configure time which triggers an error because
       # -static-libstdc++ is unused when linking C code.
-      '--extra-ldflags=--target=%s --sysroot=%s -static-libstdc++ --rtlib=compiler-rt -Qunused-arguments' % (target, cipd_dir),
+      '--extra-ldflags=--target=%s --sysroot=%s -static-libstdc++ -Qunused-arguments -latomic' % (target, cipd_dir),
       '--disable-gtk',
       '--disable-x11',
       '--enable-sdl',
@@ -149,6 +153,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '--enable-cocoa',
     ],
   }[api.platform.name]
+
+  if api.platform.name == 'linux':
+    env.update({
+      'AR': cipd_dir.join('bin', 'llvm-ar'),
+      'RANLIB': cipd_dir.join('bin', 'llvm-ranlib'),
+      'NM': cipd_dir.join('bin', 'llvm-nm'),
+      'STRIP': cipd_dir.join('bin', 'strip'),
+      'OBJCOPY': cipd_dir.join('bin', 'objcopy'),
+    })
 
   with api.context(cwd=build_dir, env=env):
     api.step('configure qemu', [
@@ -188,12 +201,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     with api.context(env={'DESTDIR': pkg_dir}):
       api.step('install qemu', ['make', 'install'])
 
-  step_result = api.step('qemu version',
-      [build_dir.join('x86_64-softmmu', 'qemu-system-x86_64'), '--version'],
-      stdout=api.raw_io.output())
-  m = re.search(r'version ([0-9.-]+)', step_result.stdout)
-  assert m, 'Cannot determine QEMU version'
-  qemu_version = m.group(1)
+  qemu_version = api.file.read_text('qemu version', qemu_dir.join('VERSION'),
+                                    test_data='2.10.1')
+  assert qemu_version, 'Cannot determine QEMU version'
 
   cipd_pkg_name = 'fuchsia/qemu/' + platform
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)

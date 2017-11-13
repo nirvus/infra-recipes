@@ -267,11 +267,17 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/qemu_tmp_1/qemu_build_dir/x86_64-softmmu/qemu-system-x86_64",
-      "--version"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/third_party/qemu/VERSION",
+      "/path/to/tmp/"
     ],
-    "name": "qemu version",
-    "stdout": "/path/to/tmp/"
+    "infra_step": true,
+    "name": "qemu version"
   },
   {
     "cmd": [
@@ -333,7 +339,7 @@
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-tag",
-      "version:2.8.0"
+      "version:2.10.1"
     ],
     "name": "register fuchsia/qemu/mac-amd64",
     "~followup_annotations": [

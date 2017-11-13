@@ -160,7 +160,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/clang/${platform} latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\ninfra/sysroot/linux-amd64 latest",
+      "fuchsia/clang/${platform} latest\nfuchsia/sysroot/linux-amd64 latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
@@ -177,16 +177,16 @@
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.9.2---\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/sysroot/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -228,6 +228,9 @@
       "[START_DIR]/cipd/bin/cmake",
       "-GNinja",
       "-DCMAKE_C_COMPILER=[START_DIR]/cipd/bin/clang",
+      "-DCMAKE_AR=[START_DIR]/cipd/bin/llvm-ar",
+      "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
+      "-DCMAKE_NM=[START_DIR]/cipd/bin/llvm-nm",
       "-DCMAKE_CXX_COMPILER=[START_DIR]/cipd/bin/clang++",
       "-DCMAKE_ASM_COMPILER=[START_DIR]/cipd/bin/clang",
       "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
@@ -242,8 +245,9 @@
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
     "env": {
-      "CFLAGS": "--target=x86_64-linux-gnu",
-      "CXXFLAGS": "--target=x86_64-linux-gnu"
+      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
+      "CXXFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
+      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd"
     },
     "name": "configure sdl"
   },
@@ -253,8 +257,9 @@
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
     "env": {
-      "CFLAGS": "--target=x86_64-linux-gnu",
-      "CXXFLAGS": "--target=x86_64-linux-gnu"
+      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
+      "CXXFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
+      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd"
     },
     "name": "build sdl"
   },
@@ -265,8 +270,9 @@
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/sdl_build_dir",
     "env": {
-      "CFLAGS": "--target=x86_64-linux-gnu",
-      "CXXFLAGS": "--target=x86_64-linux-gnu"
+      "CFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
+      "CXXFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
+      "LDFLAGS": "--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd"
     },
     "name": "install sdl"
   },
@@ -320,7 +326,7 @@
       "--host=x86_64-linux-gnu",
       "--extra-cflags=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
       "--extra-cxxflags=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd",
-      "--extra-ldflags=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd -static-libstdc++ --rtlib=compiler-rt -Qunused-arguments",
+      "--extra-ldflags=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd -static-libstdc++ -Qunused-arguments -latomic",
       "--disable-gtk",
       "--disable-x11",
       "--enable-sdl",
@@ -328,9 +334,14 @@
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "NM": "[START_DIR]/cipd/bin/llvm-nm",
+      "OBJCOPY": "[START_DIR]/cipd/bin/objcopy",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd",
-      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config"
+      "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib",
+      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config",
+      "STRIP": "[START_DIR]/cipd/bin/strip"
     },
     "name": "configure qemu"
   },
@@ -341,9 +352,14 @@
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "NM": "[START_DIR]/cipd/bin/llvm-nm",
+      "OBJCOPY": "[START_DIR]/cipd/bin/objcopy",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd",
-      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config"
+      "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib",
+      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config",
+      "STRIP": "[START_DIR]/cipd/bin/strip"
     },
     "name": "build qemu"
   },
@@ -354,20 +370,31 @@
     ],
     "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
     "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "DESTDIR": "[TMP_BASE]/qemu_tmp_1/qemu",
+      "NM": "[START_DIR]/cipd/bin/llvm-nm",
+      "OBJCOPY": "[START_DIR]/cipd/bin/objcopy",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/cipd",
-      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config"
+      "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib",
+      "SDL2_CONFIG": "[TMP_BASE]/qemu_tmp_1/sdl_install_dir/bin/sdl2-config",
+      "STRIP": "[START_DIR]/cipd/bin/strip"
     },
     "name": "install qemu"
   },
   {
     "cmd": [
-      "[TMP_BASE]/qemu_tmp_1/qemu_build_dir/x86_64-softmmu/qemu-system-x86_64",
-      "--version"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/third_party/qemu/VERSION",
+      "/path/to/tmp/"
     ],
-    "name": "qemu version",
-    "stdout": "/path/to/tmp/"
+    "infra_step": true,
+    "name": "qemu version"
   },
   {
     "cmd": [
