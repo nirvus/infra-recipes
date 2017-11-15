@@ -12,6 +12,17 @@ class JiriTestApi(recipe_test_api.RecipeTestApi):
     return 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127'
 
   @property
+  def example_edit(self):
+    return {
+      'imports': [
+        {
+          'old_revision': 'A',
+          'new_revision': 'B',
+        },
+      ],
+    }
+
+  @property
   def example_snapshot(self):
     return '''<manifest>
   <projects>

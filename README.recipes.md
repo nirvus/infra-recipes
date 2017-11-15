@@ -399,11 +399,11 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#169)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#175)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None):**
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#95)(self, all=False, \*\*kwargs):**
 
-&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#114)(self, manifest, projects=None, imports=None, \*\*kwargs):**
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#114)(self, manifest, projects=None, imports=None, test_data=None):**
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#22)(self, version=None):**
 
@@ -413,15 +413,15 @@ Return a jiri command step.
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#35)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#132)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#138)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#52)(self, projects, test_data=None):**
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#89)(self, local_manifest=False):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#149)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#155)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#159)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#165)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#70)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, \*\*kwargs):**
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
@@ -590,11 +590,11 @@ Recipe for building Fuchsia and running tests.
 &mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#248)(api, target, fuchsia_build_dir, tests):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
-[DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for rolling Fuchsia layers into upper layers.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#37)(api, category, project, manifest, remote, import_in, import_from, revision):**
+&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#40)(api, category, project, manifest, remote, import_in, import_from, revision):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
