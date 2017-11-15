@@ -192,11 +192,12 @@
   {
     "cmd": [
       "make",
-      "-j2",
-      "HOST_USE_ASAN=true",
       "zircon-pc-x86-64",
+      "HOST_USE_ASAN=true",
       "USE_LTO=true",
       "USE_THINLTO=true",
+      "-j",
+      "2",
       "THINLTO_CACHE_DIR=[CACHE]/thinlto"
     ],
     "cwd": "[START_DIR]/zircon",

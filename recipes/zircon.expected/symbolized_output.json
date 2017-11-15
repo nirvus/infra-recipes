@@ -192,9 +192,10 @@
   {
     "cmd": [
       "make",
-      "-j2",
+      "zircon-pc-x86-64",
       "HOST_USE_ASAN=true",
-      "zircon-pc-x86-64"
+      "-j",
+      "2"
     ],
     "cwd": "[START_DIR]/zircon",
     "env": {

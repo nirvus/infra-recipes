@@ -140,15 +140,20 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   tc_args, tc_suffix = TOOLCHAINS[toolchain]
   build_args = [
     'make',
-    '-j%s' % api.platform.cpu_count,
+    target,
     'HOST_USE_ASAN=true',
-    target
   ] + tc_args
 
   if toolchain in ['clang', 'asan']:
-    build_args.append('GOMACC=%s' % api.goma.goma_dir.join('gomacc'))
+    build_args.extend([
+      'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
+      '-j', api.goma.recommended_goma_jobs,
+    ])
     goma_context = api.goma.build_with_goma
   else:
+    build_args.extend([
+      '-j', api.platform.cpu_count,
+    ])
     goma_context = no_goma
 
   if toolchain == 'thinlto':

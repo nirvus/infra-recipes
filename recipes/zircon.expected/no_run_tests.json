@@ -193,6 +193,33 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
+    ],
+    "name": "calculate the number of recommended jobs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
+      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
+      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[START_DIR]/cipd/goma/goma_ctl.py",
       "restart"
     ],
@@ -207,11 +234,12 @@
   {
     "cmd": [
       "make",
-      "-j2",
-      "HOST_USE_ASAN=true",
       "zircon-pc-x86-64",
+      "HOST_USE_ASAN=true",
       "USE_CLANG=true",
-      "GOMACC=[START_DIR]/cipd/goma/gomacc"
+      "GOMACC=[START_DIR]/cipd/goma/gomacc",
+      "-j",
+      "50"
     ],
     "cwd": "[START_DIR]/zircon",
     "env": {
