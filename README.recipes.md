@@ -432,13 +432,13 @@ Return a jiri command step.
 
 QemuApi provides support for QEMU.
 
-&emsp; **@contextmanager**<br>&mdash; **def [background\_run](/recipe_modules/qemu/api.py#55)(self, \*args, \*\*kwargs):**
+&emsp; **@contextmanager**<br>&mdash; **def [background\_run](/recipe_modules/qemu/api.py#57)(self, \*args, \*\*kwargs):**
 
-&mdash; **def [ensure\_qemu](/recipe_modules/qemu/api.py#42)(self, version=None):**
+&mdash; **def [ensure\_qemu](/recipe_modules/qemu/api.py#44)(self, version=None):**
 
-&mdash; **def [qemu\_executable](/recipe_modules/qemu/api.py#52)(self, arch):**
+&mdash; **def [qemu\_executable](/recipe_modules/qemu/api.py#54)(self, arch):**
 
-&mdash; **def [run](/recipe_modules/qemu/api.py#64)(self, step_name, \*args, \*\*kwargs):**
+&mdash; **def [run](/recipe_modules/qemu/api.py#66)(self, step_name, \*args, \*\*kwargs):**
 ### *recipe_modules* / [service\_account](/recipe_modules/service_account)
 
 [DEPS](/recipe_modules/service_account/__init__.py#1): [recipe\_engine/path][recipe_engine/recipe_modules/path]
@@ -661,9 +661,9 @@ Recipe for building QEMU.
 &mdash; **def [RunSteps](/recipes/qemu.py#43)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, platform):**
 ### *recipes* / [qemu:examples/full](/recipe_modules/qemu/examples/full.py)
 
-[DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-&mdash; **def [RunSteps](/recipe_modules/qemu/examples/full.py#21)(api, arch, kvm):**
+&mdash; **def [RunSteps](/recipe_modules/qemu/examples/full.py#22)(api, arch, kvm):**
 ### *recipes* / [recipes](/recipes/recipes.py)
 
 [DEPS](/recipes/recipes.py#10): [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]

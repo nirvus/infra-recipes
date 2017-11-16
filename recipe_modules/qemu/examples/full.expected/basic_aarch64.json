@@ -47,6 +47,8 @@
       "foo=bar",
       "--netdev",
       "user,id=net0",
+      "--drive",
+      "file=[START_DIR]/qemu.minfs,if=none,format=raw,id=resultsdisk",
       "--device",
       "e1000,netdev=net0",
       "--shutdown_pattern",

@@ -10,6 +10,7 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'recipe_engine/step',
+  'recipe_engine/path',
 ]
 
 PROPERTIES = {
@@ -26,6 +27,7 @@ def RunSteps(api, arch, kvm):
   # Run an image through QEMU.
   api.qemu.run('test', arch, 'bzImaze',
       kvm=kvm, initrd='disk.img', cmdline='foo=bar', netdev='user,id=net0',
+      drives=['file=%s,if=none,format=raw,id=resultsdisk' % api.path.join(api.path['start_dir'], 'qemu.minfs')],
       devices=['e1000,netdev=net0'], shutdown_pattern='goodbye')
 
   # Run QEMU in the background.

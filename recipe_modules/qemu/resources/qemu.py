@@ -84,6 +84,7 @@ def main():
     parser.add_argument('--executable', type=str, required=True)
     parser.add_argument('--append', type=str, default=None)
     parser.add_argument('--netdev', type=str, default=None)
+    parser.add_argument('--drive', type=str, action='append', default=[])
     parser.add_argument('--device', type=str, action='append', default=[])
     parser.add_argument('--shutdown_pattern', type=str, default=None,
         help='regex that triggers shutdown if it matches any line of output')
@@ -127,6 +128,8 @@ def main():
     cmd.extend(['-initrd', args.initrd])
   if args.netdev:
     cmd.extend(['-netdev', args.netdev])
+  for drive in args.drive:
+    cmd.extend(['-drive', drive])
   for device in args.device:
     cmd.extend(['-device', device])
   cmdline = 'TERM=dumb kernel.halt-on-panic=true'
