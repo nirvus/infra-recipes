@@ -64,7 +64,7 @@ PROPERTIES = {
                     default=None),
   'use_autorun': Property(kind=bool,
                           help='Whether to use autorun for tests',
-                          default=False),
+                          default=True),
   'use_isolate': Property(kind=bool,
                           help='Whether to run tests on another machine',
                           default=False),
@@ -444,18 +444,21 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='tests.json',
+      use_autorun=False,
   )
   yield api.test('failed_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='tests.json',
+      use_autorun=False,
   ) + api.step_data('run tests', retcode=1)
   yield api.test('backtrace') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='tests.json',
+      use_autorun=False,
   ) + api.step_data('run tests', retcode=1,
   ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
 
@@ -465,42 +468,36 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='runtests',
-      use_autorun=True,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_failed_qemu') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='runtests',
-      use_autorun=True,
   ) + api.step_data('run tests', retcode=1)
   yield api.test('autorun_no_results') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='runtests',
-      use_autorun=True,
   ) + api.step_data('run tests', api.raw_io.stream_output(TEST_SHUTDOWN))
   yield api.test('autorun_tests_timeout') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='runtests',
-      use_autorun=True,
   ) + api.step_data('run tests', retcode=2)
   yield api.test('autorun_failed_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='runtests',
-      use_autorun=True,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_backtrace') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tests='runtests',
-      use_autorun=True,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed'),
   ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
 
@@ -532,53 +529,62 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      autorun=False,
   )
   yield api.test('garnet') + api.properties(
       project='garnet',
       manifest='manifest/garnet',
       remote='https://fuchsia.googlesource.com/garnet',
       target='x86-64',
+      autorun=False,
   )
   yield api.test('peridot') + api.properties(
       manifest='peridot',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      autorun=False,
   )
   yield api.test('no_goma') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       goma_dir='/path/to/goma',
+      autorun=False,
   )
   yield api.test('goma_local_cache') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       goma_local_cache=True,
+      autorun=False,
   )
   yield api.test('arm64_skip_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='arm64',
-      tests='tests.json'
+      tests='tests.json',
+      autorun=False,
   )
   yield api.test('release') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       build_type='release',
+      autorun=False,
   )
   yield api.test('lto') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       build_type='lto',
+      autorun=False,
   )
   yield api.test('thinlto') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
-      build_type='thinlto'
+      build_type='thinlto',
+      autorun=False,
   )
   yield api.test('cq') + api.properties.tryserver(
       gerrit_project='fuchsia',
@@ -586,6 +592,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      autorun=False,
       tryjob=True,
   )
   yield api.test('gn_args') + api.properties.tryserver(
@@ -595,6 +602,7 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       tryjob=True,
+      autorun=False,
       gn_args=['super_arg=false', 'less_super_arg=true'],
   )
   yield api.test('manifest') + api.properties.tryserver(
@@ -604,5 +612,6 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      autorun=False,
       tryjob=True,
   )
