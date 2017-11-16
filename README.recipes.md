@@ -13,6 +13,7 @@
   * [hash](#recipe_modules-hash)
   * [isolate](#recipe_modules-isolate)
   * [jiri](#recipe_modules-jiri)
+  * [minfs](#recipe_modules-minfs)
   * [qemu](#recipe_modules-qemu)
   * [service_account](#recipe_modules-service_account)
   * [swarming](#recipe_modules-swarming)
@@ -37,6 +38,7 @@
   * [isolate:examples/full](#recipes-isolate_examples_full)
   * [jiri](#recipes-jiri) &mdash; Recipe for building Jiri.
   * [jiri:examples/full](#recipes-jiri_examples_full)
+  * [minfs:examples/full](#recipes-minfs_examples_full)
   * [modules](#recipes-modules) &mdash; Recipe for building and running pre-submit checks for the modules repo.
   * [qemu](#recipes-qemu) &mdash; Recipe for building QEMU.
   * [qemu:examples/full](#recipes-qemu_examples_full)
@@ -434,6 +436,35 @@ Return a jiri command step.
 &mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#165)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#70)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, \*\*kwargs):**
+### *recipe_modules* / [minfs](/recipe_modules/minfs)
+
+[DEPS](/recipe_modules/minfs/__init__.py#1): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [MinfsApi](/recipe_modules/minfs/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+MinfsApi provides support for Fuchia's MinFS tool.
+
+Currently this module can only be used with a Zircon build, which produces
+the local minfs binary.
+
+&mdash; **def [cp](/recipe_modules/minfs/api.py#36)(self, remote_file, local_file, image):**
+
+Copies a file from an image.
+
+remote_file: string  The path to copy from the image.
+local_file: string  The path to copy to on the host.
+image: string The path to the MinFS image.
+
+&emsp; **@minfs_path.setter**<br>&mdash; **def [minfs\_path](/recipe_modules/minfs/api.py#31)(self, path):**
+
+Sets the path to the minfs command.
+
+&mdash; **def [mkfs](/recipe_modules/minfs/api.py#52)(self, path, size_mb=100):**
+
+Creates a MinFS image at the given path
+
+path: string  The path at which to create the image.
+size_mb: int  The size of the image, in megabytes. Defaults to 100.
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
 
 [DEPS](/recipe_modules/qemu/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -661,6 +692,11 @@ Recipe for building Jiri.
 [DEPS](/recipe_modules/jiri/examples/full.py#5): [jiri](#recipe_modules-jiri), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 &mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#16)(api):**
+### *recipes* / [minfs:examples/full](/recipe_modules/minfs/examples/full.py)
+
+[DEPS](/recipe_modules/minfs/examples/full.py#5): [minfs](#recipe_modules-minfs), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+&mdash; **def [RunSteps](/recipe_modules/minfs/examples/full.py#12)(api):**
 ### *recipes* / [modules](/recipes/modules.py)
 
 [DEPS](/recipes/modules.py#10): [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -1,0 +1,39 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "truncate",
+      "200",
+      "100"
+    ],
+    "infra_step": true,
+    "name": "[START_DIR]/image.minfs"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[START_DIR]/image.minfs",
+      "mkfs"
+    ],
+    "name": "minfs [START_DIR]/image.minfs"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "image.minfs",
+      "cp",
+      "::file-on-image.json",
+      "file-on-host.json"
+    ],
+    "name": "minfs image.minfs"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
