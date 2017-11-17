@@ -30,9 +30,9 @@ class CollectResult(object):
 class SwarmingApi(recipe_api.RecipeApi):
   """APIs for interacting with swarming."""
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, swarming_server, *args, **kwargs):
     super(SwarmingApi, self).__init__(*args, **kwargs)
-    self._swarming_server = 'https://chromium-swarm.appspot.com'
+    self._swarming_server = swarming_server
     self._swarming_client = None
 
   def __call__(self, *args, **kwargs):

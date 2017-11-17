@@ -9,9 +9,9 @@ from recipe_engine import recipe_api
 class IsolateApi(recipe_api.RecipeApi):
   """APIs for interacting with isolates."""
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, isolate_server, *args, **kwargs):
     super(IsolateApi, self).__init__(*args, **kwargs)
-    self._isolate_server = 'https://isolateserver.appspot.com'
+    self._isolate_server = isolate_server
     self._isolate_client = None
 
   def __call__(self, *args, **kwargs):
