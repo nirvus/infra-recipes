@@ -33,6 +33,7 @@ RUST_FUCHSIA_GIT = 'https://fuchsia.googlesource.com/third_party/rust'
 PROPERTIES = {
   'url': Property(kind=str, help='Git repository URL', default=RUST_FUCHSIA_GIT),
   'ref': Property(kind=str, help='Git reference', default='refs/heads/master'),
+  'revision': Property(kind=str, help='Revision', default=None),
 }
 
 BUILD_CONFIG = '''
@@ -83,7 +84,7 @@ rustflags = ["-C", "link-arg=--target=aarch64-unknown-fuchsia", "-C", "link-arg=
 '''
 
 
-def RunSteps(api, url, ref):
+def RunSteps(api, url, ref, revision):
   api.gitiles.ensure_gitiles()
   api.gsutil.ensure_gsutil()
   api.jiri.ensure_jiri()
@@ -91,8 +92,9 @@ def RunSteps(api, url, ref):
   api.cipd.set_service_account_credentials(
       api.cipd.default_bot_service_account_credentials)
 
+  if not revision:
+    revision = api.gitiles.refs(url).get(ref, None)
   cipd_pkg_name = 'fuchsia/rust/' + api.cipd.platform_suffix()
-  revision = api.gitiles.refs(url).get(ref, None)
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
