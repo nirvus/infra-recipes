@@ -111,11 +111,8 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def edit_manifest(self, manifest, projects=None, imports=None, test_data=None):
-    cmd = [
-      'edit',
-      '-json-output', self.m.json.output(),
-    ]
+  def edit_manifest(self, manifest, projects=None, imports=None, **kwargs):
+    cmd = [ 'edit' ]
     if imports:
       for i in imports:
         if type(i) is str:
@@ -129,11 +126,8 @@ class JiriApi(recipe_api.RecipeApi):
         elif type(p) is tuple:
           cmd.extend(['-project', '%s=%s' % p])
     cmd.extend([manifest])
-    if test_data is None:
-      test_data = self.test_api.example_edit
-    step = self(*cmd,
-                step_test_data=lambda: self.m.json.test_api.output(test_data))
-    return step.json.output
+
+    return self(*cmd, **kwargs)
 
   def patch(self, ref, host=None, project=None, delete=False, force=False,
             rebase=False):

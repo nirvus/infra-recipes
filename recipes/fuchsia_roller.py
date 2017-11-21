@@ -9,7 +9,6 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
   'infra/git',
-  'infra/gitiles',
   'infra/jiri',
   'recipe_engine/context',
   'recipe_engine/path',
@@ -29,17 +28,14 @@ PROPERTIES = {
 }
 
 
-FUCHSIA_URL = 'https://fuchsia.googlesource.com/'
+COMMIT_MESSAGE = """Roll {0} to {1}
 
-COMMIT_MESSAGE = """Roll {project} {old}..{new} ({count} commits)
-
-{commits}
+This is an automated change created by the {0} roller.
 """
 
 
 def RunSteps(api, category, project, manifest, remote, import_in, import_from, revision):
   api.jiri.ensure_jiri()
-  api.gitiles.ensure_gitiles()
 
   with api.context(infra_steps=True):
     api.jiri.init()
@@ -48,24 +44,9 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
 
     project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):
-      changes = api.jiri.edit_manifest(import_in, imports=[(import_from, revision)])
-      old_rev = changes['imports'][0]['old_revision']
-      new_rev = changes['imports'][0]['new_revision']
-      url = FUCHSIA_URL + import_from
-      log = api.gitiles.log(url, '%s..%s' % (old_rev, new_rev), step_name='log')
-      message = COMMIT_MESSAGE.format(
-          project=import_from,
-          old=old_rev[:7],
-          new=new_rev[:7],
-          count=len(log),
-          commits='\n'.join([
-            '{commit} {subject}'.format(
-                commit=commit['commit'][:7],
-                subject=commit['message'].splitlines()[0],
-            ) for commit in log
-          ]),
-      )
-      api.git.commit(message, api.path.join(*import_in.split('/')))
+      api.jiri.edit_manifest(import_in, imports=[(import_from, revision)])
+      api.git.commit(COMMIT_MESSAGE.format(import_from, revision[:7]),
+                     api.path.join(*import_in.split('/')))
       api.git.push('HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2')
 
 
@@ -76,21 +57,18 @@ def GenTests(api):
                         import_in='manifest/garnet',
                         import_from='zircon',
                         remote='https://fuchsia.googlesource.com/garnet',
-                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-         api.gitiles.log('log', 'A'))
+                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07'))
   yield (api.test('garnet') +
          api.properties(project='peridot',
                         manifest='manifest/minimal',
                         import_in='manifest/peridot',
                         import_from='garnet',
                         remote='https://fuchsia.googlesource.com/peridot',
-                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-         api.gitiles.log('log', 'A'))
+                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07'))
   yield (api.test('peridot') +
          api.properties(project='topaz',
                         manifest='manifest/minimal',
                         import_in='manifest/topaz',
                         import_from='peridot',
                         remote='https://fuchsia.googlesource.com/topaz',
-                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-         api.gitiles.log('log', 'A'))
+                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07'))

@@ -138,8 +138,6 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "edit",
-      "-json-output",
-      "/path/to/tmp/json",
       "-import",
       "c",
       "-import",
@@ -150,18 +148,7 @@
       "b=c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "minimal"
     ],
-    "name": "jiri edit",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"imports\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"new_revision\": \"B\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"old_revision\": \"A\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
+    "name": "jiri edit"
   },
   {
     "cmd": [
