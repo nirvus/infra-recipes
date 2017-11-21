@@ -81,6 +81,9 @@ rustflags = ["-C", "link-arg=--target=x86_64-unknown-fuchsia", "-C", "link-arg=-
 linker = "{linker}"
 ar = "{ar}"
 rustflags = ["-C", "link-arg=--target=aarch64-unknown-fuchsia", "-C", "link-arg=--sysroot={aarch64_sysroot}"]
+
+[term]
+verbose = true
 '''
 
 
@@ -146,6 +149,9 @@ def RunSteps(api, url, ref, revision):
       )
   )
 
+  x86_64_sysroot = zircon_dir.join('build-zircon-pc-x86-64', 'sysroot'),
+  aarch64_sysroot = zircon_dir.join('build-zircon-qemu-arm64', 'sysroot'),
+
   cargo_dir = staging_dir.join('.cargo')
   api.file.ensure_directory('.cargo', cargo_dir)
   api.file.write_text('write config',
@@ -153,12 +159,16 @@ def RunSteps(api, url, ref, revision):
       CARGO_CONFIG.format(
           linker=cipd_dir.join('bin', 'clang'),
           ar=cipd_dir.join('bin', 'llvm-ar'),
-          x86_64_sysroot=zircon_dir.join('build-zircon-pc-x86-64', 'sysroot'),
-          aarch64_sysroot=zircon_dir.join('build-zircon-qemu-arm64', 'sysroot'),
+          x86_64_sysroot=x86_64_sysroot,
+          aarch64_sysroot=x86_64_sysroot,
       ),
   )
 
-  env = {'CARGO_HOME': cargo_dir}
+  env = {
+    'CARGO_HOME': cargo_dir,
+    'CFLAGS_x86_64-unknown-fuchsia': '--target=x86_64-unknown-fuchsia --sysroot=%s' % x86_64_sysroot,
+    'CFLAGS_aarch64-unknown-fuchsia': '--target=aarch64-unknown-fuchsia --sysroot=%s' % aarch64_sysroot,
+  }
   env_prefixes = {'PATH': [cipd_dir, cipd_dir.join('bin')]}
   with api.context(cwd=build_dir, env=env, env_prefixes=env_prefixes):
     api.python(
