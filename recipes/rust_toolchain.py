@@ -81,9 +81,6 @@ rustflags = ["-C", "link-arg=--target=x86_64-unknown-fuchsia", "-C", "link-arg=-
 linker = "{linker}"
 ar = "{ar}"
 rustflags = ["-C", "link-arg=--target=aarch64-unknown-fuchsia", "-C", "link-arg=--sysroot={aarch64_sysroot}"]
-
-[term]
-verbose = true
 '''
 
 
