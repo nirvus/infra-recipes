@@ -160,7 +160,7 @@ def RunSteps(api, url, ref, revision):
           linker=cipd_dir.join('bin', 'clang'),
           ar=cipd_dir.join('bin', 'llvm-ar'),
           x86_64_sysroot=x86_64_sysroot,
-          aarch64_sysroot=x86_64_sysroot,
+          aarch64_sysroot=aarch64_sysroot,
       ),
   )
 
