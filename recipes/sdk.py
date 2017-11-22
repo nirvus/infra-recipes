@@ -128,7 +128,7 @@ def UploadArchive(api, sdk, digest):
   )
   snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
   api.jiri.snapshot(snapshot_file)
-  api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
+  api.gsutil.upload('fuchsia-snapshots', snapshot_file, digest,
       link_name='jiri.snapshot',
       name='upload jiri.snapshot',
       unauthenticated_url=True)

@@ -503,12 +503,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[TMP_BASE]/jiri.snapshot",
-      "gs://fuchsia/jiri/snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
+      "gs://fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
     ],
     "infra_step": true,
     "name": "upload jiri.snapshot",
     "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia/jiri/snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
+      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
     ]
   },
   {

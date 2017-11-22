@@ -89,7 +89,7 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
       api.jiri.snapshot(snapshot_file)
       digest = api.hash.sha1('hash snapshot', snapshot_file,
                              test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
-      api.gsutil.upload('fuchsia', snapshot_file, 'jiri/snapshots/' + digest,
+      api.gsutil.upload('fuchsia-snapshots', snapshot_file, digest,
           link_name='jiri.snapshot',
           name='upload jiri.snapshot',
           unauthenticated_url=True)
