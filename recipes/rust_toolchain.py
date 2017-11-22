@@ -149,8 +149,8 @@ def RunSteps(api, url, ref, revision):
       )
   )
 
-  x86_64_sysroot = zircon_dir.join('build-zircon-pc-x86-64', 'sysroot'),
-  aarch64_sysroot = zircon_dir.join('build-zircon-qemu-arm64', 'sysroot'),
+  x86_64_sysroot = zircon_dir.join('build-zircon-pc-x86-64', 'sysroot')
+  aarch64_sysroot = zircon_dir.join('build-zircon-qemu-arm64', 'sysroot')
 
   cargo_dir = staging_dir.join('.cargo')
   api.file.ensure_directory('.cargo', cargo_dir)

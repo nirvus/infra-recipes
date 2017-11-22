@@ -354,7 +354,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n[target.x86_64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=x86_64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=(Path('start_dir', 'zircon','build-zircon-pc-x86-64','sysroot'),)\"]\n\n[target.aarch64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=aarch64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=(Path('start_dir', 'zircon','build-zircon-pc-x86-64','sysroot'),)\"]\n\n[term]\nverbose = true\n",
+      "\n[target.x86_64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=x86_64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/zircon/build-zircon-pc-x86-64/sysroot\"]\n\n[target.aarch64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=aarch64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/zircon/build-zircon-pc-x86-64/sysroot\"]\n\n[term]\nverbose = true\n",
       "[TMP_BASE]/rust_tmp_1/.cargo/config"
     ],
     "infra_step": true,
