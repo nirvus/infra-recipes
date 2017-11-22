@@ -229,7 +229,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/packages/gn/gen.py",
+      "[START_DIR]/build/gn/gen.py",
       "--target_cpu=aarch64",
       "--packages=packages/gn/default",
       "--goma=[START_DIR]/cipd/goma"

@@ -74,7 +74,7 @@ def BuildFuchsia(api, release_build, gn_target, fuchsia_build_dir,
                  modules, use_goma, gn_args):
   with api.step.nest('build fuchsia %s' % gn_target), GomaContext(api, use_goma):
     gen_cmd = [
-        api.path['start_dir'].join('packages', 'gn', 'gen.py'),
+        api.path['start_dir'].join('build', 'gn', 'gen.py'),
         '--target_cpu=%s' % gn_target,
         '--packages=%s' % ','.join(modules),
         '--ignore-skia'

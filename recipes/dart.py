@@ -81,7 +81,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
   with api.step.nest('build fuchsia'):
     with api.goma.build_with_goma(env=goma_env):
       gen_cmd = [
-        api.path['start_dir'].join('packages', 'gn', 'gen.py'),
+        api.path['start_dir'].join('build', 'gn', 'gen.py'),
         '--target_cpu', gn_target,
       ]
 

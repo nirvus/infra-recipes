@@ -63,7 +63,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   with api.step.nest('build fuchsia'), api.goma.build_with_goma():
     api.step('gen', [
-      api.path['start_dir'].join('packages/gn/gen.py'),
+      api.path['start_dir'].join('build/gn/gen.py'),
       '--target_cpu=%s' % gen_target,
       '--packages=topaz/packages/webkit',
       '--args', 'use_prebuilt_webkit=false',
