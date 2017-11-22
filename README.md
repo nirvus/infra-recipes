@@ -225,7 +225,7 @@ The Fuchsia recipe does the following things:
    `manifest` property.
 2. If triggered by the commit queue, patches to the pending commit.
 3. Runs `scripts/build-zircon.sh`.
-4. Runs `packages/gn/gen.py` with modules specified in the `modules` property.
+4. Runs `build/gn/gen.py` with modules specified in the `modules` property.
 5. Builds Fuchsia using Ninja.
 6. If the `tests` property is specified, runs the specified tests with
    [Test Runner](https://fuchsia.googlesource.com/garnet/+/master/bin/test_runner)

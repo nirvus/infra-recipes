@@ -58,7 +58,7 @@ PROPERTIES = {
   'build_type': Property(kind=Enum('debug', 'release', 'thinlto', 'lto'),
                          help='The build type', default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
-                      default=['packages/gn/default']),
+                      default=['build/gn/default']),
   'tests': Property(kind=str,
                     help='Path to config file listing tests to run, or (when using autorun) command to run tests',
                     default=None),
@@ -118,7 +118,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
       api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
       api.step.active_result.presentation.logs['autorun.sh'] = autorun
     else:
-      modules.append('packages/gn/boot_test_runner')
+      modules.append('build/gn/boot_test_runner')
 
   goma_env = {}
   if api.properties.get('goma_local_cache', False):
