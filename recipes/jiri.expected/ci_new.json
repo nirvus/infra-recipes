@@ -268,7 +268,9 @@
       "-out",
       "[TMP_BASE]/jiri.cipd",
       "-json-output",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "-install-mode",
+      "copy"
     ],
     "name": "build linux-amd64",
     "~followup_annotations": [

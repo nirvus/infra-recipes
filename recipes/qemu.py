@@ -213,19 +213,20 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   cipd_pkg_file = api.path['tmp_base'].join('qemu.cipd')
 
   api.cipd.build(
-    input_dir=pkg_dir,
-    package_name=cipd_pkg_name,
-    output_package=cipd_pkg_file,
+      input_dir=pkg_dir,
+      package_name=cipd_pkg_name,
+      output_package=cipd_pkg_file,
+      install_mode='copy',
   )
   step_result = api.cipd.register(
-    package_name=cipd_pkg_name,
-    package_path=cipd_pkg_file,
-    refs=['latest'],
-    tags={
-      'version': qemu_version,
-      'git_repository': 'https://fuchsia.googlesource.com/third_party/qemu',
-      'git_revision': revision,
-    },
+      package_name=cipd_pkg_name,
+      package_path=cipd_pkg_file,
+      refs=['latest'],
+      tags={
+        'version': qemu_version,
+        'git_repository': 'https://fuchsia.googlesource.com/third_party/qemu',
+        'git_revision': revision,
+      },
   )
 
   api.gsutil.upload(

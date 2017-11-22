@@ -142,6 +142,7 @@ def UploadPackage(api, outdir, digest):
       input_dir=outdir,
       package_name=cipd_pkg_name,
       output_package=cipd_pkg_file,
+      install_mode='copy',
   )
   step_result = api.cipd.register(
       package_name=cipd_pkg_name,

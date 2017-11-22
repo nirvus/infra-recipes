@@ -319,7 +319,9 @@
       "-out",
       "[TMP_BASE]/go.cipd",
       "-json-output",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "-install-mode",
+      "copy"
     ],
     "name": "build mac-amd64",
     "~followup_annotations": [

@@ -87,6 +87,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       input_dir=pkg_dir,
       package_name=cipd_pkg_name,
       output_package=cipd_pkg_file,
+      install_mode='copy',
   )
   step_result = api.cipd.register(
       package_name=cipd_pkg_name,

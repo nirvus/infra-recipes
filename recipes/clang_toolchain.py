@@ -194,6 +194,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       input_dir=pkg_dir,
       package_name=cipd_pkg_name,
       output_package=cipd_pkg_file,
+      install_mode='copy',
   )
   step_result = api.cipd.register(
       package_name=cipd_pkg_name,
@@ -209,7 +210,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      '/'.join(['clang', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']]),
+      api.gsutil.join('clang', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
       unauthenticated_url=True
   )
 

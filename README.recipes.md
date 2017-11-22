@@ -643,7 +643,7 @@ Recipe for building Go toolchain.
 
 Recipe for building Jiri.
 
-&mdash; **def [RunSteps](/recipes/jiri.py#79)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
+&mdash; **def [RunSteps](/recipes/jiri.py#80)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
 
 &mdash; **def [UploadPackage](/recipes/jiri.py#42)(api, revision, staging_dir):**
 ### *recipes* / [jiri:examples/full](/recipe_modules/jiri/examples/full.py)
@@ -700,7 +700,7 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [PackageArchive](/recipes/sdk.py#116)(api, sdk):**
 
-&mdash; **def [RunSteps](/recipes/sdk.py#163)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, use_goma, gn_args):**
+&mdash; **def [RunSteps](/recipes/sdk.py#164)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, use_goma, gn_args):**
 
 &mdash; **def [UploadArchive](/recipes/sdk.py#121)(api, sdk, digest):**
 
