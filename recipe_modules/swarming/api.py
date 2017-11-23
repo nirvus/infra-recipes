@@ -12,7 +12,7 @@ class CollectResult(object):
     self._raw_results = raw_results
     self._is_error = 'results' not in raw_results
     if self._is_error:
-      self._output = self._raw_results['Body']
+      self._output = self._raw_results.get('Body')
     else:
       self._output = self._raw_results['output']
 
@@ -160,12 +160,15 @@ class SwarmingApi(recipe_api.RecipeApi):
     for i in range(len(parsed_results)):
       # TODO(mknyszek): add task IDs to error results, so we can replace 'i'
       # with a task ID.
-      step_result.presentation.logs['stdout.%s' % i] = parsed_results[i].output.split('\n')
+      if parsed_results[i].output is not None:
+        step_result.presentation.logs['stdout.%s' % i] = parsed_results[i].output.split('\n')
 
     # TODO(mknyszek): add task IDs to error results so this information can be
     # more detailed.
     if any([result.is_task_failure() for result in parsed_results]):
       raise self.m.step.StepFailure('Test task failed. See logs.')
+    elif any([result.output is None for result in parsed_results]):
+      raise self.m.step.InfraFailure('No result JSON found. Check stdout for details.')
     elif any([result.is_infra_failure() for result in parsed_results]):
       raise self.m.step.InfraFailure('Received failure from server when trying to collect.')
 

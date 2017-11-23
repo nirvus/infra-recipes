@@ -4,6 +4,7 @@
 
 DEPS = [
   'swarming',
+  'recipe_engine/json',
   'recipe_engine/path',
 ]
 
@@ -48,3 +49,4 @@ def GenTests(api):
   yield api.test('basic') + api.step_data('collect', api.swarming.collect_result())
   yield api.test('task_failure') + api.step_data('collect', api.swarming.collect_result(task_failure=True))
   yield api.test('infra_failure') + api.step_data('collect', api.swarming.collect_result(infra_failure=True))
+  yield api.test('infra_failure_no_out') + api.step_data('collect', api.json.output({'tasks': [{}]}))

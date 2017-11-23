@@ -231,7 +231,7 @@ def RunTestsInTask(api, target, isolated_hash):
         isolated=isolated_hash,
         dump_json=api.path.join(api.path['tmp_base'], 'qemu_test_results.json'),
         dimensions={
-          'pool': 'Fuchsia',
+          'pool': 'luci.fuchsia.ci',
           'os':   'Debian',
           'cpu':  target,
           'kvm':  '1',

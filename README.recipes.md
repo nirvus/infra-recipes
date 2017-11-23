@@ -712,9 +712,9 @@ Recipe for building Fuchsia SDKs.
 &mdash; **def [RunSteps](/recipe_modules/service_account/examples/full.py#10)(api):**
 ### *recipes* / [swarming:examples/full](/recipe_modules/swarming/examples/full.py)
 
-[DEPS](/recipe_modules/swarming/examples/full.py#5): [swarming](#recipe_modules-swarming), [recipe\_engine/path][recipe_engine/recipe_modules/path]
+[DEPS](/recipe_modules/swarming/examples/full.py#5): [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path]
 
-&mdash; **def [RunSteps](/recipe_modules/swarming/examples/full.py#11)(api):**
+&mdash; **def [RunSteps](/recipe_modules/swarming/examples/full.py#12)(api):**
 ### *recipes* / [tar:examples/full](/recipe_modules/tar/examples/full.py)
 
 [DEPS](/recipe_modules/tar/examples/full.py#5): [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step]
