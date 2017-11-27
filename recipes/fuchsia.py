@@ -118,7 +118,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
       api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
       api.step.active_result.presentation.logs['autorun.sh'] = autorun
     else:
-      modules.append('build/gn/boot_test_runner')
+      modules.append('garnet/packages/boot_test_runner')
 
   goma_env = {}
   if api.properties.get('goma_local_cache', False):
