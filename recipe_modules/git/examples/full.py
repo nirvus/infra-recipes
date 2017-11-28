@@ -22,6 +22,9 @@ def RunSteps(api):
       url,
       path=api.properties.get('path'),
       ref=api.properties.get('revision'),
+      recursive=True,
+      submodules=True,
+      submodule_force=True,
       remote=api.properties.get('remote'),
       file=api.properties.get('checkout_file'))
 

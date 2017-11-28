@@ -23,8 +23,21 @@ class GitApi(recipe_api.RecipeApi):
       git_cmd.extend(['-c', '%s=%s' % (k, v)])
     return self.m.step(name, git_cmd + list(args), **kwargs)
 
-  def checkout(self, url, path=None, ref=None, remote='origin', file=None, **kwargs):
-    """Checkout a given ref and return the checked out revision."""
+  def checkout(self, url, path=None, ref=None, recursive=False,
+               submodules=True, submodule_force=False, remote='origin',
+               file=None, **kwargs):
+    """Checkout a given ref and return the checked out revision.
+
+    Args:
+      url (str): url of remote repo to use as upstream
+      path (Path): directory to clone into
+      ref (str): ref to fetch and check out
+      recursive (bool): whether to recursively fetch submodules or not
+      submodules (bool): whether to sync and update submodules or not
+      submodule_force (bool): whether to update submodules with --force
+      remote (str): name of the remote to use
+      file (str): optional path to a single file to checkout
+    """
     if not path:
       path = url.rsplit('/', 1)[-1]
       if path.endswith('.git'):  # https://host/foobar.git
@@ -54,6 +67,8 @@ class GitApi(recipe_api.RecipeApi):
         fetch_ref = ref
         checkout_ref = 'FETCH_HEAD'
       fetch_args = [x for x in (remote, fetch_ref) if x]
+      if recursive:
+        fetch_args.append('--recurse-submodules')
       self('fetch', *fetch_args, **kwargs)
       if file:
         self('checkout', '-f', checkout_ref, '--', file, **kwargs)
@@ -62,8 +77,19 @@ class GitApi(recipe_api.RecipeApi):
       step = self('rev-parse', 'HEAD', stdout=self.m.raw_io.output(),
                   step_test_data=lambda:
                       self.m.raw_io.test_api.stream_output('deadbeef'))
+      sha = step.stdout.strip()
+      step.presentation.properties['got_revision'] = sha
       self('clean', '-f', '-d', '-x', **kwargs)
-      return step.stdout.strip()
+      if submodules:
+        self('submodule', 'sync', name='submodule sync')
+        submodule_update_args = ['--init']
+        if recursive:
+          submodule_update_args.append('--recursive')
+        if submodule_force:
+          submodule_update_args.append('--force')
+        self('submodule', 'update', *submodule_update_args,
+             name='submodule update', **kwargs)
+      return sha
 
   def commit(self, message, *files, **kwargs):
     return self('commit', '-m', message, *files, **kwargs)

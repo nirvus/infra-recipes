@@ -37,7 +37,8 @@
     "cmd": [
       "git",
       "fetch",
-      "master"
+      "master",
+      "--recurse-submodules"
     ],
     "cwd": "[START_DIR]/fuchsia",
     "name": "git fetch"
@@ -62,7 +63,10 @@
     ],
     "cwd": "[START_DIR]/fuchsia",
     "name": "git rev-parse",
-    "stdout": "/path/to/tmp/"
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
   },
   {
     "cmd": [
@@ -74,6 +78,27 @@
     ],
     "cwd": "[START_DIR]/fuchsia",
     "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/fuchsia",
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init",
+      "--recursive",
+      "--force"
+    ],
+    "cwd": "[START_DIR]/fuchsia",
+    "name": "submodule update"
   },
   {
     "cmd": [

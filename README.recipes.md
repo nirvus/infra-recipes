@@ -177,23 +177,33 @@ GitApi provides support for Git.
 
 Return a git command step.
 
-&mdash; **def [checkout](/recipe_modules/git/api.py#26)(self, url, path=None, ref=None, remote='origin', file=None, \*\*kwargs):**
+&mdash; **def [checkout](/recipe_modules/git/api.py#26)(self, url, path=None, ref=None, recursive=False, submodules=True, submodule_force=False, remote='origin', file=None, \*\*kwargs):**
 
 Checkout a given ref and return the checked out revision.
 
-&mdash; **def [commit](/recipe_modules/git/api.py#68)(self, message, \*files, \*\*kwargs):**
+Args:
+  url (str): url of remote repo to use as upstream
+  path (Path): directory to clone into
+  ref (str): ref to fetch and check out
+  recursive (bool): whether to recursively fetch submodules or not
+  submodules (bool): whether to sync and update submodules or not
+  submodule_force (bool): whether to update submodules with --force
+  remote (str): name of the remote to use
+  file (str): optional path to a single file to checkout
 
-&mdash; **def [get\_hash](/recipe_modules/git/api.py#82)(self, commit='HEAD', \*\*kwargs):**
+&mdash; **def [commit](/recipe_modules/git/api.py#94)(self, message, \*files, \*\*kwargs):**
+
+&mdash; **def [get\_hash](/recipe_modules/git/api.py#108)(self, commit='HEAD', \*\*kwargs):**
 
 Find and return the hash of the given commit.
 
-&mdash; **def [get\_timestamp](/recipe_modules/git/api.py#89)(self, commit='HEAD', test_data=None, \*\*kwargs):**
+&mdash; **def [get\_timestamp](/recipe_modules/git/api.py#115)(self, commit='HEAD', test_data=None, \*\*kwargs):**
 
 Find and return the timestamp of the given commit.
 
-&mdash; **def [push](/recipe_modules/git/api.py#71)(self, ref, remote='origin', \*\*kwargs):**
+&mdash; **def [push](/recipe_modules/git/api.py#97)(self, ref, remote='origin', \*\*kwargs):**
 
-&mdash; **def [rebase](/recipe_modules/git/api.py#74)(self, branch='master', remote='origin', \*\*kwargs):**
+&mdash; **def [rebase](/recipe_modules/git/api.py#100)(self, branch='master', remote='origin', \*\*kwargs):**
 
 Run rebase HEAD onto branch
 ### *recipe_modules* / [gitiles](/recipe_modules/gitiles)
