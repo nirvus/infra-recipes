@@ -312,19 +312,21 @@
     "cmd": [
       "make",
       "-j2",
-      "zircon-qemu-arm64"
+      "PROJECT=user-x86-64",
+      "user-only"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build zircon-qemu-arm64"
+    "name": "build user-x86-64"
   },
   {
     "cmd": [
       "make",
       "-j2",
-      "zircon-pc-x86-64"
+      "PROJECT=user-arm64",
+      "user-only"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build zircon-pc-x86-64"
+    "name": "build user-arm64"
   },
   {
     "cmd": [
@@ -378,7 +380,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n[target.x86_64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=x86_64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/zircon/build-zircon-pc-x86-64/sysroot\"]\n\n[target.aarch64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=aarch64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/zircon/build-zircon-qemu-arm64/sysroot\"]\n",
+      "\n[target.x86_64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=x86_64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/zircon/build-user-x86-64/sysroot\"]\n\n[target.aarch64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=aarch64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/zircon/build-user-arm64/sysroot\"]\n",
       "[TMP_BASE]/rust_tmp_1/.cargo/config"
     ],
     "infra_step": true,
@@ -396,8 +398,8 @@
     "cwd": "[TMP_BASE]/rust_tmp_1/build",
     "env": {
       "CARGO_HOME": "[TMP_BASE]/rust_tmp_1/.cargo",
-      "CFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/zircon/build-zircon-qemu-arm64/sysroot",
-      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/zircon/build-zircon-pc-x86-64/sysroot"
+      "CFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/zircon/build-user-arm64/sysroot",
+      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/zircon/build-user-x86-64/sysroot"
     },
     "env_prefixes": {
       "PATH": [

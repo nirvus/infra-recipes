@@ -120,12 +120,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   # build zircon
   zircon_dir = api.path['start_dir'].join('zircon')
 
-  for target in ['zircon-qemu-arm64', 'zircon-pc-x86-64']:
+  for project in ['user-x86-64', 'user-arm64']:
     with api.context(cwd=zircon_dir):
-      api.step('build %s' % target, [
+      api.step('build ' + project, [
         'make',
         '-j%s' % api.platform.cpu_count,
-        target,
+        'PROJECT=' + project,
+        'user-only',
       ])
 
   # build clang+llvm
@@ -159,8 +160,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '-DSWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
       '-DBOOTSTRAP_SWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
       '-DCMAKE_INSTALL_PREFIX=',
-      '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-zircon-pc-x86-64', 'sysroot'),
-      '-DFUCHSIA_aarch64_SYSROOT=%s' % zircon_dir.join('build-zircon-qemu-arm64', 'sysroot'),
+      '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-user-x86-64', 'sysroot'),
+      '-DFUCHSIA_aarch64_SYSROOT=%s' % zircon_dir.join('build-user-arm64', 'sysroot'),
     ] + extra_options + [
       '-C', clang_dir.join('cmake', 'caches', 'Fuchsia.cmake'),
       llvm_dir,

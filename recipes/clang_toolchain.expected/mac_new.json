@@ -343,19 +343,21 @@
     "cmd": [
       "make",
       "-j2",
-      "zircon-qemu-arm64"
+      "PROJECT=user-x86-64",
+      "user-only"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build zircon-qemu-arm64"
+    "name": "build user-x86-64"
   },
   {
     "cmd": [
       "make",
       "-j2",
-      "zircon-pc-x86-64"
+      "PROJECT=user-arm64",
+      "user-only"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build zircon-pc-x86-64"
+    "name": "build user-arm64"
   },
   {
     "cmd": [
@@ -383,8 +385,8 @@
       "-DSWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
       "-DBOOTSTRAP_SWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
       "-DCMAKE_INSTALL_PREFIX=",
-      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/zircon/build-zircon-pc-x86-64/sysroot",
-      "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/zircon/build-zircon-qemu-arm64/sysroot",
+      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/zircon/build-user-x86-64/sysroot",
+      "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/zircon/build-user-arm64/sysroot",
       "-C",
       "[START_DIR]/third_party/llvm/tools/clang/cmake/caches/Fuchsia.cmake",
       "[START_DIR]/third_party/llvm"

@@ -102,7 +102,11 @@ def RunSteps(api, url, ref, revision):
 
   with api.context(infra_steps=True):
     api.jiri.init()
-    api.jiri.import_manifest('manifest', 'https://fuchsia.googlesource.com/zircon', 'zircon')
+    api.jiri.import_manifest(
+        'manifest',
+        'https://fuchsia.googlesource.com/zircon',
+        'zircon'
+    )
     api.jiri.update()
 
     rust_dir = api.path['start_dir'].join('rust')
@@ -121,12 +125,13 @@ def RunSteps(api, url, ref, revision):
   # build zircon
   zircon_dir = api.path['start_dir'].join('zircon')
 
-  for target in ['zircon-qemu-arm64', 'zircon-pc-x86-64']:
+  for project in ['user-x86-64', 'user-arm64']:
     with api.context(cwd=zircon_dir):
-      api.step('build %s' % target, [
+      api.step('build ' + project, [
         'make',
         '-j%s' % api.platform.cpu_count,
-        target,
+        'PROJECT=' + project,
+        'user-only',
       ])
 
   # build rust
@@ -146,8 +151,8 @@ def RunSteps(api, url, ref, revision):
       )
   )
 
-  x86_64_sysroot = zircon_dir.join('build-zircon-pc-x86-64', 'sysroot')
-  aarch64_sysroot = zircon_dir.join('build-zircon-qemu-arm64', 'sysroot')
+  x86_64_sysroot = zircon_dir.join('build-user-x86-64', 'sysroot')
+  aarch64_sysroot = zircon_dir.join('build-user-arm64', 'sysroot')
 
   cargo_dir = staging_dir.join('.cargo')
   api.file.ensure_directory('.cargo', cargo_dir)
