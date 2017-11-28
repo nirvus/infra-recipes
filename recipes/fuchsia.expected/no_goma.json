@@ -198,7 +198,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
-      "--packages=build/gn/default",
+      "--packages=topaz/packages/default",
       "--goma=/path/to/goma"
     ],
     "name": "build fuchsia.gen",

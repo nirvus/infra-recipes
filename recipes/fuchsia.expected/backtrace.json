@@ -263,7 +263,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
-      "--packages=build/gn/default,garnet/packages/boot_test_runner",
+      "--packages=topaz/packages/default,garnet/packages/boot_test_runner",
       "--goma=[START_DIR]/cipd/goma"
     ],
     "name": "build fuchsia.gen",

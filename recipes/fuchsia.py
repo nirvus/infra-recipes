@@ -58,7 +58,7 @@ PROPERTIES = {
   'build_type': Property(kind=Enum('debug', 'release', 'thinlto', 'lto'),
                          help='The build type', default='debug'),
   'modules': Property(kind=List(basestring), help='Packages to build',
-                      default=['build/gn/default']),
+                      default=[]),
   'tests': Property(kind=str,
                     help='Path to config file listing tests to run, or (when using autorun) command to run tests',
                     default=None),
@@ -443,6 +443,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='tests.json',
       use_autorun=False,
   )
@@ -450,6 +451,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='tests.json',
       use_autorun=False,
   ) + api.step_data('run tests', retcode=1)
@@ -457,6 +459,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='tests.json',
       use_autorun=False,
   ) + api.step_data('run tests', retcode=1,
@@ -467,36 +470,42 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_failed_qemu') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
   ) + api.step_data('run tests', retcode=1)
   yield api.test('autorun_no_results') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
   ) + api.step_data('run tests', api.raw_io.stream_output(TEST_SHUTDOWN))
   yield api.test('autorun_tests_timeout') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
   ) + api.step_data('run tests', retcode=2)
   yield api.test('autorun_failed_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_backtrace') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed'),
   ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
@@ -506,6 +515,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
       use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result())
@@ -513,6 +523,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
       use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(task_failure=True))
@@ -520,6 +531,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tests='runtests',
       use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(infra_failure=True))
@@ -529,6 +541,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       autorun=False,
   )
   yield api.test('garnet') + api.properties(
@@ -536,18 +549,21 @@ def GenTests(api):
       manifest='manifest/garnet',
       remote='https://fuchsia.googlesource.com/garnet',
       target='x86-64',
+      modules=['topaz/packages/default'],
       autorun=False,
   )
   yield api.test('peridot') + api.properties(
       manifest='peridot',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       autorun=False,
   )
   yield api.test('no_goma') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       goma_dir='/path/to/goma',
       autorun=False,
   )
@@ -555,6 +571,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       goma_local_cache=True,
       autorun=False,
   )
@@ -562,6 +579,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='arm64',
+      modules=['topaz/packages/default'],
       tests='tests.json',
       autorun=False,
   )
@@ -569,6 +587,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       build_type='release',
       autorun=False,
   )
@@ -576,6 +595,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       build_type='lto',
       autorun=False,
   )
@@ -583,6 +603,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       build_type='thinlto',
       autorun=False,
   )
@@ -592,6 +613,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       autorun=False,
       tryjob=True,
   )
@@ -601,6 +623,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       tryjob=True,
       autorun=False,
       gn_args=['super_arg=false', 'less_super_arg=true'],
@@ -612,6 +635,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      modules=['topaz/packages/default'],
       autorun=False,
       tryjob=True,
   )
