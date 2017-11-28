@@ -1,6 +1,36 @@
 [
   {
     "cmd": [],
+    "name": "ensure_gitiles"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gitiles",
+      "-ensure-file",
+      "infra/tools/luci/gitiles/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gitiles.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "ensure_gsutil"
   },
   {
@@ -61,294 +91,20 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "init",
-      "-analytics-opt=false",
-      "-rewrite-sso-to-https=true",
-      "-cache",
-      "[CACHE]/git",
-      "-shared"
-    ],
-    "infra_step": true,
-    "name": "jiri init"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "import",
-      "toolchain",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "infra_step": true,
-    "name": "jiri import"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-autoupdate=false",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks"
-    ],
-    "infra_step": true,
-    "name": "jiri run-hooks"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "source-manifest",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "jiri source-manifest",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
-      "@@@STEP_LOG_END@json.output[source manifest]@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
       "-json-output",
       "/path/to/tmp/json",
-      "third_party/clang"
+      "https://fuchsia.googlesource.com/third_party/llvm-project",
+      "refs/heads"
     ],
-    "infra_step": true,
-    "name": "jiri project",
+    "name": "refs",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"third_party/clang\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/third_party/clang\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/third_party/clang\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "snapshot",
-      "[TMP_BASE]/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "jiri snapshot"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[TMP_BASE]/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "hash snapshot",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[TMP_BASE]/jiri.snapshot",
-      "gs://fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_packages"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "fuchsia/clang/${platform} latest\nfuchsia/sysroot/${platform} latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\ninfra/swig/${platform} version:3.0.12",
-      "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
-    ],
-    "infra_step": true,
-    "name": "ensure_packages.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.9.2---\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.0.12--\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/swig/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/master\": \"75b05681239cb309a23fcb4f8864f177e5aa62da\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[TMP_BASE]/clang_tmp_1/clang+llvm-x86_64-linux"
-    ],
-    "infra_step": true,
-    "name": "create pkg dir"
-  },
-  {
-    "cmd": [
-      "make",
-      "-j2",
-      "PROJECT=user-x86-64",
-      "user-only"
-    ],
-    "cwd": "[START_DIR]/zircon",
-    "name": "build user-x86-64"
-  },
-  {
-    "cmd": [
-      "make",
-      "-j2",
-      "PROJECT=user-arm64",
-      "user-only"
-    ],
-    "cwd": "[START_DIR]/zircon",
-    "name": "build user-arm64"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[TMP_BASE]/clang_tmp_1/llvm_build_dir"
-    ],
-    "infra_step": true,
-    "name": "create llvm build dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "set(CMAKE_SYSROOT [START_DIR]/cipd)",
-      "[TMP_BASE]/clang_tmp_1/Toolchain.cmake"
-    ],
-    "infra_step": true,
-    "name": "write Toolchain.cmake"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bin/cmake",
-      "-GNinja",
-      "-DCMAKE_C_COMPILER=[START_DIR]/cipd/bin/clang",
-      "-DCMAKE_CXX_COMPILER=[START_DIR]/cipd/bin/clang++",
-      "-DCMAKE_ASM_COMPILER=[START_DIR]/cipd/bin/clang",
-      "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
-      "-DSWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
-      "-DBOOTSTRAP_SWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
-      "-DCMAKE_INSTALL_PREFIX=",
-      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/zircon/build-user-x86-64/sysroot",
-      "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/zircon/build-user-arm64/sysroot",
-      "-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++",
-      "-DBOOTSTRAP_CMAKE_TOOLCHAIN_FILE=[TMP_BASE]/clang_tmp_1/Toolchain.cmake",
-      "-C",
-      "[START_DIR]/third_party/llvm/tools/clang/cmake/caches/Fuchsia.cmake",
-      "[START_DIR]/third_party/llvm"
-    ],
-    "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
-    "name": "configure clang"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/ninja",
-      "stage2-distribution"
-    ],
-    "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
-    "name": "build clang"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/ninja",
-      "stage2-install-distribution"
-    ],
-    "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
-    "env": {
-      "DESTDIR": "[TMP_BASE]/clang_tmp_1/clang+llvm-x86_64-linux"
-    },
-    "name": "install clang"
-  },
-  {
-    "cmd": [
-      "[TMP_BASE]/clang_tmp_1/llvm_build_dir/bin/clang",
-      "--version"
-    ],
-    "name": "clang version",
-    "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [
@@ -356,13 +112,13 @@
       "search",
       "fuchsia/clang/linux-amd64",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/clang/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "name": "cipd search fuchsia/clang/linux-amd64 git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",

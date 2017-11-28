@@ -550,11 +550,11 @@ Step to uncompress |tar_file| file.
 &mdash; **def [RunSteps](/recipe_modules/cipd/examples/platform_suffix.py#24)(api, arch_override, bits_override, expect_error):**
 ### *recipes* / [clang\_toolchain](/recipes/clang_toolchain.py)
 
-[DEPS](/recipes/clang_toolchain.py#13): [cipd](#recipe_modules-cipd), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/clang_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Clang toolchain.
 
-&mdash; **def [RunSteps](/recipes/clang_toolchain.py#42)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote):**
+&mdash; **def [RunSteps](/recipes/clang_toolchain.py#40)(api, url, ref, revision):**
 ### *recipes* / [cobalt](/recipes/cobalt.py)
 
 [DEPS](/recipes/cobalt.py#10): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -583,7 +583,7 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#108)(api, build_type, target, gn_target, fuchsia_build_dir, modules, tests, use_autorun, use_isolate, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#108)(api, build_type, target, gn_target, fuchsia_build_dir, packages, tests, use_autorun, use_isolate, gn_args):**
 
 &mdash; **def [BuildZircon](/recipes/fuchsia.py#98)(api, zircon_project):**
 
@@ -591,7 +591,7 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#166)(api, target, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#388)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, modules, tests, use_autorun, use_isolate, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#388)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, tests, use_autorun, use_isolate, goma_dir, gn_args):**
 
 &mdash; **def [RunTestsInTask](/recipes/fuchsia.py#197)(api, target, isolated_hash):**
 
@@ -700,7 +700,7 @@ Recipe for building Rust toolchain.
 
 Recipe for building Fuchsia SDKs.
 
-&mdash; **def [BuildFuchsia](/recipes/sdk.py#73)(api, release_build, gn_target, fuchsia_build_dir, modules, use_goma, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/sdk.py#73)(api, release_build, gn_target, fuchsia_build_dir, packages, use_goma, gn_args):**
 
 &mdash; **def [BuildZircon](/recipes/sdk.py#56)(api, project):**
 

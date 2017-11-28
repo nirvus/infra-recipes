@@ -12,6 +12,8 @@ import re
 
 DEPS = [
   'infra/cipd',
+  'infra/git',
+  'infra/gitiles',
   'infra/gsutil',
   'infra/hash',
   'infra/jiri',
@@ -26,38 +28,42 @@ DEPS = [
   'recipe_engine/tempfile',
 ]
 
+LLVM_PROJECT_GIT = 'https://fuchsia.googlesource.com/third_party/llvm-project'
+
 PROPERTIES = {
-  'category': Property(kind=str, help='Build category', default=None),
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'patch_storage': Property(kind=str, help='Patch location', default=None),
-  'patch_repository_url': Property(kind=str, help='URL to a Git repository',
-                                   default=None),
-  'manifest': Property(kind=str, help='Jiri manifest to use'),
-  'remote': Property(kind=str, help='Remote manifest repository'),
+  'url': Property(kind=str, help='Git repository URL', default=LLVM_PROJECT_GIT),
+  'ref': Property(kind=str, help='Git reference', default='refs/heads/master'),
+  'revision': Property(kind=str, help='Revision', default=None),
 }
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, manifest, remote):
+def RunSteps(api, url, ref, revision):
+  api.gitiles.ensure_gitiles()
   api.gsutil.ensure_gsutil()
   api.jiri.ensure_jiri()
 
   api.cipd.set_service_account_credentials(
       api.cipd.default_bot_service_account_credentials)
 
+  if not revision:
+    revision = api.gitiles.refs(url).get(ref, None)
+  cipd_pkg_name = 'fuchsia/clang/' + api.cipd.platform_suffix()
+  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if step.json.output['result']:
+    api.step('Package is up-to-date', cmd=None)
+    return
+
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
-    revision = api.jiri.project(['third_party/clang']).json.output[0]['revision']
-    snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
-    api.jiri.snapshot(snapshot_file)
-    digest = api.hash.sha1('hash snapshot', snapshot_file,
-                           test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
-    api.gsutil.upload('fuchsia-snapshots', snapshot_file, digest,
-        link_name='jiri.snapshot',
-        name='upload jiri.snapshot',
-        unauthenticated_url=True)
+    api.jiri.init()
+    api.jiri.import_manifest(
+        'manifest',
+        'https://fuchsia.googlesource.com/zircon',
+        'zircon'
+    )
+    api.jiri.update()
+
+    llvm_dir = api.path['start_dir'].join('llvm-project')
+    api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
@@ -92,9 +98,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       ])
 
   # build clang+llvm
-  llvm_dir = api.path['start_dir'].join('third_party', 'llvm')
-  clang_dir = llvm_dir.join('tools', 'clang')
-
   build_dir = staging_dir.join('llvm_build_dir')
   api.file.ensure_directory('create llvm build dir', build_dir)
 
@@ -119,14 +122,16 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
       '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
       '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
+      '-DCMAKE_INSTALL_PREFIX=',
       '-DSWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
       '-DBOOTSTRAP_SWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
-      '-DCMAKE_INSTALL_PREFIX=',
       '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-user-x86-64', 'sysroot'),
       '-DFUCHSIA_aarch64_SYSROOT=%s' % zircon_dir.join('build-user-arm64', 'sysroot'),
+      '-DLLVM_ENABLE_PROJECTS=clang;lldb;lld',
+      '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
     ] + extra_options + [
-      '-C', clang_dir.join('cmake', 'caches', 'Fuchsia.cmake'),
-      llvm_dir,
+      '-C', llvm_dir.join('clang', 'cmake', 'caches', 'Fuchsia.cmake'),
+      llvm_dir.join('llvm'),
     ])
     api.step('build clang', [cipd_dir.join('ninja'), 'stage2-distribution'])
     # TODO: llvm tests are currently failing failing on the bot, temporarily
@@ -146,11 +151,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   assert m, 'Cannot determine Clang version'
   clang_version = m.group(1)
 
-  cipd_pkg_name = 'fuchsia/clang/' + api.cipd.platform_suffix()
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if step.json.output['result']:
-    api.step('Package is up-to-date', cmd=None)
-    return
   cipd_pkg_file = api.path['tmp_base'].join('clang.cipd')
 
   api.cipd.build(
@@ -165,8 +165,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       refs=['latest'],
       tags={
         'version': clang_version,
+        'git_repository': LLVM_PROJECT_GIT,
         'git_revision': revision,
-        'jiri_snapshot': digest,
       },
   )
 
@@ -179,18 +179,16 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
 
 def GenTests(api):
+  revision = '75b05681239cb309a23fcb4f8864f177e5aa62da'
   version = 'clang version 5.0.0 (trunk 302207) (llvm/trunk 302209)'
   for platform in ('linux', 'mac'):
     yield (api.test(platform) +
            api.platform.name(platform) +
-           api.properties(manifest='toolchain',
-                          remote='https://fuchsia.googlesource.com/manifest') +
-           api.step_data('clang version', api.raw_io.stream_output(version)))
+           api.gitiles.refs('refs', ('refs/heads/master', revision)))
     yield (api.test(platform + '_new') +
            api.platform.name(platform) +
-           api.properties(manifest='toolchain',
-                          remote='https://fuchsia.googlesource.com/manifest') +
+           api.gitiles.refs('refs', ('refs/heads/master', revision)) +
            api.step_data('clang version', api.raw_io.stream_output(version)) +
            api.step_data('cipd search fuchsia/clang/' + platform + '-amd64 ' +
-                         'git_revision:' + api.jiri.example_revision,
+                         'git_revision:' + revision,
                          api.json.output({'result': []})))
