@@ -178,7 +178,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
-      "--packages=build/gn/sdk",
+      "--packages=garnet/packages/sdk",
       "--ignore-skia",
       "--release"
     ],
@@ -208,7 +208,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=aarch64",
-      "--packages=build/gn/sdk",
+      "--packages=garnet/packages/sdk",
       "--ignore-skia",
       "--release"
     ],

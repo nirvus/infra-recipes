@@ -240,7 +240,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
-      "--packages=build/gn/sdk",
+      "--packages=garnet/packages/sdk",
       "--ignore-skia",
       "--goma=[START_DIR]/cipd/goma",
       "--release"
@@ -369,7 +369,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=aarch64",
-      "--packages=build/gn/sdk",
+      "--packages=garnet/packages/sdk",
       "--ignore-skia",
       "--goma=[START_DIR]/cipd/goma",
       "--release"

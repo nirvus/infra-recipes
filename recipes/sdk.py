@@ -176,7 +176,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url)
 
-  modules = ['build/gn/sdk']
+  modules = ['garnet/packages/sdk']
   build_type = 'release'
   release_build = True
   gn_targets = ['x86-64', 'aarch64']
