@@ -262,7 +262,7 @@
       "[START_DIR]/out/release-x86-64",
       "-j",
       "50",
-      "libwebkit"
+      "topaz/runtime/web_view:webkit"
     ],
     "name": "build fuchsia.ninja",
     "~followup_annotations": [

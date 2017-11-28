@@ -74,7 +74,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.path['start_dir'].join('buildtools/ninja'),
       '-C', fuchsia_build_dir,
       '-j', api.goma.recommended_goma_jobs,
-      'libwebkit',
+      'topaz/runtime/web_view:webkit',
     ])
 
   gn_target = {'aarch64': 'arm64', 'x86_64': 'x64'}[target]
