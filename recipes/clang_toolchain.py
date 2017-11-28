@@ -79,44 +79,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   pkg_dir = staging_dir.join(pkg_name)
   api.file.ensure_directory('create pkg dir', pkg_dir)
 
-  # build binutils
-  # TODO: remove this once we have objcopy/strip replacement
-  binutils_dir = api.path['start_dir'].join('third_party', 'binutils-gdb')
-
-  build_dir = staging_dir.join('binutils_build_dir')
-  api.file.ensure_directory('create binutils build dir', build_dir)
-
-  install_dir = staging_dir.join('binutils_install_dir')
-
-  with api.context(cwd=build_dir):
-    api.step('configure binutils', [
-      binutils_dir.join('configure'),
-      '--prefix=',
-      '--program-prefix=',
-      '--enable-targets=aarch64-elf,x86_64-elf,x86_64-darwin',
-      '--enable-deterministic-archives',
-      '--disable-werror',
-      '--disable-nls',
-    ])
-    api.step('build binutils', [
-      'make',
-      '-j%s' % api.platform.cpu_count,
-      'all-binutils',
-    ])
-    with api.context(env={'DESTDIR': install_dir}):
-      api.step('install binutils', [
-        'make',
-        'install-strip-binutils',
-      ])
-
-  api.file.ensure_directory('create bin dir', pkg_dir.join('bin'))
-  api.file.copy('copy objcopy',
-                install_dir.join('bin', 'objcopy'),
-                pkg_dir.join('bin', 'objcopy'))
-  api.file.copy('copy strip',
-                install_dir.join('bin', 'strip'),
-                pkg_dir.join('bin', 'strip'))
-
   # build zircon
   zircon_dir = api.path['start_dir'].join('zircon')
 
