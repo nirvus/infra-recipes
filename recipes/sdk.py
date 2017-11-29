@@ -71,12 +71,12 @@ def GomaContext(api, use_goma):
 
 
 def BuildFuchsia(api, release_build, gn_target, fuchsia_build_dir,
-                 modules, use_goma, gn_args):
+                 packages, use_goma, gn_args):
   with api.step.nest('build fuchsia %s' % gn_target), GomaContext(api, use_goma):
     gen_cmd = [
         api.path['start_dir'].join('build', 'gn', 'gen.py'),
         '--target_cpu=%s' % gn_target,
-        '--packages=%s' % ','.join(modules),
+        '--packages=%s' % ','.join(packages),
         '--ignore-skia'
     ]
 
@@ -176,7 +176,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url)
 
-  modules = ['garnet/packages/sdk']
+  packages = ['garnet/packages/sdk']
   build_type = 'release'
   release_build = True
   gn_targets = ['x86-64', 'aarch64']
@@ -188,7 +188,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   for gn_target in gn_targets:
       fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
       BuildFuchsia(api, release_build, gn_target,
-                   fuchsia_build_dir, modules, use_goma, gn_args)
+                   fuchsia_build_dir, packages, use_goma, gn_args)
 
   outdir = api.path.mkdtemp('sdk')
   sdk = api.path['tmp_base'].join('fuchsia-sdk.tgz')
