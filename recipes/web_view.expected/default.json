@@ -324,7 +324,7 @@
   {
     "cmd": [
       "vpython",
-      "-spec",
+      "-vpython-spec",
       "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
       "-u",
       "[START_DIR]/cipd/gsutil/gsutil",
