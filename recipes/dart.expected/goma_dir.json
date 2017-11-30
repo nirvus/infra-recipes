@@ -217,6 +217,8 @@
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu",
       "x86-64",
+      "--packages",
+      "topaz/packages/default",
       "--goma=/goma",
       "--args=extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]",
       "--autorun=[TMP_BASE]/autorun"

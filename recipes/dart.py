@@ -86,6 +86,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
       gen_cmd = [
         api.path['start_dir'].join('build', 'gn', 'gen.py'),
         '--target_cpu', gn_target,
+        '--packages', 'topaz/packages/default',
       ]
 
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
