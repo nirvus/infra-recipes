@@ -568,36 +568,36 @@ Recipe for building and testing Cobalt.
 
 Builds the Fuchsia Dart test image and runs the Dart tests.
 
-&mdash; **def [BuildFuchsia](/recipes/dart.py#63)(api, build_type, target, gn_target, fuchsia_build_dir):**
+&mdash; **def [BuildFuchsia](/recipes/dart.py#66)(api, build_type, target, gn_target, fuchsia_build_dir):**
 
-&mdash; **def [BuildZircon](/recipes/dart.py#54)(api, zircon_project):**
+&mdash; **def [BuildZircon](/recipes/dart.py#57)(api, zircon_project):**
 
-&mdash; **def [Checkout](/recipes/dart.py#47)(api, manifest, remote):**
+&mdash; **def [Checkout](/recipes/dart.py#50)(api, manifest, remote):**
 
-&mdash; **def [RunSteps](/recipes/dart.py#180)(api, manifest, remote, target, build_type, goma_dir):**
+&mdash; **def [RunSteps](/recipes/dart.py#178)(api, manifest, remote, target, build_type, goma_dir):**
 
-&mdash; **def [RunTests](/recipes/dart.py#109)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunTests](/recipes/dart.py#112)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolate](#recipe_modules-isolate), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#119)(api, build_type, target, gn_target, fuchsia_build_dir, packages, tests, use_autorun, use_isolate, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#122)(api, build_type, target, gn_target, fuchsia_build_dir, packages, tests, use_autorun, use_isolate, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#109)(api, zircon_project):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#112)(api, zircon_project):**
 
-&mdash; **def [Checkout](/recipes/fuchsia.py#88)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
+&mdash; **def [Checkout](/recipes/fuchsia.py#91)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
 
-&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#179)(api, target, zircon_build_dir, fuchsia_build_dir):**
+&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#182)(api, target, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#407)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, tests, use_autorun, use_isolate, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#390)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, tests, use_autorun, use_isolate, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#210)(api, target, isolated_hash, tests):**
+&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#208)(api, target, isolated_hash, tests):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#330)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#318)(api, target, fuchsia_build_dir, tests):**
 
-&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#264)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#257)(api, target, fuchsia_build_dir, tests):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -750,11 +750,11 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#119)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#122)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#78)(api, name, build_dir, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/zircon.py#81)(api, name, build_dir, \*args, \*\*kwargs):**
 
-&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#73)():**
+&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#76)():**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/6d6af8922b3707d7b02c8ed31f5a839a9be7eb80/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/6d6af8922b3707d7b02c8ed31f5a839a9be7eb80/README.recipes.md#recipe_modules-file

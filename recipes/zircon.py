@@ -52,6 +52,9 @@ CORE_TESTS_MATCH = r'CASES: +(\d+) +SUCCESS: +(\d+) +FAILED: +(?P<failed>\d+)'
 # Test summary from the runtests command on a booted system.
 BOOTED_TESTS_MATCH = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
 
+# The kernel binary to pass to qemu.
+ZIRCON_IMAGE_NAME = 'zircon.bin'
+
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
@@ -168,24 +171,20 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if run_tests:
     api.qemu.ensure_qemu()
 
-  arch = {
-    'zircon-hikey960-arm64': 'aarch64',
-    'zircon-rpi3-arm64': 'aarch64',
-    'zircon-qemu-arm64': 'aarch64',
-    'zircon-pc-x86-64': 'x86_64',
-    'pc-x86-64-test': 'x86_64',
-    'qemu-virt-a53-test': 'aarch64',
-  }[target]
+    arch = {
+      'zircon-hikey960-arm64': 'aarch64',
+      'zircon-rpi3-arm64': 'aarch64',
+      'zircon-qemu-arm64': 'aarch64',
+      'zircon-pc-x86-64': 'x86_64',
+      'pc-x86-64-test': 'x86_64',
+      'qemu-virt-a53-test': 'aarch64',
+    }[target]
 
-  build_dir = api.path['start_dir'].join('zircon', 'build-%s' % target + tc_suffix)
-  bootdata_path = build_dir.join('bootdata.bin')
+    build_dir = api.path['start_dir'].join(
+        'zircon', 'build-%s' % target + tc_suffix)
+    bootdata_path = build_dir.join('bootdata.bin')
+    image_path = build_dir.join(ZIRCON_IMAGE_NAME)
 
-  image_path = build_dir.join({
-    'aarch64': 'zircon.elf',
-    'x86_64': 'zircon.bin',
-  }[arch])
-
-  if run_tests:
     # Run core tests with userboot.
     RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
         initrd=bootdata_path, cmdline='userboot=bin/core-tests',

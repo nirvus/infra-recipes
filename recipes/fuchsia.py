@@ -54,6 +54,9 @@ RUNCMDS_PACKAGE = '''
 }
 '''
 
+# The kernel binary to pass to qemu.
+ZIRCON_IMAGE_NAME = 'zircon.bin'
+
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
@@ -177,14 +180,9 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
 
 
 def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
-  zircon_image_name = {
-    'arm64': 'zircon.elf',
-    'x86-64': 'zircon.bin',
-  }[target]
-
   # Copy the images to CWD so that when we later download the artifacts appear
   # in CWD. This eliminates having to do any arcane path logic later.
-  api.file.copy('copy zircon image', zircon_build_dir.join(zircon_image_name), api.path['start_dir'])
+  api.file.copy('copy zircon image', zircon_build_dir.join(ZIRCON_IMAGE_NAME), api.path['start_dir'])
   api.file.copy('copy fs image', fuchsia_build_dir.join('user.bootfs'), api.path['start_dir'])
 
   # Hack that creates an isolate file suitable for consumption by the client.
@@ -194,7 +192,7 @@ def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
   isolate_str = str(api.json.dumps({
     'variables': {
       'files': [
-        os.path.relpath(str(api.path['start_dir'].join(zircon_image_name)), str(api.path['start_dir'])),
+        os.path.relpath(str(api.path['start_dir'].join(ZIRCON_IMAGE_NAME)), str(api.path['start_dir'])),
         os.path.relpath(str(api.path['start_dir'].join('user.bootfs')), str(api.path['start_dir'])),
       ]
     }
@@ -208,11 +206,6 @@ def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
 
 
 def RunTestsInTask(api, target, isolated_hash, tests):
-  zircon_image_name = {
-    'arm64': 'zircon.elf',
-    'x86-64': 'zircon.bin',
-  }[target]
-
   qemu_arch = {
     'arm64': 'aarch64',
     'x86-64': 'x86_64',
@@ -226,7 +219,7 @@ def RunTestsInTask(api, target, isolated_hash, tests):
     '-smp', '4',
     '-nographic',
     '-machine', {'aarch64': 'virt', 'x86_64': 'q35'}[qemu_arch],
-    '-kernel', zircon_image_name,
+    '-kernel', ZIRCON_IMAGE_NAME,
     '-serial', 'stdio',
     '-monitor', 'none',
     '-initrd', 'user.bootfs',
@@ -267,13 +260,8 @@ def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
     'x86-64': 'build-zircon-pc-x86-64',
   }[target]
 
-  zircon_image_name = {
-    'arm64': 'zircon.elf',
-    'x86-64': 'zircon.bin',
-  }[target]
-
   zircon_image_path = api.path['start_dir'].join(
-    'out', 'build-zircon', zircon_build_dir, zircon_image_name)
+    'out', 'build-zircon', zircon_build_dir, ZIRCON_IMAGE_NAME)
 
   bootfs_path = fuchsia_build_dir.join('user.bootfs')
 
@@ -333,13 +321,8 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
     'x86-64': 'build-zircon-pc-x86-64',
   }[target]
 
-  zircon_image_name = {
-    'arm64': 'zircon.elf',
-    'x86-64': 'zircon.bin',
-  }[target]
-
   zircon_image_path = api.path['start_dir'].join(
-    'out', 'build-zircon', zircon_build_dir, zircon_image_name)
+    'out', 'build-zircon', zircon_build_dir, ZIRCON_IMAGE_NAME)
 
   bootfs_path = fuchsia_build_dir.join('user.bootfs')
 

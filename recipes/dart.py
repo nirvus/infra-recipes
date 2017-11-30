@@ -31,6 +31,9 @@ TESTS_PASSED = 'all tests passed'
 TESTS_FAILED = 'tests failed'
 TEST_SHUTDOWN = 'ready for fuchsia shutdown'
 
+# The kernel binary to pass to qemu.
+ZIRCON_IMAGE_NAME = 'zircon.bin'
+
 PROPERTIES = {
   'manifest': Property(kind=str, help='Jiri manifest to use',
                        default='fuchsia'),
@@ -112,13 +115,8 @@ def RunTests(api, target, fuchsia_build_dir):
     'x86-64': 'build-zircon-pc-x86-64',
   }[target]
 
-  zircon_image_name = {
-    'arm64': 'zircon.elf',
-    'x86-64': 'zircon.bin',
-  }[target]
-
   zircon_image_path = api.path['start_dir'].join(
-    'out', 'build-zircon', zircon_build_dir, zircon_image_name)
+    'out', 'build-zircon', zircon_build_dir, ZIRCON_IMAGE_NAME)
 
   bootfs_path = fuchsia_build_dir.join('user.bootfs')
 
