@@ -237,7 +237,6 @@
       "--disable-vhost-vsock",
       "--disable-libusb",
       "--disable-smartcard",
-      "--disable-tools",
       "--disable-tasn1",
       "--disable-opengl",
       "--disable-werror",
