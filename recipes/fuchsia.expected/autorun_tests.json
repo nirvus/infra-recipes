@@ -245,16 +245,43 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "msleep 500\nruntests\necho \"ready for fuchsia shutdown\"",
-      "[TMP_BASE]/autorun"
+      "#!/boot/bin/sh\nmsleep 500\nruntests\necho \"ready for fuchsia shutdown\"",
+      "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
-    "name": "write autorun",
+    "name": "write runcmds",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@echo \"ready for fuchsia shutdown\"@@@",
-      "@@@STEP_LOG_END@autorun.sh@@@"
+      "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
+      "@@@STEP_LOG_LINE@runcmds@echo \"ready for fuchsia shutdown\"@@@",
+      "@@@STEP_LOG_END@runcmds@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "\n{\n    \"resources\": [\n        {\n            \"bootfs_path\": \"data/infra/runcmds\",\n            \"file\": \"[TMP_BASE]/runcmds\"\n        }\n    ]\n}\n",
+      "[TMP_BASE]/runcmds_package"
+    ],
+    "infra_step": true,
+    "name": "write runcmds package",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@runcmds_package@@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@{@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@    \"resources\": [@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@        {@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@            \"bootfs_path\": \"data/infra/runcmds\",@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@            \"file\": \"[TMP_BASE]/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@        }@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@    ]@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@}@@@",
+      "@@@STEP_LOG_END@runcmds_package@@@"
     ]
   },
   {
@@ -283,8 +310,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
-      "--packages=topaz/packages/default",
-      "--autorun=[TMP_BASE]/autorun",
+      "--packages=topaz/packages/default,[TMP_BASE]/runcmds_package",
       "--goma=[START_DIR]/cipd/goma"
     ],
     "name": "build fuchsia.gen",
@@ -399,6 +425,8 @@
       "x86_64",
       "--initrd",
       "[START_DIR]/out/debug-x86-64/user.bootfs",
+      "--cmdline",
+      "zircon.autorun.system=/system/data/infra/runcmds",
       "--shutdown_pattern",
       "ready for fuchsia shutdown",
       "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64/zircon.bin"

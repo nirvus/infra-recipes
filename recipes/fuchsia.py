@@ -43,6 +43,17 @@ TEST_SHUTDOWN = 'ready for fuchsia shutdown'
 
 TEST_RUNNER_PORT = 8342
 
+RUNCMDS_PACKAGE = '''
+{
+    "resources": [
+        {
+            "bootfs_path": "data/infra/runcmds",
+            "file": "%s"
+        }
+    ]
+}
+'''
+
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
@@ -107,16 +118,21 @@ def BuildZircon(api, zircon_project):
 
 def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
                  packages, tests, use_autorun, use_isolate, gn_args):
-  autorun_path = None
   if tests:
     if use_autorun or use_isolate:
-      autorun = {
-        True:  ['msleep 500', tests, 'msleep 15000', 'dm poweroff'],
-        False: ['msleep 500', tests, 'echo "%s"' % TEST_SHUTDOWN],
+      runcmds = {
+        True:  ['#!/boot/bin/sh', 'msleep 500', tests, 'msleep 15000', 'dm poweroff'],
+        False: ['#!/boot/bin/sh', 'msleep 500', tests, 'echo "%s"' % TEST_SHUTDOWN],
       }[use_isolate]
-      autorun_path = api.path['tmp_base'].join('autorun')
-      api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
-      api.step.active_result.presentation.logs['autorun.sh'] = autorun
+      runcmds_path = api.path['tmp_base'].join('runcmds')
+      api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
+      api.step.active_result.presentation.logs['runcmds'] = runcmds
+
+      runcmds_package_path = api.path['tmp_base'].join('runcmds_package')
+      runcmds_package = RUNCMDS_PACKAGE % runcmds_path
+      api.file.write_text('write runcmds package', runcmds_package_path, runcmds_package)
+      api.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
+      packages.append(str(runcmds_package_path))
     else:
       packages.append('garnet/packages/boot_test_runner')
 
@@ -131,9 +147,6 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
         '--target_cpu=%s' % gn_target,
         '--packages=%s' % ','.join(packages),
       ]
-
-      if autorun_path:
-        gen_cmd.append('--autorun=%s' % autorun_path)
 
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
 
@@ -194,7 +207,7 @@ def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
   return api.isolate.archive(isolate_path, isolated_path)['result']
 
 
-def RunTestsInTask(api, target, isolated_hash):
+def RunTestsInTask(api, target, isolated_hash, tests):
   zircon_image_name = {
     'arm64': 'zircon.elf',
     'x86-64': 'zircon.bin',
@@ -204,6 +217,8 @@ def RunTestsInTask(api, target, isolated_hash):
     'arm64': 'aarch64',
     'x86-64': 'x86_64',
   }[target]
+
+  cmdline = 'zircon.autorun.system=/system/data/infra/runcmds'
 
   qemu_cmd = [
     './qemu/bin/qemu-system-' + qemu_arch, # Dropped in by CIPD.
@@ -216,6 +231,7 @@ def RunTestsInTask(api, target, isolated_hash):
     '-monitor', 'none',
     '-initrd', 'user.bootfs',
     '-enable-kvm', '-cpu', 'host',
+    '-append', cmdline,
   ]
 
   qemu_cipd_arch = {
@@ -311,7 +327,7 @@ def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
         step_result.presentation.status = api.step.FAILURE
 
 
-def RunTestsWithAutorun(api, target, fuchsia_build_dir):
+def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
   zircon_build_dir = {
     'arm64': 'build-zircon-qemu-arm64',
     'x86-64': 'build-zircon-pc-x86-64',
@@ -332,6 +348,8 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
     'x86-64': 'x86_64',
   }[target]
 
+  cmdline = 'zircon.autorun.system=/system/data/infra/runcmds'
+
   run_tests_result = None
   failure_reason = None
 
@@ -343,6 +361,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir):
         kvm=True,
         memory=4096,
         initrd=bootfs_path,
+        cmdline=cmdline,
         shutdown_pattern=TEST_SHUTDOWN)
   except api.step.StepFailure as error:
     run_tests_result = error.result
@@ -430,9 +449,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if tests:
     if use_isolate:
       isolated = IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir)
-      RunTestsInTask(api, target, isolated)
+      RunTestsInTask(api, target, isolated, tests)
     elif use_autorun:
-      RunTestsWithAutorun(api, target, fuchsia_build_dir)
+      RunTestsWithAutorun(api, target, fuchsia_build_dir, tests)
     else:
       RunTestsWithTCP(api, target, fuchsia_build_dir, tests)
 

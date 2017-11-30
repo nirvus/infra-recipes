@@ -277,17 +277,44 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "msleep 500\nruntests\nmsleep 15000\ndm poweroff",
-      "[TMP_BASE]/autorun"
+      "#!/boot/bin/sh\nmsleep 500\nruntests\nmsleep 15000\ndm poweroff",
+      "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
-    "name": "write autorun",
+    "name": "write runcmds",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@msleep 15000@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@dm poweroff@@@",
-      "@@@STEP_LOG_END@autorun.sh@@@"
+      "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
+      "@@@STEP_LOG_LINE@runcmds@msleep 15000@@@",
+      "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
+      "@@@STEP_LOG_END@runcmds@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "\n{\n    \"resources\": [\n        {\n            \"bootfs_path\": \"data/infra/runcmds\",\n            \"file\": \"[TMP_BASE]/runcmds\"\n        }\n    ]\n}\n",
+      "[TMP_BASE]/runcmds_package"
+    ],
+    "infra_step": true,
+    "name": "write runcmds package",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@runcmds_package@@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@{@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@    \"resources\": [@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@        {@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@            \"bootfs_path\": \"data/infra/runcmds\",@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@            \"file\": \"[TMP_BASE]/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@        }@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@    ]@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@}@@@",
+      "@@@STEP_LOG_END@runcmds_package@@@"
     ]
   },
   {
@@ -316,8 +343,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
-      "--packages=topaz/packages/default",
-      "--autorun=[TMP_BASE]/autorun",
+      "--packages=topaz/packages/default,[TMP_BASE]/runcmds_package",
       "--goma=[START_DIR]/cipd/goma"
     ],
     "name": "build fuchsia.gen",
@@ -531,7 +557,9 @@
       "user.bootfs",
       "-enable-kvm",
       "-cpu",
-      "host"
+      "host",
+      "-append",
+      "zircon.autorun.system=/system/data/infra/runcmds"
     ],
     "infra_step": true,
     "name": "trigger trigger tests",
@@ -570,7 +598,9 @@
       "@@@STEP_LOG_LINE@json.output@        \"user.bootfs\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-enable-kvm\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-cpu\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"host\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"host\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"-append\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"zircon.autorun.system=/system/data/infra/runcmds\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
       "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
@@ -615,7 +645,7 @@
       "-timeout",
       "20m",
       "-requests-json",
-      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"trigger tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"./qemu/bin/qemu-system-x86_64\", \"-m\", \"4096\", \"-smp\", \"4\", \"-nographic\", \"-machine\", \"q35\", \"-kernel\", \"zircon.bin\", \"-serial\", \"stdio\", \"-monitor\", \"none\", \"-initrd\", \"user.bootfs\", \"-enable-kvm\", \"-cpu\", \"host\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"luci.fuchsia.ci\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
+      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"trigger tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"./qemu/bin/qemu-system-x86_64\", \"-m\", \"4096\", \"-smp\", \"4\", \"-nographic\", \"-machine\", \"q35\", \"-kernel\", \"zircon.bin\", \"-serial\", \"stdio\", \"-monitor\", \"none\", \"-initrd\", \"user.bootfs\", \"-enable-kvm\", \"-cpu\", \"host\", \"-append\", \"zircon.autorun.system=/system/data/infra/runcmds\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"luci.fuchsia.ci\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
     ],
     "infra_step": true,
     "name": "collect",
