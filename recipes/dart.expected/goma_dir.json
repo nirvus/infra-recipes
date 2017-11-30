@@ -179,16 +179,42 @@
       "/path/to/tmp/json",
       "copy",
       "msleep 500\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm && echo all tests passed || echo tests failed\necho \"ready for fuchsia shutdown\"",
-      "[TMP_BASE]/autorun"
+      "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
-    "name": "write autorun",
+    "name": "write runcmds",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@cd /system/test/dart@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@dart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm && echo all tests passed || echo tests failed@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@echo \"ready for fuchsia shutdown\"@@@",
-      "@@@STEP_LOG_END@autorun.sh@@@"
+      "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
+      "@@@STEP_LOG_LINE@runcmds@cd /system/test/dart@@@",
+      "@@@STEP_LOG_LINE@runcmds@dart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm && echo all tests passed || echo tests failed@@@",
+      "@@@STEP_LOG_LINE@runcmds@echo \"ready for fuchsia shutdown\"@@@",
+      "@@@STEP_LOG_END@runcmds@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "\n{\n    \"resources\": [\n        {\n            \"bootfs_path\": \"data/infra/runcmds\",\n            \"file\": \"[TMP_BASE]/runcmds\"\n        }\n    ]\n}\n",
+      "[TMP_BASE]/runcmds_package"
+    ],
+    "infra_step": true,
+    "name": "write runcmds package",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@runcmds_package@@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@{@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@    \"resources\": [@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@        {@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@            \"bootfs_path\": \"data/infra/runcmds\",@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@            \"file\": \"[TMP_BASE]/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@        }@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@    ]@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@}@@@",
+      "@@@STEP_LOG_END@runcmds_package@@@"
     ]
   },
   {
@@ -218,10 +244,9 @@
       "--target_cpu",
       "x86-64",
       "--packages",
-      "topaz/packages/default",
+      "topaz/packages/default,[TMP_BASE]/runcmds_package",
       "--goma=/goma",
-      "--args=extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]",
-      "--autorun=[TMP_BASE]/autorun"
+      "--args=extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]"
     ],
     "name": "build fuchsia.gen",
     "~followup_annotations": [

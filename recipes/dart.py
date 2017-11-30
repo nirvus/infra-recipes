@@ -34,6 +34,17 @@ TEST_SHUTDOWN = 'ready for fuchsia shutdown'
 # The kernel binary to pass to qemu.
 ZIRCON_IMAGE_NAME = 'zircon.bin'
 
+RUNCMDS_PACKAGE = '''
+{
+    "resources": [
+        {
+            "bootfs_path": "data/infra/runcmds",
+            "file": "%s"
+        }
+    ]
+}
+'''
+
 PROPERTIES = {
   'manifest': Property(kind=str, help='Jiri manifest to use',
                        default='fuchsia'),
@@ -64,7 +75,7 @@ def BuildZircon(api, zircon_project):
 
 
 def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
-  autorun = [
+  runcmds = [
     'msleep 500',
     'cd /system/test/dart',
     # Print a different message depending on whether the test command passes
@@ -73,9 +84,19 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
         build_type, TESTS_PASSED, TESTS_FAILED),
     'echo "%s"' % TEST_SHUTDOWN,
   ]
-  autorun_path = api.path['tmp_base'].join('autorun')
-  api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
-  api.step.active_result.presentation.logs['autorun.sh'] = autorun
+  runcmds_path = api.path['tmp_base'].join('runcmds')
+  api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
+  api.step.active_result.presentation.logs['runcmds'] = runcmds
+
+  runcmds_package_path = api.path['tmp_base'].join('runcmds_package')
+  runcmds_package = RUNCMDS_PACKAGE % runcmds_path
+  api.file.write_text('write runcmds package', runcmds_package_path, runcmds_package)
+  api.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
+
+  packages = [
+    'topaz/packages/default',
+    str(runcmds_package_path),
+  ]
 
   goma_env = {}
   if api.properties.get('goma_local_cache', False):
@@ -86,7 +107,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
       gen_cmd = [
         api.path['start_dir'].join('build', 'gn', 'gen.py'),
         '--target_cpu', gn_target,
-        '--packages', 'topaz/packages/default',
+        '--packages', ','.join(packages),
       ]
 
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
@@ -96,8 +117,6 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
 
       gen_cmd.append(
           '--args=extra_bootdata = [ "//third_party/dart:dart_test_bootfs" ]')
-
-      gen_cmd.append('--autorun=%s' % autorun_path)
 
       api.step('gen', gen_cmd)
 
