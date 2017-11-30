@@ -43,6 +43,12 @@ TEST_SHUTDOWN = 'ready for fuchsia shutdown'
 
 TEST_RUNNER_PORT = 8342
 
+# The kernel binary to pass to qemu.
+ZIRCON_IMAGE_NAME = 'zircon.bin'
+
+# The boot filesystem image.
+BOOTFS_IMAGE_NAME = 'user.bootfs'
+
 RUNCMDS_PACKAGE = '''
 {
     "resources": [
@@ -53,9 +59,6 @@ RUNCMDS_PACKAGE = '''
     ]
 }
 '''
-
-# The kernel binary to pass to qemu.
-ZIRCON_IMAGE_NAME = 'zircon.bin'
 
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
@@ -177,7 +180,7 @@ def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
   # Copy the images to CWD so that when we later download the artifacts appear
   # in CWD. This eliminates having to do any arcane path logic later.
   api.file.copy('copy zircon image', zircon_build_dir.join(ZIRCON_IMAGE_NAME), api.path['start_dir'])
-  api.file.copy('copy fs image', fuchsia_build_dir.join('user.bootfs'), api.path['start_dir'])
+  api.file.copy('copy fs image', fuchsia_build_dir.join(BOOTFS_IMAGE_NAME), api.path['start_dir'])
 
   # Hack that creates an isolate file suitable for consumption by the client.
   #
@@ -187,7 +190,7 @@ def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
     'variables': {
       'files': [
         os.path.relpath(str(api.path['start_dir'].join(ZIRCON_IMAGE_NAME)), str(api.path['start_dir'])),
-        os.path.relpath(str(api.path['start_dir'].join('user.bootfs')), str(api.path['start_dir'])),
+        os.path.relpath(str(api.path['start_dir'].join(BOOTFS_IMAGE_NAME)), str(api.path['start_dir'])),
       ]
     }
   }))
@@ -216,7 +219,7 @@ def RunTestsInTask(api, target, isolated_hash, tests):
     '-kernel', ZIRCON_IMAGE_NAME,
     '-serial', 'stdio',
     '-monitor', 'none',
-    '-initrd', 'user.bootfs',
+    '-initrd', BOOTFS_IMAGE_NAME,
     '-enable-kvm', '-cpu', 'host',
     '-append', cmdline,
   ]
@@ -257,7 +260,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
   zircon_image_path = api.path['start_dir'].join(
     'out', 'build-zircon', zircon_build_dir, ZIRCON_IMAGE_NAME)
 
-  bootfs_path = fuchsia_build_dir.join('user.bootfs')
+  bootfs_path = fuchsia_build_dir.join(BOOTFS_IMAGE_NAME)
 
   qemu_arch = {
     'arm64': 'aarch64',

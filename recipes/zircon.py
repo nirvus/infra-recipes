@@ -55,6 +55,9 @@ BOOTED_TESTS_MATCH = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
 # The kernel binary to pass to qemu.
 ZIRCON_IMAGE_NAME = 'zircon.bin'
 
+# The boot filesystem image.
+BOOTFS_IMAGE_NAME = 'bootdata.bin'
+
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
@@ -182,18 +185,18 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
     build_dir = api.path['start_dir'].join(
         'zircon', 'build-%s' % target + tc_suffix)
-    bootdata_path = build_dir.join('bootdata.bin')
+    bootfs_path = build_dir.join(BOOTFS_IMAGE_NAME)
     image_path = build_dir.join(ZIRCON_IMAGE_NAME)
 
     # Run core tests with userboot.
     RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
-        initrd=bootdata_path, cmdline='userboot=bin/core-tests',
+        initrd=bootfs_path, cmdline='userboot=bin/core-tests',
         shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
             api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
     # Boot and run tests.
     RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=True,
-        initrd=bootdata_path, shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200,
+        initrd=bootfs_path, shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200,
         step_test_data=lambda:
             api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 

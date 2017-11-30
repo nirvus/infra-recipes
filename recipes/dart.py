@@ -34,6 +34,9 @@ TEST_SHUTDOWN = 'ready for fuchsia shutdown'
 # The kernel binary to pass to qemu.
 ZIRCON_IMAGE_NAME = 'zircon.bin'
 
+# The boot filesystem image.
+BOOTFS_IMAGE_NAME = 'user.bootfs'
+
 RUNCMDS_PACKAGE = '''
 {
     "resources": [
@@ -138,7 +141,7 @@ def RunTests(api, target, fuchsia_build_dir):
   zircon_image_path = api.path['start_dir'].join(
     'out', 'build-zircon', zircon_build_dir, ZIRCON_IMAGE_NAME)
 
-  bootfs_path = fuchsia_build_dir.join('user.bootfs')
+  bootfs_path = fuchsia_build_dir.join(BOOTFS_IMAGE_NAME)
 
   qemu_arch = {
     'arm64': 'aarch64',
