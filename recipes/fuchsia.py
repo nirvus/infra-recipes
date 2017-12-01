@@ -232,12 +232,12 @@ def RunTestsInTask(api, target, isolated_hash, tests):
   with api.context(infra_steps=True):
     # Trigger task.
     trigger_result = api.swarming.trigger(
-        'trigger tests',
+        'all tests',
         qemu_cmd,
         isolated=isolated_hash,
         dump_json=api.path.join(api.path['tmp_base'], 'qemu_test_results.json'),
         dimensions={
-          'pool': 'luci.fuchsia.ci',
+          'pool': 'fuchsia.tests',
           'os':   'Debian',
           'cpu':  target,
           'kvm':  '1',
