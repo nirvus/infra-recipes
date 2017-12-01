@@ -614,21 +614,19 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#122)(api, build_type, target, gn_target, fuchsia_build_dir, packages, tests, use_autorun, use_isolate, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#119)(api, build_type, target, gn_target, fuchsia_build_dir, packages, tests, use_isolate, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#112)(api, zircon_project):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#109)(api, zircon_project):**
 
-&mdash; **def [Checkout](/recipes/fuchsia.py#91)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
+&mdash; **def [Checkout](/recipes/fuchsia.py#88)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote):**
 
-&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#182)(api, target, zircon_build_dir, fuchsia_build_dir):**
+&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#176)(api, target, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#390)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, tests, use_autorun, use_isolate, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#323)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, tests, use_isolate, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#208)(api, target, isolated_hash, tests):**
+&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#202)(api, target, isolated_hash, tests):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#318)(api, target, fuchsia_build_dir, tests):**
-
-&mdash; **def [RunTestsWithTCP](/recipes/fuchsia.py#257)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#251)(api, target, fuchsia_build_dir, tests):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -76,9 +76,6 @@ PROPERTIES = {
   'tests': Property(kind=str,
                     help='Path to config file listing tests to run, or (when using autorun) command to run tests',
                     default=None),
-  'use_autorun': Property(kind=bool,
-                          help='Whether to use autorun for tests',
-                          default=True),
   'use_isolate': Property(kind=bool,
                           help='Whether to run tests on another machine',
                           default=False),
@@ -120,24 +117,21 @@ def BuildZircon(api, zircon_project):
 
 
 def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-                 packages, tests, use_autorun, use_isolate, gn_args):
+                 packages, tests, use_isolate, gn_args):
   if tests:
-    if use_autorun or use_isolate:
-      runcmds = {
-        True:  ['#!/boot/bin/sh', 'msleep 500', tests, 'msleep 15000', 'dm poweroff'],
-        False: ['#!/boot/bin/sh', 'msleep 500', tests, 'echo "%s"' % TEST_SHUTDOWN],
-      }[use_isolate]
-      runcmds_path = api.path['tmp_base'].join('runcmds')
-      api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
-      api.step.active_result.presentation.logs['runcmds'] = runcmds
+    runcmds = {
+      True:  ['#!/boot/bin/sh', 'msleep 500', tests, 'msleep 15000', 'dm poweroff'],
+      False: ['#!/boot/bin/sh', 'msleep 500', tests, 'echo "%s"' % TEST_SHUTDOWN],
+    }[use_isolate]
+    runcmds_path = api.path['tmp_base'].join('runcmds')
+    api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
+    api.step.active_result.presentation.logs['runcmds'] = runcmds
 
-      runcmds_package_path = api.path['tmp_base'].join('runcmds_package')
-      runcmds_package = RUNCMDS_PACKAGE % runcmds_path
-      api.file.write_text('write runcmds package', runcmds_package_path, runcmds_package)
-      api.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
-      packages.append(str(runcmds_package_path))
-    else:
-      packages.append('garnet/packages/boot_test_runner')
+    runcmds_package_path = api.path['tmp_base'].join('runcmds_package')
+    runcmds_package = RUNCMDS_PACKAGE % runcmds_path
+    api.file.write_text('write runcmds package', runcmds_package_path, runcmds_package)
+    api.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
+    packages.append(str(runcmds_package_path))
 
   goma_env = {}
   if api.properties.get('goma_local_cache', False):
@@ -254,67 +248,6 @@ def RunTestsInTask(api, target, isolated_hash, tests):
   api.swarming.collect('20m', requests_json=api.json.input(trigger_result.json.output))
 
 
-def RunTestsWithTCP(api, target, fuchsia_build_dir, tests):
-  zircon_build_dir = {
-    'arm64': 'build-zircon-qemu-arm64',
-    'x86-64': 'build-zircon-pc-x86-64',
-  }[target]
-
-  zircon_image_path = api.path['start_dir'].join(
-    'out', 'build-zircon', zircon_build_dir, ZIRCON_IMAGE_NAME)
-
-  bootfs_path = fuchsia_build_dir.join('user.bootfs')
-
-  qemu_arch = {
-    'arm64': 'aarch64',
-    'x86-64': 'x86_64',
-  }[target]
-
-  netdev = 'user,id=net0,hostfwd=tcp::%d-:%d' % (
-      TEST_RUNNER_PORT, TEST_RUNNER_PORT)
-
-  qemu = api.qemu.background_run(
-      qemu_arch,
-      zircon_image_path,
-      kvm=True,
-      memory=4096,
-      initrd=bootfs_path,
-      netdev=netdev,
-      devices=['e1000,netdev=net0'])
-
-  with qemu:
-    run_tests_cmd = [
-      api.path['start_dir'].join('garnet', 'bin', 'test_runner', 'run_test'),
-      '--test_file', api.path['start_dir'].join(tests),
-      '--server', '127.0.0.1',
-      '--port', str(TEST_RUNNER_PORT),
-    ]
-    try:
-      api.step('run tests', run_tests_cmd)
-    finally:
-      # Give time for output to get flushed before reading the QEMU log.
-      # TODO(bgoldman): Capture diagnostic information like FTL_LOG and
-      # backtraces synchronously.
-      api.step('sleep', ['sleep', '3'])
-
-      symbolize_cmd = [
-        api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
-        '--no-echo',
-        '--file', 'qemu.stdout',
-        '--build-dir', fuchsia_build_dir,
-      ]
-      step_result = api.step('symbolize', symbolize_cmd,
-          stdout=api.raw_io.output(),
-          step_test_data=lambda: api.raw_io.test_api.stream_output(''))
-
-      lines = step_result.stdout.splitlines()
-      if lines:
-        # If symbolize found any backtraces in qemu.stdout, mark the symbolize
-        # step as failed to indicate that it should be looked at.
-        step_result.presentation.logs['symbolized backtraces'] = lines
-        step_result.presentation.status = api.step.FAILURE
-
-
 def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
   zircon_build_dir = {
     'arm64': 'build-zircon-qemu-arm64',
@@ -389,7 +322,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, build_type, packages, tests, use_autorun, use_isolate,
+             target, build_type, packages, tests, use_isolate,
              goma_dir, gn_args):
   # Tests are too slow on arm64.
   if target == 'arm64':
@@ -427,46 +360,17 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   BuildZircon(api, zircon_project)
   BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-               packages, tests, use_autorun, use_isolate, gn_args)
+               packages, tests, use_isolate, gn_args)
 
   if tests:
     if use_isolate:
       isolated = IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir)
       RunTestsInTask(api, target, isolated, tests)
-    elif use_autorun:
-      RunTestsWithAutorun(api, target, fuchsia_build_dir, tests)
     else:
-      RunTestsWithTCP(api, target, fuchsia_build_dir, tests)
+      RunTestsWithAutorun(api, target, fuchsia_build_dir, tests)
 
 
 def GenTests(api):
-  # Test cases for running Fuchsia tests over TCP.
-  yield api.test('tests') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-      packages=['topaz/packages/default'],
-      tests='tests.json',
-      use_autorun=False,
-  )
-  yield api.test('failed_tests') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-      packages=['topaz/packages/default'],
-      tests='tests.json',
-      use_autorun=False,
-  ) + api.step_data('run tests', retcode=1)
-  yield api.test('backtrace') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-      packages=['topaz/packages/default'],
-      tests='tests.json',
-      use_autorun=False,
-  ) + api.step_data('run tests', retcode=1,
-  ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
-
   # Test cases for running Fuchsia tests with autorun.
   yield api.test('autorun_tests') + api.properties(
       manifest='fuchsia',
@@ -544,7 +448,6 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      autorun=False,
   )
   yield api.test('garnet') + api.properties(
       project='garnet',
@@ -552,14 +455,12 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/garnet',
       target='x86-64',
       packages=['topaz/packages/default'],
-      autorun=False,
   )
   yield api.test('peridot') + api.properties(
       manifest='peridot',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      autorun=False,
   )
   yield api.test('no_goma') + api.properties(
       manifest='fuchsia',
@@ -567,7 +468,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       goma_dir='/path/to/goma',
-      autorun=False,
   )
   yield api.test('goma_local_cache') + api.properties(
       manifest='fuchsia',
@@ -575,7 +475,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       goma_local_cache=True,
-      autorun=False,
   )
   yield api.test('arm64_skip_tests') + api.properties(
       manifest='fuchsia',
@@ -583,7 +482,6 @@ def GenTests(api):
       target='arm64',
       packages=['topaz/packages/default'],
       tests='tests.json',
-      autorun=False,
   )
   yield api.test('release') + api.properties(
       manifest='fuchsia',
@@ -591,7 +489,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       build_type='release',
-      autorun=False,
   )
   yield api.test('lto') + api.properties(
       manifest='fuchsia',
@@ -599,7 +496,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       build_type='lto',
-      autorun=False,
   )
   yield api.test('thinlto') + api.properties(
       manifest='fuchsia',
@@ -607,7 +503,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       build_type='thinlto',
-      autorun=False,
   )
   yield api.test('cq') + api.properties.tryserver(
       gerrit_project='fuchsia',
@@ -616,7 +511,6 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      autorun=False,
       tryjob=True,
   )
   yield api.test('gn_args') + api.properties.tryserver(
@@ -627,7 +521,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       tryjob=True,
-      autorun=False,
       gn_args=['super_arg=false', 'less_super_arg=true'],
   )
   yield api.test('manifest') + api.properties.tryserver(
@@ -638,6 +531,5 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      autorun=False,
       tryjob=True,
   )
