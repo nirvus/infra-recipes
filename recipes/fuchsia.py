@@ -119,8 +119,8 @@ def BuildZircon(api, zircon_project):
   api.step('build zircon', build_zircon_cmd)
 
 
-def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-                 packages, tests, use_isolate, gn_args):
+def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
+                 fuchsia_build_dir, packages, tests, use_isolate, gn_args):
   if tests:
     runcmds = {
       True:  ['#!/boot/bin/sh', 'msleep 500', tests, 'msleep 15000', 'dm poweroff'],
@@ -146,6 +146,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
         api.path['start_dir'].join('build', 'gn', 'gen.py'),
         '--target_cpu=%s' % gn_target,
         '--packages=%s' % ','.join(packages),
+        '--platforms=%s' % zircon_project,
       ]
 
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
@@ -362,8 +363,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
            remote)
 
   BuildZircon(api, zircon_project)
-  BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir,
-               packages, tests, use_isolate, gn_args)
+  BuildFuchsia(api, build_type, target, gn_target, zircon_project,
+               fuchsia_build_dir, packages, tests, use_isolate, gn_args)
 
   if tests:
     if use_isolate:

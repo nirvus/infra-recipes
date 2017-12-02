@@ -232,6 +232,7 @@
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=aarch64",
       "--packages=topaz/packages/default",
+      "--platforms=zircon-qemu-arm64",
       "--goma=[START_DIR]/cipd/goma"
     ],
     "name": "build fuchsia.gen",

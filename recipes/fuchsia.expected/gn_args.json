@@ -217,6 +217,7 @@
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
       "--packages=topaz/packages/default",
+      "--platforms=zircon-pc-x86-64",
       "--goma=[START_DIR]/cipd/goma",
       "--args",
       "super_arg=false",
