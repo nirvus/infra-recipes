@@ -190,17 +190,9 @@
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
       "-p",
-      "zircon-pc-x86-64"
+      "x86"
     ],
-    "name": "build zircon-pc-x86-64"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-p",
-      "zircon-qemu-arm64"
-    ],
-    "name": "build zircon-qemu-arm64"
+    "name": "build x86"
   },
   {
     "cmd": [],
@@ -229,6 +221,7 @@
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
       "--packages=garnet/packages/sdk",
+      "--platforms=x86",
       "--ignore-skia",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
@@ -334,6 +327,14 @@
     ]
   },
   {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-p",
+      "arm64"
+    ],
+    "name": "build arm64"
+  },
+  {
     "cmd": [],
     "name": "build fuchsia aarch64"
   },
@@ -360,6 +361,7 @@
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=aarch64",
       "--packages=garnet/packages/sdk",
+      "--platforms=arm64",
       "--ignore-skia",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
