@@ -329,7 +329,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              target, build_type, packages, tests, use_isolate,
              goma_dir, gn_args):
   # Tests are too slow on arm64.
-  if target == 'arm64':
+  if target == 'arm64' and not use_isolate:
     tests = None
 
   gn_target = {'arm64': 'aarch64', 'x86-64': 'x86-64'}[target]
