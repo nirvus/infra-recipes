@@ -11,7 +11,7 @@
   * [goma](#recipe_modules-goma)
   * [gsutil](#recipe_modules-gsutil)
   * [hash](#recipe_modules-hash)
-  * [isolate](#recipe_modules-isolate)
+  * [isolated](#recipe_modules-isolated)
   * [jiri](#recipe_modules-jiri)
   * [minfs](#recipe_modules-minfs)
   * [qemu](#recipe_modules-qemu)
@@ -35,7 +35,7 @@
   * [goma:examples/full](#recipes-goma_examples_full)
   * [gsutil:examples/full](#recipes-gsutil_examples_full)
   * [hash:examples/full](#recipes-hash_examples_full)
-  * [isolate:examples/full](#recipes-isolate_examples_full)
+  * [isolated:examples/full](#recipes-isolated_examples_full)
   * [jiri](#recipes-jiri) &mdash; Recipe for building Jiri.
   * [jiri:examples/full](#recipes-jiri_examples_full)
   * [minfs:examples/full](#recipes-minfs_examples_full)
@@ -370,35 +370,32 @@ HashApi provides file hashing functionality.
 &mdash; **def [sha384](/recipe_modules/hash/api.py#36)(self, name, source, test_data=''):**
 
 &mdash; **def [sha512](/recipe_modules/hash/api.py#39)(self, name, source, test_data=''):**
-### *recipe_modules* / [isolate](/recipe_modules/isolate)
+### *recipe_modules* / [isolated](/recipe_modules/isolated)
 
-[DEPS](/recipe_modules/isolate/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/isolated/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [IsolateApi](/recipe_modules/isolate/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [IsolatedApi](/recipe_modules/isolated/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for interacting with isolates.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/isolate/api.py#17)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/isolated/api.py#18)(self, \*args, \*\*kwargs):**
 
 Return an isolate command step.
 
-&mdash; **def [archive](/recipe_modules/isolate/api.py#51)(self, isolate, isolated):**
-
-All the files in the .isolate file are put in the isolate server cache.
-
-Args:
-  isolate: .isolate file to load the dependency data from.
-  isolated: .isolated file to generate or read.
-
-&mdash; **def [ensure\_isolate](/recipe_modules/isolate/api.py#23)(self, version=None):**
+&mdash; **def [ensure\_isolated](/recipe_modules/isolated/api.py#24)(self, version=None):**
 
 Ensures that isolate client is installed.
 
-&emsp; **@property**<br>&mdash; **def [isolate\_client](/recipe_modules/isolate/api.py#37)(self):**
-
-&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolate/api.py#46)(self, value):**
+&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolated/api.py#46)(self, value):**
 
 Changes URL of Isolate server to use.
+
+&mdash; **def [isolated](/recipe_modules/isolated/api.py#51)(self):**
+
+Returns an Isolated object that can be used to archive a set of files
+and directories.
+
+&emsp; **@property**<br>&mdash; **def [isolated\_client](/recipe_modules/isolated/api.py#37)(self):**
 ### *recipe_modules* / [jiri](/recipe_modules/jiri)
 
 [DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -491,7 +488,7 @@ ServiceAccountApi provides access to service account keys.
 &mdash; **def [get\_json\_path](/recipe_modules/service_account/api.py#17)(self, account):**
 ### *recipe_modules* / [swarming](/recipe_modules/swarming)
 
-[DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolate](#recipe_modules-isolate), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolated](#recipe_modules-isolated), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [SwarmingApi](/recipe_modules/swarming/api.py#30)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -610,7 +607,7 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 &mdash; **def [RunTests](/recipes/dart.py#135)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolate](#recipe_modules-isolate), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia and running tests.
 
@@ -622,11 +619,11 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#180)(api, target, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#327)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, tests, use_isolate, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#308)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, tests, use_isolate, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#206)(api, target, isolated_hash, tests):**
+&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#187)(api, target, isolated_hash, tests):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#255)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#236)(api, target, fuchsia_build_dir, tests):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -671,11 +668,11 @@ Recipe for building Go toolchain.
 [DEPS](/recipe_modules/hash/examples/full.py#5): [hash](#recipe_modules-hash), [recipe\_engine/path][recipe_engine/recipe_modules/path]
 
 &mdash; **def [RunSteps](/recipe_modules/hash/examples/full.py#11)(api):**
-### *recipes* / [isolate:examples/full](/recipe_modules/isolate/examples/full.py)
+### *recipes* / [isolated:examples/full](/recipe_modules/isolated/examples/full.py)
 
-[DEPS](/recipe_modules/isolate/examples/full.py#5): [isolate](#recipe_modules-isolate), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path]
+[DEPS](/recipe_modules/isolated/examples/full.py#5): [isolated](#recipe_modules-isolated), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-&mdash; **def [RunSteps](/recipe_modules/isolate/examples/full.py#12)(api):**
+&mdash; **def [RunSteps](/recipe_modules/isolated/examples/full.py#15)(api):**
 ### *recipes* / [jiri](/recipes/jiri.py)
 
 [DEPS](/recipes/jiri.py#11): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]

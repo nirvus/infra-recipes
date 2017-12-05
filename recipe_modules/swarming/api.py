@@ -96,7 +96,7 @@ class SwarmingApi(recipe_api.RecipeApi):
     cmd = [
       self._swarming_client,
       'trigger',
-      '-isolate-server', self.m.isolate.isolate_server,
+      '-isolate-server', self.m.isolated.isolate_server,
       '-server', self.swarming_server,
       '-task-name', name,
       '-namespace', 'default-gzip',

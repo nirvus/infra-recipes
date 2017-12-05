@@ -125,7 +125,7 @@
   },
   {
     "cmd": [],
-    "name": "ensure_isolate"
+    "name": "ensure_isolated"
   },
   {
     "cmd": [
@@ -134,21 +134,21 @@
       "-root",
       "[START_DIR]/cipd/luci/isolate",
       "-ensure-file",
-      "infra/tools/luci/isolate/linux-amd64 latest",
+      "infra/tools/luci/isolated/linux-amd64 latest",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
       "/creds/service_accounts/service-account-goma-client.json"
     ],
     "infra_step": true,
-    "name": "ensure_isolate.ensure_installed",
+    "name": "ensure_isolated.ensure_installed",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/isolate/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/isolated/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -447,68 +447,20 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64/zircon.bin",
-      "[START_DIR]"
-    ],
-    "infra_step": true,
-    "name": "copy zircon image"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/out/debug-x86-64/user.bootfs",
-      "[START_DIR]"
-    ],
-    "infra_step": true,
-    "name": "copy fs image"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "{'variables': {'files': ['zircon.bin', 'user.bootfs']}}",
-      "[START_DIR]/result.isolate"
-    ],
-    "infra_step": true,
-    "name": "write isolate"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/luci/isolate/isolate",
+      "[START_DIR]/cipd/luci/isolate/isolated",
       "archive",
       "-isolate-server",
       "https://isolateserver.appspot.com",
-      "-isolate",
-      "[START_DIR]/result.isolate",
-      "-isolated",
-      "[TMP_BASE]/result.isolated",
       "-namespace",
       "default-gzip",
-      "-dump-json",
-      "/path/to/tmp/json"
+      "-dump-hash",
+      "/path/to/tmp/",
+      "-files",
+      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64:zircon.bin",
+      "-files",
+      "[START_DIR]/out/debug-x86-64:user.bootfs"
     ],
-    "name": "archive",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": \"[dummy hash]\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
+    "name": "archive"
   },
   {
     "cmd": [

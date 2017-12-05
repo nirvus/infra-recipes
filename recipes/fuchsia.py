@@ -19,7 +19,7 @@ DEPS = [
   'infra/goma',
   'infra/gsutil',
   'infra/hash',
-  'infra/isolate',
+  'infra/isolated',
   'infra/jiri',
   'infra/qemu',
   'infra/swarming',
@@ -178,29 +178,10 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
 
 
 def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
-  # Copy the images to CWD so that when we later download the artifacts appear
-  # in CWD. This eliminates having to do any arcane path logic later.
-  api.file.copy('copy zircon image', zircon_build_dir.join(ZIRCON_IMAGE_NAME), api.path['start_dir'])
-  api.file.copy('copy fs image', fuchsia_build_dir.join(BOOTFS_IMAGE_NAME), api.path['start_dir'])
-
-  # Hack that creates an isolate file suitable for consumption by the client.
-  #
-  # TODO(mknyszek): Replace this with new interface once the isolate recipe
-  # module is updated to use the golang isolated client.
-  isolate_str = str(api.json.dumps({
-    'variables': {
-      'files': [
-        os.path.relpath(str(api.path['start_dir'].join(ZIRCON_IMAGE_NAME)), str(api.path['start_dir'])),
-        os.path.relpath(str(api.path['start_dir'].join(BOOTFS_IMAGE_NAME)), str(api.path['start_dir'])),
-      ]
-    }
-  }))
-  isolate_path = api.path.join(api.path['start_dir'], 'result.isolate')
-  api.file.write_text('write isolate', isolate_path, isolate_str.replace('"', '\''))
-
-  # Archive, then extract and return digest for isolated.
-  isolated_path = api.path['tmp_base'].join('result.isolated')
-  return api.isolate.archive(isolate_path, isolated_path)['result']
+  isolated = api.isolated.isolated()
+  isolated.add_file(zircon_build_dir.join(ZIRCON_IMAGE_NAME), wd=zircon_build_dir)
+  isolated.add_file(fuchsia_build_dir.join(BOOTFS_IMAGE_NAME), wd=fuchsia_build_dir)
+  return isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
 
 
 def RunTestsInTask(api, target, isolated_hash, tests):
@@ -355,7 +336,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if tests:
     if use_isolate:
       api.swarming.ensure_swarming(version='latest')
-      api.isolate.ensure_isolate(version='latest')
+      api.isolated.ensure_isolated(version='latest')
     else:
       api.qemu.ensure_qemu()
 
@@ -368,8 +349,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   if tests:
     if use_isolate:
-      isolated = IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir)
-      RunTestsInTask(api, target, isolated, tests)
+      digest = IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir)
+      RunTestsInTask(api, target, digest, tests)
     else:
       RunTestsWithAutorun(api, target, fuchsia_build_dir, tests)
 
