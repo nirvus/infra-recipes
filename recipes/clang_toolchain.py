@@ -101,15 +101,11 @@ def RunSteps(api, url, ref, revision):
   build_dir = staging_dir.join('llvm_build_dir')
   api.file.ensure_directory('create llvm build dir', build_dir)
 
-  toolchain_file = staging_dir.join('Toolchain.cmake')
-  if api.platform.name == 'linux':
-    api.file.write_text('write Toolchain.cmake', toolchain_file,
-                        'set(CMAKE_SYSROOT %s)' % cipd_dir)
-
   extra_options = {
     'linux': [
       '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++',
-      '-DBOOTSTRAP_CMAKE_TOOLCHAIN_FILE=%s' % toolchain_file,
+      '-DBOOTSTRAP_CMAKE_SYSROOT=%s' % cipd_dir,
+      '-DCMAKE_SYSROOT=%s' % cipd_dir,
     ],
     'mac': [],
   }[api.platform.name]
