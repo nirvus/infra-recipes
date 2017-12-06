@@ -216,7 +216,7 @@ def RunTestsInTask(api, target, isolated_hash, tests):
     '-m', '4096',
     '-smp', '4',
     '-nographic',
-    '-machine', {'aarch64': 'virt', 'x86_64': 'q35'}[qemu_arch],
+    '-machine', {'aarch64': 'virt,gic_version=host', 'x86_64': 'q35'}[qemu_arch],
     '-kernel', ZIRCON_IMAGE_NAME,
     '-serial', 'stdio',
     '-monitor', 'none',
