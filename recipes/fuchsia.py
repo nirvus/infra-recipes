@@ -84,6 +84,9 @@ PROPERTIES = {
   'use_isolate': Property(kind=bool,
                           help='Whether to run tests on another machine',
                           default=False),
+  'upload_snapshot': Property(kind=bool,
+                          help='Whether to upload jiri snapshot (always False if tryjob is true)',
+                          default=True),
   'goma_dir': Property(kind=str, help='Path to goma', default=None),
   'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
                       default=[]),
@@ -91,7 +94,7 @@ PROPERTIES = {
 
 
 def Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
-             remote):
+             remote, upload_snapshot):
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
                       patch_project)
@@ -100,7 +103,7 @@ def Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
       api.step.active_result.presentation.properties['got_revision'] = revision
     if patch_ref:
       api.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
-    if not api.properties.get('tryjob', False):
+    if upload_snapshot and not api.properties.get('tryjob', False):
       snapshot_file = api.path['tmp_base'].join('jiri.snapshot')
       api.jiri.snapshot(snapshot_file)
       digest = api.hash.sha1('hash snapshot', snapshot_file,
@@ -313,7 +316,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, build_type, packages, variant, tests, use_isolate,
-             goma_dir, gn_args):
+             upload_snapshot, goma_dir, gn_args):
   # Tests are too slow on arm64.
   if target == 'arm64' and not use_isolate:
     tests = None
@@ -346,7 +349,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.qemu.ensure_qemu()
 
   Checkout(api, patch_project, patch_ref, patch_gerrit_url, project, manifest,
-           remote)
+           remote, upload_snapshot)
 
   BuildZircon(api, zircon_project)
   BuildFuchsia(api, build_type, target, gn_target, zircon_project,
