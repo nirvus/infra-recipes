@@ -400,39 +400,39 @@ and directories.
 
 [DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [JiriApi](/recipe_modules/jiri/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [JiriApi](/recipe_modules/jiri/api.py#14)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 JiriApi provides support for Jiri managed checkouts.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/jiri/api.py#15)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/jiri/api.py#21)(self, \*args, \*\*kwargs):**
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#175)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#185)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None):**
 
-&mdash; **def [clean](/recipe_modules/jiri/api.py#95)(self, all=False, \*\*kwargs):**
+&mdash; **def [clean](/recipe_modules/jiri/api.py#105)(self, all=False, \*\*kwargs):**
 
-&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#114)(self, manifest, projects=None, imports=None, test_data=None):**
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#124)(self, manifest, projects=None, imports=None, test_data=None):**
 
-&mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#22)(self, version=None):**
+&mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#32)(self, version=None):**
 
-&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#104)(self, manifest, remote, name=None, overwrite=False, \*\*kwargs):**
+&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#114)(self, manifest, remote, name=None, overwrite=False, \*\*kwargs):**
 
-&mdash; **def [init](/recipe_modules/jiri/api.py#39)(self, dir=None, \*\*kwargs):**
+&mdash; **def [init](/recipe_modules/jiri/api.py#49)(self, dir=None, \*\*kwargs):**
 
-&emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#35)(self):**
+&emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#45)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#138)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#148)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
 
-&mdash; **def [project](/recipe_modules/jiri/api.py#52)(self, projects, test_data=None):**
+&mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects, test_data=None):**
 
-&mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#89)(self, local_manifest=False):**
+&mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#99)(self, local_manifest=False):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#155)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#165)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#165)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#175)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [update](/recipe_modules/jiri/api.py#70)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, \*\*kwargs):**
+&mdash; **def [update](/recipe_modules/jiri/api.py#80)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, \*\*kwargs):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
 
 [DEPS](/recipe_modules/minfs/__init__.py#1): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]

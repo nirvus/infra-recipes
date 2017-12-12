@@ -33,6 +33,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
+      "-v",
+      "-time",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
       "-cache",
@@ -45,6 +47,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
+      "-v",
+      "-time",
       "minimal",
       "https://fuchsia.googlesource.com"
     ],
@@ -54,6 +58,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
+      "-v",
+      "-time",
       "-autoupdate=false",
       "-run-hooks=false"
     ],
@@ -63,6 +69,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "patch",
+      "-v",
+      "-time",
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-rebase=true",
@@ -73,7 +81,9 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks"
+      "run-hooks",
+      "-v",
+      "-time"
     ],
     "name": "jiri run-hooks"
   },
@@ -81,6 +91,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "source-manifest",
+      "-v",
+      "-time",
       "/path/to/tmp/json"
     ],
     "name": "jiri source-manifest",
@@ -102,6 +114,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
+      "-v",
+      "-time",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
       "-cache",
@@ -115,6 +129,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
+      "-v",
+      "-time",
       "-name",
       "manifest",
       "-overwrite=true",
@@ -127,6 +143,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
+      "-v",
+      "-time",
       "-autoupdate=false",
       "-gc=true",
       "-local-manifest=true",
@@ -138,6 +156,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "edit",
+      "-v",
+      "-time",
       "-json-output",
       "/path/to/tmp/json",
       "-import",
@@ -167,6 +187,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
+      "-v",
+      "-time",
       "-autoupdate=false",
       "-rebase-tracked",
       "-run-hooks=false"
@@ -177,6 +199,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
+      "-v",
+      "-time",
       "-local-manifest=true"
     ],
     "name": "jiri run-hooks (2)"
@@ -185,6 +209,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "snapshot",
+      "-v",
+      "-time",
       "/path/to/tmp/"
     ],
     "name": "jiri snapshot"
@@ -193,6 +219,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "source-manifest",
+      "-v",
+      "-time",
       "/path/to/tmp/json"
     ],
     "name": "jiri source-manifest (2)",
@@ -214,6 +242,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
+      "-v",
+      "-time",
       "-json-output",
       "/path/to/tmp/json",
       "test"
@@ -239,6 +269,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "patch",
+      "-v",
+      "-time",
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-project",
@@ -253,6 +285,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
+      "-v",
+      "-time",
       "-clean-all"
     ],
     "name": "jiri project clean"

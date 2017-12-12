@@ -4,6 +4,12 @@
 
 from recipe_engine import recipe_api
 
+# Flags added to all jiri commands.
+COMMON_FLAGS = [
+    '-v',
+    '-time',
+]
+
 
 class JiriApi(recipe_api.RecipeApi):
   """JiriApi provides support for Jiri managed checkouts."""
@@ -14,10 +20,14 @@ class JiriApi(recipe_api.RecipeApi):
 
   def __call__(self, *args, **kwargs):
     """Return a jiri command step."""
+    subcommand = args[0]  # E.g., 'init' or 'update'
+    flags = COMMON_FLAGS + list(args[1:])
+
     assert self._jiri_executable
-    name = kwargs.pop('name', 'jiri ' + args[0])
-    jiri_cmd = [self._jiri_executable]
-    return self.m.step(name, jiri_cmd + list(args), **kwargs)
+    full_cmd = [self._jiri_executable, subcommand] + flags
+
+    name = kwargs.pop('name', 'jiri ' + subcommand)
+    return self.m.step(name, full_cmd, **kwargs)
 
   def ensure_jiri(self, version=None):
     with self.m.step.nest('ensure_jiri'):

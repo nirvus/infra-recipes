@@ -130,6 +130,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
+      "-v",
+      "-time",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
       "-cache",
@@ -143,6 +145,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
+      "-v",
+      "-time",
       "-name",
       "zircon",
       "manifest",
@@ -155,6 +159,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
+      "-v",
+      "-time",
       "-autoupdate=false"
     ],
     "infra_step": true,

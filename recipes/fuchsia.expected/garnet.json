@@ -95,6 +95,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
+      "-v",
+      "-time",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
       "-cache",
@@ -108,6 +110,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
+      "-v",
+      "-time",
       "-name",
       "garnet",
       "manifest/garnet",
@@ -120,6 +124,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
+      "-v",
+      "-time",
       "-autoupdate=false",
       "-run-hooks=false"
     ],
@@ -129,7 +135,9 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks"
+      "run-hooks",
+      "-v",
+      "-time"
     ],
     "infra_step": true,
     "name": "jiri run-hooks"
@@ -138,6 +146,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "source-manifest",
+      "-v",
+      "-time",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
@@ -160,6 +170,8 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "snapshot",
+      "-v",
+      "-time",
       "[TMP_BASE]/jiri.snapshot"
     ],
     "infra_step": true,
