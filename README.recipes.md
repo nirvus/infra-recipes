@@ -47,6 +47,7 @@
   * [sdk](#recipes-sdk) &mdash; Recipe for building Fuchsia SDKs.
   * [service_account:examples/full](#recipes-service_account_examples_full)
   * [swarming:examples/full](#recipes-swarming_examples_full)
+  * [swift_toolchain](#recipes-swift_toolchain) &mdash; Recipe for building Swift toolchain.
   * [tar:examples/full](#recipes-tar_examples_full)
   * [third_party_rust_crates](#recipes-third_party_rust_crates) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [web_view](#recipes-web_view) &mdash; Recipe for building WebView.
@@ -759,6 +760,15 @@ Recipe for building Fuchsia SDKs.
 [DEPS](/recipe_modules/swarming/examples/full.py#5): [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path]
 
 &mdash; **def [RunSteps](/recipe_modules/swarming/examples/full.py#12)(api):**
+### *recipes* / [swift\_toolchain](/recipes/swift_toolchain.py)
+
+[DEPS](/recipes/swift_toolchain.py#14): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+
+Recipe for building Swift toolchain.
+
+&mdash; **def [BuildFuchsia](/recipes/swift_toolchain.py#271)(api, target_cpu, zircon_project, fuchsia_out_dir):**
+
+&mdash; **def [RunSteps](/recipes/swift_toolchain.py#300)(api, url, ref, revision, goma_dir):**
 ### *recipes* / [tar:examples/full](/recipe_modules/tar/examples/full.py)
 
 [DEPS](/recipe_modules/tar/examples/full.py#5): [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step]
