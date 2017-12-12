@@ -130,11 +130,9 @@ def RunSteps(api, url, ref, revision):
       llvm_dir.join('llvm'),
     ])
     api.step('build clang', [cipd_dir.join('ninja'), 'stage2-distribution'])
-    # TODO: llvm tests are currently failing failing on the bot, temporarily
-    # disable them until we determine the root cause.
-    if api.platform.name != 'linux':
-      api.step('check llvm', [cipd_dir.join('ninja'), 'stage2-check-llvm'])
-      api.step('check clang', [cipd_dir.join('ninja'), 'stage2-check-clang'])
+    # TODO: we should be running stage2-check-all
+    api.step('check llvm', [cipd_dir.join('ninja'), 'stage2-check-llvm'])
+    api.step('check clang', [cipd_dir.join('ninja'), 'stage2-check-clang'])
     with api.context(env={'DESTDIR': pkg_dir}):
       api.step('install clang',
                [cipd_dir.join('ninja'), 'stage2-install-distribution'])
