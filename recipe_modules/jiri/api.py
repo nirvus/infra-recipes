@@ -57,12 +57,12 @@ class JiriApi(recipe_api.RecipeApi):
 
     if test_data is None:
       test_data = [{
-          "name": p,
-          "path": "/path/to/" + p,
-          "remote": "https://fuchsia.googlesource.com/" + p,
-          "revision": "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-          "current_branch": "",
-          "branches": [ "(HEAD detached at c22471f)" ]
+          'name': p,
+          'path': '/path/to/' + p,
+          'remote': 'https://fuchsia.googlesource.com/' + p,
+          'revision': 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
+          'current_branch': '',
+          'branches': [ '(HEAD detached at c22471f)' ]
       } for p in projects]
 
     return self(*cmd, step_test_data=lambda: self.test_api.project(test_data))
