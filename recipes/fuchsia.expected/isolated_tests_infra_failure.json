@@ -609,6 +609,8 @@
       "json",
       "-timeout",
       "20m",
+      "-output-dir",
+      "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
       "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"./qemu/bin/qemu-system-x86_64\", \"-m\", \"4096\", \"-smp\", \"4\", \"-nographic\", \"-machine\", \"q35\", \"-kernel\", \"zircon.bin\", \"-serial\", \"stdio\", \"-monitor\", \"none\", \"-initrd\", \"user.bootfs\", \"-enable-kvm\", \"-cpu\", \"host\", \"-append\", \"zircon.autorun.system=/system/data/infra/runcmds\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
     ],
@@ -616,25 +618,18 @@
     "name": "collect",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"tasks\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"Body\": \"{\\\"error\\\": {\\\"message\\\": \\\"39casdgasd8c09955c210 is an invalid key.\\\"}}\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"Errors\": null, @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"Header\": null, @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"code\": 400, @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"message\": \"39casdgasd8c09955c210 is an invalid key.\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae7012\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"error\": \"something went wrong!\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@stdout.0@{\"error\": {\"message\": \"39casdgasd8c09955c210 is an invalid key.\"}}@@@",
-      "@@@STEP_LOG_END@stdout.0@@@"
+      "@@@STEP_LOG_LINE@39927049b6ae7012.stdout@something went wrong!@@@",
+      "@@@STEP_LOG_END@39927049b6ae7012.stdout@@@"
     ]
   },
   {
     "name": "$result",
-    "reason": "Received failure from server when trying to collect.",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

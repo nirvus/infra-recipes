@@ -8,19 +8,33 @@ from recipe_engine import recipe_api
 class CollectResult(object):
   """Wrapper object for collect results."""
 
-  def __init__(self, raw_results):
+  def __init__(self, m, id, raw_results, outdir):
+    self._id = id
     self._raw_results = raw_results
-    self._is_error = 'results' not in raw_results
+    self._is_error = 'error' in raw_results
+    self._outputs = {}
     if self._is_error:
-      self._output = self._raw_results.get('Body')
+      self._output = self._raw_results['error']
     else:
       self._output = self._raw_results['output']
+      if self._raw_results.get('outputs'):
+        self._outputs = {
+            output: m.path.join(outdir, id, output)
+            for output in self._raw_results['outputs']
+        }
 
-  def is_task_failure(self):
+  def is_failure(self):
     return (not self._is_error) and ('failure' in self._raw_results['results'])
 
   def is_infra_failure(self):
     return (self._is_error) or ('internal_failure' in self._raw_results['results'])
+
+  def __getitem__(self, key):
+    return self._outputs[key]
+
+  @property
+  def id(self):
+    return self._id
 
   @property
   def output(self):
@@ -71,7 +85,7 @@ class SwarmingApi(recipe_api.RecipeApi):
 
   def trigger(self, name, raw_cmd, isolated=None, dump_json=None,
               dimensions=None, expiration=None, io_timeout=None,
-              idempotent=False, cipd_packages=None):
+              idempotent=False, cipd_packages=None, outputs=None):
     """Triggers a Swarming task.
 
     Args:
@@ -91,6 +105,7 @@ class SwarmingApi(recipe_api.RecipeApi):
                   eg. "infra/tools/authutil/${platform}"
               version: Version of the package, either a package instance ID,
                   ref, or tag key/value pair.
+      outputs: list of paths to files which can be downloaded via collect.
     """
     assert self._swarming_client
     cmd = [
@@ -116,12 +131,16 @@ class SwarmingApi(recipe_api.RecipeApi):
     if cipd_packages:
       for path, pkg, version in cipd_packages:
         cmd.extend(['-cipd-package', '%s:%s=%s' % (path, pkg, version)])
+    if outputs:
+      for output in outputs:
+        cmd.extend(['-output', output])
     cmd.extend(['-raw-cmd', '--'] + raw_cmd)
     return self.m.step(
         'trigger %s' % name,
         cmd,
         step_test_data=lambda: self.test_api.trigger(name, raw_cmd,
-            dimensions=dimensions, cipd_packages=cipd_packages)
+            dimensions=dimensions, cipd_packages=cipd_packages,
+            outputs=outputs)
     )
 
   def collect(self, timeout, requests_json=None, tasks=[]):
@@ -136,6 +155,7 @@ class SwarmingApi(recipe_api.RecipeApi):
     """
     assert self._swarming_client
     assert (requests_json and not tasks) or (not requests_json and tasks)
+    outdir = str(self.m.path.mkdtemp("swarming"))
     cmd = [
       self._swarming_client,
       'collect',
@@ -143,33 +163,27 @@ class SwarmingApi(recipe_api.RecipeApi):
       '-task-summary-json', self.m.json.output(),
       '-task-output-stdout', 'json',
       '-timeout', timeout,
+      '-output-dir', outdir,
     ]
     if requests_json:
       cmd.extend(['-requests-json', requests_json])
     if tasks:
       cmd.extend(tasks)
+    cmd.extend([])
     step_result = self.m.step(
         'collect',
         cmd,
         infra_step=True,
         step_test_data=lambda: self.test_api.collect()
     )
-    parsed_results = [CollectResult(task) for task in step_result.json.output['tasks']]
+    parsed_results = [
+        CollectResult(self.m, id, task, outdir)
+        for id, task in step_result.json.output.iteritems()
+    ]
 
     # Fix presentation on collect to reflect bot results.
-    for i in range(len(parsed_results)):
-      # TODO(mknyszek): add task IDs to error results, so we can replace 'i'
-      # with a task ID.
-      if parsed_results[i].output is not None:
-        step_result.presentation.logs['stdout.%s' % i] = parsed_results[i].output.split('\n')
+    for result in parsed_results:
+      if result.output:
+        step_result.presentation.logs['%s.stdout' % result.id] = result.output.split('\n')
 
-    # TODO(mknyszek): add task IDs to error results so this information can be
-    # more detailed.
-    if any([result.is_task_failure() for result in parsed_results]):
-      raise self.m.step.StepFailure('Test task failed. See logs.')
-    elif any([result.output is None for result in parsed_results]):
-      raise self.m.step.InfraFailure('No result JSON found. Check stdout for details.')
-    elif any([result.is_infra_failure() for result in parsed_results]):
-      raise self.m.step.InfraFailure('Received failure from server when trying to collect.')
-
-    return step_result
+    return parsed_results

@@ -490,15 +490,15 @@ ServiceAccountApi provides access to service account keys.
 
 [DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolated](#recipe_modules-isolated), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [SwarmingApi](/recipe_modules/swarming/api.py#30)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [SwarmingApi](/recipe_modules/swarming/api.py#44)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for interacting with swarming.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#38)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#52)(self, \*args, \*\*kwargs):**
 
 Return a swarming command step.
 
-&mdash; **def [collect](/recipe_modules/swarming/api.py#127)(self, timeout, requests_json=None, tasks=[]):**
+&mdash; **def [collect](/recipe_modules/swarming/api.py#146)(self, timeout, requests_json=None, tasks=[]):**
 
 Waits on a set of Swarming tasks.
 
@@ -509,17 +509,17 @@ Args:
   requests_json: load details about the task(s) from the json file.
   tasks: list of task ids to wait on.
 
-&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#44)(self, version=None):**
+&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#58)(self, version=None):**
 
 Ensures that swarming client is installed.
 
-&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#58)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#72)(self):**
 
-&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#67)(self, value):**
+&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#81)(self, value):**
 
 Changes URL of Swarming server to use.
 
-&mdash; **def [trigger](/recipe_modules/swarming/api.py#72)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, idempotent=False, cipd_packages=None):**
+&mdash; **def [trigger](/recipe_modules/swarming/api.py#86)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
 
 Triggers a Swarming task.
 
@@ -540,6 +540,7 @@ Args:
               eg. "infra/tools/authutil/${platform}"
           version: Version of the package, either a package instance ID,
               ref, or tag key/value pair.
+  outputs: list of paths to files which can be downloaded via collect.
 ### *recipe_modules* / [tar](/recipe_modules/tar)
 
 [DEPS](/recipe_modules/tar/__init__.py#5): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
