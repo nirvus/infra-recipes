@@ -76,6 +76,8 @@ PROPERTIES = {
                          help='The build type', default='debug'),
   'packages': Property(kind=List(basestring), help='Packages to build',
                        default=[]),
+  'variant': Property(kind=List(basestring),
+                      help='--variant arguments to gen.py', default=[]),
   'tests': Property(kind=str,
                     help='Path to config file listing tests to run, or (when using autorun) command to run tests',
                     default=None),
@@ -120,7 +122,8 @@ def BuildZircon(api, zircon_project):
 
 
 def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
-                 fuchsia_build_dir, packages, tests, use_isolate, gn_args):
+                 fuchsia_build_dir, packages, variant, tests, use_isolate,
+                 gn_args):
   if tests:
     runcmds = {
       True:  ['#!/boot/bin/sh', 'msleep 500', tests, 'msleep 15000', 'dm poweroff'],
@@ -148,6 +151,8 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
         '--packages=%s' % ','.join(packages),
         '--platforms=%s' % zircon_project,
       ]
+
+      gen_cmd += ['--variant=%s' % v for v in variant]
 
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
 
@@ -307,7 +312,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, build_type, packages, tests, use_isolate,
+             target, build_type, packages, variant, tests, use_isolate,
              goma_dir, gn_args):
   # Tests are too slow on arm64.
   if target == 'arm64' and not use_isolate:
@@ -345,7 +350,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   BuildZircon(api, zircon_project)
   BuildFuchsia(api, build_type, target, gn_target, zircon_project,
-               fuchsia_build_dir, packages, tests, use_isolate, gn_args)
+               fuchsia_build_dir, packages, variant, tests, use_isolate, gn_args)
 
   if tests:
     if use_isolate:
@@ -488,6 +493,20 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       build_type='thinlto',
+  )
+  yield api.test('host_asan') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      packages=['topaz/packages/default'],
+      variant=['host_asan'],
+  )
+  yield api.test('asan') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='arm64',
+      packages=['topaz/packages/default'],
+      variant=['host_asan', 'asan'],
   )
   yield api.test('cq') + api.properties.tryserver(
       gerrit_project='fuchsia',
