@@ -96,7 +96,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
       },
     }
 
-  def collect_result(self, task_failure=False, infra_failure=False, amount=1):
+  def collect_result(self, task_failure=False, infra_failure=False, amount=1, outputs=None):
     if task_failure:
       id = '39927049b6ae7011'
     elif infra_failure:
@@ -104,6 +104,8 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
     else:
       id = '39927049b6ee7010'
     data = self._collect_result_data()[id]
+    if outputs:
+      data['outputs'] = outputs
     return self.m.json.output({id+str(i): data for i in range(0, amount)})
 
   def collect(self):

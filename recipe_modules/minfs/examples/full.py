@@ -19,8 +19,8 @@ def RunSteps(api):
     assert api.minfs.minfs_path == minfs_path
 
     # Create a 200mb minfs image with a specific name
-    api.minfs.mkfs(
-        path=api.path.join(api.path['start_dir'], 'image.minfs'), size_mb=200)
+    api.minfs.create(
+        path=api.path.join(api.path['start_dir'], 'image.minfs'), size="200M")
 
     # Copy a file from that image
     api.minfs.cp('file-on-image.json', 'file-on-host.json', 'image.minfs')

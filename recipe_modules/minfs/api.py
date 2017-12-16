@@ -19,7 +19,7 @@ class MinfsApi(recipe_api.RecipeApi):
 
     def __call__(self, *args, **kwargs):
         assert self._minfs
-        name = kwargs.pop('name', 'minfs ' + args[0])
+        name = kwargs.pop('name', 'minfs ' + args[1])
         cmd = [self._minfs]
         return self.m.step(name, cmd + list(args), **kwargs)
 
@@ -33,13 +33,13 @@ class MinfsApi(recipe_api.RecipeApi):
         """Sets the path to the minfs command."""
         self._minfs = path
 
-    def cp(self, remote_file, local_file, image):
+    def cp(self, remote_file, local_file, image, **kwargs):
         """Copies a file from an image.
 
-    remote_file: string  The path to copy from the image.
-    local_file: string  The path to copy to on the host.
-    image: string The path to the MinFS image.
-    """
+          remote_file: string  The path to copy from the image.
+          local_file: string  The path to copy to on the host.
+          image: string The path to the MinFS image.
+        """
         cmd = [
             image,
             'cp',
@@ -47,13 +47,12 @@ class MinfsApi(recipe_api.RecipeApi):
             local_file,
         ]
 
-        return self(*cmd)
+        return self(*cmd, **kwargs)
 
-    def mkfs(self, path, size_mb=100):
-        """Creates a MinFS image at the given path
+    def create(self, path, size="100M", **kwargs):
+        """Creates a MinFS image at the given path.
 
-    path: string  The path at which to create the image.
-    size_mb: int  The size of the image, in megabytes. Defaults to 100.
-    """
-        self.m.file.truncate(path, size_mb)
-        return self(path, 'mkfs')
+          path: string  The path at which to create the image.
+          size: string  The size of the image, number followed by unit. Defaults to 100M.
+        """
+        return self(str(path) + "@" + size, 'create', **kwargs)

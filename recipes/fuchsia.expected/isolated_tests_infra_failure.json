@@ -289,16 +289,17 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 500\nruntests\nmsleep 15000\ndm poweroff",
+      "#!/boot/bin/sh\nmsleep 5000\nmount /dev/class/block/000 /data\nruntests > /data/tests.out\nmsleep 10000\ndm poweroff",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
     "name": "write runcmds",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
-      "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
-      "@@@STEP_LOG_LINE@runcmds@msleep 15000@@@",
+      "@@@STEP_LOG_LINE@runcmds@msleep 5000@@@",
+      "@@@STEP_LOG_LINE@runcmds@mount /dev/class/block/000 /data@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests > /data/tests.out@@@",
+      "@@@STEP_LOG_LINE@runcmds@msleep 10000@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]
@@ -459,6 +460,14 @@
   },
   {
     "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[START_DIR]/test.fs@32M",
+      "create"
+    ],
+    "name": "create test image"
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/luci/isolate/isolated",
       "archive",
       "-isolate-server",
@@ -470,7 +479,9 @@
       "-files",
       "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64:zircon.bin",
       "-files",
-      "[START_DIR]/out/debug-x86-64:user.bootfs"
+      "[START_DIR]/out/debug-x86-64:user.bootfs",
+      "-files",
+      "[START_DIR]:test.fs"
     ],
     "name": "archive"
   },
@@ -502,6 +513,8 @@
       "60",
       "-cipd-package",
       "qemu:fuchsia/qemu/linux-amd64=latest",
+      "-output",
+      "test.fs",
       "-raw-cmd",
       "--",
       "./qemu/bin/qemu-system-x86_64",
@@ -524,7 +537,13 @@
       "-cpu",
       "host",
       "-append",
-      "zircon.autorun.system=/system/data/infra/runcmds"
+      "zircon.autorun.system=/system/data/infra/runcmds",
+      "-drive",
+      "file=test.fs,format=raw,if=none,id=mydisk",
+      "-device",
+      "ahci,id=ahci",
+      "-device",
+      "ide-drive,drive=mydisk,bus=ahci.0"
     ],
     "infra_step": true,
     "name": "trigger all tests",
@@ -565,7 +584,13 @@
       "@@@STEP_LOG_LINE@json.output@        \"-cpu\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"host\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-append\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"zircon.autorun.system=/system/data/infra/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"zircon.autorun.system=/system/data/infra/runcmds\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"-drive\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"file=test.fs,format=raw,if=none,id=mydisk\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"-device\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ahci,id=ahci\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"-device\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ide-drive,drive=mydisk,bus=ahci.0\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
       "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
@@ -612,14 +637,17 @@
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
-      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"./qemu/bin/qemu-system-x86_64\", \"-m\", \"4096\", \"-smp\", \"4\", \"-nographic\", \"-machine\", \"q35\", \"-kernel\", \"zircon.bin\", \"-serial\", \"stdio\", \"-monitor\", \"none\", \"-initrd\", \"user.bootfs\", \"-enable-kvm\", \"-cpu\", \"host\", \"-append\", \"zircon.autorun.system=/system/data/infra/runcmds\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
+      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"./qemu/bin/qemu-system-x86_64\", \"-m\", \"4096\", \"-smp\", \"4\", \"-nographic\", \"-machine\", \"q35\", \"-kernel\", \"zircon.bin\", \"-serial\", \"stdio\", \"-monitor\", \"none\", \"-initrd\", \"user.bootfs\", \"-enable-kvm\", \"-cpu\", \"host\", \"-append\", \"zircon.autorun.system=/system/data/infra/runcmds\", \"-drive\", \"file=test.fs,format=raw,if=none,id=mydisk\", \"-device\", \"ahci,id=ahci\", \"-device\", \"ide-drive,drive=mydisk,bus=ahci.0\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
     ],
     "infra_step": true,
     "name": "collect",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae70120\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"error\": \"something went wrong!\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"error\": \"something went wrong!\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"test.fs\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
@@ -629,7 +657,7 @@
   },
   {
     "name": "$result",
-    "reason": "failed to collect results: something went wrong!",
+    "reason": "Failed to collect: something went wrong!",
     "recipe_result": null,
     "status_code": 1
   }

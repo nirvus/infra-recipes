@@ -444,7 +444,7 @@ MinfsApi provides support for Fuchia's MinFS tool.
 Currently this module can only be used with a Zircon build, which produces
 the local minfs binary.
 
-&mdash; **def [cp](/recipe_modules/minfs/api.py#36)(self, remote_file, local_file, image):**
+&mdash; **def [cp](/recipe_modules/minfs/api.py#36)(self, remote_file, local_file, image, \*\*kwargs):**
 
 Copies a file from an image.
 
@@ -452,16 +452,16 @@ remote_file: string  The path to copy from the image.
 local_file: string  The path to copy to on the host.
 image: string The path to the MinFS image.
 
+&mdash; **def [create](/recipe_modules/minfs/api.py#52)(self, path, size='100M', \*\*kwargs):**
+
+Creates a MinFS image at the given path.
+
+path: string  The path at which to create the image.
+size: string  The size of the image, number followed by unit. Defaults to 100M.
+
 &emsp; **@minfs_path.setter**<br>&mdash; **def [minfs\_path](/recipe_modules/minfs/api.py#31)(self, path):**
 
 Sets the path to the minfs command.
-
-&mdash; **def [mkfs](/recipe_modules/minfs/api.py#52)(self, path, size_mb=100):**
-
-Creates a MinFS image at the given path
-
-path: string  The path at which to create the image.
-size_mb: int  The size of the image, in megabytes. Defaults to 100.
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
 
 [DEPS](/recipe_modules/qemu/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -608,23 +608,23 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 &mdash; **def [RunTests](/recipes/dart.py#135)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#127)(api, build_type, target, gn_target, zircon_project, fuchsia_build_dir, packages, variant, tests, use_isolate, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#128)(api, build_type, target, gn_target, zircon_project, fuchsia_build_dir, packages, variant, tests, use_isolate, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#117)(api, zircon_project):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#118)(api, zircon_project):**
 
-&mdash; **def [Checkout](/recipes/fuchsia.py#96)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote, upload_snapshot):**
+&mdash; **def [Checkout](/recipes/fuchsia.py#97)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote, upload_snapshot):**
 
-&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#188)(api, target, zircon_build_dir, fuchsia_build_dir):**
+&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#201)(api, target, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#318)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, tests, use_isolate, upload_snapshot, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#369)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, tests, use_isolate, upload_snapshot, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#195)(api, target, isolated_hash, tests):**
+&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#212)(api, target, isolated_hash, tests, fuchsia_build_dir):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#246)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#297)(api, target, fuchsia_build_dir, tests):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

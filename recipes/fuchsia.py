@@ -21,6 +21,7 @@ DEPS = [
   'infra/hash',
   'infra/isolated',
   'infra/jiri',
+  'infra/minfs',
   'infra/qemu',
   'infra/swarming',
   'infra/tar',
@@ -129,7 +130,19 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
                  gn_args):
   if tests:
     runcmds = {
-      True:  ['#!/boot/bin/sh', 'msleep 500', tests, 'msleep 15000', 'dm poweroff'],
+      True:  [
+          '#!/boot/bin/sh',
+          'msleep 5000',
+          # TODO(mknyszek): Remove this ASAP. Auto-mount the image instead by
+          # using minfs + fvm to create an image with a GPT and GUID 'DATA'.
+          #
+          # This will be a source of flake long-term as '000' will soon
+          # frequently NOT be '000'.
+          'mount /dev/class/block/000 /data',
+          tests + ' > /data/tests.out',
+          'msleep 10000',
+          'dm poweroff',
+      ],
       False: ['#!/boot/bin/sh', 'msleep 500', tests, 'echo "%s"' % TEST_SHUTDOWN],
     }[use_isolate]
     runcmds_path = api.path['tmp_base'].join('runcmds')
@@ -186,13 +199,17 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
 
 
 def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
+  test_image = api.path['start_dir'].join('test.fs')
+  api.minfs.create(test_image, '32M', name='create test image')
+
   isolated = api.isolated.isolated()
+  isolated.add_file(test_image, wd=api.path['start_dir'])
   isolated.add_file(zircon_build_dir.join(ZIRCON_IMAGE_NAME), wd=zircon_build_dir)
   isolated.add_file(fuchsia_build_dir.join(BOOTFS_IMAGE_NAME), wd=fuchsia_build_dir)
   return isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
 
 
-def RunTestsInTask(api, target, isolated_hash, tests):
+def RunTestsInTask(api, target, isolated_hash, tests, fuchsia_build_dir):
   qemu_arch = {
     'arm64': 'aarch64',
     'x86-64': 'x86_64',
@@ -212,6 +229,9 @@ def RunTestsInTask(api, target, isolated_hash, tests):
     '-initrd', BOOTFS_IMAGE_NAME,
     '-enable-kvm', '-cpu', 'host',
     '-append', cmdline,
+    '-drive', 'file=test.fs,format=raw,if=none,id=mydisk',
+    '-device', 'ahci,id=ahci',
+    '-device', 'ide-drive,drive=mydisk,bus=ahci.0',
   ]
 
   qemu_cipd_arch = {
@@ -233,14 +253,45 @@ def RunTestsInTask(api, target, isolated_hash, tests):
           'kvm':  '1',
         },
         io_timeout=60,
+        outputs=['test.fs'],
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
     )
+    # Collect results.
     results = api.swarming.collect('20m', requests_json=api.json.input(trigger_result.json.output))
     assert len(results) == 1
-    # is_failure is still an infra failure because it refers to how QEMU exited
-    # in this circumstance.
     if results[0].is_failure() or results[0].is_infra_failure():
-      raise api.step.InfraFailure('failed to collect results: %s' % results[0].output)
+      raise api.step.InfraFailure('Failed to collect: %s' % results[0].output)
+    image_path = results[0]['test.fs']
+
+  # Copy test results out of image.
+  test_results = api.minfs.cp(
+      'tests.out',
+      api.raw_io.output(leak_to=api.path['start_dir'].join('tests.out')),
+      image_path,
+      name='extract test results',
+  )
+
+  # Search output to see what happened.
+  step_result = api.step('test results', None)
+  test_results = test_results.raw_io.output
+  step_result.presentation.logs['stdout'] = test_results.split('\n')
+  match = re.search(TEST_SUMMARY, test_results)
+  if not match:
+    raise api.step.InfraFailure('Test output missing')
+  elif int(match.group('failed')) > 0:
+    # If we found that some tests failed, symbolize the output.
+    symbolize_cmd = [
+      api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
+      '--no-echo',
+      '--build-dir', fuchsia_build_dir,
+    ]
+    symbolize_result = api.step('symbolize', symbolize_cmd,
+        stdin=api.raw_io.input(data=test_results),
+        stdout=api.raw_io.output(),
+        step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+    symbolized_lines = symbolize_result.stdout.splitlines()
+    symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
+    raise api.step.StepFailure(match.group(0))
 
 
 def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
@@ -359,8 +410,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   if tests:
     if use_isolate:
+      api.minfs.minfs_path = fuchsia_out_dir.join('build-zircon', 'tools', 'minfs')
       digest = IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir)
-      RunTestsInTask(api, target, digest, tests)
+      RunTestsInTask(api, target, digest, tests, fuchsia_build_dir)
     else:
       RunTestsWithAutorun(api, target, fuchsia_build_dir, tests)
 
@@ -419,15 +471,17 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       tests='runtests',
       use_isolate=True,
-  ) + api.step_data('collect', api.swarming.collect_result())
-  yield api.test('isolated_tests_task_failure') + api.properties(
+  ) + api.step_data('collect', api.swarming.collect_result(outputs=['test.fs']))
+  yield api.test('isolated_tests_test_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
       tests='runtests',
       use_isolate=True,
-  ) + api.step_data('collect', api.swarming.collect_result(task_failure=True))
+  ) + api.step_data('collect', api.swarming.collect_result(
+      outputs=['test.fs'],
+  )) + api.step_data('extract test results', api.raw_io.output('SUMMARY: Ran 2 tests: 1 failed'))
   yield api.test('isolated_tests_infra_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -435,7 +489,10 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       tests='runtests',
       use_isolate=True,
-  ) + api.step_data('collect', api.swarming.collect_result(infra_failure=True))
+  ) + api.step_data('collect', api.swarming.collect_result(
+      outputs=['test.fs'],
+      infra_failure=True,
+  ))
 
   # Test cases for skipping Fuchsia tests.
   yield api.test('default') + api.properties(
