@@ -238,7 +238,10 @@ def RunTestsInTask(api, target, isolated_hash, tests):
   # Collect results. This is not listed as an infra step because we want the
   # results to be not infra steps. The collect operation itself is always an
   # infra step.
-  api.swarming.collect('20m', requests_json=api.json.input(trigger_result.json.output))
+  results = api.swarming.collect('20m', requests_json=api.json.input(trigger_result.json.output))
+  assert len(results) == 1
+  if results[0].is_failure() or results[0].is_infra_failure():
+    raise api.step.InfraFailure('failed to collect results: %s' % results[0].output)
 
 
 def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):

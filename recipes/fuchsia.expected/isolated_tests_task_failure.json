@@ -653,7 +653,8 @@
   },
   {
     "name": "$result",
+    "reason": "failed to collect results: hello world!",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]
