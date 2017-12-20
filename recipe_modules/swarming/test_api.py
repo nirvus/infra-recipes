@@ -96,14 +96,15 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
       },
     }
 
-  def collect_result(self, task_failure=False, infra_failure=False):
+  def collect_result(self, task_failure=False, infra_failure=False, amount=1):
     if task_failure:
-      data = {'39927049b6ae7011': self._collect_result_data()['39927049b6ae7011']}
+      id = '39927049b6ae7011'
     elif infra_failure:
-      data = {'39927049b6ae7012': self._collect_result_data()['39927049b6ae7012']}
+      id = '39927049b6ae7012'
     else:
-      data = {'39927049b6ee7010': self._collect_result_data()['39927049b6ee7010']}
-    return self.m.json.output(data)
+      id = '39927049b6ee7010'
+    data = self._collect_result_data()[id]
+    return self.m.json.output({id+str(i): data for i in range(0, amount)})
 
   def collect(self):
     return self.m.json.output(self._collect_result_data())

@@ -778,15 +778,19 @@ Recipe for building WebView.
 &mdash; **def [RunSteps](/recipes/web_view.py#38)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
-[DEPS](/recipes/zircon.py#14): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/zircon.py#14): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Zircon.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#124)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
+&mdash; **def [CollectTestsTasks](/recipes/zircon.py#168)(api, tasks, timeout='20m'):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#83)(api, name, build_dir, \*args, \*\*kwargs):**
+&mdash; **def [RunSteps](/recipes/zircon.py#177)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
 
-&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#78)():**
+&mdash; **def [RunTests](/recipes/zircon.py#89)(api, name, build_dir, \*args, \*\*kwargs):**
+
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#130)(api, name, arch, isolated_hash, cmdline):**
+
+&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#84)():**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/6d6af8922b3707d7b02c8ed31f5a839a9be7eb80/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/6d6af8922b3707d7b02c8ed31f5a839a9be7eb80/README.recipes.md#recipe_modules-file

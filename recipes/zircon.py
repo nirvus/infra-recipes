@@ -15,7 +15,9 @@ DEPS = [
   'infra/cipd',
   'infra/goma',
   'infra/jiri',
+  'infra/isolated',
   'infra/qemu',
+  'infra/swarming',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -71,7 +73,11 @@ PROPERTIES = {
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
   'toolchain': Property(kind=Enum(*(TOOLCHAINS.keys())),
                         help='Toolchain to use'),
-  'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True)
+  'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True),
+  'goma_dir': Property(kind=str, help='Path to goma', default=None),
+  'use_isolate': Property(kind=bool,
+                          help='Whether to run tests on another machine',
+                          default=False),
 }
 
 
@@ -121,9 +127,59 @@ def RunTests(api, name, build_dir, *args, **kwargs):
     raise api.step.StepFailure(failure_reason)
 
 
+def TriggerTestsTask(api, name, arch, isolated_hash, cmdline):
+  qemu_cmd = [
+    './qemu/bin/qemu-system-' + arch, # Dropped in by CIPD.
+    '-m', '4096',
+    '-smp', '4',
+    '-nographic',
+    '-machine', {'aarch64': 'virt,gic_version=host', 'x86_64': 'q35'}[arch],
+    '-kernel', ZIRCON_IMAGE_NAME,
+    '-serial', 'stdio',
+    '-monitor', 'none',
+    '-initrd', BOOTFS_IMAGE_NAME,
+    '-enable-kvm', '-cpu', 'host',
+    '-append', 'TERM=dumb kernel.halt-on-panic=true ' + cmdline,
+  ]
+
+  qemu_cipd_arch = {
+    'aarch64': 'arm64',
+    'x86_64': 'amd64',
+  }[arch]
+
+  with api.context(infra_steps=True):
+    # Trigger task.
+    return api.swarming.trigger(
+        name,
+        qemu_cmd,
+        isolated=isolated_hash,
+        dump_json=api.path.join(api.path['tmp_base'], 'qemu_test_results.json'),
+        dimensions={
+          'pool': 'fuchsia.tests',
+          'os':   'Debian',
+          'cpu':  {'aarch64': 'arm64', 'x86_64': 'x86-64'}[arch],
+          'kvm':  '1',
+        },
+        io_timeout=60,
+        cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
+    ).json.output['TaskID']
+
+
+def CollectTestsTasks(api, tasks, timeout='20m'):
+  with api.context(infra_steps=True):
+    collect_results = api.swarming.collect(timeout, tasks=tasks)
+    assert len(collect_results) == len(tasks)
+  for result in collect_results:
+    if result.is_failure() or result.is_infra_failure():
+      raise api.step.InfraFailure('failed to collect results: %s' % result.output)
+
+
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, toolchain, run_tests):
+             target, toolchain, goma_dir, use_isolate, run_tests):
+
+  if goma_dir:
+    api.goma.set_goma_dir(goma_dir)
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
@@ -172,6 +228,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   if run_tests:
     api.qemu.ensure_qemu()
+    if use_isolate:
+      api.swarming.ensure_swarming(version='latest')
+      api.isolated.ensure_isolated(version='latest')
 
     arch = {
       'zircon-hikey960-arm64': 'aarch64',
@@ -186,17 +245,28 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     bootfs_path = build_dir.join(BOOTFS_IMAGE_NAME)
     image_path = build_dir.join(ZIRCON_IMAGE_NAME)
 
-    # Run core tests with userboot.
-    RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
-        initrd=bootfs_path, cmdline='userboot=bin/core-tests',
-        shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
-            api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
+    if use_isolate:
+      isolated = api.isolated.isolated()
+      isolated.add_file(image_path, wd=build_dir)
+      isolated.add_file(bootfs_path, wd=build_dir)
+      digest = isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
+      tasks = [
+        TriggerTestsTask(api, 'core tests', arch, digest, 'userboot=bin/core-tests'),
+        TriggerTestsTask(api, 'booted tests', arch, digest, 'zircon.autorun.system=%s'),
+      ]
+      CollectTestsTasks(api, tasks, timeout='20m')
+    else:
+      # Run core tests with userboot.
+      RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
+          initrd=bootfs_path, cmdline='userboot=bin/core-tests',
+          shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
+              api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
-    # Boot and run tests.
-    RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=True,
-        initrd=bootfs_path, shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200,
-        step_test_data=lambda:
-            api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
+      # Boot and run tests.
+      RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=True,
+          initrd=bootfs_path, shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200,
+          step_test_data=lambda:
+              api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 
 
 def GenTests(api):
@@ -270,6 +340,30 @@ def GenTests(api):
                      target='zircon-pc-x86-64',
                      toolchain='gcc') +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
+  yield (api.test('goma_dir') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='zircon-pc-x86-64',
+                     toolchain='gcc',
+                     goma_dir='/path/to/goma') +
+      api.step_data('run booted tests', api.raw_io.stream_output('')))
+  yield (api.test('use_isolate') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='zircon-pc-x86-64',
+                     toolchain='gcc',
+                     use_isolate=True) +
+      api.step_data('collect', api.swarming.collect_result(amount=2)))
+  yield (api.test('use_isolate_failure') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='zircon-pc-x86-64',
+                     toolchain='gcc',
+                     use_isolate=True) +
+      api.step_data('collect', api.swarming.collect_result(amount=2, task_failure=True)))
   yield (api.test('symbolized_output') +
       api.properties(project='zircon',
                      manifest='manifest',

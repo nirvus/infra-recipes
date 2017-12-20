@@ -618,7 +618,7 @@
     "name": "collect",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ee7010\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ee70100\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
@@ -644,8 +644,8 @@
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@39927049b6ee7010.stdout@hello world!@@@",
-      "@@@STEP_LOG_END@39927049b6ee7010.stdout@@@"
+      "@@@STEP_LOG_LINE@39927049b6ee70100.stdout@hello world!@@@",
+      "@@@STEP_LOG_END@39927049b6ee70100.stdout@@@"
     ]
   },
   {
