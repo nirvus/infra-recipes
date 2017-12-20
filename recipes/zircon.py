@@ -31,7 +31,6 @@ DEPS = [
 TARGETS = [
   'zircon-qemu-arm64',
   'zircon-pc-x86-64',
-  'zircon-rpi3-arm64',
   'zircon-hikey960-arm64',
   'pc-x86-64-test',
   'qemu-virt-a53-test'
@@ -176,7 +175,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
     arch = {
       'zircon-hikey960-arm64': 'aarch64',
-      'zircon-rpi3-arm64': 'aarch64',
       'zircon-qemu-arm64': 'aarch64',
       'zircon-pc-x86-64': 'x86_64',
       'pc-x86-64-test': 'x86_64',
@@ -249,14 +247,6 @@ def GenTests(api):
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
          target='zircon-pc-x86-64',
-         toolchain='clang',
-         run_tests=False))
-  yield (api.test('build_rpi') +
-     api.properties.tryserver(
-         project='zircon',
-         manifest='manifest',
-         remote='https://fuchsia.googlesource.com/zircon',
-         target='zircon-rpi3-arm64',
          toolchain='clang',
          run_tests=False))
   yield (api.test('failed_qemu') +

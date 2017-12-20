@@ -782,11 +782,11 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#125)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#124)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, run_tests):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#84)(api, name, build_dir, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/zircon.py#83)(api, name, build_dir, \*args, \*\*kwargs):**
 
-&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#79)():**
+&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#78)():**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/6d6af8922b3707d7b02c8ed31f5a839a9be7eb80/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/6d6af8922b3707d7b02c8ed31f5a839a9be7eb80/README.recipes.md#recipe_modules-file
