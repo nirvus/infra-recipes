@@ -204,7 +204,7 @@
   {
     "cmd": [
       "make",
-      "zircon-pc-x86-64",
+      "x86",
       "HOST_USE_ASAN=true",
       "USE_LTO=true",
       "USE_THINLTO=true",
@@ -263,12 +263,12 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-thinlto/bootdata.bin",
+      "[START_DIR]/zircon/build-x86-thinlto/bootdata.bin",
       "--cmdline",
       "userboot=bin/core-tests",
       "--shutdown_pattern",
       "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-thinlto/zircon.bin"
+      "[START_DIR]/zircon/build-x86-thinlto/zircon.bin"
     ],
     "name": "run core tests",
     "stdout": "/path/to/tmp/",
@@ -291,10 +291,10 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-thinlto/bootdata.bin",
+      "[START_DIR]/zircon/build-x86-thinlto/bootdata.bin",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64-thinlto/zircon.bin"
+      "[START_DIR]/zircon/build-x86-thinlto/zircon.bin"
     ],
     "name": "run booted tests",
     "stdout": "/path/to/tmp/",

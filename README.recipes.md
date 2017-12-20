@@ -782,15 +782,15 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
-&mdash; **def [CollectTestsTasks](/recipes/zircon.py#168)(api, tasks, timeout='20m'):**
+&mdash; **def [CollectTestsTasks](/recipes/zircon.py#166)(api, tasks, timeout='20m'):**
 
-&mdash; **def [RunSteps](/recipes/zircon.py#177)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#175)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#89)(api, name, build_dir, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/zircon.py#87)(api, name, build_dir, \*args, \*\*kwargs):**
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#130)(api, name, arch, isolated_hash, cmdline):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#128)(api, name, arch, isolated_hash, cmdline):**
 
-&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#84)():**
+&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#82)():**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/6d6af8922b3707d7b02c8ed31f5a839a9be7eb80/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/6d6af8922b3707d7b02c8ed31f5a839a9be7eb80/README.recipes.md#recipe_modules-file

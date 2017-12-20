@@ -30,13 +30,11 @@ DEPS = [
   'recipe_engine/tempfile',
 ]
 
-TARGETS = [
-  'zircon-qemu-arm64',
-  'zircon-pc-x86-64',
-  'zircon-hikey960-arm64',
-  'pc-x86-64-test',
-  'qemu-virt-a53-test'
-]
+TARGETS = ['x86', 'arm64', 'hikey960', 'gauss', 'odroidc2']
+TARGET_TO_ARCH = dict(zip(
+    TARGETS,
+    ['x86_64', 'aarch64', 'aarch64', 'aarch64', 'aarch64'],
+))
 
 # toolchain: (['make', 'args'], 'builddir-suffix')
 TOOLCHAINS = {
@@ -232,19 +230,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.swarming.ensure_swarming(version='latest')
       api.isolated.ensure_isolated(version='latest')
 
-    arch = {
-      'zircon-hikey960-arm64': 'aarch64',
-      'zircon-qemu-arm64': 'aarch64',
-      'zircon-pc-x86-64': 'x86_64',
-      'pc-x86-64-test': 'x86_64',
-      'qemu-virt-a53-test': 'aarch64',
-    }[target]
-
     build_dir = api.path['start_dir'].join(
         'zircon', 'build-%s' % target + tc_suffix)
     bootfs_path = build_dir.join(BOOTFS_IMAGE_NAME)
     image_path = build_dir.join(ZIRCON_IMAGE_NAME)
 
+    arch = TARGET_TO_ARCH[target]
     if use_isolate:
       isolated = api.isolated.isolated()
       isolated.add_file(image_path, wd=build_dir)
@@ -274,7 +265,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='zircon-pc-x86-64',
+                    target='x86',
                     toolchain='gcc') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
@@ -282,7 +273,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='zircon-pc-x86-64',
+                    target='x86',
                     toolchain='asan') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
@@ -290,7 +281,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='zircon-pc-x86-64',
+                    target='x86',
                     toolchain='lto') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
@@ -298,7 +289,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='zircon-pc-x86-64',
+                    target='x86',
                     toolchain='thinlto') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
@@ -309,42 +300,42 @@ def GenTests(api):
          project='zircon',
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
-         target='zircon-pc-x86-64',
+         target='x86',
          toolchain='clang'))
   yield (api.test('no_run_tests') +
      api.properties.tryserver(
          project='zircon',
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
-         target='zircon-pc-x86-64',
+         target='x86',
          toolchain='clang',
          run_tests=False))
   yield (api.test('failed_qemu') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='zircon-pc-x86-64',
+                     target='x86',
                      toolchain='gcc') +
       api.step_data('run booted tests', retcode=1))
   yield (api.test('qemu_timeout') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='zircon-pc-x86-64',
+                     target='x86',
                      toolchain='gcc') +
       api.step_data('run booted tests', retcode=2))
   yield (api.test('test_ouput') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='zircon-pc-x86-64',
+                     target='x86',
                      toolchain='gcc') +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
   yield (api.test('goma_dir') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='zircon-pc-x86-64',
+                     target='x86',
                      toolchain='gcc',
                      goma_dir='/path/to/goma') +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
@@ -352,7 +343,7 @@ def GenTests(api):
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='zircon-pc-x86-64',
+                     target='x86',
                      toolchain='gcc',
                      use_isolate=True) +
       api.step_data('collect', api.swarming.collect_result(amount=2)))
@@ -360,7 +351,7 @@ def GenTests(api):
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='zircon-pc-x86-64',
+                     target='x86',
                      toolchain='gcc',
                      use_isolate=True) +
       api.step_data('collect', api.swarming.collect_result(amount=2, task_failure=True)))
@@ -368,6 +359,6 @@ def GenTests(api):
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='zircon-pc-x86-64',
+                     target='x86',
                      toolchain='gcc') +
       api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n')))

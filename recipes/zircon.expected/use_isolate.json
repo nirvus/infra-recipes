@@ -204,7 +204,7 @@
   {
     "cmd": [
       "make",
-      "zircon-pc-x86-64",
+      "x86",
       "HOST_USE_ASAN=true",
       "-j",
       "2"
@@ -322,9 +322,9 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64:zircon.bin",
+      "[START_DIR]/zircon/build-x86:zircon.bin",
       "-files",
-      "[START_DIR]/zircon/build-zircon-pc-x86-64:bootdata.bin"
+      "[START_DIR]/zircon/build-x86:bootdata.bin"
     ],
     "name": "archive"
   },

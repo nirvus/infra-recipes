@@ -246,7 +246,7 @@
   {
     "cmd": [
       "make",
-      "zircon-pc-x86-64",
+      "x86",
       "HOST_USE_ASAN=true",
       "USE_CLANG=true",
       "GOMACC=[START_DIR]/cipd/goma/gomacc",
