@@ -42,8 +42,6 @@ TEST_SUMMARY = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
 
 TEST_SHUTDOWN = 'ready for fuchsia shutdown'
 
-TEST_RUNNER_PORT = 8342
-
 # The kernel binary to pass to qemu.
 ZIRCON_IMAGE_NAME = 'zircon.bin'
 
@@ -259,15 +257,25 @@ def RunTestsInTask(api, target, isolated_hash, tests, fuchsia_build_dir):
     # Collect results.
     results = api.swarming.collect('20m', requests_json=api.json.input(trigger_result.json.output))
     assert len(results) == 1
-    if results[0].is_failure() or results[0].is_infra_failure():
-      raise api.step.InfraFailure('Failed to collect: %s' % results[0].output)
-    image_path = results[0]['test.fs']
+    result = results[0]
+
+  if result.is_infra_failure():
+    raise api.step.InfraFailure('Failed to collect: %s' % result.output)
+  elif result.is_failure():
+    # If the kernel panics, chances are it will result in a task failure since
+    # the task will likely time out and QEMU will be forcibly killed.
+    if 'KERNEL PANIC' in result.output:
+      Symbolize(api, fuchsia_build_dir, result.output)
+      raise api.step.StepFailure('Found kernel panic. See symbolized output for details.')
+    # If there's no kernel panic then it's likely an infra issue with QEMU,
+    # though a deadlock might also reach this state.
+    raise api.step.InfraFailure('Swarming task failed: %s' % result.output)
 
   # Copy test results out of image.
   test_results = api.minfs.cp(
       'tests.out',
       api.raw_io.output(leak_to=api.path['start_dir'].join('tests.out')),
-      image_path,
+      result['test.fs'],
       name='extract test results',
   )
 
@@ -279,18 +287,7 @@ def RunTestsInTask(api, target, isolated_hash, tests, fuchsia_build_dir):
   if not match:
     raise api.step.InfraFailure('Test output missing')
   elif int(match.group('failed')) > 0:
-    # If we found that some tests failed, symbolize the output.
-    symbolize_cmd = [
-      api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
-      '--no-echo',
-      '--build-dir', fuchsia_build_dir,
-    ]
-    symbolize_result = api.step('symbolize', symbolize_cmd,
-        stdin=api.raw_io.input(data=test_results),
-        stdout=api.raw_io.output(),
-        step_test_data=lambda: api.raw_io.test_api.stream_output(''))
-    symbolized_lines = symbolize_result.stdout.splitlines()
-    symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
+    Symbolize(api, fuchsia_build_dir, test_results)
     raise api.step.StepFailure(match.group(0))
 
 
@@ -349,21 +346,24 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
       failure_reason = m.group(0)
 
   if failure_reason is not None:
+    Symbolize(api, fuchsia_build_dir, qemu_log)
+    raise api.step.StepFailure(failure_reason)
+
+
+def Symbolize(api, build_dir, data):
     symbolize_cmd = [
       api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
       '--no-echo',
-      '--build-dir', fuchsia_build_dir,
+      '--build-dir', build_dir,
     ]
     symbolize_result = api.step('symbolize', symbolize_cmd,
-        stdin=api.raw_io.input(data=qemu_log),
+        stdin=api.raw_io.input(data=data),
         stdout=api.raw_io.output(),
         step_test_data=lambda: api.raw_io.test_api.stream_output(''))
     symbolized_lines = symbolize_result.stdout.splitlines()
     if symbolized_lines:
       symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
       symbolize_result.presentation.status = api.step.FAILURE
-
-    raise api.step.StepFailure(failure_reason)
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -482,6 +482,29 @@ def GenTests(api):
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
   )) + api.step_data('extract test results', api.raw_io.output('SUMMARY: Ran 2 tests: 1 failed'))
+  yield api.test('isolated_tests_task_failure') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      packages=['topaz/packages/default'],
+      tests='runtests',
+      use_isolate=True,
+  ) + api.step_data('collect', api.swarming.collect_result(
+      outputs=['test.fs'],
+      task_failure=True,
+  ))
+  yield api.test('isolated_tests_kernel_panic') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      packages=['topaz/packages/default'],
+      tests='runtests',
+      use_isolate=True,
+  ) + api.step_data('collect', api.swarming.collect_result(
+      output='ZIRCON KERNEL PANIC',
+      outputs=['test.fs'],
+      task_failure=True,
+  ))
   yield api.test('isolated_tests_infra_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',

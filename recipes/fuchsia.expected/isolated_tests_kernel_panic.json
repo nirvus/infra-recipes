@@ -643,54 +643,37 @@
     "name": "collect",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ee70100\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae70110\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"output\": \"ZIRCON KERNEL PANIC\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
       "@@@STEP_LOG_LINE@json.output@      \"test.fs\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_version\": \"f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c47f2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2017-11-01T22:06:11.538070\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2017-11-01T22:06:08.298510\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2017-12-01T22:06:11.538070\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2017-12-01T22:06:08.298510\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"duration\": 0.06629300117492676, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"exit_code\": \"2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2017-11-01T22:06:11.538070\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"failure\": true, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2017-12-01T22:06:11.538070\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"name\": \"test\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ee7011\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ae7011\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"started_ts\": \"2017-11-01T22:06:09.155530\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"state\": \"COMPLETED\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"tags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        \"os:Debian\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"pool:Fuchsia\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ee7010\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ae7011\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"try_number\": \"1\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"user\": \"luci\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@39927049b6ee70100.stdout@hello world!@@@",
-      "@@@STEP_LOG_END@39927049b6ee70100.stdout@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/out/build-zircon/tools/minfs",
-      "[TMP_BASE]/swarming_tmp_1/39927049b6ee70100/test.fs",
-      "cp",
-      "::tests.out",
-      "[START_DIR]/tests.out"
-    ],
-    "name": "extract test results"
-  },
-  {
-    "cmd": [],
-    "name": "test results",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@stdout@SUMMARY: Ran 2 tests: 1 failed@@@",
-      "@@@STEP_LOG_END@stdout@@@"
+      "@@@STEP_LOG_LINE@39927049b6ae70110.stdout@ZIRCON KERNEL PANIC@@@",
+      "@@@STEP_LOG_END@39927049b6ae70110.stdout@@@"
     ]
   },
   {
@@ -701,12 +684,12 @@
       "[START_DIR]/out/debug-x86-64"
     ],
     "name": "symbolize",
-    "stdin": "SUMMARY: Ran 2 tests: 1 failed",
+    "stdin": "ZIRCON KERNEL PANIC",
     "stdout": "/path/to/tmp/"
   },
   {
     "name": "$result",
-    "reason": "SUMMARY: Ran 2 tests: 1 failed",
+    "reason": "Found kernel panic. See symbolized output for details.",
     "recipe_result": null,
     "status_code": 1
   }
