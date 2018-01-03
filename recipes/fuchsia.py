@@ -9,8 +9,6 @@ from contextlib import contextmanager
 from recipe_engine.config import Enum, List, ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
-import hashlib
-import os
 import re
 
 
@@ -80,6 +78,12 @@ PROPERTIES = {
   'tests': Property(kind=str,
                     help='Path to config file listing tests to run, or (when using autorun) command to run tests',
                     default=None),
+  'run_tests': Property(kind=bool,
+                        help='Whether to run tests or not',
+                        default=False),
+  'runtests_args': Property(kind=str,
+                            help='Arguments to pass to the executable running tests',
+                            default=''),
   'use_isolate': Property(kind=bool,
                           help='Whether to run tests on another machine',
                           default=False),
@@ -121,9 +125,9 @@ def BuildZircon(api, zircon_project):
 
 
 def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
-                 fuchsia_build_dir, packages, variant, tests, use_isolate,
-                 gn_args):
-  if tests:
+                 fuchsia_build_dir, packages, variant, run_tests, runtests_args,
+                 use_isolate, gn_args):
+  if run_tests:
     runcmds = {
       True:  [
           '#!/boot/bin/sh',
@@ -134,11 +138,10 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
           # This will be a source of flake long-term as '000' will soon
           # frequently NOT be '000'.
           'mount /dev/class/block/000 /data',
-          tests + ' > /data/tests.out',
-          'msleep 10000',
+          'runtests -o /data ' + runtests_args,
           'dm poweroff',
       ],
-      False: ['#!/boot/bin/sh', 'msleep 500', tests, 'echo "%s"' % TEST_SHUTDOWN],
+      False: ['#!/boot/bin/sh', 'msleep 500', 'runtests ' + runtests_args, 'echo "%s"' % TEST_SHUTDOWN],
     }[use_isolate]
     runcmds_path = api.path['tmp_base'].join('runcmds')
     api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
@@ -207,7 +210,7 @@ def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
   return isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
 
 
-def RunTestsInTask(api, target, isolated_hash, tests, zircon_build_dir, fuchsia_build_dir):
+def RunTestsInTask(api, target, isolated_hash, zircon_build_dir, fuchsia_build_dir):
   qemu_arch = {
     'arm64': 'aarch64',
     'x86-64': 'x86_64',
@@ -259,39 +262,63 @@ def RunTestsInTask(api, target, isolated_hash, tests, zircon_build_dir, fuchsia_
     assert len(results) == 1
     result = results[0]
 
+  step_result = api.step('kernel results', None)
+  step_result.presentation.logs['output'] = result.output.split('\n')
   if result.is_infra_failure():
     raise api.step.InfraFailure('Failed to collect: %s' % result.output)
   elif result.is_failure():
     # If the kernel panics, chances are it will result in a task failure since
     # the task will likely time out and QEMU will be forcibly killed.
     if 'KERNEL PANIC' in result.output:
+      step_result.presentation.status = api.step.FAILURE
       Symbolize(api, zircon_build_dir, result.output)
       raise api.step.StepFailure('Found kernel panic. See symbolized output for details.')
     # If there's no kernel panic then it's likely an infra issue with QEMU,
     # though a deadlock might also reach this state.
     raise api.step.InfraFailure('Swarming task failed: %s' % result.output)
 
-  # Copy test results out of image.
-  test_results = api.minfs.cp(
-      'tests.out',
-      api.raw_io.output(leak_to=api.path['start_dir'].join('tests.out')),
-      result['test.fs'],
-      name='extract test results',
-  )
+  test_results_dir = api.path['start_dir'].join('minfs_isolate_results')
+  with api.context(infra_steps=True):
+    # Copy test results out of image.
+    test_output = api.minfs.cp(
+        '::',
+        api.raw_io.output_dir(leak_to=test_results_dir),
+        result['test.fs'],
+        name='extract test results',
+        step_test_data=lambda: api.raw_io.test_api.output_dir({
+            'hello.out': 'I am output.'
+        }),
+    ).raw_io.output_dir
+    # Read the tests summary.
+    test_summary = api.json.read(
+        'read test summary',
+        test_results_dir.join('summary.json'),
+        step_test_data=lambda: api.json.test_api.output({
+            'tests': [{'name': '/hello', 'result': 'PASS'}],
+        }),
+    ).json.output
 
-  # Search output to see what happened.
+  # Report test results.
+  failed_tests = {}
   step_result = api.step('test results', None)
-  test_results = test_results.raw_io.output
-  step_result.presentation.logs['stdout'] = test_results.split('\n')
-  match = re.search(TEST_SUMMARY, test_results)
-  if not match:
-    raise api.step.InfraFailure('Test output missing')
-  elif int(match.group('failed')) > 0:
-    Symbolize(api, fuchsia_build_dir, test_results)
-    raise api.step.StepFailure(match.group(0))
+  for test in test_summary['tests']:
+    name = test['name']
+    # TODO(mknyszek): make output_name more consistently map to name.
+    output_name = name + '.out'
+    assert output_name.startswith('/')
+    output_name = output_name[1:]
+    step_result.presentation.logs[name] = test_output[output_name].split('\n')
+    if test['result'] != 'PASS':
+      step_result.presentation.status = api.step.FAILURE
+      failed_tests[name] = test_output[output_name]
+
+  # Symbolize the output of any failed tests.
+  if len(failed_tests) != 0:
+    Symbolize(api, fuchsia_build_dir, '\n'.join(failed_tests.values()))
+    raise api.step.StepFailure('Test failure(s): ' + ', '.join(failed_tests.keys()))
 
 
-def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
+def RunTestsWithAutorun(api, target, fuchsia_build_dir):
   zircon_build_dir = {
     'arm64': 'build-zircon-qemu-arm64',
     'x86-64': 'build-zircon-pc-x86-64',
@@ -351,28 +378,35 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
 
 
 def Symbolize(api, build_dir, data):
-    symbolize_cmd = [
-      api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
-      '--no-echo',
-      '--build-dir', build_dir,
-    ]
-    symbolize_result = api.step('symbolize', symbolize_cmd,
-        stdin=api.raw_io.input(data=data),
-        stdout=api.raw_io.output(),
-        step_test_data=lambda: api.raw_io.test_api.stream_output(''))
-    symbolized_lines = symbolize_result.stdout.splitlines()
-    if symbolized_lines:
-      symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
-      symbolize_result.presentation.status = api.step.FAILURE
+  symbolize_cmd = [
+    api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
+    '--no-echo',
+    '--build-dir', build_dir,
+  ]
+  symbolize_result = api.step('symbolize', symbolize_cmd,
+      stdin=api.raw_io.input(data=data),
+      stdout=api.raw_io.output(),
+      step_test_data=lambda: api.raw_io.test_api.stream_output(''))
+  symbolized_lines = symbolize_result.stdout.splitlines()
+  if symbolized_lines:
+    symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
+    symbolize_result.presentation.status = api.step.FAILURE
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, build_type, packages, variant, tests, use_isolate,
-             upload_snapshot, goma_dir, gn_args):
+             target, build_type, packages, variant, tests, run_tests, runtests_args,
+             use_isolate, upload_snapshot, goma_dir, gn_args):
+  # If tests is set, and we're not using the new invocation, convert the
+  # old invocation into the new invocation.
+  if tests is not None:
+    run_tests = True
+    assert tests.startswith('runtests')
+    runtests_args = tests[8:]
+
   # Tests are too slow on arm64.
   if target == 'arm64' and not use_isolate:
-    tests = None
+    run_tests = False
 
   gn_target = {'arm64': 'aarch64', 'x86-64': 'x86-64'}[target]
   fuchsia_out_dir = api.path['start_dir'].join('out')
@@ -394,7 +428,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.jiri.ensure_jiri()
   api.gsutil.ensure_gsutil()
   api.goma.ensure_goma()
-  if tests:
+  if run_tests:
     if use_isolate:
       api.swarming.ensure_swarming(version='latest')
       api.isolated.ensure_isolated(version='latest')
@@ -406,60 +440,70 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   BuildZircon(api, zircon_project)
   BuildFuchsia(api, build_type, target, gn_target, zircon_project,
-               fuchsia_build_dir, packages, variant, tests, use_isolate, gn_args)
+               fuchsia_build_dir, packages, variant, run_tests, runtests_args,
+               use_isolate, gn_args)
 
-  if tests:
+  if run_tests:
     if use_isolate:
       api.minfs.minfs_path = fuchsia_out_dir.join('build-zircon', 'tools', 'minfs')
       digest = IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir)
-      RunTestsInTask(api, target, digest, tests, zircon_build_dir, fuchsia_build_dir)
+      RunTestsInTask(api, target, digest, zircon_build_dir, fuchsia_build_dir)
     else:
-      RunTestsWithAutorun(api, target, fuchsia_build_dir, tests)
+      RunTestsWithAutorun(api, target, fuchsia_build_dir)
 
 
 def GenTests(api):
+  # Test case for using the old test invocation.
+  yield api.test('autorun_tests_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      packages=['topaz/packages/default'],
+      tests='runtests /system/test',
+  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed\n' + TEST_SHUTDOWN))
+
   # Test cases for running Fuchsia tests with autorun.
   yield api.test('autorun_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_failed_qemu') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
   ) + api.step_data('run tests', retcode=1)
   yield api.test('autorun_no_results') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
   ) + api.step_data('run tests', api.raw_io.stream_output(TEST_SHUTDOWN))
   yield api.test('autorun_tests_timeout') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
   ) + api.step_data('run tests', retcode=2)
   yield api.test('autorun_failed_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_backtrace') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed'),
   ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
 
@@ -469,25 +513,29 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
       use_isolate=True,
-  ) + api.step_data('collect', api.swarming.collect_result(outputs=['test.fs']))
+  ) + api.step_data('collect', api.swarming.collect_result(
+      outputs=['test.fs'],
+  ))
   yield api.test('isolated_tests_test_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
       use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
-  )) + api.step_data('extract test results', api.raw_io.output('SUMMARY: Ran 2 tests: 1 failed'))
+  )) + api.step_data('read test summary', api.json.output({
+      'tests': [{'name': '/hello', 'result': 'FAIL'}],
+  })) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
   yield api.test('isolated_tests_task_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
       use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
@@ -498,7 +546,7 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
       use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       output='ZIRCON KERNEL PANIC',
@@ -510,7 +558,7 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
-      tests='runtests',
+      run_tests=True,
       use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
@@ -556,7 +604,7 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='arm64',
       packages=['topaz/packages/default'],
-      tests='tests.json',
+      run_tests=True,
   )
   yield api.test('release') + api.properties(
       manifest='fuchsia',

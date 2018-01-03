@@ -445,15 +445,18 @@ MinfsApi provides support for Fuchia's MinFS tool.
 Currently this module can only be used with a Zircon build, which produces
 the local minfs binary.
 
-&mdash; **def [cp](/recipe_modules/minfs/api.py#36)(self, remote_file, local_file, image, \*\*kwargs):**
+&mdash; **def [cp](/recipe_modules/minfs/api.py#36)(self, from_path, to_path, image, \*\*kwargs):**
 
-Copies a file from an image.
+Copies a file or directory from an image.
 
-remote_file: string  The path to copy from the image.
-local_file: string  The path to copy to on the host.
-image: string The path to the MinFS image.
+from_path: string/path/placeholder The path to copy from.
+to_path: string/path/placeholder The path to copy to.
+image: string/path The path to the MinFS image.
 
-&mdash; **def [create](/recipe_modules/minfs/api.py#52)(self, path, size='100M', \*\*kwargs):**
+To specify a location inside of the MinFS image, prefix
+the path with '::'.
+
+&mdash; **def [create](/recipe_modules/minfs/api.py#55)(self, path, size='100M', \*\*kwargs):**
 
 Creates a MinFS image at the given path.
 
@@ -609,25 +612,25 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 &mdash; **def [RunTests](/recipes/dart.py#145)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia.py#15): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#123)(api, build_type, target, gn_target, zircon_project, fuchsia_build_dir, packages, variant, tests, use_isolate, gn_args):**
+&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#127)(api, build_type, target, gn_target, zircon_project, fuchsia_build_dir, packages, variant, run_tests, runtests_args, use_isolate, gn_args):**
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#113)(api, zircon_project):**
+&mdash; **def [BuildZircon](/recipes/fuchsia.py#117)(api, zircon_project):**
 
-&mdash; **def [Checkout](/recipes/fuchsia.py#95)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote, upload_snapshot):**
+&mdash; **def [Checkout](/recipes/fuchsia.py#99)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote, upload_snapshot):**
 
-&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#199)(api, target, zircon_build_dir, fuchsia_build_dir):**
+&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#202)(api, target, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#369)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, tests, use_isolate, upload_snapshot, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#396)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, tests, run_tests, runtests_args, use_isolate, upload_snapshot, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#210)(api, target, isolated_hash, tests, zircon_build_dir, fuchsia_build_dir):**
+&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#213)(api, target, isolated_hash, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#294)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#321)(api, target, fuchsia_build_dir):**
 
-&mdash; **def [Symbolize](/recipes/fuchsia.py#353)(api, build_dir, data):**
+&mdash; **def [Symbolize](/recipes/fuchsia.py#380)(api, build_dir, data):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

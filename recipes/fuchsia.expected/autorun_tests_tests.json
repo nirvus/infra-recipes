@@ -257,7 +257,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 500\nruntests \necho \"ready for fuchsia shutdown\"",
+      "#!/boot/bin/sh\nmsleep 500\nruntests  /system/test\necho \"ready for fuchsia shutdown\"",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
@@ -265,7 +265,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests @@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests  /system/test@@@",
       "@@@STEP_LOG_LINE@runcmds@echo \"ready for fuchsia shutdown\"@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]
@@ -447,27 +447,14 @@
     "name": "run tests",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@qemu log@SUMMARY: Ran 2 tests: 1 failed@@@",
+      "@@@STEP_LOG_LINE@qemu log@SUMMARY: Ran 2 tests: 0 failed@@@",
       "@@@STEP_LOG_LINE@qemu log@ready for fuchsia shutdown@@@",
-      "@@@STEP_LOG_END@qemu log@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_END@qemu log@@@"
     ]
   },
   {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "build-zircon-pc-x86-64"
-    ],
-    "name": "symbolize",
-    "stdin": "SUMMARY: Ran 2 tests: 1 failed\nready for fuchsia shutdown",
-    "stdout": "/path/to/tmp/"
-  },
-  {
     "name": "$result",
-    "reason": "SUMMARY: Ran 2 tests: 1 failed",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

@@ -289,7 +289,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 5000\nmount /dev/class/block/000 /data\nruntests > /data/tests.out\nmsleep 10000\ndm poweroff",
+      "#!/boot/bin/sh\nmsleep 5000\nmount /dev/class/block/000 /data\nruntests -o /data \ndm poweroff",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
@@ -298,8 +298,7 @@
       "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds@msleep 5000@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/class/block/000 /data@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests > /data/tests.out@@@",
-      "@@@STEP_LOG_LINE@runcmds@msleep 10000@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests -o /data @@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]
@@ -674,6 +673,15 @@
       "@@@STEP_LOG_END@json.output@@@",
       "@@@STEP_LOG_LINE@39927049b6ae70110.stdout@ZIRCON KERNEL PANIC@@@",
       "@@@STEP_LOG_END@39927049b6ae70110.stdout@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "kernel results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@output@ZIRCON KERNEL PANIC@@@",
+      "@@@STEP_LOG_END@output@@@",
+      "@@@STEP_FAILURE@@@"
     ]
   },
   {

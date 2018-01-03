@@ -289,7 +289,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 5000\nmount /dev/class/block/000 /data\nruntests > /data/tests.out\nmsleep 10000\ndm poweroff",
+      "#!/boot/bin/sh\nmsleep 5000\nmount /dev/class/block/000 /data\nruntests -o /data \ndm poweroff",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
@@ -298,8 +298,7 @@
       "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds@msleep 5000@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/class/block/000 /data@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests > /data/tests.out@@@",
-      "@@@STEP_LOG_LINE@runcmds@msleep 10000@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests -o /data @@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]
@@ -676,27 +675,57 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "kernel results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@output@hello world!@@@",
+      "@@@STEP_LOG_END@output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/out/build-zircon/tools/minfs",
       "[TMP_BASE]/swarming_tmp_1/39927049b6ee70100/test.fs",
       "cp",
-      "::tests.out",
-      "[START_DIR]/tests.out"
+      "::",
+      "[START_DIR]/minfs_isolate_results"
     ],
+    "infra_step": true,
     "name": "extract test results"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/minfs_isolate_results/summary.json",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "read test summary",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"tests\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"/hello\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"result\": \"PASS\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [],
     "name": "test results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@stdout@@@@",
-      "@@@STEP_LOG_END@stdout@@@"
+      "@@@STEP_LOG_LINE@&#x2f;hello@I am output.@@@",
+      "@@@STEP_LOG_END@&#x2f;hello@@@"
     ]
   },
   {
     "name": "$result",
-    "reason": "Test output missing",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

@@ -257,7 +257,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 500\nruntests\necho \"ready for fuchsia shutdown\"",
+      "#!/boot/bin/sh\nmsleep 500\nruntests \necho \"ready for fuchsia shutdown\"",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
@@ -265,7 +265,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests @@@",
       "@@@STEP_LOG_LINE@runcmds@echo \"ready for fuchsia shutdown\"@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]

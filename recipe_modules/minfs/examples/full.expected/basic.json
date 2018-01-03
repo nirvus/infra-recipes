@@ -12,7 +12,7 @@
       "[START_DIR]/out/build-zircon/tools/minfs",
       "image.minfs",
       "cp",
-      "::file-on-image.json",
+      "file-on-image.json",
       "file-on-host.json"
     ],
     "name": "minfs cp"

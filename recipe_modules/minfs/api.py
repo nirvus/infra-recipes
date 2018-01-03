@@ -8,9 +8,9 @@ from recipe_engine import recipe_api
 class MinfsApi(recipe_api.RecipeApi):
     """MinfsApi provides support for Fuchia's MinFS tool.
 
-  Currently this module can only be used with a Zircon build, which produces
-  the local minfs binary.
-  """
+    Currently this module can only be used with a Zircon build, which produces
+    the local minfs binary.
+    """
 
     def __init__(self, *args, **kwargs):
         super(MinfsApi, self).__init__(*args, **kwargs)
@@ -33,18 +33,21 @@ class MinfsApi(recipe_api.RecipeApi):
         """Sets the path to the minfs command."""
         self._minfs = path
 
-    def cp(self, remote_file, local_file, image, **kwargs):
-        """Copies a file from an image.
+    def cp(self, from_path, to_path, image, **kwargs):
+        """Copies a file or directory from an image.
 
-          remote_file: string  The path to copy from the image.
-          local_file: string  The path to copy to on the host.
-          image: string The path to the MinFS image.
+          from_path: string/path/placeholder The path to copy from.
+          to_path: string/path/placeholder The path to copy to.
+          image: string/path The path to the MinFS image.
+
+          To specify a location inside of the MinFS image, prefix
+          the path with '::'.
         """
         cmd = [
             image,
             'cp',
-            '::%s' % remote_file,
-            local_file,
+            from_path,
+            to_path,
         ]
 
         return self(*cmd, **kwargs)
