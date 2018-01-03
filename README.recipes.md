@@ -622,7 +622,7 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [RunSteps](/recipes/fuchsia.py#366)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, tests, use_isolate, upload_snapshot, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#207)(api, target, isolated_hash, tests, fuchsia_build_dir):**
+&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#207)(api, target, isolated_hash, tests, zircon_build_dir, fuchsia_build_dir):**
 
 &mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#291)(api, target, fuchsia_build_dir, tests):**
 

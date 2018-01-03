@@ -457,7 +457,7 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/out/debug-x86-64"
+      "build-zircon-pc-x86-64"
     ],
     "name": "symbolize",
     "stdin": "SUMMARY: Ran 2 tests: 1 failed",

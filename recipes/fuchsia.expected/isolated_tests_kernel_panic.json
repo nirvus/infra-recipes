@@ -681,7 +681,7 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/out/debug-x86-64"
+      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64"
     ],
     "name": "symbolize",
     "stdin": "ZIRCON KERNEL PANIC",

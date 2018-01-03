@@ -204,7 +204,7 @@ def IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir):
   return isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
 
 
-def RunTestsInTask(api, target, isolated_hash, tests, fuchsia_build_dir):
+def RunTestsInTask(api, target, isolated_hash, tests, zircon_build_dir, fuchsia_build_dir):
   qemu_arch = {
     'arm64': 'aarch64',
     'x86-64': 'x86_64',
@@ -262,7 +262,7 @@ def RunTestsInTask(api, target, isolated_hash, tests, fuchsia_build_dir):
     # If the kernel panics, chances are it will result in a task failure since
     # the task will likely time out and QEMU will be forcibly killed.
     if 'KERNEL PANIC' in result.output:
-      Symbolize(api, fuchsia_build_dir, result.output)
+      Symbolize(api, zircon_build_dir, result.output)
       raise api.step.StepFailure('Found kernel panic. See symbolized output for details.')
     # If there's no kernel panic then it's likely an infra issue with QEMU,
     # though a deadlock might also reach this state.
@@ -343,7 +343,7 @@ def RunTestsWithAutorun(api, target, fuchsia_build_dir, tests):
       failure_reason = m.group(0)
 
   if failure_reason is not None:
-    Symbolize(api, fuchsia_build_dir, qemu_log)
+    Symbolize(api, zircon_build_dir, qemu_log)
     raise api.step.StepFailure(failure_reason)
 
 
@@ -409,7 +409,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     if use_isolate:
       api.minfs.minfs_path = fuchsia_out_dir.join('build-zircon', 'tools', 'minfs')
       digest = IsolateArtifacts(api, target, zircon_build_dir, fuchsia_build_dir)
-      RunTestsInTask(api, target, digest, tests, fuchsia_build_dir)
+      RunTestsInTask(api, target, digest, tests, zircon_build_dir, fuchsia_build_dir)
     else:
       RunTestsWithAutorun(api, target, fuchsia_build_dir, tests)
 
