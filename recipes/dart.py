@@ -77,7 +77,8 @@ def BuildZircon(api, zircon_project):
   api.step('build zircon', build_zircon_cmd)
 
 
-def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
+def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
+                 fuchsia_build_dir):
   runcmds = [
     'msleep 500',
     'cd /system/test/dart',
@@ -111,6 +112,7 @@ def BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir):
         api.path['start_dir'].join('build', 'gn', 'gen.py'),
         '--target_cpu', gn_target,
         '--packages', ','.join(packages),
+        '--platforms=%s' % zircon_project,
       ]
 
       gen_cmd.append('--goma=%s' % api.goma.goma_dir)
@@ -220,7 +222,8 @@ def RunSteps(api, manifest, remote, target, build_type, goma_dir):
   Checkout(api, manifest, remote)
 
   BuildZircon(api, zircon_project)
-  BuildFuchsia(api, build_type, target, gn_target, fuchsia_build_dir)
+  BuildFuchsia(
+      api, build_type, target, gn_target, zircon_project, fuchsia_build_dir)
 
   RunTests(api, target, fuchsia_build_dir)
 
