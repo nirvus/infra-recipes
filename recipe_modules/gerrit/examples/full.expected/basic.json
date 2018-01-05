@@ -1,0 +1,110 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_gerrit"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gerrit",
+      "-ensure-file",
+      "infra/tools/luci/gerrit/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gerrit.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gerrit/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-create",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"infra/config\", \"subject\": \"hello\", \"topic\": \"some-topic\"}}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "create change",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"id\": \"some id\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-detail",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"some id\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "get details",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "set-review",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"some id\", \"input\": {\"labels\": {\"Code-Review\": -1}, \"reviewers\": [{\"reviewer\": \"test@example.com\"}, {\"reviewer\": \"test2@example.com\", \"state\": \"CC\"}]}, \"revision_id\": \"current\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "-1",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-abandon",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"some id\", \"input\": {\"message\": \"bad CL\"}}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "abandon",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

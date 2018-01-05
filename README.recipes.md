@@ -5,6 +5,7 @@
 **[Recipe Modules](#Recipe-Modules)**
   * [authutil](#recipe_modules-authutil)
   * [cipd](#recipe_modules-cipd)
+  * [gerrit](#recipe_modules-gerrit)
   * [git](#recipe_modules-git)
   * [gitiles](#recipe_modules-gitiles)
   * [go](#recipe_modules-go)
@@ -28,6 +29,7 @@
   * [dart](#recipes-dart) &mdash; Builds the Fuchsia Dart test image and runs the Dart tests.
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia_roller](#recipes-fuchsia_roller) &mdash; Recipe for rolling Fuchsia layers into upper layers.
+  * [gerrit:examples/full](#recipes-gerrit_examples_full)
   * [git:examples/full](#recipes-git_examples_full)
   * [gitiles:examples/full](#recipes-gitiles_examples_full)
   * [go:examples/full](#recipes-go_examples_full)
@@ -168,6 +170,68 @@ parameters will be used.
 &mdash; **def [set\_service\_account\_credentials](/recipe_modules/cipd/api.py#176)(self, path):**
 
 &mdash; **def [set\_tag](/recipe_modules/cipd/api.py#357)(self, package_name, version, tags):**
+### *recipe_modules* / [gerrit](/recipe_modules/gerrit)
+
+[DEPS](/recipe_modules/gerrit/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [GerritApi](/recipe_modules/gerrit/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+Module for querying a Gerrit host through the Gerrit API.
+
+&mdash; **def [abandon](/recipe_modules/gerrit/api.py#52)(self, name, change_id, message=None):**
+
+Abandons a change.
+
+Returns the details of the change, after attempting to abandon.
+
+Args:
+  name (str): The name of the step.
+  change_id (str): A change ID that uniquely defines a change on the host.
+  message (str): A message explaining the reason for abandoning the change.
+
+&mdash; **def [change\_details](/recipe_modules/gerrit/api.py#122)(self, name, change_id):**
+
+Returns a JSON dict of details regarding a specific change.
+
+Args:
+  name (str): The name of the step.
+  change_id (str): A change ID that uniquely defines a change on the host.
+
+&mdash; **def [create\_change](/recipe_modules/gerrit/api.py#67)(self, name, project, subject, branch, topic=None):**
+
+Creates a new change for a given project on the gerrit host.
+
+Returns the details of the newly-created change.
+
+Args:
+  name (str): The name of the step.
+  project (str): The name of the project on the host to create a change for.
+  subject (str): The subject of the new change.
+  branch (str): The branch onto which the change will be made.
+  topic (str): A gerrit topic that can be used to atomically land the change with
+    other changes in the same topic.
+
+&mdash; **def [ensure\_gerrit](/recipe_modules/gerrit/api.py#31)(self, version=None):**
+
+&emsp; **@host.setter**<br>&mdash; **def [host](/recipe_modules/gerrit/api.py#48)(self, host):**
+
+&mdash; **def [set\_review](/recipe_modules/gerrit/api.py#89)(self, name, change_id, labels=None, reviewers=None, ccs=None, revision='current'):**
+
+Sets a change at a revision for review. Can optionally set labels,
+reviewers, and CCs.
+
+Returns updated labels, reviewers, and whether the change is ready for
+review as a JSON dict.
+
+Args:
+  name (str): The name of the step.
+  change_id (str): A change ID that uniquely defines a change on the host.
+  labels (dict): A map of labels (with names as strings, e.g. 'Code-Review') to the
+    integral values you wish to set them to.
+  reviewers (list): A list of strings containing reviewer IDs (e.g. email addresses).
+  ccs (list): A list of strings containing reviewer IDs (e.g. email addresses).
+  revision (str): A revision ID that identifies a revision for the change
+    (default is 'current').
 ### *recipe_modules* / [git](/recipe_modules/git)
 
 [DEPS](/recipe_modules/git/__init__.py#1): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -636,6 +700,11 @@ Recipe for building Fuchsia and running tests.
 Recipe for rolling Fuchsia layers into upper layers.
 
 &mdash; **def [RunSteps](/recipes/fuchsia_roller.py#40)(api, category, project, manifest, remote, import_in, import_from, revision):**
+### *recipes* / [gerrit:examples/full](/recipe_modules/gerrit/examples/full.py)
+
+[DEPS](/recipe_modules/gerrit/examples/full.py#5): [gerrit](#recipe_modules-gerrit), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+
+&mdash; **def [RunSteps](/recipe_modules/gerrit/examples/full.py#12)(api):**
 ### *recipes* / [git:examples/full](/recipe_modules/git/examples/full.py)
 
 [DEPS](/recipe_modules/git/examples/full.py#5): [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
