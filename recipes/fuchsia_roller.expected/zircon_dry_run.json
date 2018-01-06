@@ -31,6 +31,36 @@
   },
   {
     "cmd": [],
+    "name": "ensure_gerrit"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gerrit",
+      "-ensure-file",
+      "infra/tools/luci/gerrit/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gerrit.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gerrit/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "ensure_gitiles"
   },
   {
@@ -231,10 +261,31 @@
   },
   {
     "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-create",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"Roll zircon A..B (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "create new change",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"id\": \"abc123\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "git",
       "commit",
       "-m",
-      "Roll zircon A..B (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n",
+      "Roll zircon A..B (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
       "manifest/garnet"
     ],
     "cwd": "[START_DIR]/garnet",
@@ -246,11 +297,51 @@
       "git",
       "push",
       "origin",
-      "HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+1"
+      "HEAD:refs/for/master"
     ],
     "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "git push"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "set-review",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"abc123\", \"input\": {\"labels\": {\"Commit-Queue\": 1}}, \"revision_id\": \"current\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "submit to commit queue",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-detail",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"abc123\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "check if done (0)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"status\": \"MERGED\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "name": "$result",
