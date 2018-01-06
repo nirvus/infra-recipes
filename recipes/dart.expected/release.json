@@ -407,6 +407,8 @@
       "x86_64",
       "--initrd",
       "[START_DIR]/out/release-x86-64/user.bootfs",
+      "--cmdline",
+      "zircon.autorun.system=/system/data/infra/runcmds",
       "--shutdown_pattern",
       "ready for fuchsia shutdown",
       "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64/zircon.bin"

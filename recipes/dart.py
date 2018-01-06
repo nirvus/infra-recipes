@@ -37,12 +37,16 @@ ZIRCON_IMAGE_NAME = 'zircon.bin'
 # The boot filesystem image.
 BOOTFS_IMAGE_NAME = 'user.bootfs'
 
+# The /system-relative path of the autorun script created by
+# RUNCMDS_PACKAGE.
+RUNCMDS_BOOTFS_PATH = 'data/infra/runcmds'
+
 RUNCMDS_PACKAGE = '''
 {
     "resources": [
         {
-            "bootfs_path": "data/infra/runcmds",
-            "file": "%s"
+            "bootfs_path": "%(bootfs_path)s",
+            "file": "%(file)s"
         }
     ]
 }
@@ -93,7 +97,9 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
   api.step.active_result.presentation.logs['runcmds'] = runcmds
 
   runcmds_package_path = api.path['tmp_base'].join('runcmds_package')
-  runcmds_package = RUNCMDS_PACKAGE % runcmds_path
+  runcmds_package = RUNCMDS_PACKAGE % {
+      'file': runcmds_path, 'bootfs_path': RUNCMDS_BOOTFS_PATH
+  }
   api.file.write_text('write runcmds package', runcmds_package_path, runcmds_package)
   api.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
 
@@ -161,6 +167,7 @@ def RunTests(api, target, fuchsia_build_dir):
         kvm=True,
         memory=4096,
         initrd=bootfs_path,
+        cmdline='zircon.autorun.system=/system/%s' % RUNCMDS_BOOTFS_PATH,
         shutdown_pattern=TEST_SHUTDOWN)
   except api.step.StepFailure as error:
     run_tests_result = error.result
