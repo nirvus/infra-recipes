@@ -84,6 +84,7 @@ def BuildZircon(api, zircon_project):
 def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
                  fuchsia_build_dir):
   runcmds = [
+    '#!/boot/bin/sh',
     'msleep 500',
     'cd /system/test/dart',
     # Print a different message depending on whether the test command passes

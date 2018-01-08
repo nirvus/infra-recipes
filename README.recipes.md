@@ -603,9 +603,9 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 
 &mdash; **def [Checkout](/recipes/dart.py#68)(api, manifest, remote):**
 
-&mdash; **def [RunSteps](/recipes/dart.py#210)(api, manifest, remote, target, build_type, goma_dir):**
+&mdash; **def [RunSteps](/recipes/dart.py#211)(api, manifest, remote, target, build_type, goma_dir):**
 
-&mdash; **def [RunTests](/recipes/dart.py#143)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunTests](/recipes/dart.py#144)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]

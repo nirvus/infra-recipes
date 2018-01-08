@@ -222,12 +222,13 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "msleep 500\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm && echo all tests passed || echo tests failed\necho \"ready for fuchsia shutdown\"",
+      "#!/boot/bin/sh\nmsleep 500\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm && echo all tests passed || echo tests failed\necho \"ready for fuchsia shutdown\"",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
     "name": "write runcmds",
     "~followup_annotations": [
+      "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
       "@@@STEP_LOG_LINE@runcmds@cd /system/test/dart@@@",
       "@@@STEP_LOG_LINE@runcmds@dart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm && echo all tests passed || echo tests failed@@@",
