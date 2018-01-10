@@ -83,7 +83,7 @@ PROPERTIES = {
                             default=''),
   'use_isolate': Property(kind=bool,
                           help='Whether to run tests on another machine',
-                          default=False),
+                          default=True),
   'upload_snapshot': Property(kind=bool,
                           help='Whether to upload jiri snapshot (always False if tryjob is true)',
                           default=True),
@@ -453,6 +453,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
+      use_isolate=False,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_failed_qemu') + api.properties(
       manifest='fuchsia',
@@ -460,6 +461,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
+      use_isolate=False,
   ) + api.step_data('run tests', retcode=1)
   yield api.test('autorun_no_results') + api.properties(
       manifest='fuchsia',
@@ -467,6 +469,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
+      use_isolate=False,
   ) + api.step_data('run tests', api.raw_io.stream_output(TEST_SHUTDOWN))
   yield api.test('autorun_tests_timeout') + api.properties(
       manifest='fuchsia',
@@ -474,6 +477,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
+      use_isolate=False,
   ) + api.step_data('run tests', retcode=2)
   yield api.test('autorun_failed_tests') + api.properties(
       manifest='fuchsia',
@@ -481,6 +485,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
+      use_isolate=False,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed\n' + TEST_SHUTDOWN))
   yield api.test('autorun_backtrace') + api.properties(
       manifest='fuchsia',
@@ -488,6 +493,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
+      use_isolate=False,
   ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 1 failed'),
   ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
 
@@ -498,7 +504,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-      use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
   ))
@@ -508,7 +513,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-      use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
   )) + api.step_data('read test summary', api.json.output({
@@ -520,7 +524,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-      use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
       task_failure=True,
@@ -531,7 +534,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-      use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       output='ZIRCON KERNEL PANIC',
       outputs=['test.fs'],
@@ -543,7 +545,6 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-      use_isolate=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
       infra_failure=True,
@@ -589,6 +590,7 @@ def GenTests(api):
       target='arm64',
       packages=['topaz/packages/default'],
       run_tests=True,
+      use_isolate=False,
   )
   yield api.test('release') + api.properties(
       manifest='fuchsia',
