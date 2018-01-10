@@ -106,6 +106,7 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
 
   packages = [
     'topaz/packages/default',
+    'build/packages/bootfs', # TODO(abarth): Remove once INTK-99 is fixed.
     str(runcmds_package_path),
   ]
 

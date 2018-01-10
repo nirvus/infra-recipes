@@ -131,7 +131,7 @@
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/creds/service_accounts/service-account-cipd-builder.json"
     ],
     "name": "cipd search fuchsia/swift/linux-amd64 git_revision:6058ffab78270a048e27047292becc847fbc0184",
     "~followup_annotations": [

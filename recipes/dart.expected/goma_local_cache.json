@@ -291,7 +291,7 @@
       "--target_cpu",
       "x86-64",
       "--packages",
-      "topaz/packages/default,[TMP_BASE]/runcmds_package",
+      "topaz/packages/default,build/packages/bootfs,[TMP_BASE]/runcmds_package",
       "--platforms=zircon-pc-x86-64",
       "--goma=[START_DIR]/cipd/goma",
       "--args=extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]"

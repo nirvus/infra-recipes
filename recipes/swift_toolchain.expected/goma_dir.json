@@ -107,7 +107,9 @@
       "-tag",
       "git_revision:",
       "-json-output",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-cipd-builder.json"
     ],
     "name": "cipd search fuchsia/swift/linux-amd64 git_revision:",
     "~followup_annotations": [

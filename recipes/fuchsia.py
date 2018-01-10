@@ -150,6 +150,9 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
     api.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
     packages.append(str(runcmds_package_path))
 
+  # TODO(abarth): Remove once INTK-99 is fixed.
+  packages.append('build/packages/bootfs')
+
   goma_env = {}
   if api.properties.get('goma_local_cache', False):
     goma_env['GOMA_LOCAL_OUTPUT_CACHE_DIR'] = api.path['cache'].join('goma', 'localoutputcache')

@@ -604,9 +604,9 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 
 &mdash; **def [Checkout](/recipes/dart.py#68)(api, manifest, remote):**
 
-&mdash; **def [RunSteps](/recipes/dart.py#211)(api, manifest, remote, target, build_type, goma_dir):**
+&mdash; **def [RunSteps](/recipes/dart.py#212)(api, manifest, remote, target, build_type, goma_dir):**
 
-&mdash; **def [RunTests](/recipes/dart.py#144)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunTests](/recipes/dart.py#145)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#17): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -619,15 +619,15 @@ Recipe for building Fuchsia and running tests.
 
 &mdash; **def [Checkout](/recipes/fuchsia.py#95)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote, upload_snapshot):**
 
-&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#196)(api, target, zircon_build_dir, fuchsia_build_dir):**
+&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#199)(api, target, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#366)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, tests, use_isolate, upload_snapshot, goma_dir, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#369)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, tests, use_isolate, upload_snapshot, goma_dir, gn_args):**
 
-&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#207)(api, target, isolated_hash, tests, zircon_build_dir, fuchsia_build_dir):**
+&mdash; **def [RunTestsInTask](/recipes/fuchsia.py#210)(api, target, isolated_hash, tests, zircon_build_dir, fuchsia_build_dir):**
 
-&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#291)(api, target, fuchsia_build_dir, tests):**
+&mdash; **def [RunTestsWithAutorun](/recipes/fuchsia.py#294)(api, target, fuchsia_build_dir, tests):**
 
-&mdash; **def [Symbolize](/recipes/fuchsia.py#350)(api, build_dir, data):**
+&mdash; **def [Symbolize](/recipes/fuchsia.py#353)(api, build_dir, data):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#10): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -766,9 +766,9 @@ Recipe for building Fuchsia SDKs.
 
 Recipe for building Swift toolchain.
 
-&mdash; **def [BuildFuchsia](/recipes/swift_toolchain.py#271)(api, target_cpu, zircon_project, fuchsia_out_dir):**
+&mdash; **def [BuildFuchsia](/recipes/swift_toolchain.py#275)(api, target_cpu, zircon_project, fuchsia_out_dir):**
 
-&mdash; **def [RunSteps](/recipes/swift_toolchain.py#300)(api, url, ref, revision, goma_dir):**
+&mdash; **def [RunSteps](/recipes/swift_toolchain.py#304)(api, url, ref, revision, goma_dir):**
 ### *recipes* / [tar:examples/full](/recipe_modules/tar/examples/full.py)
 
 [DEPS](/recipe_modules/tar/examples/full.py#5): [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step]
