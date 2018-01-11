@@ -75,9 +75,6 @@ PROPERTIES = {
                        default=[]),
   'variant': Property(kind=List(basestring),
                       help='--variant arguments to gen.py', default=[]),
-  'tests': Property(kind=str,
-                    help='Path to config file listing tests to run, or (when using autorun) command to run tests',
-                    default=None),
   'run_tests': Property(kind=bool,
                         help='Whether to run tests or not',
                         default=False),
@@ -395,15 +392,8 @@ def Symbolize(api, build_dir, data):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, build_type, packages, variant, tests, run_tests, runtests_args,
+             target, build_type, packages, variant, run_tests, runtests_args,
              use_isolate, upload_snapshot, goma_dir, gn_args):
-  # If tests is set, and we're not using the new invocation, convert the
-  # old invocation into the new invocation.
-  if tests is not None:
-    run_tests = True
-    assert tests.startswith('runtests')
-    runtests_args = tests[8:]
-
   # Tests are too slow on arm64.
   if target == 'arm64' and not use_isolate:
     run_tests = False
@@ -453,15 +443,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
 
 def GenTests(api):
-  # Test case for using the old test invocation.
-  yield api.test('autorun_tests_tests') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
-      packages=['topaz/packages/default'],
-      tests='runtests /system/test',
-  ) + api.step_data('run tests', api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed\n' + TEST_SHUTDOWN))
-
   # Test cases for running Fuchsia tests with autorun.
   yield api.test('autorun_tests') + api.properties(
       manifest='fuchsia',
