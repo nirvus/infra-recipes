@@ -123,7 +123,7 @@ def RunSteps(api, url, ref, revision):
       '-DBOOTSTRAP_SWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
       '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-user-x86-64', 'sysroot'),
       '-DFUCHSIA_aarch64_SYSROOT=%s' % zircon_dir.join('build-user-arm64', 'sysroot'),
-      '-DLLVM_ENABLE_PROJECTS=clang;lldb;lld',
+      '-DLLVM_ENABLE_PROJECTS=clang;lld',
       '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
     ] + extra_options + [
       '-C', llvm_dir.join('clang', 'cmake', 'caches', 'Fuchsia.cmake'),

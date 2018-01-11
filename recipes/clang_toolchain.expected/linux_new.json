@@ -381,7 +381,7 @@
       "-DBOOTSTRAP_SWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
       "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/zircon/build-user-x86-64/sysroot",
       "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/zircon/build-user-arm64/sysroot",
-      "-DLLVM_ENABLE_PROJECTS=clang;lldb;lld",
+      "-DLLVM_ENABLE_PROJECTS=clang;lld",
       "-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind",
       "-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++",
       "-DBOOTSTRAP_CMAKE_SYSROOT=[START_DIR]/cipd",
