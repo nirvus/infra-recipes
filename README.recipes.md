@@ -699,7 +699,7 @@ Recipe for building Fuchsia and running tests.
 
 Recipe for rolling Fuchsia layers into upper layers.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#40)(api, category, project, manifest, remote, import_in, import_from, revision):**
+&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#41)(api, category, project, manifest, remote, import_in, import_from, revision, dry_run):**
 ### *recipes* / [gerrit:examples/full](/recipe_modules/gerrit/examples/full.py)
 
 [DEPS](/recipe_modules/gerrit/examples/full.py#5): [gerrit](#recipe_modules-gerrit), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]

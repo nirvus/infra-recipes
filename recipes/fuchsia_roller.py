@@ -26,6 +26,7 @@ PROPERTIES = {
   'import_in': Property(kind=str, help='Name of the manifest to import in'),
   'import_from': Property(kind=str, help='Name of the manifest to import from'),
   'revision': Property(kind=str, help='Revision'),
+  'dry_run': Property(kind=bool, help='Whether to only execute a CQ dry run', default=False),
 }
 
 
@@ -37,7 +38,7 @@ COMMIT_MESSAGE = """Roll {project} {old}..{new} ({count} commits)
 """
 
 
-def RunSteps(api, category, project, manifest, remote, import_in, import_from, revision):
+def RunSteps(api, category, project, manifest, remote, import_in, import_from, revision, dry_run):
   api.jiri.ensure_jiri()
   api.gitiles.ensure_gitiles()
 
@@ -66,7 +67,8 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
           ]),
       )
       api.git.commit(message, api.path.join(*import_in.split('/')))
-      api.git.push('HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2')
+      cq_label = '+1' if dry_run else '+2'
+      api.git.push('HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue' + cq_label)
 
 
 def GenTests(api):
@@ -77,6 +79,15 @@ def GenTests(api):
                         import_from='zircon',
                         remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
+         api.gitiles.log('log', 'A'))
+  yield (api.test('zircon_dry_run') +
+         api.properties(project='garnet',
+                        manifest='manifest/minimal',
+                        import_in='manifest/garnet',
+                        import_from='zircon',
+                        remote='https://fuchsia.googlesource.com/garnet',
+                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
+                        dry_run=True) +
          api.gitiles.log('log', 'A'))
   yield (api.test('garnet') +
          api.properties(project='peridot',
