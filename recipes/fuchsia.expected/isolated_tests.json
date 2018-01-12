@@ -719,8 +719,8 @@
     "cmd": [],
     "name": "test results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@&#x2f;hello@I am output.@@@",
-      "@@@STEP_LOG_END@&#x2f;hello@@@"
+      "@@@STEP_LOG_LINE@hello@I am output.@@@",
+      "@@@STEP_LOG_END@hello@@@"
     ]
   },
   {
