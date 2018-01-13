@@ -43,7 +43,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.step.active_result.presentation.properties['got_revision'] = revision
 
   cmd = [
-    api.path['start_dir'].join('scripts', 'check_rust_licenses.py'),
+    api.path['start_dir'].join('scripts', 'rust', 'check_rust_licenses.py'),
     '--verify',
     '--directory',
     api.path['start_dir'].join('third_party', 'rust-crates', 'vendor'),

@@ -110,7 +110,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/check_rust_licenses.py",
+      "[START_DIR]/scripts/rust/check_rust_licenses.py",
       "--verify",
       "--directory",
       "[START_DIR]/third_party/rust-crates/vendor"
