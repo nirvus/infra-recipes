@@ -213,7 +213,7 @@
       "-c",
       "-H",
       "-p",
-      "zircon-qemu-arm64"
+      "arm64"
     ],
     "name": "build zircon"
   },
@@ -244,7 +244,7 @@
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=aarch64",
       "--packages=topaz/packages/default,build/packages/bootfs",
-      "--platforms=zircon-qemu-arm64",
+      "--platforms=arm64",
       "--variant=host_asan",
       "--variant=asan",
       "--goma=[START_DIR]/cipd/goma"

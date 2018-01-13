@@ -341,9 +341,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_dir, gn_target))
 
   zircon_project = {
-    'arm64': 'zircon-qemu-arm64',
-    'x86-64': 'zircon-pc-x86-64'
+    'arm64': 'arm64',
+    'x86-64': 'x86'
   }[target]
+
   zircon_build_dir = fuchsia_out_dir.join('build-zircon', 'build-%s' % zircon_project)
 
   if goma_dir:

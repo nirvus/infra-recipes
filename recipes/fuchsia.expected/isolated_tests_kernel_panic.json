@@ -277,7 +277,7 @@
       "-c",
       "-H",
       "-p",
-      "zircon-pc-x86-64"
+      "x86"
     ],
     "name": "build zircon"
   },
@@ -356,7 +356,7 @@
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
       "--packages=topaz/packages/default,[TMP_BASE]/runcmds_package,build/packages/bootfs",
-      "--platforms=zircon-pc-x86-64",
+      "--platforms=x86",
       "--goma=[START_DIR]/cipd/goma"
     ],
     "name": "build fuchsia.gen",
@@ -476,9 +476,9 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64:zircon.bin",
-      "-files",
       "[START_DIR]/out/debug-x86-64:user.bootfs",
+      "-files",
+      "[START_DIR]/out/build-zircon/build-x86:zircon.bin",
       "-files",
       "[START_DIR]:test.fs"
     ],
@@ -689,7 +689,7 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64"
+      "[START_DIR]/out/build-zircon/build-x86"
     ],
     "name": "symbolize",
     "stdin": "ZIRCON KERNEL PANIC",
