@@ -211,7 +211,10 @@ def RunTests(api, target, isolated_hash, zircon_build_dir, fuchsia_build_dir):
     'x86-64': 'x86_64',
   }[target]
 
-  cmdline = 'zircon.autorun.system=/system/data/infra/runcmds'
+  cmdline = [
+    'zircon.autorun.system=/system/data/infra/runcmds',
+    'kernel.halt-on-panic=true',
+  ]
 
   qemu_cmd = [
     './qemu/bin/qemu-system-' + qemu_arch, # Dropped in by CIPD.
@@ -224,7 +227,7 @@ def RunTests(api, target, isolated_hash, zircon_build_dir, fuchsia_build_dir):
     '-monitor', 'none',
     '-initrd', BOOTFS_IMAGE_NAME,
     '-enable-kvm', '-cpu', 'host',
-    '-append', cmdline,
+    '-append', ' '.join(cmdline),
     '-drive', 'file=test.fs,format=raw,if=none,id=mydisk',
     '-device', 'ahci,id=ahci',
     '-device', 'ide-drive,drive=mydisk,bus=ahci.0',
