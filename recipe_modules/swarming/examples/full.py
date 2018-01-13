@@ -36,6 +36,8 @@ def RunSteps(api):
     if not results[0].is_failure() and not results[0].is_infra_failure():
       # Get the path of an output like this!
       path = results[0]['out/hello.txt']
+    if results[0].is_failure() and results[0].timed_out():
+      raise api.step.StepTimeout('Timed out!')
   except:
     pass
 
@@ -49,5 +51,6 @@ def RunSteps(api):
 def GenTests(api):
   yield api.test('basic') + api.step_data('collect', api.swarming.collect_result(output='hello', outputs=['out/hello.txt']))
   yield api.test('task_failure') + api.step_data('collect', api.swarming.collect_result(task_failure=True))
+  yield api.test('task_timeout') + api.step_data('collect', api.swarming.collect_result(timed_out=True))
   yield api.test('infra_failure') + api.step_data('collect', api.swarming.collect_result(infra_failure=True))
   yield api.test('infra_failure_no_out') + api.step_data('collect', api.json.output({}))

@@ -677,8 +677,9 @@
   },
   {
     "cmd": [],
-    "name": "kernel results",
+    "name": "task results",
     "~followup_annotations": [
+      "@@@STEP_TEXT@kernel panic@@@",
       "@@@STEP_LOG_LINE@output@ZIRCON KERNEL PANIC@@@",
       "@@@STEP_LOG_END@output@@@",
       "@@@STEP_FAILURE@@@"

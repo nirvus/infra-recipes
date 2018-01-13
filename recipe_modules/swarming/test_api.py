@@ -94,14 +94,41 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
       '39927049b6ae7012': {
         'error': 'something went wrong!',
       },
+      '39927049b6ae7013': {
+        'output': 'hello world!',
+        'outputs': ['out/hello.txt'],
+        'results': {
+          'bot_id': 'fuchsia-test-vm',
+          'bot_version': 'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c47f2',
+          'completed_ts': '2017-12-01T22:06:11.538070',
+          'created_ts': '2017-12-01T22:06:08.298510',
+          'duration': 0.06629300117492676,
+          'exit_code': '2',
+          'failure': True,
+          'modified_ts': '2017-12-01T22:06:11.538070',
+          'name': 'test',
+          'run_id': '39927049b6ae7011',
+          'started_ts': '2017-11-01T22:06:09.155530',
+          'state': 'TIMED_OUT',
+          'tags': [
+            'os:Debian',
+            'pool:Fuchsia',
+          ],
+          'task_id': '39927049b6ae7013',
+          'try_number': '1',
+          'user': 'luci',
+        },
+      },
     }
 
-  def collect_result(self, task_failure=False, infra_failure=False, amount=1,
-                     output=None, outputs=None):
+  def collect_result(self, task_failure=False, infra_failure=False, timed_out=False,
+                     amount=1, output=None, outputs=None):
     if task_failure:
       id = '39927049b6ae7011'
     elif infra_failure:
       id = '39927049b6ae7012'
+    elif timed_out:
+      id = '39927049b6ae7013'
     else:
       id = '39927049b6ee7010'
     data = self._collect_result_data()[id]

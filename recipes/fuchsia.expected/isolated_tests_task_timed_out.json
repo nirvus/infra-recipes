@@ -642,7 +642,7 @@
     "name": "collect",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae70110\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae70130\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
       "@@@STEP_LOG_LINE@json.output@      \"test.fs\"@@@",
@@ -659,34 +659,46 @@
       "@@@STEP_LOG_LINE@json.output@      \"name\": \"test\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ae7011\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"started_ts\": \"2017-11-01T22:06:09.155530\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"state\": \"COMPLETED\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"state\": \"TIMED_OUT\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"tags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        \"os:Debian\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"pool:Fuchsia\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ae7011\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ae7013\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"try_number\": \"1\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"user\": \"luci\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@39927049b6ae70110.stdout@hello world!@@@",
-      "@@@STEP_LOG_END@39927049b6ae70110.stdout@@@"
+      "@@@STEP_LOG_LINE@39927049b6ae70130.stdout@hello world!@@@",
+      "@@@STEP_LOG_END@39927049b6ae70130.stdout@@@"
     ]
   },
   {
     "cmd": [],
     "name": "task results",
     "~followup_annotations": [
+      "@@@STEP_TEXT@i/o timeout@@@",
       "@@@STEP_LOG_LINE@output@hello world!@@@",
       "@@@STEP_LOG_END@output@@@",
-      "@@@STEP_EXCEPTION@@@"
+      "@@@STEP_FAILURE@@@"
     ]
   },
   {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize",
+      "--no-echo",
+      "--build-dir",
+      "[START_DIR]/out/build-zircon/build-x86"
+    ],
+    "name": "symbolize",
+    "stdin": "hello world!",
+    "stdout": "/path/to/tmp/"
+  },
+  {
     "name": "$result",
-    "reason": "Swarming task failed:\nhello world!",
+    "reason": "I/O timed out, no output for 60 seconds.\nLast 10 lines of kernel output:\nhello world!",
     "recipe_result": null,
     "status_code": 1
   }

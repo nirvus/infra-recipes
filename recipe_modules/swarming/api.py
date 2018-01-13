@@ -29,6 +29,9 @@ class CollectResult(object):
   def is_infra_failure(self):
     return (self._is_error) or ('internal_failure' in self._raw_results['results'])
 
+  def timed_out(self):
+    return (not self._is_error) and self._raw_results['results']['state'] == 'TIMED_OUT'
+
   def __getitem__(self, key):
     return self._outputs[key]
 

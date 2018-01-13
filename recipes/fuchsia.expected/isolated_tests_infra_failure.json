@@ -656,7 +656,7 @@
   },
   {
     "cmd": [],
-    "name": "kernel results",
+    "name": "task results",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@output@something went wrong!@@@",
       "@@@STEP_LOG_END@output@@@"

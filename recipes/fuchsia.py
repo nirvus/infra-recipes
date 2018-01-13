@@ -46,6 +46,10 @@ ZIRCON_IMAGE_NAME = 'zircon.bin'
 # The boot filesystem image.
 BOOTFS_IMAGE_NAME = 'user.bootfs'
 
+# How long to wait (in seconds) before killing the test swarming task if there's
+# no output being produced.
+TEST_IO_TIMEOUT_SECS = 60
+
 RUNCMDS_PACKAGE = '''
 {
     "resources": [
@@ -244,7 +248,7 @@ def RunTests(api, target, isolated_hash, zircon_build_dir, fuchsia_build_dir):
           'cpu':  target,
           'kvm':  '1',
         },
-        io_timeout=60,
+        io_timeout=TEST_IO_TIMEOUT_SECS,
         outputs=['test.fs'],
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
     )
@@ -253,20 +257,34 @@ def RunTests(api, target, isolated_hash, zircon_build_dir, fuchsia_build_dir):
     assert len(results) == 1
     result = results[0]
 
-  step_result = api.step('kernel results', None)
-  step_result.presentation.logs['output'] = result.output.split('\n')
+  step_result = api.step('task results', None)
+  kernel_output_lines = result.output.split('\n')
+  step_result.presentation.logs['output'] = kernel_output_lines
   if result.is_infra_failure():
     raise api.step.InfraFailure('Failed to collect: %s' % result.output)
   elif result.is_failure():
     # If the kernel panics, chances are it will result in a task failure since
     # the task will likely time out and QEMU will be forcibly killed.
     if 'KERNEL PANIC' in result.output:
+      step_result.presentation.step_text = 'kernel panic'
       step_result.presentation.status = api.step.FAILURE
       Symbolize(api, zircon_build_dir, result.output)
       raise api.step.StepFailure('Found kernel panic. See symbolized output for details.')
-    # If there's no kernel panic then it's likely an infra issue with QEMU,
+    # If we have a timeout with a successful collect, then this must be an
+    # io_timeout failure, since task timeout > collect timeout.
+    if result.timed_out():
+      step_result.presentation.step_text = 'i/o timeout'
+      step_result.presentation.status = api.step.FAILURE
+      Symbolize(api, zircon_build_dir, result.output)
+      failure_lines = [
+        'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
+        'Last 10 lines of kernel output:',
+      ] + kernel_output_lines[-10:]
+      raise api.step.StepFailure('\n'.join(failure_lines))
+    # At this point its likely an infra issue with QEMU,
     # though a deadlock might also reach this state.
-    raise api.step.InfraFailure('Swarming task failed: %s' % result.output)
+    step_result.presentation.status = api.step.EXCEPTION
+    raise api.step.InfraFailure('Swarming task failed:\n%s' % result.output)
 
   test_results_dir = api.path['start_dir'].join('minfs_isolate_results')
   with api.context(infra_steps=True):
@@ -402,6 +420,16 @@ def GenTests(api):
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
       task_failure=True,
+  ))
+  yield api.test('isolated_tests_task_timed_out') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x86-64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+  ) + api.step_data('collect', api.swarming.collect_result(
+      outputs=['test.fs'],
+      timed_out=True,
   ))
   yield api.test('isolated_tests_kernel_panic') + api.properties(
       manifest='fuchsia',
