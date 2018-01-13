@@ -178,7 +178,7 @@
       "[START_DIR]/scripts/build-zircon.sh",
       "-c",
       "-p",
-      "zircon-pc-x86-64"
+      "x86"
     ],
     "name": "build zircon"
   },
@@ -258,7 +258,7 @@
       "x86-64",
       "--packages",
       "topaz/packages/default,build/packages/bootfs,[TMP_BASE]/runcmds_package",
-      "--platforms=zircon-pc-x86-64",
+      "--platforms=x86",
       "--goma=/goma",
       "--args=extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]"
     ],

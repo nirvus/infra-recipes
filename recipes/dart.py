@@ -215,8 +215,8 @@ def RunSteps(api, manifest, remote, target, build_type, goma_dir):
   fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
 
   zircon_project = {
-    'arm64': 'zircon-qemu-arm64',
-    'x86-64': 'zircon-pc-x86-64'
+    'arm64': 'arm64',
+    'x86-64': 'x86'
   }[target]
 
   if goma_dir:
