@@ -5,6 +5,7 @@
 **[Recipe Modules](#Recipe-Modules)**
   * [authutil](#recipe_modules-authutil)
   * [cipd](#recipe_modules-cipd)
+  * [fuchsia](#recipe_modules-fuchsia)
   * [gerrit](#recipe_modules-gerrit)
   * [git](#recipe_modules-git)
   * [gitiles](#recipe_modules-gitiles)
@@ -28,6 +29,7 @@
   * [cobalt](#recipes-cobalt) &mdash; Recipe for building and testing Cobalt.
   * [dart](#recipes-dart) &mdash; Builds the Fuchsia Dart test image and runs the Dart tests.
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
+  * [fuchsia:examples/fuchsia](#recipes-fuchsia_examples_fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia_roller](#recipes-fuchsia_roller) &mdash; Recipe for rolling Fuchsia layers into upper layers.
   * [gerrit:examples/full](#recipes-gerrit_examples_full)
   * [git:examples/full](#recipes-git_examples_full)
@@ -187,6 +189,60 @@ parameters will be used.
 &mdash; **def [set\_service\_account\_credentials](/recipe_modules/cipd/api.py#176)(self, path):**
 
 &mdash; **def [set\_tag](/recipe_modules/cipd/api.py#393)(self, package_name, version, tags):**
+### *recipe_modules* / [fuchsia](/recipe_modules/fuchsia)
+
+[DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#80)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+APIs for checking out, building, and testing Fuchsia.
+
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#212)(self, target, build_type, packages, variants, gn_args, include_tests=False, runtests_args=''):**
+
+Builds Fuchsia from a Jiri checkout.
+
+Expects a Fuchsia Jiri checkout at api.path['start_dir'].
+
+Args:
+  target (str): The build target, see TARGETS for allowed targets
+  build_type (str): One of the build types in BUILD_TYPES
+  packages (list[str]): A list of packages to pass to GN to build
+  variants (list[str]): A list of build variants to pass to gen.py via
+    --variant
+  gn_args (list[str]): Additional arguments to pass to GN
+  include_tests (bool): Whether to include a package in the build for
+    automatically executing tests
+  runtests_args (str): Space-separated arguments to pass to the test driver
+    if include_tests is set
+
+Returns:
+  A FuchsiaBuildResults, representing the recently completed build.
+
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#86)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False):**
+
+Uses Jiri to check out a Fuchsia project.
+
+The patch_* arguments must all be set, or none at all.
+The checkout is made into api.path['start_dir'].
+
+Args:
+  manifest (str): A path to the manifest in the remote (e.g. manifest/minimal)
+  remote (str): A URL to the remote repository which Jiri will be pointed at
+  project (str): The name of the project
+  patch_ref (str): A reference ID to the patch in Gerrit to apply
+  patch_gerrit_url (str): A URL of the patch in Gerrit to apply
+  patch_project (str): The name of Gerrit project
+  upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
+
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#288)(self, build):**
+
+Tests a Fuchsia build.
+
+Expects the build and artifacts to be at the same place they were at
+the end of the build.
+
+Args:
+  build (FuchsiaBuildResults): The Fuchsia build to test
 ### *recipe_modules* / [gerrit](/recipe_modules/gerrit)
 
 [DEPS](/recipe_modules/gerrit/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -704,23 +760,18 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 &mdash; **def [RunTests](/recipes/dart.py#145)(api, target, fuchsia_build_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#15): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [swarming](#recipe_modules-swarming), [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [BuildFuchsia](/recipes/fuchsia.py#125)(api, build_type, target, gn_target, zircon_project, fuchsia_build_dir, packages, variant, run_tests, runtests_args, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#58)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, upload_snapshot):**
+### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
-&mdash; **def [BuildZircon](/recipes/fuchsia.py#115)(api, zircon_project):**
+[DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
-&mdash; **def [Checkout](/recipes/fuchsia.py#97)(api, patch_project, patch_ref, patch_gerrit_url, project, manifest, remote, upload_snapshot):**
+Recipe for building Fuchsia and running tests.
 
-&mdash; **def [IsolateArtifacts](/recipes/fuchsia.py#197)(api, target, zircon_build_dir, fuchsia_build_dir):**
-
-&mdash; **def [RunSteps](/recipes/fuchsia.py#350)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, run_tests, runtests_args, upload_snapshot, goma_dir, gn_args):**
-
-&mdash; **def [RunTests](/recipes/fuchsia.py#208)(api, target, isolated_hash, zircon_build_dir, fuchsia_build_dir):**
-
-&mdash; **def [Symbolize](/recipes/fuchsia.py#334)(api, build_dir, data):**
+&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#56)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, target, build_type, packages, variants, gn_args, run_tests, runtests_args, upload_snapshot):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#12): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

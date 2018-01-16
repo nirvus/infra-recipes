@@ -49,8 +49,6 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "chrome",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -97,6 +95,78 @@
       "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
       "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "snapshot",
+      "-v",
+      "-time",
+      "[TMP_BASE]/jiri.snapshot"
+    ],
+    "name": "jiri snapshot"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[TMP_BASE]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "hash snapshot",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/jiri.snapshot",
+      "gs://fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97@@@"
     ]
   },
   {
@@ -182,7 +252,11 @@
       "--target_cpu=x86-64",
       "--packages=topaz/packages/default,build/packages/bootfs",
       "--platforms=x86",
-      "--goma=[START_DIR]/cipd/goma"
+      "--goma=[START_DIR]/cipd/goma",
+      "--release",
+      "--lto=thin",
+      "--args",
+      "thinlto_cache_dir=\"[CACHE]/thinlto\""
     ],
     "name": "build.build fuchsia.gen",
     "~followup_annotations": [
@@ -221,7 +295,7 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/debug-x86-64",
+      "[START_DIR]/out/release-x86-64",
       "-j",
       "50"
     ],
