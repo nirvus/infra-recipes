@@ -60,7 +60,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
           count=len(log),
           commits='\n'.join([
             '{commit} {subject}'.format(
-                commit=commit['commit'][:7],
+                commit=commit['id'][:7],
                 subject=commit['message'].splitlines()[0],
             ) for commit in log
           ]),

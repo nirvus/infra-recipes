@@ -28,7 +28,7 @@ class GitilesTestApi(recipe_test_api.RecipeTestApi):
       name = 'Fake %s' % (s)
       email = 'fake_%s@fake_%i.email.com' % (s, i)
       commits.append({
-          'commit': self.hash(commit),
+          'id': self.hash(commit),
           'tree': self.hash('tree', commit),
           'parents': [self.hash('parent', commit)],
           'author': {
