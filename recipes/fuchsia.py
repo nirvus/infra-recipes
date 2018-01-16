@@ -312,20 +312,18 @@ def RunTests(api, target, isolated_hash, zircon_build_dir, fuchsia_build_dir):
 
   # Report test results.
   failed_tests = {}
-  step_result = api.step('test results', None)
-  for test in test_summary['tests']:
-    name = test['name']
-    # TODO(mknyszek): make output_name more consistently map to name.
-    output_name = name + '.out'
-    assert output_name.startswith('/')
-    output_name = output_name[1:]
-    # TODO(mknyszek): Figure out why '/' is being HTML escaped twice on its way
-    # to the output, so this replacement doesn't need to happen.
-    log_name = name[1:].replace('/', '.')
-    step_result.presentation.logs[log_name] = test_output[output_name].split('\n')
-    if test['result'] != 'PASS':
-      step_result.presentation.status = api.step.FAILURE
-      failed_tests[name] = test_output[output_name]
+  with api.step.nest('tests'):
+    for test in test_summary['tests']:
+      name = test['name']
+      step_result = api.step(name, None)
+      # TODO(mknyszek): make output_name more consistently map to name.
+      output_name = name + '.out'
+      assert output_name.startswith('/')
+      output_name = output_name[1:]
+      step_result.presentation.logs['stdio'] = test_output[output_name].split('\n')
+      if test['result'] != 'PASS':
+        step_result.presentation.status = api.step.FAILURE
+        failed_tests[name] = test_output[output_name]
 
   # Symbolize the output of any failed tests.
   if len(failed_tests) != 0:

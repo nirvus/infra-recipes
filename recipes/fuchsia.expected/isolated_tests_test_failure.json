@@ -717,10 +717,15 @@
   },
   {
     "cmd": [],
-    "name": "test results",
+    "name": "tests"
+  },
+  {
+    "cmd": [],
+    "name": "tests./hello",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@hello@I am output.@@@",
-      "@@@STEP_LOG_END@hello@@@",
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@stdio@I am output.@@@",
+      "@@@STEP_LOG_END@stdio@@@",
       "@@@STEP_FAILURE@@@"
     ]
   },
