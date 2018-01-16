@@ -10,7 +10,7 @@
       "-root",
       "[START_DIR]/cipd/gitiles",
       "-ensure-file",
-      "infra/tools/luci/gitiles/linux-amd64 latest",
+      "infra/tools/luci/gitiles/mac-amd64 latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -22,7 +22,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -70,7 +70,7 @@
       "-root",
       "[START_DIR]/cipd/jiri",
       "-ensure-file",
-      "fuchsia/tools/jiri/linux-amd64 stable",
+      "fuchsia/tools/jiri/mac-amd64 stable",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -82,7 +82,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -90,33 +90,18 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_goma"
-  },
-  {
     "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/goma",
-      "-ensure-file",
-      "infra_internal/goma/client/linux-amd64 release",
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
       "-json-output",
       "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "https://fuchsia.googlesource.com/third_party/swift",
+      "refs/heads"
     ],
-    "infra_step": true,
-    "name": "ensure_goma.ensure_installed",
+    "name": "refs",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/upstream/fuchsia_release\": \"85bce8d910db00261b4844f784dca1a8e322b7e0\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -125,22 +110,19 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/swift/linux-amd64",
+      "fuchsia/swift/mac-amd64",
       "-tag",
-      "git_revision:6058ffab78270a048e27047292becc847fbc0184",
+      "git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/swift/linux-amd64 git_revision:6058ffab78270a048e27047292becc847fbc0184",
+    "name": "cipd search fuchsia/swift/mac-amd64 git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/swift/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"something\"@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"

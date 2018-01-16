@@ -91,13 +91,20 @@
   },
   {
     "cmd": [
-      "git",
-      "ls-remote",
-      "https://github.com/google/swift.git",
-      "refs/heads/fuchsia_toolchain"
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
+      "-json-output",
+      "/path/to/tmp/json",
+      "https://fuchsia.googlesource.com/third_party/swift",
+      "refs/heads"
     ],
-    "name": "git ls-remote",
-    "stdout": "/path/to/tmp/"
+    "name": "refs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/upstream/fuchsia_release\": \"85bce8d910db00261b4844f784dca1a8e322b7e0\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
@@ -105,20 +112,17 @@
       "search",
       "fuchsia/swift/linux-amd64",
       "-tag",
-      "git_revision:",
+      "git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/swift/linux-amd64 git_revision:",
+    "name": "cipd search fuchsia/swift/linux-amd64 git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/swift/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"something\"@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"

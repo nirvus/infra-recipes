@@ -123,17 +123,34 @@
   },
   {
     "cmd": [
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
+      "-json-output",
+      "/path/to/tmp/json",
+      "https://fuchsia.googlesource.com/third_party/swift",
+      "refs/heads"
+    ],
+    "name": "refs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/upstream/fuchsia_release\": \"85bce8d910db00261b4844f784dca1a8e322b7e0\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "cipd",
       "search",
       "fuchsia/swift/mac-amd64",
       "-tag",
-      "git_revision:6058ffab78270a048e27047292becc847fbc0184",
+      "git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/swift/mac-amd64 git_revision:6058ffab78270a048e27047292becc847fbc0184",
+    "name": "cipd search fuchsia/swift/mac-amd64 git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -226,7 +243,7 @@
       "remote",
       "add",
       "origin",
-      "https://github.com/google/swift.git"
+      "https://fuchsia.googlesource.com/third_party/swift"
     ],
     "cwd": "[START_DIR]/swift-source/swift",
     "infra_step": true,
@@ -247,7 +264,7 @@
       "git",
       "checkout",
       "-f",
-      "6058ffab78270a048e27047292becc847fbc0184"
+      "85bce8d910db00261b4844f784dca1a8e322b7e0"
     ],
     "cwd": "[START_DIR]/swift-source/swift",
     "infra_step": true,
@@ -531,7 +548,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n{\n    \"https-clone-pattern\": \"https://github.com/%s.git\",\n    \"ssh-clone-pattern\": \"git@github.com:%s.git\",\n    \"repos\": {\n        \"compiler-rt\": {\n            \"remote\": {\n                \"id\": \"apple/swift-compiler-rt\"\n            }\n        },\n        \"llvm\": {\n            \"remote\": {\n                \"id\": \"apple/swift-llvm\"\n            }\n        },\n        \"swift-xcode-playground-support\": {\n            \"remote\": {\n                \"id\": \"apple/swift-xcode-playground-support\"\n            }\n        },\n        \"swift-corelibs-foundation\": {\n            \"remote\": {\n                \"id\": \"apple/swift-corelibs-foundation\"\n            }\n        },\n        \"clang\": {\n            \"remote\": {\n                \"id\": \"apple/swift-clang\"\n            }\n        },\n        \"llbuild\": {\n            \"remote\": {\n                \"id\": \"apple/swift-llbuild\"\n            }\n        },\n        \"cmark\": {\n            \"remote\": {\n                \"id\": \"apple/swift-cmark\"\n            }\n        },\n        \"lldb\": {\n            \"remote\": {\n                \"id\": \"apple/swift-lldb\"\n            }\n        },\n        \"swift-corelibs-xctest\": {\n            \"remote\": {\n                \"id\": \"apple/swift-corelibs-xctest\"\n            }\n        },\n        \"ninja\": {\n            \"remote\": {\n                \"id\": \"ninja-build/ninja\"\n            }\n        },\n        \"swift-integration-tests\": {\n            \"remote\": {\n                \"id\": \"apple/swift-integration-tests\"\n            }\n        },\n        \"swiftpm\": {\n            \"remote\": {\n                \"id\": \"apple/swift-package-manager\"\n            }\n        },\n        \"swift\": {\n            \"remote\": {\n                \"id\": \"apple/swift\"\n            }\n        },\n        \"swift-corelibs-libdispatch\": {\n            \"remote\": {\n                \"id\": \"apple/swift-corelibs-libdispatch\"\n            }\n        }\n    },\n    \"branch-schemes\": {\n        \"fuchsia\": {\n            \"repos\": {\n                \"compiler-rt\": \"61fa9e3fd80fb9c2abc71e34b254c1c8b12c9c71\",\n                \"llvm\": \"cf0f1343596c56da3cbf3e98900b0402248d1c61\",\n                \"swift-xcode-playground-support\": \"123451c5a4b53304ac01772bcb8a7c7286ac3edc\",\n                \"swift-corelibs-foundation\": \"6dea2bca690d283907b06befcf405291b2f01d3b\",\n                \"clang\": \"ef223bbbebb24d836334f2712d9ca68ff265269b\",\n                \"llbuild\": \"473365152503f0fce2cde3be7f7dcb9699fdca87\",\n                \"cmark\": \"d875488a6a95d5487b7c675f79a8dafef210a65f\",\n                \"lldb\": \"14981bfc6cb9a482e729d6411b6be1ac5d8a12e4\",\n                \"swiftpm\": \"bf9e058fcd33a1608df7a5341bce8fc2a81eb69e\",\n                \"swift-corelibs-xctest\": \"732d9533c70dca9ede2c745b64a11f8c7dc7f824\",\n                \"ninja\": \"253e94c1fa511704baeb61cf69995bbf09ba435e\",\n                \"swift-integration-tests\": \"01eecd5a83279635823e78101a538132784bc628\",\n                \"swift\": \"6058ffab78270a048e27047292becc847fbc0184\",\n                \"swift-corelibs-libdispatch\": \"e52c174b1f1883eebad6ba7bdd54edbd4736617e\"\n            },\n            \"aliases\": [\n                \"fuchsia\"\n            ]\n        }\n    }\n}\n",
+      "\n{\n    \"https-clone-pattern\": \"https://fuchsia.googlesource.com/third_party/%s\",\n    \"ssh-clone-pattern\": \"git@github.com:google/%s.git\",\n    \"repos\": {\n        \"compiler-rt\": {\n            \"remote\": {\n                \"id\": \"swift-compiler-rt\"\n            }\n        },\n        \"llvm\": {\n            \"remote\": {\n                \"id\": \"swift-llvm\"\n            }\n        },\n        \"swift-corelibs-foundation\": {\n            \"remote\": {\n                \"id\": \"swift-corelibs-foundation\"\n            }\n        },\n        \"clang\": {\n            \"remote\": {\n                \"id\": \"swift-clang\"\n            }\n        },\n        \"llbuild\": {\n            \"remote\": {\n                \"id\": \"swift-llbuild\"\n            }\n        },\n        \"cmark\": {\n            \"remote\": {\n                \"id\": \"swift-cmark\"\n            }\n        },\n        \"lldb\": {\n            \"remote\": {\n                \"id\": \"swift-lldb\"\n            }\n        },\n        \"swift-corelibs-xctest\": {\n            \"remote\": {\n                \"id\": \"swift-corelibs-xctest\"\n            }\n        },\n        \"ninja\": {\n            \"remote\": {\n                \"id\": \"ninja\"\n            }\n        },\n        \"swift-integration-tests\": {\n            \"remote\": {\n                \"id\": \"swift-integration-tests\"\n            }\n        },\n        \"swiftpm\": {\n            \"remote\": {\n                \"id\": \"swift-package-manager\"\n            }\n        },\n        \"swift\": {\n            \"remote\": {\n                \"id\": \"swift\"\n            }\n        },\n        \"swift-corelibs-libdispatch\": {\n            \"remote\": {\n                \"id\": \"swift-corelibs-libdispatch\"\n            }\n        }\n    },\n    \"branch-schemes\": {\n        \"fuchsia\": {\n            \"repos\": {\n                \"compiler-rt\": \"61fa9e3fd80fb9c2abc71e34b254c1c8b12c9c71\",\n                \"llvm\": \"cf0f1343596c56da3cbf3e98900b0402248d1c61\",\n                \"swift-corelibs-foundation\": \"ad2f29b446c6aba991f250500d2e6f3a8706c6fa\",\n                \"clang\": \"ef223bbbebb24d836334f2712d9ca68ff265269b\",\n                \"llbuild\": \"473365152503f0fce2cde3be7f7dcb9699fdca87\",\n                \"cmark\": \"d875488a6a95d5487b7c675f79a8dafef210a65f\",\n                \"lldb\": \"14981bfc6cb9a482e729d6411b6be1ac5d8a12e4\",\n                \"swiftpm\": \"0297d83f1c991ae7e5e74fa39849b0b70b9f387f\",\n                \"swift-corelibs-xctest\": \"732d9533c70dca9ede2c745b64a11f8c7dc7f824\",\n                \"ninja\": \"253e94c1fa511704baeb61cf69995bbf09ba435e\",\n                \"swift-integration-tests\": \"01eecd5a83279635823e78101a538132784bc628\",\n                \"swift\": \"6058ffab78270a048e27047292becc847fbc0184\",\n                \"swift-corelibs-libdispatch\": \"e52c174b1f1883eebad6ba7bdd54edbd4736617e\"\n            },\n            \"aliases\": [\n                \"fuchsia\"\n            ]\n        }\n    }\n}\n",
       "[TMP_BASE]/swift_tmp_1/build/update-checkout.json"
     ],
     "cwd": "[TMP_BASE]/swift_tmp_1/build",
@@ -551,6 +568,8 @@
       "[START_DIR]/swift-source/swift/utils/update-checkout",
       "--skip-repository",
       "swift",
+      "--skip-repository",
+      "swift-xcode-playground-support",
       "--config",
       "[TMP_BASE]/swift_tmp_1/build/update-checkout.json",
       "--scheme",
@@ -575,7 +594,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n#===------------------------------------------------------------------------===#\n# Fuchsia Mixins\n#===------------------------------------------------------------------------===#\n[preset: mixin_fuchsia_build]\nfuchsia\nextra-stdlib-deployment-targets=fuchsia-aarch64,fuchsia-x86_64\nfuchsia-toolchain-path=%(clang_path)s\nfuchsia-icu-uc-include=%(fuchsia_icu_uc)s\nfuchsia-icu-i18n-include=%(fuchsia_icu_i18n)s\nfuchsia-x86_64-sysroot=%(x86_64_sysroot)s\nfuchsia-aarch64-sysroot=%(aarch64_sysroot)s\nfuchsia-x86_64-libs=%(x64_shared)s\nfuchsia-aarch64-libs=%(arm64_shared)s\nhost-cc=%(clang_path)s/bin/clang\nhost-cxx=%(clang_path)s/bin/clang++\nuse-lld-linker\nbuild-swift-static-stdlib=true\nbuild-runtime-with-host-compiler=true\nbuild-swift-static-sdk-overlay=true\n\nxctest=false\nfoundation=false\nlibdispatch=false\nlibicu=false\nbuild-ninja=false\n\ndash-dash\n\nskip-build-foundation\nskip-build-libdispatch\nskip-build-xctest\nskip-build-swiftpm\nskip-build-lldb\nskip-build-llbuild\n\n[preset: mixin_fuchsia_release_Os]\nmixin-preset=mixin_fuchsia_build\n\nno-swift-stdlib-assertions\nno-swift-assertions\nno-llvm-assertions\nrelease\n\ndash-dash\n\nswift-stdlib-build-type=MinSizeRel\nswift-stdlib-enable-assertions=false\nswift-enable-ast-verifier=0\n\n[preset: mixin_fuchsia_release_debuginfo]\nmixin-preset=mixin_fuchsia_build\n\nno-swift-stdlib-assertions\nrelease-debuginfo\nassertions\n\ndash-dash\n\nswift-stdlib-build-type=RelWithDebInfo\nswift-stdlib-enable-assertions=false\nswift-enable-ast-verifier=0\n\n\n# We will re-enable these when tests work\n[preset: mixin_fuchsia_disable_testing]\n\ndash-dash\n\nskip-test-cmark\nskip-test-lldb\nskip-test-swift\nskip-test-llbuild\nskip-test-swiftpm\nskip-test-xctest\nskip-test-foundation\nskip-test-libdispatch\nskip-test-playgroundlogger\nskip-test-playgroundsupport\nskip-test-libicu\nskip-test-fuchsia-host\n\n[preset: mixin_fuchsia_install]\n\ndash-dash\n\nswift-install-components=autolink-driver;compiler;clang-builtin-headers;stdlib;swift-remote-mirror;sdk-overlay;license;editor-integration;tools;dev;sourcekit-inproc\ninstall-swift\ninstall-prefix=/\ninstall-destdir=%(install_destdir)s\ninstall-symroot=%(install_symroot)s\nreconfigure\n\n#===------------------------------------------------------------------------===#\n# Fuchsia Targets\n#===------------------------------------------------------------------------===#\n[preset: fuchsia_release]\nmixin-preset=\n  mixin_fuchsia_release_Os\n  mixin_fuchsia_disable_testing\n\n[preset: fuchsia_release_debuginfo]\nmixin-preset=\n  mixin_fuchsia_release_debuginfo\n  mixin_fuchsia_disable_testing\n\n[preset: fuchsia_release_install]\nmixin-preset=\n  fuchsia_release\n  mixin_fuchsia_install\n\n[preset: fuchsia_release_debuginfo_install]\nmixin-preset=\n  fuchsia_release_debuginfo\n  mixin_fuchsia_install\n\n\n",
+      "\n#===------------------------------------------------------------------------===#\n# Fuchsia Mixins\n#===------------------------------------------------------------------------===#\n[preset: mixin_fuchsia_build]\nfuchsia\nextra-stdlib-deployment-targets=fuchsia-aarch64,fuchsia-x86_64\nfuchsia-toolchain-path=%(clang_path)s\nfuchsia-icu-uc-include=%(fuchsia_icu_uc)s\nfuchsia-icu-i18n-include=%(fuchsia_icu_i18n)s\nfuchsia-x86_64-sysroot=%(x86_64_sysroot)s\nfuchsia-aarch64-sysroot=%(aarch64_sysroot)s\nfuchsia-x86_64-libs=%(x64_shared)s\nfuchsia-aarch64-libs=%(arm64_shared)s\nhost-cc=%(clang_path)s/bin/clang\nhost-cxx=%(clang_path)s/bin/clang++\nuse-lld-linker\nbuild-swift-static-stdlib=true\nbuild-runtime-with-host-compiler=true\nbuild-swift-static-sdk-overlay=true\n\nxctest=false\nfoundation=false\nlibdispatch=false\nlibicu=false\nbuild-ninja=false\n\ndash-dash\n\nskip-build-foundation\nskip-build-libdispatch\nskip-build-xctest\nskip-build-swiftpm\nskip-build-lldb\nskip-build-llbuild\n\n[preset: mixin_fuchsia_release_Os]\nmixin-preset=mixin_fuchsia_build\n\nno-swift-stdlib-assertions\nno-swift-assertions\nno-llvm-assertions\nrelease\n\ndash-dash\n\nswift-stdlib-build-type=MinSizeRel\nswift-stdlib-enable-assertions=false\nswift-enable-ast-verifier=0\n\n[preset: mixin_fuchsia_release_debuginfo]\nmixin-preset=mixin_fuchsia_build\n\nno-swift-stdlib-assertions\nrelease-debuginfo\nassertions\n\ndash-dash\n\nswift-stdlib-build-type=RelWithDebInfo\nswift-stdlib-enable-assertions=false\nswift-enable-ast-verifier=0\n\n\n# We will re-enable these when tests work\n[preset: mixin_fuchsia_disable_testing]\n\ndash-dash\n\nskip-test-cmark\nskip-test-lldb\nskip-test-swift\nskip-test-llbuild\nskip-test-swiftpm\nskip-test-xctest\nskip-test-foundation\nskip-test-libdispatch\nskip-test-playgroundlogger\nskip-test-playgroundsupport\nskip-test-libicu\nskip-test-fuchsia-host\n\n[preset: mixin_fuchsia_install]\n\ndash-dash\n\nswift-install-components=autolink-driver;compiler;clang-builtin-headers;stdlib;swift-remote-mirror;sdk-overlay;license;editor-integration;tools;dev;sourcekit-inproc\ninstall-swift\ninstall-prefix=/\ninstall-destdir=%(install_destdir)s\ninstall-symroot=%(install_symroot)s\nreconfigure\n\n#===------------------------------------------------------------------------===#\n# Fuchsia Targets\n#===------------------------------------------------------------------------===#\n[preset: fuchsia_release]\nmixin-preset=\n  mixin_fuchsia_release_Os\n  mixin_fuchsia_disable_testing\n\n[preset: fuchsia_release_debuginfo]\nmixin-preset=\n  mixin_fuchsia_release_debuginfo\n  mixin_fuchsia_disable_testing\n\n[preset: fuchsia_release_install]\nmixin-preset=\n  fuchsia_release\n  mixin_fuchsia_install\n\n[preset: fuchsia_release_debuginfo_install]\nmixin-preset=\n  fuchsia_release_debuginfo\n  mixin_fuchsia_install\n\n\n#===------------------------------------------------------------------------===#\n# Linux Extra Targets\n#===------------------------------------------------------------------------===#\n# We build this after doing a regular build to get the additional depedencies\n# for just Linux that don't work on Fuchsia yet.\n\n[preset: linux_extras_install]\nno-swift-stdlib-assertions\nno-swift-assertions\nno-llvm-assertions\nhost-cc=%(clang_path)s/bin/clang\nhost-cxx=%(clang_path)s/bin/clang++\nuse-lld-linker\nbuild-swift-static-stdlib=true\nbuild-runtime-with-host-compiler=true\nbuild-swift-static-sdk-overlay=true\nllbuild\nswiftpm\nxctest\nfoundation\nlibdispatch\nrelease\n\ndash-dash\n\nbuild-ninja\ninstall-swift\ninstall-lldb\ninstall-llbuild\ninstall-swiftpm\ninstall-xctest\ninstall-foundation\ninstall-libdispatch\n\nswift-stdlib-build-type=MinSizeRel\nswift-stdlib-enable-assertions=false\nswift-enable-ast-verifier=0\n\nskip-test-xctest\nskip-test-foundation\nskip-test-libdispatch\nskip-test-playgroundlogger\nskip-test-playgroundsupport\nskip-test-libicu\n\nswift-install-components=autolink-driver;compiler;clang-builtin-headers;stdlib;swift-remote-mirror;sdk-overlay;license;editor-integration;tools;dev;sourcekit-inproc;swift-remote-mirror-headers\nllvm-install-components=libclang;libclang-headers\ninstall-prefix=/\ninstall-destdir=%(install_destdir)s\ninstall-symroot=%(install_symroot)s\nreconfigure\n\n",
       "[TMP_BASE]/swift_tmp_1/build/presets.ini"
     ],
     "cwd": "[TMP_BASE]/swift_tmp_1/build",
@@ -615,7 +634,36 @@
         "[START_DIR]/cipd/bin"
       ]
     },
-    "name": "build swift"
+    "name": "build swift fuchsia components"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/swift-source/swift/utils/build-script",
+      "--preset-file",
+      "[TMP_BASE]/swift_tmp_1/build/presets.ini",
+      "--jobs",
+      "2",
+      "--preset=linux_extras_install",
+      "clang_path=[START_DIR]/cipd",
+      "fuchsia_icu_uc=[START_DIR]/third_party/icu/source/common",
+      "fuchsia_icu_i18n=[START_DIR]/third_party/icu/source/i18n",
+      "x86_64_sysroot=[START_DIR]/out/build-zircon/build-user-x86-64/sysroot",
+      "aarch64_sysroot=[START_DIR]/out/build-zircon/build-user-arm64/sysroot",
+      "x64_shared=[START_DIR]/out/release-x86-64/x64-shared",
+      "arm64_shared=[START_DIR]/out/release-aarch64/arm64-shared",
+      "install_destdir=[TMP_BASE]/swift_tmp_1/build/swift_toolchain",
+      "install_symroot=[TMP_BASE]/swift_tmp_1/build/swift_symbols"
+    ],
+    "cwd": "[TMP_BASE]/swift_tmp_1/build",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd",
+        "[START_DIR]/cipd/bin"
+      ]
+    },
+    "name": "build swift linux extras"
   },
   {
     "cmd": [
@@ -644,6 +692,34 @@
     ],
     "infra_step": true,
     "name": "writing aarch64 manifest"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "lib/libswiftCore.so=libswiftCore.so\nlib/libswiftGlibc.so=libswiftGlibc.so\nlib/libswiftSwiftOnoneSupport.so=libswiftSwiftOnoneSupport.so\nlib/libswiftRemoteMirror.so=libswiftRemoteMirror.so\n",
+      "[TMP_BASE]/swift_tmp_1/build/swift_toolchain/lib/x86_64-fuchsia.manifest"
+    ],
+    "infra_step": true,
+    "name": "writing x86_64 manifest (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "lib/libswiftCore.so=libswiftCore.so\nlib/libswiftGlibc.so=libswiftGlibc.so\nlib/libswiftSwiftOnoneSupport.so=libswiftSwiftOnoneSupport.so\nlib/libswiftRemoteMirror.so=libswiftRemoteMirror.so\n",
+      "[TMP_BASE]/swift_tmp_1/build/swift_toolchain/lib/aarch64-fuchsia.manfiest"
+    ],
+    "infra_step": true,
+    "name": "writing aarch64 manifest (2)"
   },
   {
     "cmd": [
@@ -691,9 +767,9 @@
       "-ref",
       "latest",
       "-tag",
-      "git_repository:https://github.com/google/swift.git",
+      "git_repository:https://fuchsia.googlesource.com/third_party/swift",
       "-tag",
-      "git_revision:6058ffab78270a048e27047292becc847fbc0184",
+      "git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
       "-tag",
       "version:4.1-dev"
     ],
