@@ -48,8 +48,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.step.active_result.presentation.properties['got_revision'] = revision
 
   zircon_project = {
-    'aarch64': 'zircon-qemu-arm64',
-    'x86_64': 'zircon-pc-x86-64',
+    'aarch64': 'arm64',
+    'x86_64': 'x86',
   }[target]
   build_zircon_cmd = [
     api.path['start_dir'].join('scripts/build-zircon.sh'),
