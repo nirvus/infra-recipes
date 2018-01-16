@@ -127,13 +127,13 @@
       "search",
       "fuchsia/swift/linux-amd64",
       "-tag",
-      "git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
+      "git_revision:6058ffab78270a048e27047292becc847fbc0184",
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
-    "name": "cipd search fuchsia/swift/linux-amd64 git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
+    "name": "cipd search fuchsia/swift/linux-amd64 git_revision:6058ffab78270a048e27047292becc847fbc0184",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",

@@ -30,11 +30,12 @@ DEPS = [
   'recipe_engine/url',
 ]
 
-SWIFT_FUCHSIA_GIT = 'https://fuchsia.googlesource.com/third_party/swift'
+# TODO(zbowling): using github until we mirror these into googlesource.
+SWIFT_FUCHSIA_GIT = 'https://github.com/google/swift.git'
 
 PROPERTIES = {
   'url': Property(kind=str, help='Git repository URL', default=SWIFT_FUCHSIA_GIT),
-  'ref': Property(kind=str, help='Git reference', default='refs/heads/upstream/fuchsia_release'),
+  'ref': Property(kind=str, help='Git reference', default='refs/heads/fuchsia_toolchain'),
   'revision': Property(kind=str, help='Revision', default=None),
   'goma_dir': Property(kind=str, help='Path to goma', default=None),
 }
@@ -44,6 +45,7 @@ lib/libswiftGlibc.so=libswiftGlibc.so
 lib/libswiftSwiftOnoneSupport.so=libswiftSwiftOnoneSupport.so
 lib/libswiftRemoteMirror.so=libswiftRemoteMirror.so
 """
+
 
 PRESET_FILE = """
 #===------------------------------------------------------------------------===#
@@ -162,130 +164,83 @@ mixin-preset=
   mixin_fuchsia_install
 
 
-#===------------------------------------------------------------------------===#
-# Linux Extra Targets
-#===------------------------------------------------------------------------===#
-# We build this after doing a regular build to get the additional depedencies
-# for just Linux that don't work on Fuchsia yet.
-
-[preset: linux_extras_install]
-no-swift-stdlib-assertions
-no-swift-assertions
-no-llvm-assertions
-host-cc=%(clang_path)s/bin/clang
-host-cxx=%(clang_path)s/bin/clang++
-use-lld-linker
-build-swift-static-stdlib=true
-build-runtime-with-host-compiler=true
-build-swift-static-sdk-overlay=true
-llbuild
-swiftpm
-xctest
-foundation
-libdispatch
-release
-
-dash-dash
-
-build-ninja
-install-swift
-install-lldb
-install-llbuild
-install-swiftpm
-install-xctest
-install-foundation
-install-libdispatch
-
-swift-stdlib-build-type=MinSizeRel
-swift-stdlib-enable-assertions=false
-swift-enable-ast-verifier=0
-
-skip-test-xctest
-skip-test-foundation
-skip-test-libdispatch
-skip-test-playgroundlogger
-skip-test-playgroundsupport
-skip-test-libicu
-
-swift-install-components=autolink-driver;compiler;clang-builtin-headers;stdlib;swift-remote-mirror;sdk-overlay;license;editor-integration;tools;dev;sourcekit-inproc;swift-remote-mirror-headers
-llvm-install-components=libclang;libclang-headers
-install-prefix=/
-install-destdir=%(install_destdir)s
-install-symroot=%(install_symroot)s
-reconfigure
-
 """
 
 # TODO(zbowling): we need to move all of these repos to checkout the
 # Google github or some googlesource.com mirrors.
 UPDATE_CHECKOUT_CONFIG = """
 {
-    "https-clone-pattern": "https://fuchsia.googlesource.com/third_party/%s",
-    "ssh-clone-pattern": "git@github.com:google/%s.git",
+    "https-clone-pattern": "https://github.com/%s.git",
+    "ssh-clone-pattern": "git@github.com:%s.git",
     "repos": {
         "compiler-rt": {
             "remote": {
-                "id": "swift-compiler-rt"
+                "id": "apple/swift-compiler-rt"
             }
         },
         "llvm": {
             "remote": {
-                "id": "swift-llvm"
+                "id": "apple/swift-llvm"
+            }
+        },
+        "swift-xcode-playground-support": {
+            "remote": {
+                "id": "apple/swift-xcode-playground-support"
             }
         },
         "swift-corelibs-foundation": {
             "remote": {
-                "id": "swift-corelibs-foundation"
+                "id": "apple/swift-corelibs-foundation"
             }
         },
         "clang": {
             "remote": {
-                "id": "swift-clang"
+                "id": "apple/swift-clang"
             }
         },
         "llbuild": {
             "remote": {
-                "id": "swift-llbuild"
+                "id": "apple/swift-llbuild"
             }
         },
         "cmark": {
             "remote": {
-                "id": "swift-cmark"
+                "id": "apple/swift-cmark"
             }
         },
         "lldb": {
             "remote": {
-                "id": "swift-lldb"
+                "id": "apple/swift-lldb"
             }
         },
         "swift-corelibs-xctest": {
             "remote": {
-                "id": "swift-corelibs-xctest"
+                "id": "apple/swift-corelibs-xctest"
             }
         },
         "ninja": {
             "remote": {
-                "id": "ninja"
+                "id": "ninja-build/ninja"
             }
         },
         "swift-integration-tests": {
             "remote": {
-                "id": "swift-integration-tests"
+                "id": "apple/swift-integration-tests"
             }
         },
         "swiftpm": {
             "remote": {
-                "id": "swift-package-manager"
+                "id": "apple/swift-package-manager"
             }
         },
         "swift": {
             "remote": {
-                "id": "swift"
+                "id": "apple/swift"
             }
         },
         "swift-corelibs-libdispatch": {
             "remote": {
-                "id": "swift-corelibs-libdispatch"
+                "id": "apple/swift-corelibs-libdispatch"
             }
         }
     },
@@ -294,12 +249,13 @@ UPDATE_CHECKOUT_CONFIG = """
             "repos": {
                 "compiler-rt": "61fa9e3fd80fb9c2abc71e34b254c1c8b12c9c71",
                 "llvm": "cf0f1343596c56da3cbf3e98900b0402248d1c61",
-                "swift-corelibs-foundation": "ad2f29b446c6aba991f250500d2e6f3a8706c6fa",
+                "swift-xcode-playground-support": "123451c5a4b53304ac01772bcb8a7c7286ac3edc",
+                "swift-corelibs-foundation": "6dea2bca690d283907b06befcf405291b2f01d3b",
                 "clang": "ef223bbbebb24d836334f2712d9ca68ff265269b",
                 "llbuild": "473365152503f0fce2cde3be7f7dcb9699fdca87",
                 "cmark": "d875488a6a95d5487b7c675f79a8dafef210a65f",
                 "lldb": "14981bfc6cb9a482e729d6411b6be1ac5d8a12e4",
-                "swiftpm": "0297d83f1c991ae7e5e74fa39849b0b70b9f387f",
+                "swiftpm": "bf9e058fcd33a1608df7a5341bce8fc2a81eb69e",
                 "swift-corelibs-xctest": "732d9533c70dca9ede2c745b64a11f8c7dc7f824",
                 "ninja": "253e94c1fa511704baeb61cf69995bbf09ba435e",
                 "swift-integration-tests": "01eecd5a83279635823e78101a538132784bc628",
@@ -355,10 +311,13 @@ def RunSteps(api, url, ref, revision, goma_dir):
   api.goma.ensure_goma()
 
   api.cipd.set_service_account_credentials(
-     api.cipd.default_bot_service_account_credentials)
+      api.cipd.default_bot_service_account_credentials)
 
   if not revision:
-    revision = api.gitiles.refs(url).get(ref, None)
+    # TODO(zbowling): use this for gerrit
+    # revision = api.gitiles.refs(url).get(ref, None)
+    revision = api.git('ls-remote', url, ref,
+      stdout=api.raw_io.output()).stdout.strip().split("\t")[0]
   cipd_pkg_name = 'fuchsia/swift/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
@@ -404,6 +363,15 @@ def RunSteps(api, url, ref, revision, goma_dir):
     ]
     api.step('build zircon '+ project, build_zircon_cmd)
 
+    #for project in ['user-x86-64', 'user-arm64']:
+    #with api.context(cwd=zircon_dir):
+    #  api.step('build ' + project, [
+    #    'make',
+    #    '-j%s' % api.platform.cpu_count,
+    #    'PROJECT=' + project,
+    #    'user-only',
+    #  ])
+
   goma_env = {}
 
   fuchsia_out_dir = api.path['start_dir'].join('out')
@@ -436,17 +404,16 @@ def RunSteps(api, url, ref, revision, goma_dir):
         'checkout swift depedencies',
         swift_dir.join('utils', 'update-checkout'),
         args=[
-            '--skip-repository', 'swift', # we manage the swift repo ourselves
-            '--skip-repository', 'swift-xcode-playground-support', # no mirror
+            '--skip-repository', 'swift',  # we manage the swift repo ourselves
             '--config', checkout_config,
             '--scheme', 'fuchsia',
             '-j5', '--clone',
         ])
 
-    # Build swift for Linux and Fuchsia targets without Linux extras
+    # Build swift
     api.file.write_text('writing build presets', presets_file, PRESET_FILE)
     api.python(
-        'build swift fuchsia components',
+        'build swift',
         swift_dir.join('utils', 'build-script'),
         args=[
             '--preset-file', presets_file,
@@ -465,43 +432,9 @@ def RunSteps(api, url, ref, revision, goma_dir):
             'install_symroot=%s' % swift_symbols,
         ])
 
-    # HACK: Build swift again but with extras for Linux that do not work on
-    # on Fuchsia yet (swiftpm, libdispatch, foundation, etc)
-    api.python(
-        'build swift linux extras',
-        swift_dir.join('utils', 'build-script'),
-        args=[
-            '--preset-file', presets_file,
-            '--jobs', api.platform.cpu_count,
-            '--preset=linux_extras_install',
-            'clang_path=%s' % cipd_dir,
-            'fuchsia_icu_uc=%s' % api.path['start_dir'].join(
-                "third_party", "icu", "source", "common"),
-            'fuchsia_icu_i18n=%s' % api.path['start_dir'].join(
-                "third_party", "icu", "source", "i18n"),
-            'x86_64_sysroot=%s' % x86_64_sysroot,
-            'aarch64_sysroot=%s' % aarch64_sysroot,
-            'x64_shared=%s' % fuchia_x64_shared,
-            'arm64_shared=%s' % fuchia_arm64_shared,
-            'install_destdir=%s' % swift_install_dir,
-            'install_symroot=%s' % swift_symbols,
-        ])
-
-
-  # TODO(zbowling): remove this in favor of doing it similar to the way
-  # clang_path does it below.
   swift_install_lib = swift_install_dir.join('lib','swift','fuchsia')
-  api.file.write_text('writing x86_64 manifest',
-      swift_install_lib.join("x86_64","toolchain.manifest"), MANIFEST_FILE)
-  api.file.write_text('writing aarch64 manifest',
-      swift_install_lib.join("aarch64", "toolchain.manifest"), MANIFEST_FILE)
-
-  install_lib = swift_install_dir.join('lib')
-  api.file.write_text('writing x86_64 manifest',
-      install_lib.join("x86_64-fuchsia.manifest"), MANIFEST_FILE)
-  api.file.write_text('writing aarch64 manifest',
-      install_lib.join("aarch64-fuchsia.manfiest"), MANIFEST_FILE)
-
+  api.file.write_text('writing x86_64 manifest', swift_install_lib.join("x86_64","toolchain.manifest"), MANIFEST_FILE)
+  api.file.write_text('writing aarch64 manifest', swift_install_lib.join("aarch64", "toolchain.manifest"), MANIFEST_FILE)
 
   cipd_pkg_file = staging_dir.join('swift.cipd')
 
@@ -538,16 +471,22 @@ def RunSteps(api, url, ref, revision, goma_dir):
 
 
 def GenTests(api):
-  revision = '85bce8d910db00261b4844f784dca1a8e322b7e0'
+  revision = '6058ffab78270a048e27047292becc847fbc0184'
   version = "Swift version 4.1-dev (LLVM 7959c1098f, Clang dff0a814ae, Swift 6058ffab78)"
+
+  yield (api.test("revision") + api.properties(revision=revision))
+  yield (api.test("url") + api.properties(url="https://github.com/google/swift.git"))
+  yield (api.test('goma_dir') + api.properties(goma_dir='/goma'))
 
   for platform in ('linux','mac'):
     yield (api.test(platform) +
            api.platform.name(platform) +
-           api.properties(goma_dir='/goma') +
-           api.gitiles.refs('refs', ('refs/heads/upstream/fuchsia_release', revision)) +
+           api.properties(revision=revision) +
            api.step_data('swift version', api.raw_io.stream_output(version)) +
            api.step_data('cipd search fuchsia/swift/' + platform + '-amd64 ' +
                          'git_revision:' + revision, api.json.output({
                              'result': []
                          })))
+
+
+
