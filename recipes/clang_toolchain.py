@@ -19,6 +19,7 @@ DEPS = [
   'infra/cipd',
   'infra/git',
   'infra/gitiles',
+  'infra/goma',
   'infra/gsutil',
   'infra/hash',
   'infra/jiri',
@@ -44,6 +45,7 @@ PROPERTIES = {
 
 def RunSteps(api, url, ref, revision):
   api.gitiles.ensure_gitiles()
+  api.goma.ensure_goma()
   api.gsutil.ensure_gsutil()
   api.jiri.ensure_jiri()
 
@@ -117,10 +119,13 @@ def RunSteps(api, url, ref, revision):
   extra_options += ['-DFUCHSIA_%s_SYSROOT=%s' % (arch, sysroot)
                     for arch, sysroot in sorted(sysroot.iteritems())]
 
-  with api.context(cwd=build_dir):
+  with api.goma.build_with_goma(), api.context(cwd=build_dir):
     api.step('configure clang', [
       cipd_dir.join('bin', 'cmake'),
       '-GNinja',
+      '-DCMAKE_C_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
+      '-DCMAKE_CXX_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
+      '-DCMAKE_ASM_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
       '-DCMAKE_C_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
       '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
       '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
