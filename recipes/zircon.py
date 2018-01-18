@@ -137,7 +137,7 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline):
     '-monitor', 'none',
     '-initrd', BOOTFS_IMAGE_NAME,
     '-enable-kvm', '-cpu', 'host',
-    '-append', 'TERM=dumb kernel.halt-on-panic=true ' + cmdline,
+    '-append', ' '.join(['TERM=dumb', 'kernel.halt-on-panic=true'] + cmdline),
   ]
 
   qemu_cipd_arch = {
@@ -193,6 +193,16 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.file.ensure_directory('makedirs tmp', tmp_dir)
   path = tmp_dir.join('autorun')
   autorun = ['msleep 500', 'runtests']
+  # In the non-use_isolate case, we don't need this because the QEMU recipe
+  # module forcefully kills QEMU when encountering the shutdown pattern.
+  # In a swarming task, this is impossible because 1) although we can cancel a
+  # swarming task we won't get any useful feedback on whether it was successful
+  # without grepping through the output and 2) we would need a way to stream the
+  # output into a recipe, which currently can't be done easily.
+  #
+  # So, we gracefully shutdown zircon after running tests.
+  if use_isolate:
+    autorun.append('dm poweroff')
   api.file.write_text('write autorun', path, '\n'.join(autorun))
   api.step.active_result.presentation.logs['autorun.sh'] = autorun
 
@@ -242,8 +252,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       isolated.add_file(bootfs_path, wd=build_dir)
       digest = isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
       tasks = [
-        TriggerTestsTask(api, 'core tests', arch, digest, 'userboot=bin/core-tests'),
-        TriggerTestsTask(api, 'booted tests', arch, digest, 'zircon.autorun.system=%s'),
+        # Trigger a task that runs the core tests in place of userspace at boot.
+        TriggerTestsTask(api, 'core tests', arch, digest, [
+          'userboot=bin/core-tests',
+          'userboot.shutdown', # shuts down zircon after the userboot process exits.
+        ]),
+        # Trigger a task that runs tests in the standard way with runtests and
+        # the autorun script.
+        TriggerTestsTask(api, 'booted tests', arch, digest, []),
       ]
       CollectTestsTasks(api, tasks, timeout='20m')
     else:

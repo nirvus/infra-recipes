@@ -190,7 +190,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "msleep 500\nruntests",
+      "msleep 500\nruntests\ndm poweroff",
       "[TMP_BASE]/zircon_tmp/autorun"
     ],
     "infra_step": true,
@@ -198,6 +198,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
       "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@dm poweroff@@@",
       "@@@STEP_LOG_END@autorun.sh@@@"
     ]
   },
@@ -378,7 +379,7 @@
       "-cpu",
       "host",
       "-append",
-      "TERM=dumb kernel.halt-on-panic=true userboot=bin/core-tests"
+      "TERM=dumb kernel.halt-on-panic=true userboot=bin/core-tests userboot.shutdown"
     ],
     "infra_step": true,
     "name": "trigger core tests",
@@ -419,7 +420,7 @@
       "@@@STEP_LOG_LINE@json.output@        \"-cpu\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"host\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-append\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"TERM=dumb kernel.halt-on-panic=true userboot=bin/core-tests\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"TERM=dumb kernel.halt-on-panic=true userboot=bin/core-tests userboot.shutdown\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
       "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
@@ -501,7 +502,7 @@
       "-cpu",
       "host",
       "-append",
-      "TERM=dumb kernel.halt-on-panic=true zircon.autorun.system=%s"
+      "TERM=dumb kernel.halt-on-panic=true"
     ],
     "infra_step": true,
     "name": "trigger booted tests",
@@ -542,7 +543,7 @@
       "@@@STEP_LOG_LINE@json.output@        \"-cpu\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"host\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-append\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"TERM=dumb kernel.halt-on-panic=true zircon.autorun.system=%s\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"TERM=dumb kernel.halt-on-panic=true\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
       "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
