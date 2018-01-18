@@ -91,7 +91,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
       change_id = change['id']
 
       # Update message with a Change-Id line and push the roll.
-      message += "\nChange-Id: %s\n" % change_id
+      message += "\nChange-Id: %s\n" % change['change_id']
       api.git.commit(message, api.path.join(*import_in.split('/')))
       api.git.push('HEAD:refs/for/master')
 
@@ -151,6 +151,14 @@ def GenTests(api):
                         remote='https://fuchsia.googlesource.com/topaz',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
          api.gitiles.log('log', 'A'))
+
+  new_change_data = api.step_data(
+    'create new change',
+    api.json.output({
+      'id': 'abc123',
+      'change_id': 'abc123',
+    }),
+  )
   # This test case is technically never possible, but exists to ease the
   # transition to the new polling-based roller.
   yield (api.test('zircon_dry_run') +
@@ -163,8 +171,7 @@ def GenTests(api):
                         dry_run=True,
                         poll_interval=0.001,
                         poll_timeout=0.1) +
-         api.gitiles.log('log', 'A') +
-         api.step_data('create new change', api.json.output({'id': 'abc123'})) +
+         api.gitiles.log('log', 'A') + new_change_data +
          api.step_data('check if done (0)', api.json.output({'status': 'MERGED'})))
   yield (api.test('zircon_cq_failure') +
          api.properties(project='garnet',
@@ -176,8 +183,7 @@ def GenTests(api):
                         dry_run=True,
                         poll_interval=0.001,
                         poll_timeout=0.1) +
-         api.gitiles.log('log', 'A') +
-         api.step_data('create new change', api.json.output({'id': 'abc123'})) +
+         api.gitiles.log('log', 'A') + new_change_data +
          api.step_data('check if done (0)', api.json.output({
              'status': 'NEW',
              'labels': {
@@ -196,8 +202,7 @@ def GenTests(api):
                         dry_run=True,
                         poll_interval=0.001,
                         poll_timeout=0.001) +
-         api.gitiles.log('log', 'A') +
-         api.step_data('create new change', api.json.output({'id': 'abc123'})) +
+         api.gitiles.log('log', 'A') + new_change_data +
          api.step_data('check if done (0)', api.json.output({
              'status': 'NEW',
              'labels': {
