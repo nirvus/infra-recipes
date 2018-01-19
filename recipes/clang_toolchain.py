@@ -145,13 +145,18 @@ def RunSteps(api, url, ref, revision):
   assert m, 'Cannot determine Clang version'
   clang_version = m.group(1)
 
+  pkg_def = api.cipd.PackageDefinition(
+      package_name=cipd_pkg_name,
+      package_root=pkg_dir,
+      install_mode='copy')
+  pkg_def.add_dir(pkg_dir)
+  pkg_def.add_version_file('.versions/clang.cipd_version')
+
   cipd_pkg_file = api.path['tmp_base'].join('clang.cipd')
 
-  api.cipd.build(
-      input_dir=pkg_dir,
-      package_name=cipd_pkg_name,
+  api.cipd.build_from_pkg(
+      pkg_def=pkg_def,
       output_package=cipd_pkg_file,
-      install_mode='copy',
   )
   step_result = api.cipd.register(
       package_name=cipd_pkg_name,

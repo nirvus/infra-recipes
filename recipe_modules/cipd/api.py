@@ -209,6 +209,42 @@ class CIPDApi(recipe_api.RecipeApi):
 
     return '%s-%s' % (name.replace('win', 'windows'), arch_str)
 
+  def _build(self, pkg_name, pkg_def_file_or_placeholder, output_package):
+    return self.m.step(
+        'build %s' % pkg_name,
+        [
+          self.executable,
+          'pkg-build',
+          '-pkg-def', pkg_def_file_or_placeholder,
+          '-out', output_package,
+          '-json-output', self.m.json.output(),
+        ],
+        step_test_data=lambda: self.test_api.example_build(pkg_name)
+    )
+
+  def build_from_yaml(self, pkg_def, output_package):
+    """Builds a package based on on-disk YAML package definition file.
+
+    Args:
+      pkg_def (Path) - The path to the yaml file.
+      output_package (Path) - the file to write the package to.
+    """
+    check_type('pkg_def', pkg_def, Path)
+    return self._build(
+      self.m.path.basename(pkg_def), pkg_def, output_package)
+
+  def build_from_pkg(self, pkg_def, output_package):
+    """Builds a package based on a PackageDefinition object.
+
+    Args:
+      pkg_def (PackageDefinition) - The description of the package we want to
+        create.
+      output_package (Path) - the file to write the package to.
+    """
+    check_type('pkg_def', pkg_def, PackageDefinition)
+    return self._build(
+      pkg_def.package_name, self.m.json.input(pkg_def.to_jsonish()), output_package)
+
   def build(self, input_dir, output_package, package_name, install_mode=None):
     """Builds, but does not upload, a cipd package from a directory.
 

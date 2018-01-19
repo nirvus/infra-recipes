@@ -433,18 +433,14 @@
     "cmd": [
       "cipd",
       "pkg-build",
-      "-in",
-      "[TMP_BASE]/clang_tmp_1/clang+llvm-x86_64-darwin",
-      "-name",
-      "fuchsia/clang/mac-amd64",
+      "-pkg-def",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/clang.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/clang/mac-amd64\", \"root\": \"[TMP_BASE]/clang_tmp_1/clang+llvm-x86_64-darwin\"}",
       "-out",
       "[TMP_BASE]/clang.cipd",
       "-json-output",
-      "/path/to/tmp/json",
-      "-install-mode",
-      "copy"
+      "/path/to/tmp/json"
     ],
-    "name": "build mac-amd64",
+    "name": "build fuchsia/clang/mac-amd64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",

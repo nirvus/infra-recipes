@@ -76,11 +76,24 @@ def RunSteps(api, use_pkg, pkg_files, pkg_dirs, ver_files, install_mode):
     for pth in ver_files:
       pkg.add_version_file(pth)
 
+    api.cipd.build_from_pkg(pkg, 'fake-package-path')
+    api.cipd.register('infra/fake-package', 'fake-package-path',
+                      refs=['fake-ref-1', 'fake-ref-2'],
+                      tags={'fake_tag_1': 'fake_value_1',
+                            'fake_tag_2': 'fake_value_2'})
+
     api.cipd.create_from_pkg(pkg,
                              refs=['fake-ref-1', 'fake-ref-2'],
                              tags={'fake_tag_1': 'fake_value_1',
                                    'fake_tag_2': 'fake_value_2'})
   else:
+    api.cipd.build_from_yaml(api.path['start_dir'].join('fake-package.yaml'),
+                             'fake-package-path')
+    api.cipd.register('infra/fake-package', 'fake-package-path',
+                      refs=['fake-ref-1', 'fake-ref-2'],
+                      tags={'fake_tag_1': 'fake_value_1',
+                            'fake_tag_2': 'fake_value_2'})
+
     api.cipd.create_from_yaml(api.path['start_dir'].join('fake-package.yaml'),
                               refs=['fake-ref-1', 'fake-ref-2'],
                               tags={'fake_tag_1': 'fake_value_1',

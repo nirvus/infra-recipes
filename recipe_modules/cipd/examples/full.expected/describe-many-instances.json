@@ -284,6 +284,57 @@
   {
     "cmd": [
       "cipd",
+      "pkg-build",
+      "-pkg-def",
+      "[START_DIR]/fake-package.yaml",
+      "-out",
+      "fake-package-path",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "build fake-package.yaml",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fake-package.yaml\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "fake-package-path",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "fake-credentials.json",
+      "-ref",
+      "fake-ref-1",
+      "-ref",
+      "fake-ref-2",
+      "-tag",
+      "fake_tag_1:fake_value_1",
+      "-tag",
+      "fake_tag_2:fake_value_2"
+    ],
+    "name": "register infra/fake-package (2)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"infra/fake-package\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
       "create",
       "-pkg-def",
       "[START_DIR]/fake-package.yaml",

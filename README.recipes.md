@@ -81,7 +81,7 @@ CIPDApi provides basic support for CIPD.
 This assumes that `cipd` (or `cipd.exe` or `cipd.bat` on windows) has been
 installed somewhere in $PATH.
 
-&mdash; **def [build](/recipe_modules/cipd/api.py#212)(self, input_dir, output_package, package_name, install_mode=None):**
+&mdash; **def [build](/recipe_modules/cipd/api.py#248)(self, input_dir, output_package, package_name, install_mode=None):**
 
 Builds, but does not upload, a cipd package from a directory.
 
@@ -94,7 +94,24 @@ Args:
     should use when installing this package. If None, defaults to the
     platform default ('copy' on windows, 'symlink' on everything else).
 
-&mdash; **def [create\_from\_pkg](/recipe_modules/cipd/api.py#309)(self, pkg_def, refs=None, tags=None):**
+&mdash; **def [build\_from\_pkg](/recipe_modules/cipd/api.py#236)(self, pkg_def, output_package):**
+
+Builds a package based on a PackageDefinition object.
+
+Args:
+  pkg_def (PackageDefinition) - The description of the package we want to
+    create.
+  output_package (Path) - the file to write the package to.
+
+&mdash; **def [build\_from\_yaml](/recipe_modules/cipd/api.py#225)(self, pkg_def, output_package):**
+
+Builds a package based on on-disk YAML package definition file.
+
+Args:
+  pkg_def (Path) - The path to the yaml file.
+  output_package (Path) - the file to write the package to.
+
+&mdash; **def [create\_from\_pkg](/recipe_modules/cipd/api.py#345)(self, pkg_def, refs=None, tags=None):**
 
 Builds and uploads a package based on a PackageDefinition object.
 
@@ -112,7 +129,7 @@ Returns the JSON 'result' section, e.g.: {
   "instance_id": "433bfdf86c0bb82d1eee2d1a0473d3709c25d2c4"
 }
 
-&mdash; **def [create\_from\_yaml](/recipe_modules/cipd/api.py#289)(self, pkg_def, refs=None, tags=None):**
+&mdash; **def [create\_from\_yaml](/recipe_modules/cipd/api.py#325)(self, pkg_def, refs=None, tags=None):**
 
 Builds and uploads a package based on on-disk YAML package definition
 file.
@@ -132,9 +149,9 @@ Returns the JSON 'result' section, e.g.: {
 
 &emsp; **@property**<br>&mdash; **def [default\_bot\_service\_account\_credentials](/recipe_modules/cipd/api.py#183)(self):**
 
-&mdash; **def [describe](/recipe_modules/cipd/api.py#415)(self, package_name, version, test_data_refs=None, test_data_tags=None):**
+&mdash; **def [describe](/recipe_modules/cipd/api.py#451)(self, package_name, version, test_data_refs=None, test_data_tags=None):**
 
-&mdash; **def [ensure](/recipe_modules/cipd/api.py#330)(self, root, packages):**
+&mdash; **def [ensure](/recipe_modules/cipd/api.py#366)(self, root, packages):**
 
 Ensures that packages are installed in a given root dir.
 
@@ -161,15 +178,15 @@ Optional platform bits and architecture may be supplied to generate CIPD
 suffixes for other platforms. If any are omitted, the current platform
 parameters will be used.
 
-&mdash; **def [register](/recipe_modules/cipd/api.py#241)(self, package_name, package_path, refs=None, tags=None):**
+&mdash; **def [register](/recipe_modules/cipd/api.py#277)(self, package_name, package_path, refs=None, tags=None):**
 
-&mdash; **def [search](/recipe_modules/cipd/api.py#397)(self, package_name, tag):**
+&mdash; **def [search](/recipe_modules/cipd/api.py#433)(self, package_name, tag):**
 
-&mdash; **def [set\_ref](/recipe_modules/cipd/api.py#377)(self, package_name, version, refs):**
+&mdash; **def [set\_ref](/recipe_modules/cipd/api.py#413)(self, package_name, version, refs):**
 
 &mdash; **def [set\_service\_account\_credentials](/recipe_modules/cipd/api.py#176)(self, path):**
 
-&mdash; **def [set\_tag](/recipe_modules/cipd/api.py#357)(self, package_name, version, tags):**
+&mdash; **def [set\_tag](/recipe_modules/cipd/api.py#393)(self, package_name, version, tags):**
 ### *recipe_modules* / [gerrit](/recipe_modules/gerrit)
 
 [DEPS](/recipe_modules/gerrit/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
