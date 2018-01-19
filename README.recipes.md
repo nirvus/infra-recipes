@@ -555,13 +555,24 @@ Sets the path to the minfs command.
 
 QemuApi provides support for QEMU.
 
-&emsp; **@contextmanager**<br>&mdash; **def [background\_run](/recipe_modules/qemu/api.py#57)(self, \*args, \*\*kwargs):**
+&emsp; **@contextmanager**<br>&mdash; **def [background\_run](/recipe_modules/qemu/api.py#61)(self, \*args, \*\*kwargs):**
+
+&mdash; **def [create\_image](/recipe_modules/qemu/api.py#70)(self, image, backing_file, fmt='qcow2'):**
+
+Creates a QEMU image from a backing file.
+
+Args:
+  image (Path): Path to the image to be created.
+  backing_file (Path): The backing file to use for the image.
+  fmt (str): The format of the image.
 
 &mdash; **def [ensure\_qemu](/recipe_modules/qemu/api.py#44)(self, version=None):**
 
 &mdash; **def [qemu\_executable](/recipe_modules/qemu/api.py#54)(self, arch):**
 
-&mdash; **def [run](/recipe_modules/qemu/api.py#66)(self, step_name, \*args, \*\*kwargs):**
+&emsp; **@property**<br>&mdash; **def [qemu\_img](/recipe_modules/qemu/api.py#57)(self):**
+
+&mdash; **def [run](/recipe_modules/qemu/api.py#94)(self, step_name, \*args, \*\*kwargs):**
 ### *recipe_modules* / [service\_account](/recipe_modules/service_account)
 
 [DEPS](/recipe_modules/service_account/__init__.py#1): [recipe\_engine/path][recipe_engine/recipe_modules/path]

@@ -24,6 +24,11 @@ def RunSteps(api, arch, kvm):
   api.qemu.ensure_qemu()
   assert api.qemu.qemu_executable(arch)
 
+  # Create an image from an FVM block device.
+  backing_file = api.path['start_dir'].join('fvm.blk')
+  disk_img = api.path['start_dir'].join('disk.img')
+  api.qemu.create_image(disk_img, backing_file)
+
   # Run an image through QEMU.
   api.qemu.run('test', arch, 'bzImaze',
       kvm=kvm, initrd='disk.img', cmdline='foo=bar', netdev='user,id=net0',

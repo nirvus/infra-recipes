@@ -54,6 +54,10 @@ class QemuApi(recipe_api.RecipeApi):
   def qemu_executable(self, arch):
     return self.m.path.join(self._qemu_dir, 'bin', 'qemu-system-%s' % arch)
 
+  @property
+  def qemu_img(self):
+    return self.m.path.join(self._qemu_dir, 'bin', 'qemu-img')
+
   @contextmanager
   def background_run(self, *args, **kwargs):
     try:
@@ -62,6 +66,30 @@ class QemuApi(recipe_api.RecipeApi):
     finally:
       self.m.step( 'stop qemu and read log',
           [self.resource('qemu.py'), 'stop', '--log'])
+
+  def create_image(self, image, backing_file, fmt='qcow2'):
+    """Creates a QEMU image from a backing file.
+
+    Args:
+      image (Path): Path to the image to be created.
+      backing_file (Path): The backing file to use for the image.
+      fmt (str): The format of the image.
+    """
+    result = self.m.step(
+        'qemu-img create %s' % self.m.path.basename(image),
+        [
+          self.qemu_img,
+          'create',
+          '-f', fmt,
+          '-b', backing_file,
+          image,
+        ],
+    )
+    result.step_text = 'from %s (fmt: %s)' % (
+        self.m.path.basename(backing_file),
+        fmt,
+    )
+    return result
 
   def run(self, step_name, *args, **kwargs):
     step_test_data = kwargs.pop('step_test_data', None)

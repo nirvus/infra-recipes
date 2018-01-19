@@ -31,6 +31,18 @@
   },
   {
     "cmd": [
+      "[START_DIR]/cipd/qemu/bin/qemu-img",
+      "create",
+      "-f",
+      "qcow2",
+      "-b",
+      "[START_DIR]/fvm.blk",
+      "[START_DIR]/disk.img"
+    ],
+    "name": "qemu-img create disk.img"
+  },
+  {
+    "cmd": [
       "RECIPE_MODULE[infra::qemu]/resources/qemu.py",
       "run",
       "--executable",
