@@ -311,7 +311,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"abc123\", \"input\": {\"labels\": {\"Commit-Queue\": 1}}, \"revision_id\": \"current\"}",
+      "{\"change_id\": \"abc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -338,9 +338,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"labels\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"recommended\": {}@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {}@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"status\": \"NEW\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -348,8 +346,26 @@
     ]
   },
   {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-abandon",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"abc123\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "abandon roll: CQ failed",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
     "name": "$result",
-    "reason": "Failed to roll changes: roller timed out.",
+    "reason": "Failed to roll changes: CQ failure.",
     "recipe_result": null,
     "status_code": 1
   }

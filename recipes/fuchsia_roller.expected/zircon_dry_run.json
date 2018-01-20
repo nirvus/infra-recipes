@@ -315,8 +315,6 @@
       "-output",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]/garnet",
-    "infra_step": true,
     "name": "submit to commit queue",
     "~followup_annotations": [
       "@@@STEP_LOG_END@json.output (invalid)@@@",
@@ -358,7 +356,7 @@
       "-output",
       "/path/to/tmp/json"
     ],
-    "name": "abandon roll",
+    "name": "abandon roll: dry run complete",
     "~followup_annotations": [
       "@@@STEP_LOG_END@json.output (invalid)@@@",
       "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
