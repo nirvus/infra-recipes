@@ -30,7 +30,9 @@ PROPERTIES = {
   'import_in': Property(kind=str, help='Name of the manifest to import in'),
   'import_from': Property(kind=str, help='Name of the manifest to import from'),
   'revision': Property(kind=str, help='Revision'),
-  'dry_run': Property(kind=bool, help='Whether to only execute a CQ dry run', default=False),
+  'dry_run': Property(kind=bool,
+                      default=False,
+                      help='Whether to dry-run the auto-roller (CQ+1 and abandon the change)'),
   'poll_timeout': Property(kind=float,
                            default=50*60,
                            help='The total amount of seconds to spend polling before timing out'),
@@ -48,6 +50,24 @@ COMMIT_MESSAGE = """[manifest] Roll {project} {old}..{new} ({count} commits)
 """
 
 
+# This recipe has two 'modes' of operation: production and dry-run. Which mode
+# of execution should be used is dictated by the 'dry_run' property. The
+# differences between the two are as follows:
+#
+# Production Mode:
+# * Create a patch locally
+# * Push to Gerrit with Code-Review+2 and Commit-Queue+2.
+# TODO(mknyszek): Wait for CQ to land the change in production.
+#
+# Dry-run Mode:
+# * Create a patch locally
+# * Push to Gerrit with Commit-Queue+1.
+# * Wait for CQ to finish tryjobs.
+# * Abandon the change to clean up.
+#
+# The purpose of dry-run mode is to test the auto-roller end-to-end. This is
+# useful because now we can have an auto-roller in staging, and we can block
+# updates behind 'dry_run' as a sort of feature gate.
 def RunSteps(api, category, project, manifest, remote, import_in, import_from, revision,
              dry_run, poll_timeout, poll_interval):
   api.jiri.ensure_jiri()
@@ -80,7 +100,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
           ]),
       )
 
-      # Use the old method if it's not a dry run.
+      # Use the old method if we're in production mode.
       if not dry_run:
         api.git.commit(message, api.path.join(*import_in.split('/')))
         api.git.push('HEAD:refs/for/master%l=Code-Review+2,l=Commit-Queue+2')
@@ -95,10 +115,8 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
       api.git.commit(message, api.path.join(*import_in.split('/')))
       api.git.push('HEAD:refs/for/master')
 
-      # Activate CQ.
-      labels = {'Commit-Queue': 1 if dry_run else 2}
-      if not dry_run: # pragma: no cover
-        labels['Code-Review'] = 2
+      # Activate CQ, only CQ+1 in dry-run mode.
+      labels = {'Commit-Queue': 1}
       api.gerrit.set_review(
           'submit to commit queue',
           change_id,
@@ -108,7 +126,6 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
   # Poll gerrit to see if CQ was successful.
   # TODO(mknyszek): Figure out a cleaner solution than polling.
   for i in range(int(poll_timeout/poll_interval)):
-    # Sleep for poll_interval milliseconds.
     # TODO(mknyszek): Mock sleep so we're not actually sleeping during tests.
     time.sleep(poll_interval)
 
@@ -118,9 +135,10 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
 
     # If it merged, then great! We're done.
     # However, it the CQ label is un-set, then that means the roll failed.
-    if change['status'] == 'MERGED':
-      return
-    elif 'approved' not in change['labels']['Commit-Queue']:
+    # FIXME(mknyszek): This logic is incorrect if we only have dry_runs! This
+    # should be checking 'recommended' instead, and it shouldn't fail.
+    # FIXME(mknyszek): Document and explain where 'approved' comes from.
+    if 'approved' not in change['labels']['Commit-Queue']:
       api.gerrit.abandon('abandon roll', change_id)
       raise api.step.StepFailure('Failed to roll changes: CQ failed.')
   raise api.step.InfraFailure('Failed to roll changes: roller timed out.')
@@ -159,20 +177,6 @@ def GenTests(api):
       'change_id': 'abc123',
     }),
   )
-  # This test case is technically never possible, but exists to ease the
-  # transition to the new polling-based roller.
-  yield (api.test('zircon_dry_run') +
-         api.properties(project='garnet',
-                        manifest='manifest/minimal',
-                        import_in='manifest/garnet',
-                        import_from='zircon',
-                        remote='https://fuchsia.googlesource.com/garnet',
-                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
-                        dry_run=True,
-                        poll_interval=0.001,
-                        poll_timeout=0.1) +
-         api.gitiles.log('log', 'A') + new_change_data +
-         api.step_data('check if done (0)', api.json.output({'status': 'MERGED'})))
   yield (api.test('zircon_cq_failure') +
          api.properties(project='garnet',
                         manifest='manifest/minimal',
