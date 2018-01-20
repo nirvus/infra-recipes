@@ -126,21 +126,32 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
   # Poll gerrit to see if CQ was successful.
   # TODO(mknyszek): Figure out a cleaner solution than polling.
   for i in range(int(poll_timeout/poll_interval)):
-    # TODO(mknyszek): Mock sleep so we're not actually sleeping during tests.
-    time.sleep(poll_interval)
-
     # Check the status of the CL.
     with api.context(infra_steps=True):
       change = api.gerrit.change_details('check if done (%d)' % i, change_id)
 
-    # If it merged, then great! We're done.
-    # However, it the CQ label is un-set, then that means the roll failed.
-    # FIXME(mknyszek): This logic is incorrect if we only have dry_runs! This
-    # should be checking 'recommended' instead, and it shouldn't fail.
-    # FIXME(mknyszek): Document and explain where 'approved' comes from.
-    if 'approved' not in change['labels']['Commit-Queue']:
+    # If the CQ label is un-set, then that means CQ finished trying.
+    #
+    # 'recommended' is an object that appears for a label if somebody gave the
+    # label a positive but not maximum score (here +1 instead of +2) and
+    # contains the information of one reviewer who gave this vote. There are 4
+    # different states for a label in this sense: 'rejected', 'approved',
+    # 'disliked', and 'recommended'. For a given label, only one of these will
+    # be shown if the label has any votes in priority order 'rejected' >
+    # 'approved' > 'disliked' > 'recommended'. Unfortunately, this is the
+    # absolute simplest way to check this. Gerrit provides an 'all' field that
+    # contains every vote, but iterating over every vote, or operating under
+    # the assumption that there's at least one causes more error cases.
+    #
+    # Read more at:
+    # https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#get-change-detail
+    if 'recommended' not in change['labels']['Commit-Queue']:
       api.gerrit.abandon('abandon roll', change_id)
-      raise api.step.StepFailure('Failed to roll changes: CQ failed.')
+      return
+
+    # TODO(mknyszek): Mock sleep so we're not actually sleeping during tests.
+    time.sleep(poll_interval)
+
   raise api.step.InfraFailure('Failed to roll changes: roller timed out.')
 
 
@@ -177,7 +188,7 @@ def GenTests(api):
       'change_id': 'abc123',
     }),
   )
-  yield (api.test('zircon_cq_failure') +
+  yield (api.test('zircon_dry_run') +
          api.properties(project='garnet',
                         manifest='manifest/minimal',
                         import_in='manifest/garnet',
@@ -190,11 +201,7 @@ def GenTests(api):
          api.gitiles.log('log', 'A') + new_change_data +
          api.step_data('check if done (0)', api.json.output({
              'status': 'NEW',
-             'labels': {
-                 'Commit-Queue': {
-                     'disliked': {}
-                 }
-             }
+             'labels': {'Commit-Queue': {}}
          })))
   yield (api.test('zircon_timeout') +
          api.properties(project='garnet',
@@ -211,7 +218,7 @@ def GenTests(api):
              'status': 'NEW',
              'labels': {
                  'Commit-Queue': {
-                     'approved': {}
+                     'recommended': {}
                  }
              }
          })))

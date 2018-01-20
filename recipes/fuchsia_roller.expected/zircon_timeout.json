@@ -341,7 +341,7 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"labels\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"approved\": {}@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"recommended\": {}@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"status\": \"NEW\"@@@",

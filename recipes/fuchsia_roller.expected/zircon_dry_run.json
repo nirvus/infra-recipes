@@ -340,9 +340,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"labels\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"disliked\": {}@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {}@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"status\": \"NEW\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -369,8 +367,7 @@
   },
   {
     "name": "$result",
-    "reason": "Failed to roll changes: CQ failed.",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]
