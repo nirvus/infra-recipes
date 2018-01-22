@@ -208,7 +208,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
-      "--packages=topaz/packages/default,build/packages/bootfs",
+      "--packages=topaz/packages/default",
       "--platforms=x86",
       "--goma=[START_DIR]/cipd/goma"
     ],

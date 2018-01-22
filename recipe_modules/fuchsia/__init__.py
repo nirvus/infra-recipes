@@ -6,6 +6,7 @@ DEPS = [
   'infra/isolated',
   'infra/jiri',
   'infra/minfs',
+  'infra/qemu',
   'infra/swarming',
   'infra/tar',
   'recipe_engine/context',
