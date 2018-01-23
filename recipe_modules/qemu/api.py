@@ -44,7 +44,7 @@ class QemuApi(recipe_api.RecipeApi):
   def ensure_qemu(self, version=None):
     with self.m.step.nest('ensure_qemu'):
       with self.m.context(infra_steps=True):
-        qemu_package = ('fuchsia/tools/qemu/%s' %
+        qemu_package = ('fuchsia/qemu/%s' %
             self.m.cipd.platform_suffix())
         self._qemu_dir = self.m.path['start_dir'].join('cipd', 'qemu')
         self.m.cipd.ensure(

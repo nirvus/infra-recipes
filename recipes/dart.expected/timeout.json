@@ -70,7 +70,7 @@
       "-root",
       "[START_DIR]/cipd/qemu",
       "-ensure-file",
-      "fuchsia/tools/qemu/linux-amd64 latest",
+      "fuchsia/qemu/linux-amd64 latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -82,7 +82,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/qemu/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/qemu/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
