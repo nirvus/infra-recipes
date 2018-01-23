@@ -4,6 +4,7 @@
 
 **[Recipe Modules](#Recipe-Modules)**
   * [authutil](#recipe_modules-authutil)
+  * [catapult](#recipe_modules-catapult)
   * [cipd](#recipe_modules-cipd)
   * [fuchsia](#recipe_modules-fuchsia)
   * [gerrit](#recipe_modules-gerrit)
@@ -23,6 +24,7 @@
 
 **[Recipes](#Recipes)**
   * [authutil:examples/full](#recipes-authutil_examples_full)
+  * [catapult:examples/full](#recipes-catapult_examples_full)
   * [cipd:examples/full](#recipes-cipd_examples_full)
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
@@ -74,6 +76,46 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 &mdash; **def [ensure\_authutil](/recipe_modules/authutil/api.py#19)(self, version=None):**
 
 &mdash; **def [get\_token](/recipe_modules/authutil/api.py#32)(self, account, scopes=None, lifetime_sec=None):**
+### *recipe_modules* / [catapult](/recipe_modules/catapult)
+
+[DEPS](/recipe_modules/catapult/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [CatapultApi](/recipe_modules/catapult/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+CatapultApi provides support for the Catapult infra tool.
+
+&mdash; **def [\_\_call\_\_](/recipe_modules/catapult/api.py#15)(self, \*args, \*\*kwargs):**
+
+Return a catapult command step.
+
+&mdash; **def [ensure\_catapult](/recipe_modules/catapult/api.py#26)(self, version=None):**
+
+&mdash; **def [make\_histogram](/recipe_modules/catapult/api.py#38)(self, input_file, test_suite, builder, bucket, datetime):**
+
+Generates a HistogramSet from performance test output.
+
+Args:
+  test_suite (string): The name of the test suite
+  builder (string): The name of the current builder
+  bucket (string): The name of the builder's bucket
+  datetime (uint): Ms since epoch when tests were executed.
+  input_file (string): Full path to the input file containing test results.
+
+Returns:
+  A step to execute the make_histogram subcommand.
+
+&mdash; **def [upload](/recipe_modules/catapult/api.py#65)(self, input_file, service_account_json, url, timeout):**
+
+Uploads performance JSON data to a dashboard.
+
+Args:
+  service_account_json (string): Full path to a service account credentials
+      file.
+  url (string): The url to upload data to.
+  timeout (string): Request timeout duration string. e.g. 12s or 1m.
+
+Returns:
+  A step to execute the upload subcommand.
 ### *recipe_modules* / [cipd](/recipe_modules/cipd)
 
 [DEPS](/recipe_modules/cipd/__init__.py#1): [service\_account](#recipe_modules-service_account), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -753,6 +795,11 @@ Args:
 [DEPS](/recipe_modules/authutil/examples/full.py#8): [authutil](#recipe_modules-authutil), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
 &mdash; **def [RunSteps](/recipe_modules/authutil/examples/full.py#30)(api, scopes, lifetime_sec):**
+### *recipes* / [catapult:examples/full](/recipe_modules/catapult/examples/full.py)
+
+[DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult)
+
+&mdash; **def [RunSteps](/recipe_modules/catapult/examples/full.py#10)(api):**
 ### *recipes* / [cipd:examples/full](/recipe_modules/cipd/examples/full.py)
 
 [DEPS](/recipe_modules/cipd/examples/full.py#8): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

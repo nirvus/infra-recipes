@@ -1,0 +1,74 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_catapult"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/catapult",
+      "-ensure-file",
+      "fuchsia/infra/catapult/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_catapult.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/infra/catapult/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/catapult/catapult",
+      "help"
+    ],
+    "name": "catapult help"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/catapult/catapult",
+      "make_histogram",
+      "-test-suite",
+      "example.suite",
+      "-builder",
+      "example.builder",
+      "-bucket",
+      "example.bucket",
+      "-datetime",
+      "123456789",
+      "example_input_file"
+    ],
+    "name": "catapult make_histogram"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/catapult/catapult",
+      "upload",
+      "-service-account-json",
+      "example.json",
+      "-url",
+      "https://example.com",
+      "-timeout",
+      "30s",
+      "example_input_file"
+    ],
+    "name": "catapult upload"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
