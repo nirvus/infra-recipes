@@ -266,7 +266,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"Roll zircon A..B (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"[manifest] Roll zircon A..B (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -286,7 +286,7 @@
       "git",
       "commit",
       "-m",
-      "Roll zircon A..B (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
+      "[manifest] Roll zircon A..B (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
       "manifest/garnet"
     ],
     "cwd": "[START_DIR]/garnet",

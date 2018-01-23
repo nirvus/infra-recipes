@@ -42,7 +42,7 @@ PROPERTIES = {
 
 FUCHSIA_URL = 'https://fuchsia.googlesource.com/'
 
-COMMIT_MESSAGE = """Roll {project} {old}..{new} ({count} commits)
+COMMIT_MESSAGE = """[manifest] Roll {project} {old}..{new} ({count} commits)
 
 {commits}
 """
