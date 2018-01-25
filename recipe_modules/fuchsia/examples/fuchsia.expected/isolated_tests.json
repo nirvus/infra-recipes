@@ -299,7 +299,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x86-64",
-      "--packages=topaz/packages/default,build/packages/bootfs,[TMP_BASE]/runcmds_package",
+      "--packages=topaz/packages/default,[TMP_BASE]/runcmds_package",
       "--platforms=x86",
       "--goma=[START_DIR]/cipd/goma"
     ],
@@ -442,6 +442,51 @@
     "name": "create test image"
   },
   {
+    "cmd": [],
+    "name": "ensure_qemu"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/qemu",
+      "-ensure-file",
+      "fuchsia/qemu/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
+    ],
+    "infra_step": true,
+    "name": "ensure_qemu.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/qemu/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/qemu/bin/qemu-img",
+      "create",
+      "-f",
+      "qcow2",
+      "-b",
+      "fvm.blk",
+      "fuchsia.qcow2"
+    ],
+    "cwd": "[START_DIR]/out/debug-x86-64/images",
+    "name": "qemu-img create fuchsia.qcow2"
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/luci/isolate/isolated",
       "archive",
@@ -452,11 +497,15 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/out/debug-x86-64:user.bootfs",
+      "[START_DIR]/out/debug-x86-64:bootdata-blobstore-x86.bin",
       "-files",
       "[START_DIR]/out/build-zircon/build-x86:zircon.bin",
       "-files",
-      "[START_DIR]:test.fs"
+      "[START_DIR]:test.fs",
+      "-files",
+      "[START_DIR]/out/debug-x86-64/images:fvm.blk",
+      "-files",
+      "[START_DIR]/out/debug-x86-64/images:fuchsia.qcow2"
     ],
     "name": "archive"
   },
@@ -539,18 +588,24 @@
       "-monitor",
       "none",
       "-initrd",
-      "user.bootfs",
+      "bootdata-blobstore-x86.bin",
       "-enable-kvm",
       "-cpu",
       "host",
       "-append",
       "zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true",
       "-drive",
-      "file=test.fs,format=raw,if=none,id=mydisk",
+      "file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk",
       "-device",
-      "ahci,id=ahci,addr=06.0",
+      "ich9-ahci,id=ahci0",
       "-device",
-      "ide-drive,drive=mydisk,bus=ahci.0"
+      "ide-drive,drive=maindisk,bus=ahci0.0",
+      "-drive",
+      "file=test.fs,format=raw,if=none,id=testdisk",
+      "-device",
+      "ich9-ahci,id=ahci1,addr=06.0",
+      "-device",
+      "ide-drive,drive=testdisk,bus=ahci1.0"
     ],
     "infra_step": true,
     "name": "trigger all tests",
@@ -586,18 +641,24 @@
       "@@@STEP_LOG_LINE@json.output@        \"-monitor\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"none\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-initrd\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"user.bootfs\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"bootdata-blobstore-x86.bin\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-enable-kvm\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-cpu\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"host\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-append\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-drive\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"file=test.fs,format=raw,if=none,id=mydisk\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-device\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"ahci,id=ahci,addr=06.0\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ich9-ahci,id=ahci0\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-device\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"ide-drive,drive=mydisk,bus=ahci.0\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ide-drive,drive=maindisk,bus=ahci0.0\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"-drive\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"file=test.fs,format=raw,if=none,id=testdisk\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"-device\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ich9-ahci,id=ahci1,addr=06.0\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"-device\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ide-drive,drive=testdisk,bus=ahci1.0\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
       "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
@@ -644,7 +705,7 @@
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
-      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"./qemu/bin/qemu-system-x86_64\", \"-m\", \"4096\", \"-smp\", \"4\", \"-nographic\", \"-machine\", \"q35\", \"-kernel\", \"zircon.bin\", \"-serial\", \"stdio\", \"-monitor\", \"none\", \"-initrd\", \"user.bootfs\", \"-enable-kvm\", \"-cpu\", \"host\", \"-append\", \"zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true\", \"-drive\", \"file=test.fs,format=raw,if=none,id=mydisk\", \"-device\", \"ahci,id=ahci,addr=06.0\", \"-device\", \"ide-drive,drive=mydisk,bus=ahci.0\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
+      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"./qemu/bin/qemu-system-x86_64\", \"-m\", \"4096\", \"-smp\", \"4\", \"-nographic\", \"-machine\", \"q35\", \"-kernel\", \"zircon.bin\", \"-serial\", \"stdio\", \"-monitor\", \"none\", \"-initrd\", \"bootdata-blobstore-x86.bin\", \"-enable-kvm\", \"-cpu\", \"host\", \"-append\", \"zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true\", \"-drive\", \"file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk\", \"-device\", \"ich9-ahci,id=ahci0\", \"-device\", \"ide-drive,drive=maindisk,bus=ahci0.0\", \"-drive\", \"file=test.fs,format=raw,if=none,id=testdisk\", \"-device\", \"ich9-ahci,id=ahci1,addr=06.0\", \"-device\", \"ide-drive,drive=testdisk,bus=ahci1.0\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
     ],
     "infra_step": true,
     "name": "collect",

@@ -191,13 +191,13 @@ parameters will be used.
 &mdash; **def [set\_tag](/recipe_modules/cipd/api.py#393)(self, package_name, version, tags):**
 ### *recipe_modules* / [fuchsia](/recipe_modules/fuchsia)
 
-[DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#80)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#83)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#211)(self, target, build_type, packages, variants, gn_args, include_tests=False, runtests_args=''):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#214)(self, target, build_type, packages, variants, gn_args, include_tests=False, runtests_args=''):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -218,7 +218,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#86)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#89)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -234,7 +234,7 @@ Args:
   patch_project (str): The name of Gerrit project
   upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#287)(self, build):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#304)(self, build):**
 
 Tests a Fuchsia build.
 
