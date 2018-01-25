@@ -126,13 +126,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
     runcmds = [
       '#!/boot/bin/sh',
       'msleep 5000',
-      # TODO(mknyszek): Remove this ASAP. Auto-mount the image instead by
-      # using minfs + fvm to create an image with a GPT and GUID 'DATA'.
-      #
-      # This will be a source of flake long-term as '000' will soon
-      # frequently NOT be '000'.
-      'mount /dev/class/block/000 /data',
-      'runtests -o /data ' + runtests_args,
+      'mkdir /test',
+      # We know our raw block device for carrying tests will be at this PCI
+      # address since we pass addr=06.0 as an argument to the ahci device
+      # when we invoke QEMU.
+      'mount /dev/sys/pci/00:06.0/ahci/sata0/block /test',
+      'runtests -o /test ' + runtests_args,
       'dm poweroff',
     ]
     runcmds_path = self.m.path['tmp_base'].join('runcmds')
@@ -325,7 +324,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '-enable-kvm', '-cpu', 'host',
       '-append', ' '.join(cmdline),
       '-drive', 'file=test.fs,format=raw,if=none,id=mydisk',
-      '-device', 'ahci,id=ahci',
+      '-device', 'ahci,id=ahci,addr=06.0',
       '-device', 'ide-drive,drive=mydisk,bus=ahci.0',
     ]
 
