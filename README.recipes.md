@@ -197,7 +197,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#211)(self, target, build_type, packages, variants, gn_args, include_tests=False, runtests_args=''):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#212)(self, target, build_type, packages, variants, gn_args, include_tests=False, runtests_args=''):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -234,7 +234,7 @@ Args:
   patch_project (str): The name of Gerrit project
   upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#287)(self, build):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#288)(self, build):**
 
 Tests a Fuchsia build.
 
