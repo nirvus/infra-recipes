@@ -72,7 +72,6 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
              dry_run, poll_timeout, poll_interval):
   api.jiri.ensure_jiri()
   api.gerrit.ensure_gerrit()
-  api.gerrit.host = 'https://fuchsia-review.googlesource.com'
   api.gitiles.ensure_gitiles()
 
   with api.context(infra_steps=True):
