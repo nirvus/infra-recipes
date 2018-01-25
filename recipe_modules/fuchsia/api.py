@@ -18,11 +18,8 @@ BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 # The kernel binary to pass to qemu.
 ZIRCON_IMAGE_NAME = 'zircon.bin'
 
-# The name of the CoW Fuchsia image to create.
-FUCHSIA_IMAGE_NAME = 'fuchsia.qcow2'
-
-# The FVM block name.
-FVM_BLOCK_NAME = 'fvm.blk'
+# The boot filesystem image.
+BOOTFS_IMAGE_NAME = 'user.bootfs'
 
 # How long to wait (in seconds) before killing the test swarming task if there's
 # no output being produced.
@@ -235,6 +232,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert target in TARGETS
     assert build_type in BUILD_TYPES
 
+    # TODO(abarth): Remove once INTK-99 is fixed.
+    packages.append('build/packages/bootfs')
+
     if include_tests:
       packages.append(self._create_runcmds_package(runtests_args))
 
@@ -271,35 +271,18 @@ class FuchsiaApi(recipe_api.RecipeApi):
       symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
       symbolize_result.presentation.status = self.m.step.FAILURE
 
-  def _isolate_artifacts(self, ramdisk_name, zircon_build_dir, fuchsia_build_dir):
+  def _isolate_artifacts(self, zircon_build_dir, fuchsia_build_dir):
     """Isolates artifacts necessary for testing."""
     self.m.isolated.ensure_isolated(version='latest')
-    isolated = self.m.isolated.isolated()
 
-    # Create minfs image (which will hold output) and add it to isolated.
     test_image = self.m.path['start_dir'].join('test.fs')
     self.m.minfs.create(test_image, '32M', name='create test image')
+
+    isolated = self.m.isolated.isolated()
     isolated.add_file(test_image, wd=self.m.path['start_dir'])
-
-    # Add zircon image to isolated.
     isolated.add_file(zircon_build_dir.join(ZIRCON_IMAGE_NAME), wd=zircon_build_dir)
-
-    # Add ramdisk binary blob to isolated.
-    isolated.add_file(fuchsia_build_dir.join(ramdisk_name), wd=fuchsia_build_dir)
-
-    # Create qcow2 image from fvm.blk and add to isolated.
-    self.m.qemu.ensure_qemu(version='latest')
-    with self.m.context(cwd=fuchsia_build_dir.join('images')):
-      self.m.qemu.create_image(
-          image=FUCHSIA_IMAGE_NAME,
-          backing_file=FVM_BLOCK_NAME,
-          fmt='qcow2',
-      )
-      isolated.add_file(self.m.context.cwd.join(FVM_BLOCK_NAME))
-      isolated.add_file(self.m.context.cwd.join(FUCHSIA_IMAGE_NAME))
-
-    # Archive the isolated.
-    return isolated.archive('isolate artifacts')
+    isolated.add_file(fuchsia_build_dir.join(BOOTFS_IMAGE_NAME), wd=fuchsia_build_dir)
+    return isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
 
   def test(self, build):
     """Tests a Fuchsia build.
@@ -312,9 +295,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     assert build.has_tests
 
-    ramdisk_name = 'bootdata-blobstore-%s.bin' % _zircon_project(build.target)
     isolated_hash = self._isolate_artifacts(
-        ramdisk_name,
         build.zircon_build_dir,
         build.fuchsia_build_dir,
     )
@@ -339,17 +320,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '-kernel', ZIRCON_IMAGE_NAME,
       '-serial', 'stdio',
       '-monitor', 'none',
-      '-initrd', ramdisk_name,
+      '-initrd', BOOTFS_IMAGE_NAME,
       '-enable-kvm', '-cpu', 'host',
       '-append', ' '.join(cmdline),
-
-      '-drive', 'file=%s,format=qcow2,if=none,id=maindisk' % FUCHSIA_IMAGE_NAME,
-      '-device', 'ich9-ahci,id=ahci0',
-      '-device', 'ide-drive,drive=maindisk,bus=ahci0.0',
-
-      '-drive', 'file=test.fs,format=raw,if=none,id=testdisk',
-      '-device', 'ich9-ahci,id=ahci1,addr=06.0',
-      '-device', 'ide-drive,drive=testdisk,bus=ahci1.0',
+      '-drive', 'file=test.fs,format=raw,if=none,id=mydisk',
+      '-device', 'ahci,id=ahci,addr=06.0',
+      '-device', 'ide-drive,drive=mydisk,bus=ahci.0',
     ]
 
     qemu_cipd_arch = {

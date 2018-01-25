@@ -250,7 +250,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=aarch64",
-      "--packages=topaz/packages/default",
+      "--packages=topaz/packages/default,build/packages/bootfs",
       "--platforms=arm64",
       "--variant=host_asan",
       "--variant=asan",
