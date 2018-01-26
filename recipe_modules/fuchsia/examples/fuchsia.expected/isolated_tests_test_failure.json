@@ -803,10 +803,10 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/out/debug-x86-64"
+      "[START_DIR]/out/build-zircon/build-x86"
     ],
     "name": "symbolize",
-    "stdin": "I am output.",
+    "stdin": "hello world!",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@symbolized backtraces@bt1@@@",

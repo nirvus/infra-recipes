@@ -448,5 +448,5 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Symbolize the output of any failed tests.
     if failed_tests:
-      self._symbolize(build.fuchsia_build_dir, '\n'.join(failed_tests.values()))
+      self._symbolize(build.zircon_build_dir, result.output)
       raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(failed_tests.keys()))
