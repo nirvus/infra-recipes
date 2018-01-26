@@ -242,7 +242,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#490)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#494)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -256,7 +256,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#532)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#536)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -267,7 +267,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#240)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#244)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -286,7 +286,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#109)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#109)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -301,12 +301,14 @@ Args:
   patch_gerrit_url (str): A URL of the patch in Gerrit to apply
   patch_project (str): The name of Gerrit project
   upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
+  timeout_secs (int): How long to wait for the checkout to complete
+      before failing
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#342)(self):**
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#346)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#346)(self, build, timeout_secs=2400):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#350)(self, build, timeout_secs=2400):**
 
 Tests a Fuchsia build.
 
@@ -623,7 +625,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#187)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#187)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#107)(self, all=False, \*\*kwargs):**
 

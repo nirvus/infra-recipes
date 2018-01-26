@@ -107,7 +107,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
 
   def checkout(self, manifest, remote, project=None, patch_ref=None,
-               patch_gerrit_url=None, patch_project=None, upload_snapshot=False):
+               patch_gerrit_url=None, patch_project=None, upload_snapshot=False,
+               timeout_secs=20*60):
     """Uses Jiri to check out a Fuchsia project.
 
     The patch_* arguments must all be set, or none at all.
@@ -121,6 +122,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       patch_gerrit_url (str): A URL of the patch in Gerrit to apply
       patch_project (str): The name of Gerrit project
       upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
+      timeout_secs (int): How long to wait for the checkout to complete
+          before failing
     """
     with self.m.context(infra_steps=True):
       self.m.jiri.ensure_jiri()
@@ -131,6 +134,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           patch_ref,
           patch_gerrit_url,
           patch_project,
+          timeout_secs=timeout_secs,
       )
       if patch_ref:
         self.m.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)

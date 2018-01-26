@@ -185,10 +185,12 @@ class JiriApi(recipe_api.RecipeApi):
     return step.json.output
 
   def checkout(self, manifest, remote, project=None, patch_ref=None,
-               patch_gerrit_url=None, patch_project=None):
+               patch_gerrit_url=None, patch_project=None, timeout_secs=None):
     self.init()
     self.import_manifest(manifest, remote, project)
-    self.update(run_hooks=False)
+    # Note that timeout is not a jiri commandline argument, but a param
+    # that will get passed to self.m.step() via kwargs.
+    self.update(run_hooks=False, timeout=timeout_secs)
     if patch_ref:
       self.patch(patch_ref, host=patch_gerrit_url, project=patch_project, rebase=True)
     self.run_hooks()
