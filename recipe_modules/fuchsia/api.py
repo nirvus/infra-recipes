@@ -24,6 +24,9 @@ FUCHSIA_IMAGE_NAME = 'fuchsia.qcow2'
 # The FVM block name.
 FVM_BLOCK_NAME = 'fvm.blk'
 
+# The PCI address to use for the block device to contain test results.
+TEST_FS_PCI_ADDR = '06.0'
+
 # How long to wait (in seconds) before killing the test swarming task if there's
 # no output being produced.
 TEST_IO_TIMEOUT_SECS = 60
@@ -124,16 +127,26 @@ class FuchsiaApi(recipe_api.RecipeApi):
           name='upload jiri.snapshot',
           unauthenticated_url=True)
 
-  def _create_runcmds_package(self, runtests_args):
+  def _create_runcmds_package(self, target, runtests_args):
     """Creates a Fuchsia package which contains a script for running tests automatically."""
+    # The device topological path is the toplogical path to the block device
+    # which will contain test output.
+    # TODO(mknyszek): Remove architecture-dependence once ZX-1621 is done.
+    device_topological_path = '/dev/sys/%s/00:%s/virtio-block/block' % (
+      {
+        'arm64': '0000:0000:0003',
+        'x86-64': 'pci',
+      }[target],
+      TEST_FS_PCI_ADDR,
+    )
+
+    # Script that mounts the block device to contain test output and runs tests,
+    # dropping test output into the block device.
     runcmds = [
       '#!/boot/bin/sh',
       'msleep 5000',
       'mkdir /test',
-      # We know our raw block device for carrying tests will be at this PCI
-      # address since we pass addr=06.0 as an argument to the ahci device
-      # when we invoke QEMU.
-      'mount /dev/sys/pci/00:06.0/ahci/sata0/block /test',
+      'mount %s /test' % device_topological_path,
       'runtests -o /test ' + runtests_args,
       'dm poweroff',
     ]
@@ -236,7 +249,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build_type in BUILD_TYPES
 
     if include_tests:
-      packages.append(self._create_runcmds_package(runtests_args))
+      packages.append(self._create_runcmds_package(target, runtests_args))
 
     if build_type == 'debug':
       build_dir = 'debug'
@@ -344,12 +357,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '-append', ' '.join(cmdline),
 
       '-drive', 'file=%s,format=qcow2,if=none,id=maindisk' % FUCHSIA_IMAGE_NAME,
-      '-device', 'ich9-ahci,id=ahci0',
-      '-device', 'ide-drive,drive=maindisk,bus=ahci0.0',
+      '-device', 'virtio-blk-pci,drive=maindisk',
 
       '-drive', 'file=test.fs,format=raw,if=none,id=testdisk',
-      '-device', 'ich9-ahci,id=ahci1,addr=06.0',
-      '-device', 'ide-drive,drive=testdisk,bus=ahci1.0',
+      '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
     ]
 
     qemu_cipd_arch = {
