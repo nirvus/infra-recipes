@@ -168,38 +168,8 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[TMP_BASE]/zircon_tmp"
-    ],
-    "infra_step": true,
-    "name": "makedirs tmp"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "msleep 500\nruntests",
-      "[TMP_BASE]/zircon_tmp/autorun"
-    ],
-    "infra_step": true,
-    "name": "write autorun",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
-      "@@@STEP_LOG_END@autorun.sh@@@"
-    ]
+    "cmd": [],
+    "name": "build"
   },
   {
     "cmd": [
@@ -212,10 +182,98 @@
       "2"
     ],
     "cwd": "[START_DIR]/zircon",
-    "env": {
-      "USER_AUTORUN": "[TMP_BASE]/zircon_tmp/autorun"
-    },
-    "name": "build"
+    "name": "build.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/zircon_tmp"
+    ],
+    "infra_step": true,
+    "name": "build.makedirs tmp",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/boot/bin/sh\nmsleep 500\nruntests",
+      "[TMP_BASE]/zircon_tmp/runcmds"
+    ],
+    "infra_step": true,
+    "name": "build.write runcmds",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
+      "@@@STEP_LOG_END@runcmds@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/zircon/build-x86-lto/bootfs.manifest",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "build.read bootfs manifest",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "\n{test}infra/runcmds=[TMP_BASE]/zircon_tmp/runcmds",
+      "[START_DIR]/zircon/test.manifest"
+    ],
+    "infra_step": true,
+    "name": "build.write bootfs manifest",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/build-x86-lto/tools/mkbootfs",
+      "--target=boot",
+      "-c",
+      "-o",
+      "[START_DIR]/zircon/build-x86-lto/bootdata.bin",
+      "[START_DIR]/zircon/test.manifest"
+    ],
+    "cwd": "[START_DIR]/zircon",
+    "name": "build.make bootfs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [],
@@ -291,6 +349,8 @@
       "x86_64",
       "--initrd",
       "[START_DIR]/zircon/build-x86-lto/bootdata.bin",
+      "--cmdline",
+      "zircon.autorun.boot=/boot/infra/runcmds",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
       "[START_DIR]/zircon/build-x86-lto/zircon.bin"

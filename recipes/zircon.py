@@ -54,8 +54,15 @@ BOOTED_TESTS_MATCH = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
 # The kernel binary to pass to qemu.
 ZIRCON_IMAGE_NAME = 'zircon.bin'
 
+# The manifest which describes what goes into the boot filesystem image.
+BOOTFS_MANIFEST_NAME = 'bootfs.manifest'
+
 # The boot filesystem image.
 BOOTFS_IMAGE_NAME = 'bootdata.bin'
+
+# The path under /boot to the runcmds script (which runs tests) in the zircon
+# bootfs.
+RUNCMDS_BOOTFS_PATH = 'infra/runcmds'
 
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
@@ -189,59 +196,103 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     if patch_ref:
       api.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
 
-  tmp_dir = api.path['tmp_base'].join('zircon_tmp')
-  api.file.ensure_directory('makedirs tmp', tmp_dir)
-  path = tmp_dir.join('autorun')
-  autorun = ['msleep 500', 'runtests']
-  # In the non-use_isolate case, we don't need this because the QEMU recipe
-  # module forcefully kills QEMU when encountering the shutdown pattern.
-  # In a swarming task, this is impossible because 1) although we can cancel a
-  # swarming task we won't get any useful feedback on whether it was successful
-  # without grepping through the output and 2) we would need a way to stream the
-  # output into a recipe, which currently can't be done easily.
-  #
-  # So, we gracefully shutdown zircon after running tests.
-  if use_isolate:
-    autorun.append('dm poweroff')
-  api.file.write_text('write autorun', path, '\n'.join(autorun))
-  api.step.active_result.presentation.logs['autorun.sh'] = autorun
+  with api.step.nest('build'):
+    src_dir = api.path['start_dir'].join('zircon')
 
-  tc_args, tc_suffix = TOOLCHAINS[toolchain]
-  build_args = [
-    'make',
-    target,
-    'HOST_USE_ASAN=true',
-  ] + tc_args
+    # Set up totolchain and build args.
+    tc_args, tc_suffix = TOOLCHAINS[toolchain]
+    build_args = [
+      'make',
+      target,
+      'HOST_USE_ASAN=true',
+    ] + tc_args
 
-  if toolchain in ['clang', 'asan']:
-    build_args.extend([
-      'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
-      '-j', api.goma.recommended_goma_jobs,
-    ])
-    goma_context = api.goma.build_with_goma
-  else:
-    build_args.extend([
-      '-j', api.platform.cpu_count,
-    ])
-    goma_context = no_goma
+    # Set up goma.
+    if toolchain in ['clang', 'asan']:
+      build_args.extend([
+        'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
+        '-j', api.goma.recommended_goma_jobs,
+      ])
+      goma_context = api.goma.build_with_goma
+    else:
+      build_args.extend([
+        '-j', api.platform.cpu_count,
+      ])
+      goma_context = no_goma
 
-  if toolchain == 'thinlto':
-    build_args.append('THINLTO_CACHE_DIR=' +
-                      str(api.path['cache'].join('thinlto')))
+    # If thinlto build, it needs a cache. Pass it a directory in the cache
+    # directory.
+    if toolchain == 'thinlto':
+      build_args.append('THINLTO_CACHE_DIR=' +
+                        str(api.path['cache'].join('thinlto')))
 
-  with goma_context():
-    with api.context(cwd=api.path['start_dir'].join('zircon'),
-                     env={'USER_AUTORUN': path}):
-      api.step('build', build_args)
+    # Build zircon.
+    with goma_context():
+      with api.context(cwd=src_dir):
+        api.step('build', build_args)
+
+    # Generate runcmds script to drive tests.
+    tmp_dir = api.path['tmp_base'].join('zircon_tmp')
+    api.file.ensure_directory('makedirs tmp', tmp_dir)
+    runcmds_path = tmp_dir.join('runcmds')
+    runcmds = ['#!/boot/bin/sh', 'msleep 500', 'runtests']
+    # In the non-use_isolate case, we don't need this because the QEMU recipe
+    # module forcefully kills QEMU when encountering the shutdown pattern.
+    # In a swarming task, this is impossible because 1) although we can cancel a
+    # swarming task we won't get any useful feedback on whether it was successful
+    # without grepping through the output and 2) we would need a way to stream the
+    # output into a recipe, which currently can't be done easily.
+    #
+    # So, we gracefully shutdown zircon after running tests.
+    if use_isolate:
+      runcmds.append('dm poweroff')
+    api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
+    api.step.active_result.presentation.logs['runcmds'] = runcmds
+
+    build_dir = src_dir.join('build-%s' % target + tc_suffix)
+
+    # Add the runcmds script to the bootfs manifest.
+    #
+    # The bootfs manifest is a list of mappings between bootfs paths and local
+    # file paths. The syntax is roughly:
+    # {optional-tag}install/path/under/boot=path/to/file/or/dir.
+
+    # Read the lines of the bootfs manifest.
+    manifest_lines = api.file.read_text(
+        'read bootfs manifest',
+        build_dir.join(BOOTFS_MANIFEST_NAME),
+    ).split('\n')
+
+    # Append a new line for runcmds. {test} is a tag marking that a file is
+    # related to testing. It doesn't serve any purpose besides aesthetics.
+    manifest_lines.append('{test}%s=%s' % (RUNCMDS_BOOTFS_PATH, runcmds_path))
+
+    # Write the new bootfs manifest.
+    test_bootfs_manifest_path = src_dir.join('test.manifest')
+    api.file.write_text(
+        'write bootfs manifest',
+        test_bootfs_manifest_path,
+        '\n'.join(manifest_lines),
+    )
+
+    # Re-generate the bootfs image with make. Must be in the context of the
+    # src_dir because many of the paths in bootfs.manifest are relative.
+    with api.context(cwd=src_dir):
+      api.step('make bootfs', [
+        build_dir.join('tools', 'mkbootfs'),
+        '--target=boot',
+        '-c',
+        '-o', build_dir.join(BOOTFS_IMAGE_NAME),
+        test_bootfs_manifest_path,
+      ])
 
   if run_tests:
+    autorun_arg = 'zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH
     api.qemu.ensure_qemu()
     if use_isolate:
       api.swarming.ensure_swarming(version='latest')
       api.isolated.ensure_isolated(version='latest')
 
-    build_dir = api.path['start_dir'].join(
-        'zircon', 'build-%s' % target + tc_suffix)
     bootfs_path = build_dir.join(BOOTFS_IMAGE_NAME)
     image_path = build_dir.join(ZIRCON_IMAGE_NAME)
 
@@ -259,7 +310,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         ]),
         # Trigger a task that runs tests in the standard way with runtests and
         # the autorun script.
-        TriggerTestsTask(api, 'booted tests', arch, digest, []),
+        TriggerTestsTask(api, 'booted tests', arch, digest, [autorun_arg]),
       ]
       CollectTestsTasks(api, tasks, timeout='20m')
     else:
@@ -271,8 +322,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
       # Boot and run tests.
       RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=True,
-          initrd=bootfs_path, shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200,
-          step_test_data=lambda:
+          initrd=bootfs_path, cmdline=autorun_arg,
+          shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200, step_test_data=lambda:
               api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 
 
