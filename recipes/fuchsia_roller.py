@@ -19,6 +19,7 @@ DEPS = [
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
+  'recipe_engine/url',
 ]
 
 
@@ -101,10 +102,25 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
 
       # Create a new change for the roll.
       change = api.gerrit.create_change('create new change', project, message, 'master')
-      change_id = change['id']
+
+      # Represents the unique change ID for this change, usually of the form
+      # <project>~<branch>~<change id> and is necessary for any API calls.
+      full_change_id = change['id']
+
+      # Represents the change ID used in commit messages, which may not be
+      # unique across projects and branches, but is useful for anything
+      # UI-related.
+      change_id = change['change_id']
+
+      # Surface a link to the change by querying gerrit for the change ID. If
+      # it's the only commit with that change ID (highly likely) then it will
+      # open it automatically. Unfortunately the unique change ID doesn't
+      # exhibit this same behavior, so we avoid using it.
+      api.step.active_result.presentation.links['gerrit link'] = api.url.join(
+          api.gerrit.host, 'q', change_id)
 
       # Update message with a Change-Id line and push the roll.
-      message += "\nChange-Id: %s\n" % change['change_id']
+      message += "\nChange-Id: %s\n" % change_id
       api.git.commit(message, api.path.join(*import_in.split('/')))
       api.git.push('HEAD:refs/for/master')
 
@@ -121,7 +137,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
   # It will also always set the CQ process in motion.
   api.gerrit.set_review(
       'submit to commit queue',
-      change_id,
+      full_change_id,
       labels=labels,
   )
 
@@ -130,7 +146,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
   for i in range(int(poll_timeout/poll_interval)):
     # Check the status of the CL.
     with api.context(infra_steps=True):
-      change = api.gerrit.change_details('check if done (%d)' % i, change_id)
+      change = api.gerrit.change_details('check if done (%d)' % i, full_change_id)
 
     # If the CQ label is un-set, then that means either:
     # * CQ failed (production mode), or
@@ -157,7 +173,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
       # CQ finished trying. CQ will always remove the CQ+1 label when it's
       # finished, regardless of success or failure.
       if 'recommended' not in change['labels']['Commit-Queue']:
-        api.gerrit.abandon('abandon roll: dry run complete', change_id)
+        api.gerrit.abandon('abandon roll: dry run complete', full_change_id)
         return
 
     # In production mode...
@@ -174,7 +190,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
       # no chance that we might see that the CL hasn't merged with the CQ+2
       # label unset on a successful CQ.
       if 'approved' not in change['labels']['Commit-Queue']:
-        api.gerrit.abandon('abandon roll: CQ failed', change_id)
+        api.gerrit.abandon('abandon roll: CQ failed', full_change_id)
         raise api.step.StepFailure('Failed to roll changes: CQ failure.')
 
     # If none of the terminal conditions above were reached (that is, there were

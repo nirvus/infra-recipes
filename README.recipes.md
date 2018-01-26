@@ -774,11 +774,11 @@ Recipe for building Fuchsia and running tests.
 &mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#56)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, target, build_type, packages, variants, gn_args, run_tests, runtests_args, upload_snapshot):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
-[DEPS](/recipes/fuchsia_roller.py#12): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia_roller.py#12): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
 
 Recipe for rolling Fuchsia layers into upper layers.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#71)(api, category, project, manifest, remote, import_in, import_from, revision, dry_run, poll_timeout, poll_interval):**
+&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#72)(api, category, project, manifest, remote, import_in, import_from, revision, dry_run, poll_timeout, poll_interval):**
 ### *recipes* / [gerrit:examples/full](/recipe_modules/gerrit/examples/full.py)
 
 [DEPS](/recipe_modules/gerrit/examples/full.py#5): [gerrit](#recipe_modules-gerrit), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
