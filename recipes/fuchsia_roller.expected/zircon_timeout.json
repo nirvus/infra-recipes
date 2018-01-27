@@ -276,7 +276,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"change_id\": \"abc123\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"id\": \"abc123\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"id\": \"beep%2Fboop~master~abc123\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
       "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/abc123@@@"
@@ -312,7 +312,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"abc123\", \"input\": {\"labels\": {\"Commit-Queue\": 1}}, \"revision_id\": \"current\"}",
+      "{\"change_id\": \"beep/boop~master~abc123\", \"input\": {\"labels\": {\"Commit-Queue\": 1}}, \"revision_id\": \"current\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -330,7 +330,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"abc123\"}",
+      "{\"change_id\": \"beep/boop~master~abc123\"}",
       "-output",
       "/path/to/tmp/json"
     ],

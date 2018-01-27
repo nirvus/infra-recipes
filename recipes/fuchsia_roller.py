@@ -103,14 +103,20 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
       # Create a new change for the roll.
       change = api.gerrit.create_change('create new change', project, message, 'master')
 
+      # NOTE: The project in a change_id may contain characters which are URL
+      # encoded by gerrit (for example, '/'). This gets re-encoded by the
+      # gerrit client underlying the gerrit recipe module for security, leading
+      # to some strange results. By decoding first using api.url.unquote, we prevent
+      # this from happening.
+
       # Represents the unique change ID for this change, usually of the form
       # <project>~<branch>~<change id> and is necessary for any API calls.
-      full_change_id = change['id']
+      full_change_id = api.url.unquote(change['id'])
 
       # Represents the change ID used in commit messages, which may not be
       # unique across projects and branches, but is useful for anything
       # UI-related.
-      change_id = change['change_id']
+      change_id = api.url.unquote(change['change_id'])
 
       # Surface a link to the change by querying gerrit for the change ID. If
       # it's the only commit with that change ID (highly likely) then it will
@@ -212,7 +218,7 @@ def GenTests(api):
   new_change_data = api.step_data(
     'create new change',
     api.json.output({
-      'id': 'abc123',
+      'id': 'beep%2Fboop~master~abc123',
       'change_id': 'abc123',
     }),
   )
