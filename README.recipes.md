@@ -197,7 +197,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#227)(self, target, build_type, packages, variants, gn_args, include_tests=False, runtests_args=''):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#227)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -206,14 +206,12 @@ Expects a Fuchsia Jiri checkout at api.path['start_dir'].
 Args:
   target (str): The build target, see TARGETS for allowed targets
   build_type (str): One of the build types in BUILD_TYPES
-  packages (list[str]): A list of packages to pass to GN to build
-  variants (list[str]): A list of build variants to pass to gen.py via
-    --variant
-  gn_args (list[str]): Additional arguments to pass to GN
-  include_tests (bool): Whether to include a package in the build for
-    automatically executing tests
-  runtests_args (str): Space-separated arguments to pass to the test driver
-    if include_tests is set
+  packages (sequence[str]): A sequence of packages to pass to GN to build
+  variants (sequence[str]): A sequence of build variants to pass to gen.py
+    via --variant
+  gn_args (sequence[str]): Additional arguments to pass to GN
+  test_cmds (sequence[str]): A sequence of commands to run on the device
+    during testing. If empty, no test package will be added to the build.
 
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
@@ -234,7 +232,7 @@ Args:
   patch_project (str): The name of Gerrit project
   upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#317)(self, build):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#315)(self, build):**
 
 Tests a Fuchsia build.
 

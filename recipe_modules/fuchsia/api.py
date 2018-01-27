@@ -127,7 +127,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           name='upload jiri.snapshot',
           unauthenticated_url=True)
 
-  def _create_runcmds_package(self, target, runtests_args):
+  def _create_runcmds_package(self, target, test_cmds):
     """Creates a Fuchsia package which contains a script for running tests automatically."""
     # The device topological path is the toplogical path to the block device
     # which will contain test output.
@@ -147,7 +147,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       'msleep 5000',
       'mkdir /test',
       'mount %s /test' % device_topological_path,
-      'runtests -o /test ' + runtests_args,
+    ] + test_cmds + [
       'dm poweroff',
     ]
     runcmds_path = self.m.path['tmp_base'].join('runcmds')
@@ -224,8 +224,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
         self.m.step('ninja', ninja_cmd)
 
-  def build(self, target, build_type, packages, variants, gn_args,
-            include_tests=False, runtests_args=''):
+  def build(self, target, build_type, packages, variants=(), gn_args=(),
+            test_cmds=()):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -233,14 +233,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Args:
       target (str): The build target, see TARGETS for allowed targets
       build_type (str): One of the build types in BUILD_TYPES
-      packages (list[str]): A list of packages to pass to GN to build
-      variants (list[str]): A list of build variants to pass to gen.py via
-        --variant
-      gn_args (list[str]): Additional arguments to pass to GN
-      include_tests (bool): Whether to include a package in the build for
-        automatically executing tests
-      runtests_args (str): Space-separated arguments to pass to the test driver
-        if include_tests is set
+      packages (sequence[str]): A sequence of packages to pass to GN to build
+      variants (sequence[str]): A sequence of build variants to pass to gen.py
+        via --variant
+      gn_args (sequence[str]): Additional arguments to pass to GN
+      test_cmds (sequence[str]): A sequence of commands to run on the device
+        during testing. If empty, no test package will be added to the build.
 
     Returns:
       A FuchsiaBuildResults, representing the recently completed build.
@@ -248,8 +246,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert target in TARGETS
     assert build_type in BUILD_TYPES
 
-    if include_tests:
-      packages.append(self._create_runcmds_package(target, runtests_args))
+    if test_cmds:
+      packages.append(self._create_runcmds_package(target, test_cmds))
 
     if build_type == 'debug':
       build_dir = 'debug'
@@ -260,7 +258,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         target=target,
         zircon_build_dir=out_dir.join('build-zircon', 'build-%s' % _zircon_project(target)),
         fuchsia_build_dir=out_dir.join('%s-%s' % (build_dir, _gn_target(target))),
-        has_tests=include_tests,
+        has_tests=bool(test_cmds),
     )
     with self.m.step.nest('build'):
       self._build_zircon(target)

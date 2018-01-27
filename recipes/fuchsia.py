@@ -70,14 +70,16 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       patch_project=patch_project,
       upload_snapshot=upload_snapshot,
   )
+  test_cmds = None
+  if run_tests:
+    test_cmds = ['runtests -o /test ' + runtests_args]
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
       packages=packages,
       variants=variant,
       gn_args=gn_args,
-      include_tests=run_tests,
-      runtests_args=runtests_args,
+      test_cmds=test_cmds,
   )
   if run_tests:
     api.fuchsia.test(build)
