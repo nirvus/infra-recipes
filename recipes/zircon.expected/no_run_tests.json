@@ -84,8 +84,6 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "zircon",
       "manifest",
       "https://fuchsia.googlesource.com/zircon"
     ],
@@ -103,6 +101,22 @@
     ],
     "infra_step": true,
     "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-v",
+      "-time",
+      "-host",
+      "https://chromium-review.googlesource.com",
+      "-project",
+      "zircon",
+      "-rebase=true",
+      "refs/changes/89/456789/12"
+    ],
+    "infra_step": true,
+    "name": "jiri patch"
   },
   {
     "cmd": [
@@ -166,6 +180,20 @@
       "@@@STEP_LOG_END@json.output@@@",
       "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
     ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-gc=true",
+      "-rebase-tracked",
+      "-local-manifest=true"
+    ],
+    "infra_step": true,
+    "name": "jiri update (2)"
   },
   {
     "cmd": [

@@ -49,8 +49,6 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "chrome",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],

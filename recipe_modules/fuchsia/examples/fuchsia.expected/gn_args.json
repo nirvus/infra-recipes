@@ -49,8 +49,6 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "chrome",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -76,7 +74,7 @@
       "-host",
       "fuchsia-review.googlesource.com",
       "-project",
-      "chromium",
+      "chromium/src",
       "-rebase=true",
       "refs/changes/23/123/12"
     ],

@@ -49,8 +49,6 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "chrome",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -66,6 +64,21 @@
       "-run-hooks=false"
     ],
     "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-v",
+      "-time",
+      "-host",
+      "fuchsia-review.googlesource.com",
+      "-project",
+      "fuchsia",
+      "-rebase=true",
+      "refs/changes/89/456789/12"
+    ],
+    "name": "jiri patch"
   },
   {
     "cmd": [
@@ -98,6 +111,19 @@
       "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
       "@@@STEP_LOG_END@json.output[source manifest]@@@"
     ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-gc=true",
+      "-rebase-tracked",
+      "-local-manifest=true"
+    ],
+    "name": "jiri update (2)"
   },
   {
     "cmd": [],
