@@ -375,7 +375,7 @@
       "zircon.autorun.system=/system/data/infra/runcmds",
       "--shutdown_pattern",
       "ready for fuchsia shutdown",
-      "[START_DIR]/out/build-zircon/build-zircon-pc-x86-64/zircon.bin"
+      "[START_DIR]/out/build-zircon/build-x86/zircon.bin"
     ],
     "name": "run tests",
     "stdout": "/path/to/tmp/",

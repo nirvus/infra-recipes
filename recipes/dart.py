@@ -144,8 +144,8 @@ def BuildFuchsia(api, build_type, target, gn_target, zircon_project,
 
 def RunTests(api, target, fuchsia_build_dir):
   zircon_build_dir = {
-    'arm64': 'build-zircon-qemu-arm64',
-    'x86-64': 'build-zircon-pc-x86-64',
+    'arm64': 'build-arm64',
+    'x86-64': 'build-x86',
   }[target]
 
   zircon_image_path = api.path['start_dir'].join(
