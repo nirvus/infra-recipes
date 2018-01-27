@@ -744,19 +744,11 @@ Recipe for building and testing Cobalt.
 &mdash; **def [RunSteps](/recipes/cobalt.py#30)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote):**
 ### *recipes* / [dart](/recipes/dart.py)
 
-[DEPS](/recipes/dart.py#11): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [qemu](#recipe_modules-qemu), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/dart.py#11): [fuchsia](#recipe_modules-fuchsia), [swarming](#recipe_modules-swarming), [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
 Builds the Fuchsia Dart test image and runs the Dart tests.
 
-&mdash; **def [BuildFuchsia](/recipes/dart.py#84)(api, build_type, target, gn_target, zircon_project, fuchsia_build_dir):**
-
-&mdash; **def [BuildZircon](/recipes/dart.py#75)(api, zircon_project):**
-
-&mdash; **def [Checkout](/recipes/dart.py#68)(api, manifest, remote):**
-
-&mdash; **def [RunSteps](/recipes/dart.py#212)(api, manifest, remote, target, build_type, goma_dir):**
-
-&mdash; **def [RunTests](/recipes/dart.py#145)(api, target, fuchsia_build_dir):**
+&mdash; **def [RunSteps](/recipes/dart.py#38)(api, manifest, remote, target, build_type):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [swarming](#recipe_modules-swarming), [recipe\_engine/properties][recipe_engine/recipe_modules/properties]

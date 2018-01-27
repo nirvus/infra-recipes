@@ -105,7 +105,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 5000\nmkdir /test\nmount /dev/sys/pci/00:06.0/virtio-block/block /test\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m release -a x64 -r vm vm > /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /test/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /test/summary.json\ndm poweroff",
+      "#!/boot/bin/sh\nmsleep 5000\nmkdir /test\nmount /dev/sys/pci/00:06.0/virtio-block/block /test\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm > /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /test/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /test/summary.json\ndm poweroff",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
@@ -116,7 +116,7 @@
       "@@@STEP_LOG_LINE@runcmds@mkdir /test@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /test@@@",
       "@@@STEP_LOG_LINE@runcmds@cd /system/test/dart@@@",
-      "@@@STEP_LOG_LINE@runcmds@dart --checked tools/testing/dart/main.dart --progress=line -m release -a x64 -r vm vm > /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /test/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /test/summary.json@@@",
+      "@@@STEP_LOG_LINE@runcmds@dart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm > /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /test/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /test/summary.json@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]
@@ -231,7 +231,6 @@
       "--packages=topaz/packages/default,[TMP_BASE]/runcmds_package",
       "--platforms=x86",
       "--goma=[START_DIR]/cipd/goma",
-      "--release",
       "--args",
       "extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]"
     ],
@@ -272,7 +271,7 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-x86-64",
+      "[START_DIR]/out/debug-x86-64",
       "-j",
       "50"
     ],
@@ -415,7 +414,7 @@
       "fvm.blk",
       "fuchsia.qcow2"
     ],
-    "cwd": "[START_DIR]/out/release-x86-64/images",
+    "cwd": "[START_DIR]/out/debug-x86-64/images",
     "name": "qemu-img create fuchsia.qcow2"
   },
   {
@@ -429,15 +428,15 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/out/release-x86-64/images:fvm.blk",
-      "-files",
-      "[START_DIR]/out/release-x86-64/images:fuchsia.qcow2",
+      "[START_DIR]/out/debug-x86-64:bootdata-blobstore-x86.bin",
       "-files",
       "[START_DIR]/out/build-zircon/build-x86:zircon.bin",
       "-files",
       "[START_DIR]:test.fs",
       "-files",
-      "[START_DIR]/out/release-x86-64:bootdata-blobstore-x86.bin"
+      "[START_DIR]/out/debug-x86-64/images:fvm.blk",
+      "-files",
+      "[START_DIR]/out/debug-x86-64/images:fuchsia.qcow2"
     ],
     "name": "archive"
   },
