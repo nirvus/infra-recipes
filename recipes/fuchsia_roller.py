@@ -34,12 +34,12 @@ PROPERTIES = {
   'dry_run': Property(kind=bool,
                       default=False,
                       help='Whether to dry-run the auto-roller (CQ+1 and abandon the change)'),
-  'poll_timeout': Property(kind=float,
-                           default=50*60,
-                           help='The total amount of seconds to spend polling before timing out'),
-  'poll_interval': Property(kind=float,
-                            default=5*60,
-                            help='The interval at which to poll in seconds'),
+  'poll_timeout_secs': Property(kind=float,
+                                default=50*60,
+                                help='The total amount of seconds to spend polling before timing out'),
+  'poll_interval_secs': Property(kind=float,
+                                 default=5*60,
+                                 help='The interval at which to poll in seconds'),
 }
 
 
@@ -70,7 +70,7 @@ COMMIT_MESSAGE = """[manifest] Roll {project} {old}..{new} ({count} commits)
 # useful because now we can have an auto-roller in staging, and we can block
 # updates behind 'dry_run' as a sort of feature gate.
 def RunSteps(api, category, project, manifest, remote, import_in, import_from, revision,
-             dry_run, poll_timeout, poll_interval):
+             dry_run, poll_timeout_secs, poll_interval_secs):
   api.jiri.ensure_jiri()
   api.gerrit.ensure_gerrit()
   api.gitiles.ensure_gitiles()
@@ -149,7 +149,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
 
   # Poll gerrit to see if CQ was successful.
   # TODO(mknyszek): Figure out a cleaner solution than polling.
-  for i in range(int(poll_timeout/poll_interval)):
+  for i in range(int(poll_timeout_secs/poll_interval_secs)):
     # Check the status of the CL.
     with api.context(infra_steps=True):
       change = api.gerrit.change_details('check if done (%d)' % i, full_change_id)
@@ -201,9 +201,9 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
 
     # If none of the terminal conditions above were reached (that is, there were
     # no label changes from what we initially set, and the change has not
-    # merged), then we should wait for |poll_interval| before trying again.
+    # merged), then we should wait for |poll_interval_secs| before trying again.
     # TODO(mknyszek): Mock sleep so we're not actually sleeping during tests.
-    time.sleep(poll_interval)
+    time.sleep(poll_interval_secs)
 
   raise api.step.InfraFailure('Failed to roll changes: roller timed out.')
 
@@ -238,8 +238,8 @@ def GenTests(api):
                         import_from='zircon',
                         remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
-                        poll_interval=0.001,
-                        poll_timeout=0.1) +
+                        poll_interval_secs=0.001,
+                        poll_timeout_secs=0.1) +
          api.gitiles.log('log', 'A') + new_change_data + success_step_data)
 
   # Test a successful roll of garnet into peridot.
@@ -250,8 +250,8 @@ def GenTests(api):
                         import_from='garnet',
                         remote='https://fuchsia.googlesource.com/peridot',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
-                        poll_interval=0.001,
-                        poll_timeout=0.1) +
+                        poll_interval_secs=0.001,
+                        poll_timeout_secs=0.1) +
          api.gitiles.log('log', 'A') + new_change_data + success_step_data)
 
   # Test a successful roll of peridot into topaz.
@@ -262,8 +262,8 @@ def GenTests(api):
                         import_from='peridot',
                         remote='https://fuchsia.googlesource.com/topaz',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
-                        poll_interval=0.001,
-                        poll_timeout=0.1) +
+                        poll_interval_secs=0.001,
+                        poll_timeout_secs=0.1) +
          api.gitiles.log('log', 'A') + new_change_data + success_step_data)
 
   # Test a failure to roll zircon into garnet because CQ failed. The
@@ -275,8 +275,8 @@ def GenTests(api):
                         import_from='zircon',
                         remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
-                        poll_interval=0.001,
-                        poll_timeout=0.1) +
+                        poll_interval_secs=0.001,
+                        poll_timeout_secs=0.1) +
          api.gitiles.log('log', 'A') + new_change_data +
          api.step_data('check if done (0)', api.json.output({
              'status': 'NEW',
@@ -294,8 +294,8 @@ def GenTests(api):
                         remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
                         dry_run=True,
-                        poll_interval=0.001,
-                        poll_timeout=0.1) +
+                        poll_interval_secs=0.001,
+                        poll_timeout_secs=0.1) +
          api.gitiles.log('log', 'A') + new_change_data +
          api.step_data('check if done (0)', api.json.output({
              'status': 'NEW',
@@ -314,8 +314,8 @@ def GenTests(api):
                         remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
                         dry_run=True,
-                        poll_interval=0.001,
-                        poll_timeout=0.0015) +
+                        poll_interval_secs=0.001,
+                        poll_timeout_secs=0.0015) +
          api.gitiles.log('log', 'A') + new_change_data +
          api.step_data('check if done (0)', api.json.output({
              'status': 'NEW',
