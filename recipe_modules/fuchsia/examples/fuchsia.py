@@ -79,10 +79,19 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
 
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.
-  yield api.test('isolated_tests') + api.properties(
+  yield api.test('isolated_tests_x86') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+  ) + api.step_data('collect', api.swarming.collect_result(
+      outputs=['test.fs'],
+  ))
+  yield api.test('isolated_tests_arm64') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='arm64',
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect_result(

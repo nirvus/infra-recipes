@@ -127,17 +127,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
           name='upload jiri.snapshot',
           unauthenticated_url=True)
 
-  def _create_runcmds_package(self, target, test_cmds):
+  def _create_runcmds_package(self, test_cmds):
     """Creates a Fuchsia package which contains a script for running tests automatically."""
     # The device topological path is the toplogical path to the block device
     # which will contain test output.
-    # TODO(mknyszek): Remove architecture-dependence once ZX-1621 is done.
-    device_topological_path = '/dev/sys/%s/00:%s/virtio-block/block' % (
-      {
-        'arm64': '0000:0000:0003',
-        'x86-64': 'pci',
-      }[target],
-      TEST_FS_PCI_ADDR,
+    device_topological_path = '/dev/sys/pci/00:%s/virtio-block/block' % (
+        TEST_FS_PCI_ADDR,
     )
 
     # Script that mounts the block device to contain test output and runs tests,
@@ -247,7 +242,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build_type in BUILD_TYPES
 
     if test_cmds:
-      packages.append(self._create_runcmds_package(target, test_cmds))
+      packages.append(self._create_runcmds_package(test_cmds))
 
     if build_type == 'debug':
       build_dir = 'debug'
