@@ -6,6 +6,7 @@
 
 import time
 
+from recipe_engine.config import Single
 from recipe_engine.recipe_api import Property
 
 
@@ -34,10 +35,10 @@ PROPERTIES = {
   'dry_run': Property(kind=bool,
                       default=False,
                       help='Whether to dry-run the auto-roller (CQ+1 and abandon the change)'),
-  'poll_timeout_secs': Property(kind=float,
+  'poll_timeout_secs': Property(kind=Single((float, int)),
                                 default=50*60,
                                 help='The total amount of seconds to spend polling before timing out'),
-  'poll_interval_secs': Property(kind=float,
+  'poll_interval_secs': Property(kind=Single((float, int)),
                                  default=5*60,
                                  help='The interval at which to poll in seconds'),
 }
@@ -325,3 +326,17 @@ def GenTests(api):
                  }
              }
          })))
+
+  # Test a successful roll of zircon with integral arguments to poll_*_secs.
+  # This tests for any regression in supporting integral values for
+  # polling-related properties.
+  yield (api.test('zircon_integral_poll_secs') +
+         api.properties(project='garnet',
+                        manifest='manifest/minimal',
+                        import_in='manifest/garnet',
+                        import_from='zircon',
+                        remote='https://fuchsia.googlesource.com/garnet',
+                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
+                        poll_interval_secs=1,
+                        poll_timeout_secs=1) +
+         api.gitiles.log('log', 'A') + new_change_data + success_step_data)
