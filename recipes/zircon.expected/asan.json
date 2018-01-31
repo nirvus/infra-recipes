@@ -168,8 +168,38 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "build"
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/zircon_tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "msleep 500\nruntests",
+      "[TMP_BASE]/zircon_tmp/autorun"
+    ],
+    "infra_step": true,
+    "name": "write autorun",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
+      "@@@STEP_LOG_END@autorun.sh@@@"
+    ]
   },
   {
     "cmd": [
@@ -177,10 +207,9 @@
       "-u",
       "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
     ],
-    "name": "build.calculate the number of recommended jobs",
+    "name": "calculate the number of recommended jobs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
@@ -212,10 +241,7 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build.start_goma",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "start_goma"
   },
   {
     "cmd": [
@@ -228,10 +254,10 @@
       "50"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build.build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "env": {
+      "USER_AUTORUN": "[TMP_BASE]/zircon_tmp/autorun"
+    },
+    "name": "build"
   },
   {
     "cmd": [
@@ -246,10 +272,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build.goma_jsonstatus",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "goma_jsonstatus"
   },
   {
     "cmd": [
@@ -263,10 +286,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build.goma_stat",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "goma_stat"
   },
   {
     "cmd": [
@@ -280,98 +300,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build.stop_goma",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[TMP_BASE]/zircon_tmp"
-    ],
-    "infra_step": true,
-    "name": "build.makedirs tmp",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "#!/boot/bin/sh\nmsleep 500\nruntests",
-      "[TMP_BASE]/zircon_tmp/runcmds"
-    ],
-    "infra_step": true,
-    "name": "build.write runcmds",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
-      "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
-      "@@@STEP_LOG_END@runcmds@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/zircon/build-x86-asan/bootfs.manifest",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "build.read bootfs manifest",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "\n{test}infra/runcmds=[TMP_BASE]/zircon_tmp/runcmds",
-      "[START_DIR]/zircon/test.manifest"
-    ],
-    "infra_step": true,
-    "name": "build.write bootfs manifest",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/build-x86-asan/tools/mkbootfs",
-      "--target=boot",
-      "-c",
-      "-o",
-      "[START_DIR]/zircon/build-x86-asan/bootdata.bin",
-      "[START_DIR]/zircon/test.manifest"
-    ],
-    "cwd": "[START_DIR]/zircon",
-    "name": "build.make bootfs",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "stop_goma"
   },
   {
     "cmd": [],
@@ -447,8 +376,6 @@
       "x86_64",
       "--initrd",
       "[START_DIR]/zircon/build-x86-asan/bootdata.bin",
-      "--cmdline",
-      "zircon.autorun.boot=/boot/infra/runcmds",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
       "[START_DIR]/zircon/build-x86-asan/zircon.bin"

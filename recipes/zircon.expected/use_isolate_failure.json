@@ -168,24 +168,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "build"
-  },
-  {
-    "cmd": [
-      "make",
-      "x86",
-      "HOST_USE_ASAN=true",
-      "-j",
-      "2"
-    ],
-    "cwd": "[START_DIR]/zircon",
-    "name": "build.build",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
     "cmd": [
       "python",
       "-u",
@@ -198,10 +180,7 @@
       "[TMP_BASE]/zircon_tmp"
     ],
     "infra_step": true,
-    "name": "build.makedirs tmp",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "makedirs tmp"
   },
   {
     "cmd": [
@@ -211,68 +190,31 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 500\nruntests\ndm poweroff",
-      "[TMP_BASE]/zircon_tmp/runcmds"
+      "msleep 500\nruntests\ndm poweroff",
+      "[TMP_BASE]/zircon_tmp/autorun"
     ],
     "infra_step": true,
-    "name": "build.write runcmds",
+    "name": "write autorun",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
-      "@@@STEP_LOG_LINE@runcmds@msleep 500@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
-      "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
-      "@@@STEP_LOG_END@runcmds@@@"
+      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@dm poweroff@@@",
+      "@@@STEP_LOG_END@autorun.sh@@@"
     ]
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/zircon/build-x86/bootfs.manifest",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "build.read bootfs manifest",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "\n{test}infra/runcmds=[TMP_BASE]/zircon_tmp/runcmds",
-      "[START_DIR]/zircon/test.manifest"
-    ],
-    "infra_step": true,
-    "name": "build.write bootfs manifest",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/build-x86/tools/mkbootfs",
-      "--target=boot",
-      "-c",
-      "-o",
-      "[START_DIR]/zircon/build-x86/bootdata.bin",
-      "[START_DIR]/zircon/test.manifest"
+      "make",
+      "x86",
+      "HOST_USE_ASAN=true",
+      "-j",
+      "2"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build.make bootfs",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "env": {
+      "USER_AUTORUN": "[TMP_BASE]/zircon_tmp/autorun"
+    },
+    "name": "build"
   },
   {
     "cmd": [],
@@ -560,7 +502,7 @@
       "-cpu",
       "host",
       "-append",
-      "TERM=dumb kernel.halt-on-panic=true zircon.autorun.boot=/boot/infra/runcmds"
+      "TERM=dumb kernel.halt-on-panic=true"
     ],
     "infra_step": true,
     "name": "trigger booted tests",
@@ -601,7 +543,7 @@
       "@@@STEP_LOG_LINE@json.output@        \"-cpu\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"host\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-append\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"TERM=dumb kernel.halt-on-panic=true zircon.autorun.boot=/boot/infra/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"TERM=dumb kernel.halt-on-panic=true\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
       "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
