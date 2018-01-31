@@ -202,6 +202,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "build"
+  },
+  {
     "cmd": [
       "make",
       "x86",
@@ -213,7 +217,10 @@
     "env": {
       "USER_AUTORUN": "[TMP_BASE]/zircon_tmp/autorun"
     },
-    "name": "build"
+    "name": "build.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [],

@@ -955,9 +955,13 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
+&mdash; **def [Build](/recipes/zircon.py#175)(api, target, toolchain, src_dir, use_isolate):**
+
+Builds zircon and returns a path to the build output directory.
+
 &mdash; **def [CollectTestsTasks](/recipes/zircon.py#166)(api, tasks, timeout='20m'):**
 
-&mdash; **def [RunSteps](/recipes/zircon.py#175)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#232)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
 
 &mdash; **def [RunTests](/recipes/zircon.py#87)(api, name, build_dir, \*args, \*\*kwargs):**
 

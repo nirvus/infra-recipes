@@ -172,10 +172,66 @@ def CollectTestsTasks(api, tasks, timeout='20m'):
       raise api.step.InfraFailure('failed to collect results: %s' % result.output)
 
 
+def Build(api, target, toolchain, src_dir, use_isolate):
+  """Builds zircon and returns a path to the build output directory."""
+  # Generate autorun script to drive tests.
+  tmp_dir = api.path['tmp_base'].join('zircon_tmp')
+  api.file.ensure_directory('makedirs tmp', tmp_dir)
+  autorun_path = tmp_dir.join('autorun')
+  autorun = ['msleep 500', 'runtests']
+  # In the non-use_isolate case, we don't need this because the QEMU recipe
+  # module forcefully kills QEMU when encountering the shutdown pattern.
+  # In a swarming task, this is impossible because 1) although we can cancel a
+  # swarming task we won't get any useful feedback on whether it was successful
+  # without grepping through the output and 2) we would need a way to stream the
+  # output into a recipe, which currently can't be done easily.
+  #
+  # So, we gracefully shutdown zircon after running tests.
+  if use_isolate:
+    autorun.append('dm poweroff')
+  api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
+  api.step.active_result.presentation.logs['autorun.sh'] = autorun
+
+  with api.step.nest('build'):
+    # Set up toolchain and build args.
+    tc_args, tc_suffix = TOOLCHAINS[toolchain]
+    build_args = [
+      'make',
+      target,
+      'HOST_USE_ASAN=true',
+    ] + tc_args
+
+    # Set up goma.
+    if toolchain in ['clang', 'asan']:
+      build_args.extend([
+        'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
+        '-j', api.goma.recommended_goma_jobs,
+      ])
+      goma_context = api.goma.build_with_goma
+    else:
+      build_args.extend([
+        '-j', api.platform.cpu_count,
+      ])
+      goma_context = no_goma
+
+    # If thinlto build, it needs a cache. Pass it a directory in the cache
+    # directory.
+    if toolchain == 'thinlto':
+      build_args.append('THINLTO_CACHE_DIR=' +
+                        str(api.path['cache'].join('thinlto')))
+
+    # Build zircon.
+    with goma_context():
+      with api.context(cwd=src_dir, env={'USER_AUTORUN': autorun_path}):
+        api.step('build', build_args)
+
+  # Return the location of the build artifacts.
+  return src_dir.join('build-%s' % target + tc_suffix)
+
+
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, toolchain, goma_dir, use_isolate, run_tests):
-
   if goma_dir:
     api.goma.set_goma_dir(goma_dir)
   api.goma.ensure_goma()
@@ -189,50 +245,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     if patch_ref:
       api.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
 
-  tmp_dir = api.path['tmp_base'].join('zircon_tmp')
-  api.file.ensure_directory('makedirs tmp', tmp_dir)
-  path = tmp_dir.join('autorun')
-  autorun = ['msleep 500', 'runtests']
-  # In the non-use_isolate case, we don't need this because the QEMU recipe
-  # module forcefully kills QEMU when encountering the shutdown pattern.
-  # In a swarming task, this is impossible because 1) although we can cancel a
-  # swarming task we won't get any useful feedback on whether it was successful
-  # without grepping through the output and 2) we would need a way to stream the
-  # output into a recipe, which currently can't be done easily.
-  #
-  # So, we gracefully shutdown zircon after running tests.
-  if use_isolate:
-    autorun.append('dm poweroff')
-  api.file.write_text('write autorun', path, '\n'.join(autorun))
-  api.step.active_result.presentation.logs['autorun.sh'] = autorun
-
-  tc_args, tc_suffix = TOOLCHAINS[toolchain]
-  build_args = [
-    'make',
-    target,
-    'HOST_USE_ASAN=true',
-  ] + tc_args
-
-  if toolchain in ['clang', 'asan']:
-    build_args.extend([
-      'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
-      '-j', api.goma.recommended_goma_jobs,
-    ])
-    goma_context = api.goma.build_with_goma
-  else:
-    build_args.extend([
-      '-j', api.platform.cpu_count,
-    ])
-    goma_context = no_goma
-
-  if toolchain == 'thinlto':
-    build_args.append('THINLTO_CACHE_DIR=' +
-                      str(api.path['cache'].join('thinlto')))
-
-  with goma_context():
-    with api.context(cwd=api.path['start_dir'].join('zircon'),
-                     env={'USER_AUTORUN': path}):
-      api.step('build', build_args)
+  src_dir = api.path['start_dir'].join('zircon')
+  build_dir = Build(api, target, toolchain, src_dir, use_isolate)
 
   if run_tests:
     api.qemu.ensure_qemu()
@@ -240,8 +254,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.swarming.ensure_swarming(version='latest')
       api.isolated.ensure_isolated(version='latest')
 
-    build_dir = api.path['start_dir'].join(
-        'zircon', 'build-%s' % target + tc_suffix)
     bootfs_path = build_dir.join(BOOTFS_IMAGE_NAME)
     image_path = build_dir.join(ZIRCON_IMAGE_NAME)
 
