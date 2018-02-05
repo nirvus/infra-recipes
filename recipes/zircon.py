@@ -16,6 +16,7 @@ DEPS = [
   'infra/goma',
   'infra/jiri',
   'infra/isolated',
+  'infra/minfs',
   'infra/qemu',
   'infra/swarming',
   'recipe_engine/context',
@@ -56,6 +57,15 @@ ZIRCON_IMAGE_NAME = 'zircon.bin'
 
 # The boot filesystem image.
 BOOTFS_IMAGE_NAME = 'bootdata.bin'
+
+# The PCI address to use for the block device to contain test results. This value
+# is somewhat arbitrary, but it works very consistently and appears to be a safe
+# PCI address value to use within QEMU.
+TEST_FS_PCI_ADDR = '06.0'
+
+# How long to wait (in seconds) before killing the test swarming task if there's
+# no output being produced.
+TEST_IO_TIMEOUT_SECS = 60
 
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
@@ -125,7 +135,22 @@ def RunTests(api, name, build_dir, *args, **kwargs):
     raise api.step.StepFailure(failure_reason)
 
 
-def TriggerTestsTask(api, name, arch, isolated_hash, cmdline):
+def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=False):
+  """TriggerTestsTask triggers a task to execute Zircon tests within QEMU.
+
+  Args:
+    api: Recipe engine API object.
+    name (str): Name of the task.
+    arch (str): The target architecture to execute tests for.
+    isolated_hash (str): A digest of the isolated containing the build
+      artifacts.
+    cmdline (list[str]): A list of kernel command line arguments to pass to
+      zircon.
+    blkdev (bool): Whether a block device should be declared.
+
+  Returns:
+    The task ID of the triggered task.
+  """
   qemu_cmd = [
     './qemu/bin/qemu-system-' + arch, # Dropped in by CIPD.
     '-m', '4096',
@@ -139,6 +164,12 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline):
     '-enable-kvm', '-cpu', 'host',
     '-append', ' '.join(['TERM=dumb', 'kernel.halt-on-panic=true'] + cmdline),
   ]
+
+  if blkdev:
+    qemu_cmd.extend([
+      '-drive', 'file=test.fs,format=raw,if=none,id=testdisk',
+      '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
+    ])
 
   qemu_cipd_arch = {
     'aarch64': 'arm64',
@@ -158,12 +189,18 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline):
           'cpu':  {'aarch64': 'arm64', 'x86_64': 'x86-64'}[arch],
           'kvm':  '1',
         },
-        io_timeout=60,
+        io_timeout=TEST_IO_TIMEOUT_SECS,
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
     ).json.output['TaskID']
 
 
 def CollectTestsTasks(api, tasks, timeout='20m'):
+  """Waits on a set of swarming tasks.
+
+  Args:
+    tasks (list[str]): A list of swarming task IDs to wait on.
+    timeout (str): A timeout formatted as a Golang Duration-parsable string.
+  """
   with api.context(infra_steps=True):
     collect_results = api.swarming.collect(timeout, tasks=tasks)
     assert len(collect_results) == len(tasks)
@@ -178,17 +215,28 @@ def Build(api, target, toolchain, src_dir, use_isolate):
   tmp_dir = api.path['tmp_base'].join('zircon_tmp')
   api.file.ensure_directory('makedirs tmp', tmp_dir)
   autorun_path = tmp_dir.join('autorun')
-  autorun = ['msleep 500', 'runtests']
-  # In the non-use_isolate case, we don't need this because the QEMU recipe
-  # module forcefully kills QEMU when encountering the shutdown pattern.
-  # In a swarming task, this is impossible because 1) although we can cancel a
-  # swarming task we won't get any useful feedback on whether it was successful
-  # without grepping through the output and 2) we would need a way to stream the
-  # output into a recipe, which currently can't be done easily.
-  #
-  # So, we gracefully shutdown zircon after running tests.
   if use_isolate:
-    autorun.append('dm poweroff')
+    # In the use_isolate case, we need to mount a block device to write test
+    # results and test output to. Thus, the autorun script must:
+    # 1. Wait for devmgr to spin up.
+    # 2. Make a test directory.
+    # 3. Mount the block device to that test directory (the block device
+    #    will always exist at PCI address TEST_FS_PCI_ADDR).
+    # 4. Execute runtests with -o.
+    # 5. Unmount and poweroff.
+    autorun = [
+      'msleep 1000',
+      'mkdir /test',
+      'mount /dev/sys/pci/00:%s/virtio-block/block' % TEST_FS_PCI_ADDR,
+      'runtests -o /test',
+      'umount /test',
+      'dm poweroff',
+    ]
+  else:
+    # Script to wait for devmgr to spin up and execute runtests. runtests doesn't
+    # need any additional arguments because it executes tests in five /boot
+    # directories by default, representing the entire test suite.
+    autorun = ['msleep 500', 'runtests']
   api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
   api.step.active_result.presentation.logs['autorun.sh'] = autorun
 
@@ -257,12 +305,30 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     bootfs_path = build_dir.join(BOOTFS_IMAGE_NAME)
     image_path = build_dir.join(ZIRCON_IMAGE_NAME)
 
+    # The MinFS tool is generated during the Zircon build, so only after we
+    # build may we set the recipe module's tool path.
+    api.minfs.minfs_path = build_dir.join('tools', 'minfs')
+
     arch = TARGET_TO_ARCH[target]
     if use_isolate:
+      # Generate a MinFS image which will hold test results. This will later be
+      # declared as a block device to QEMU and will then be mounted by the
+      # autorun script. The size of the MinFS should be large enough to
+      # accomodate all test results and test output. The current size is picked
+      # to be able to safely hold test results for quite some time (currently
+      # the space used is on the order of tens of kilobytes). Having a
+      # larger-image-than-necessary isn't a big deal for isolate, which
+      # compresses the image before uploading.
+      test_image = api.path['start_dir'].join('test.fs')
+      api.minfs.create(test_image, '32M', name='create test image')
+
+      # Isolate all necessary build artifacts as well as the MinFS image.
       isolated = api.isolated.isolated()
+      isolated.add_file(test_image, wd=api.path['start_dir'])
       isolated.add_file(image_path, wd=build_dir)
       isolated.add_file(bootfs_path, wd=build_dir)
       digest = isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
+
       tasks = [
         # Trigger a task that runs the core tests in place of userspace at boot.
         TriggerTestsTask(api, 'core tests', arch, digest, [
@@ -271,7 +337,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         ]),
         # Trigger a task that runs tests in the standard way with runtests and
         # the autorun script.
-        TriggerTestsTask(api, 'booted tests', arch, digest, []),
+        TriggerTestsTask(api, 'booted tests', arch, digest, [], blkdev=True),
       ]
       CollectTestsTasks(api, tasks, timeout='20m')
     else:
