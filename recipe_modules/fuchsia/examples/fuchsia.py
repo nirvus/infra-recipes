@@ -105,7 +105,7 @@ def GenTests(api):
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect_result(
       outputs=['test.fs'],
-  )) + api.step_data('read test summary', api.json.output({
+  )) + api.step_data('test results.read summary', api.json.output({
       'tests': [{'name': '/hello', 'result': 'FAIL'}],
   })) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
   yield api.test('isolated_tests_task_failure') + api.properties(

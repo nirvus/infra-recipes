@@ -198,6 +198,35 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#393)(self, step_name, result, zircon_build_dir):**
+
+Analyzes a swarming.CollectResult and reports results as a step.
+
+Args:
+  step_name (str): The display name of the step for this analysis.
+  result (swarming.CollectResult): The swarming collection result to analyze.
+  zircon_build_dir (Path): A path to the zircon build directory for symbolization
+    artifacts.
+
+Raises:
+  A StepFailure if a kernel panic is detected, or if the tests timed out.
+  An InfraFailure if the swarming task failed for a different reason.
+
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#435)(self, step_name, minfs_image_path, build_dir, output):**
+
+Analyzes a MinFS image filled with task results, whose path is derived from a
+CollectResult.
+
+Args:
+  step_name (str): The name of the step under which to test the analysis steps.
+  minfs_image_path (Path): A relative path to the MinFS image that may be used to
+    derive the full path to the MinFS image from a CollectResult.
+  build_dir (Path): A path to the build directory for symbolization artifacts.
+  output (str): Kernel output which may be passed to the symbolizer script.
+
+Raises:
+  A StepFailure if any of the discovered tests failed.
+
 &mdash; **def [build](/recipe_modules/fuchsia/api.py#222)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
 
 Builds Fuchsia from a Jiri checkout.

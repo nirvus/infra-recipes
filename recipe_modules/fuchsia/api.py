@@ -382,8 +382,28 @@ class FuchsiaApi(recipe_api.RecipeApi):
       results = self.m.swarming.collect('20m', requests_json=self.m.json.input(trigger_result.json.output))
       assert len(results) == 1
       result = results[0]
+    self.analyze_collect_result('task results', result, build.zircon_build_dir)
+    self.analyze_test_results(
+        'test results',
+        result['test.fs'],
+        build.fuchsia_build_dir,
+        result.output,
+    )
 
-    step_result = self.m.step('task results', None)
+  def analyze_collect_result(self, step_name, result, zircon_build_dir):
+    """Analyzes a swarming.CollectResult and reports results as a step.
+
+    Args:
+      step_name (str): The display name of the step for this analysis.
+      result (swarming.CollectResult): The swarming collection result to analyze.
+      zircon_build_dir (Path): A path to the zircon build directory for symbolization
+        artifacts.
+
+    Raises:
+      A StepFailure if a kernel panic is detected, or if the tests timed out.
+      An InfraFailure if the swarming task failed for a different reason.
+    """
+    step_result = self.m.step(step_name, None)
     kernel_output_lines = result.output.split('\n')
     step_result.presentation.logs['output'] = kernel_output_lines
     if result.is_infra_failure():
@@ -394,14 +414,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
       if 'KERNEL PANIC' in result.output:
         step_result.presentation.step_text = 'kernel panic'
         step_result.presentation.status = self.m.step.FAILURE
-        self._symbolize(build.zircon_build_dir, result.output)
+        self._symbolize(zircon_build_dir, result.output)
         raise self.m.step.StepFailure('Found kernel panic. See symbolized output for details.')
       # If we have a timeout with a successful collect, then this must be an
       # io_timeout failure, since task timeout > collect timeout.
       if result.timed_out():
         step_result.presentation.step_text = 'i/o timeout'
         step_result.presentation.status = self.m.step.FAILURE
-        self._symbolize(build.zircon_build_dir, result.output)
+        self._symbolize(zircon_build_dir, result.output)
         failure_lines = [
           'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
           'Last 10 lines of kernel output:',
@@ -412,32 +432,46 @@ class FuchsiaApi(recipe_api.RecipeApi):
       step_result.presentation.status = self.m.step.EXCEPTION
       raise self.m.step.InfraFailure('Swarming task failed:\n%s' % result.output)
 
-    test_results_dir = self.m.path['start_dir'].join('minfs_isolate_results')
-    with self.m.context(infra_steps=True):
-      # Copy test results out of image.
-      test_output = self.m.minfs.cp(
-          # Paths inside of the MinFS image are prefixed with '::', so '::'
-          # refers to the root of the MinFS image.
-          '::',
-          self.m.raw_io.output_dir(leak_to=test_results_dir),
-          result['test.fs'],
-          name='extract test results',
-          step_test_data=lambda: self.m.raw_io.test_api.output_dir({
-              'hello.out': 'I am output.'
-          }),
-      ).raw_io.output_dir
-      # Read the tests summary.
-      test_summary = self.m.json.read(
-          'read test summary',
-          test_results_dir.join('summary.json'),
-          step_test_data=lambda: self.m.json.test_api.output({
-              'tests': [{'name': '/hello', 'result': 'PASS'}],
-          }),
-      ).json.output
+  def analyze_test_results(self, step_name, minfs_image_path, build_dir, output):
+    """Analyzes a MinFS image filled with task results, whose path is derived from a
+    CollectResult.
 
-    # Report test results.
-    failed_tests = collections.OrderedDict()
-    with self.m.step.nest('tests'):
+    Args:
+      step_name (str): The name of the step under which to test the analysis steps.
+      minfs_image_path (Path): A relative path to the MinFS image that may be used to
+        derive the full path to the MinFS image from a CollectResult.
+      build_dir (Path): A path to the build directory for symbolization artifacts.
+      output (str): Kernel output which may be passed to the symbolizer script.
+
+    Raises:
+      A StepFailure if any of the discovered tests failed.
+    """
+    with self.m.step.nest(step_name):
+      test_results_dir = self.m.path['start_dir'].join('minfs_isolate_results')
+      with self.m.context(infra_steps=True):
+        # Copy test results out of image.
+        test_output = self.m.minfs.cp(
+            # Paths inside of the MinFS image are prefixed with '::', so '::'
+            # refers to the root of the MinFS image.
+            '::',
+            self.m.raw_io.output_dir(leak_to=test_results_dir),
+            minfs_image_path,
+            name='extract',
+            step_test_data=lambda: self.m.raw_io.test_api.output_dir({
+                'hello.out': 'I am output.'
+            }),
+        ).raw_io.output_dir
+        # Read the tests summary.
+        test_summary = self.m.json.read(
+            'read summary',
+            test_results_dir.join('summary.json'),
+            step_test_data=lambda: self.m.json.test_api.output({
+                'tests': [{'name': '/hello', 'result': 'PASS'}],
+            }),
+        ).json.output
+
+      # Report test results.
+      failed_tests = collections.OrderedDict()
       for test in test_summary['tests']:
         name = test['name']
         step_result = self.m.step(name, None)
@@ -452,5 +486,5 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Symbolize the kernel output if any tests failed.
     if failed_tests:
-      self._symbolize(build.fuchsia_build_dir, result.output)
+      self._symbolize(build_dir, output)
       raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(failed_tests.keys()))

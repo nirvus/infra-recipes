@@ -744,6 +744,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "test results"
+  },
+  {
     "cmd": [
       "[START_DIR]/out/build-zircon/tools/minfs",
       "[TMP_BASE]/swarming_tmp_1/39927049b6ee70100/test.fs",
@@ -752,7 +756,10 @@
       "[START_DIR]/minfs_isolate_results"
     ],
     "infra_step": true,
-    "name": "extract test results"
+    "name": "test results.extract",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -763,8 +770,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "read test summary",
+    "name": "test results.read summary",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"tests\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -778,11 +786,7 @@
   },
   {
     "cmd": [],
-    "name": "tests"
-  },
-  {
-    "cmd": [],
-    "name": "tests./hello",
+    "name": "test results./hello",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@stdio@I am output.@@@",
