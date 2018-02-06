@@ -13,6 +13,7 @@ from recipe_engine.recipe_api import Property, StepFailure
 
 DEPS = [
   'infra/cipd',
+  'infra/fuchsia',
   'infra/goma',
   'infra/jiri',
   'infra/isolated',
@@ -191,22 +192,45 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=False):
         },
         io_timeout=TEST_IO_TIMEOUT_SECS,
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
+        outputs=['test.fs'] if blkdev else None,
     ).json.output['TaskID']
 
 
-def CollectTestsTasks(api, tasks, timeout='20m'):
-  """Waits on a set of swarming tasks.
+def FinalizeTestsTasks(api, core_task, booted_task, build_dir, timeout='20m'):
+  """Waits on the tasks running core tests and booted tests, then analyzes the results.
 
   Args:
-    tasks (list[str]): A list of swarming task IDs to wait on.
+    core_task (str): The swarming task ID of the task running core tests.
+    booted_task (str): The swarming task ID of the task running booted tests.
+    build_dir (Path): A path to the directory containing build artifacts.
     timeout (str): A timeout formatted as a Golang Duration-parsable string.
   """
   with api.context(infra_steps=True):
-    collects = api.swarming.collect(timeout, tasks=tasks)
-    assert len(collects) == len(tasks)
-  for result in collects:
-    if result.is_failure() or result.is_infra_failure():
-      raise api.step.InfraFailure('failed to collect results: %s' % result.output)
+    collect_results = api.swarming.collect(timeout, tasks=[core_task, booted_task])
+  results_map = {r.id: r for r in collect_results}
+
+  # Analyze core tests results. We don't try to analyze further because we don't
+  # have the core tests output in an easily consumable form, so they act as sort
+  # of a smoke test.
+  api.fuchsia.analyze_collect_result(
+      'core tests task results',
+      results_map[core_task],
+      build_dir,
+  )
+
+  # Analyze booted tests results just like the fuchsia recipe module does.
+  booted_result = results_map[booted_task]
+  api.fuchsia.analyze_collect_result(
+      'booted tests task results',
+      booted_result,
+      build_dir,
+  )
+  api.fuchsia.analyze_test_results(
+      'booted test results',
+      booted_result['test.fs'],
+      build_dir,
+      booted_result.output,
+  )
 
 
 def Build(api, target, toolchain, src_dir, use_isolate):
@@ -329,17 +353,17 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       isolated.add_file(bootfs_path, wd=build_dir)
       digest = isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
 
-      tasks = [
-        # Trigger a task that runs the core tests in place of userspace at boot.
-        TriggerTestsTask(api, 'core tests', arch, digest, [
-          'userboot=bin/core-tests',
-          'userboot.shutdown', # shuts down zircon after the userboot process exits.
-        ]),
-        # Trigger a task that runs tests in the standard way with runtests and
-        # the autorun script.
-        TriggerTestsTask(api, 'booted tests', arch, digest, [], blkdev=True),
-      ]
-      CollectTestsTasks(api, tasks, timeout='20m')
+      # Trigger a task that runs the core tests in place of userspace at boot.
+      core_task = TriggerTestsTask(api, 'core tests', arch, digest, [
+        'userboot=bin/core-tests',
+        'userboot.shutdown', # shuts down zircon after the userboot process exits.
+      ])
+      # Trigger a task that runs tests in the standard way with runtests and
+      # the autorun script.
+      booted_task = TriggerTestsTask(api, 'booted tests', arch, digest, [], blkdev=True)
+
+      # Collect task results and analyze.
+      FinalizeTestsTasks(api, core_task, booted_task, build_dir)
     else:
       # Run core tests with userboot.
       RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
@@ -433,6 +457,24 @@ def GenTests(api):
                      toolchain='gcc',
                      goma_dir='/path/to/goma') +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
+  # Step test data for triggering the core tests task.
+  core_tests_trigger_data = api.step_data(
+      'trigger core tests',
+      api.swarming.trigger(
+          'core tests',
+          'qemu',
+          task_id='10',
+      ),
+  )
+  # Step test data for triggering the booted tests task.
+  booted_tests_trigger_data = api.step_data(
+      'trigger booted tests',
+      api.swarming.trigger(
+          'booted tests',
+          'qemu',
+          task_id='11',
+      ),
+  )
   yield (api.test('use_isolate') +
       api.properties(project='zircon',
                      manifest='manifest',
@@ -440,7 +482,12 @@ def GenTests(api):
                      target='x86',
                      toolchain='gcc',
                      use_isolate=True) +
-      api.step_data('collect', api.swarming.collect(task_ids=['10', '11'])))
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      api.step_data('collect', api.swarming.collect(
+          task_ids=['10', '11'],
+          outputs=['test.fs'],
+      )))
   yield (api.test('use_isolate_failure') +
       api.properties(project='zircon',
                      manifest='manifest',
@@ -448,6 +495,8 @@ def GenTests(api):
                      target='x86',
                      toolchain='gcc',
                      use_isolate=True) +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
       api.step_data('collect', api.swarming.collect(
           task_ids=['10', '11'],
           task_failure=True,
