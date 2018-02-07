@@ -202,9 +202,9 @@ def CollectTestsTasks(api, tasks, timeout='20m'):
     timeout (str): A timeout formatted as a Golang Duration-parsable string.
   """
   with api.context(infra_steps=True):
-    collect_results = api.swarming.collect(timeout, tasks=tasks)
-    assert len(collect_results) == len(tasks)
-  for result in collect_results:
+    collects = api.swarming.collect(timeout, tasks=tasks)
+    assert len(collects) == len(tasks)
+  for result in collects:
     if result.is_failure() or result.is_infra_failure():
       raise api.step.InfraFailure('failed to collect results: %s' % result.output)
 
@@ -440,7 +440,7 @@ def GenTests(api):
                      target='x86',
                      toolchain='gcc',
                      use_isolate=True) +
-      api.step_data('collect', api.swarming.collect_result(amount=2)))
+      api.step_data('collect', api.swarming.collect(task_ids=['10', '11'])))
   yield (api.test('use_isolate_failure') +
       api.properties(project='zircon',
                      manifest='manifest',
@@ -448,7 +448,10 @@ def GenTests(api):
                      target='x86',
                      toolchain='gcc',
                      use_isolate=True) +
-      api.step_data('collect', api.swarming.collect_result(amount=2, task_failure=True)))
+      api.step_data('collect', api.swarming.collect(
+          task_ids=['10', '11'],
+          task_failure=True,
+      )))
   yield (api.test('symbolized_output') +
       api.properties(project='zircon',
                      manifest='manifest',

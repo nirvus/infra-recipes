@@ -56,14 +56,14 @@ def RunSteps(api, manifest, remote, target, build_type):
 
 
 def GenTests(api):
-  # TODO(mknyszek): Factor out api.swarming.collect_result() here into a
+  # TODO(mknyszek): Factor out api.swarming.collect() here into a
   # method of the fuchsia recipe module's test API, that way we could do
   # something like "api.fuchsia.test_result()" instead, and not have to depend
   # on the swarming recipe module.
 
   # Test with all the defaults.
   yield (api.test('basic') +
-      api.step_data('collect', api.swarming.collect_result(
+      api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
     ))
   )
@@ -71,7 +71,7 @@ def GenTests(api):
   # Test a release build.
   yield (api.test('release') +
     api.properties(build_type='release') +
-    api.step_data('collect', api.swarming.collect_result(
+    api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
     ))
   )

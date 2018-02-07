@@ -85,7 +85,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect_result(
+  ) + api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
   ))
   yield api.test('isolated_tests_arm64') + api.properties(
@@ -94,7 +94,7 @@ def GenTests(api):
       target='arm64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect_result(
+  ) + api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
   ))
   yield api.test('isolated_tests_test_failure') + api.properties(
@@ -103,7 +103,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect_result(
+  ) + api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
   )) + api.step_data('test results.read summary', api.json.output({
       'tests': [{'name': '/hello', 'result': 'FAIL'}],
@@ -114,7 +114,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect_result(
+  ) + api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
       task_failure=True,
   ))
@@ -124,7 +124,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect_result(
+  ) + api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
       timed_out=True,
   ))
@@ -134,7 +134,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect_result(
+  ) + api.step_data('collect', api.swarming.collect(
       output='ZIRCON KERNEL PANIC',
       outputs=['test.fs'],
       task_failure=True,
@@ -145,7 +145,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect_result(
+  ) + api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
       infra_failure=True,
   ))

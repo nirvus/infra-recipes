@@ -703,7 +703,7 @@
     "name": "collect",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae70110\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae7011\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
       "@@@STEP_LOG_LINE@json.output@      \"test.fs\"@@@",
@@ -732,8 +732,8 @@
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@39927049b6ae70110.stdout@hello world!@@@",
-      "@@@STEP_LOG_END@39927049b6ae70110.stdout@@@"
+      "@@@STEP_LOG_LINE@39927049b6ae7011.stdout@hello world!@@@",
+      "@@@STEP_LOG_END@39927049b6ae7011.stdout@@@"
     ]
   },
   {

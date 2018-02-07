@@ -93,7 +93,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect_result(
+  ) + api.step_data('collect', api.swarming.collect(
       outputs=['test.fs'],
   ))
 

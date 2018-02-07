@@ -7,9 +7,28 @@ from recipe_engine import recipe_test_api
 
 class SwarmingTestApi(recipe_test_api.RecipeTestApi):
 
-  def trigger(self, name, raw_cmd, dimensions=[], cipd_packages=[], outputs=[]):
+  def trigger(self, name, raw_cmd, task_id='397418be219814a0', dimensions={},
+              cipd_packages=[]):
+    """Generates step test data intended to mock a swarming API trigger
+    method call.
+
+    Args:
+      name (str): The name of the triggered task.
+      raw_cmd (list[str]): A list of strings representing a CLI command.
+      task_id (str): The swarming task ID of the triggered task.
+      dimensions (dict[str]str): A dict of dimension names mapping to
+        values that were requested as part of this mock swarming task request.
+      cipd_packages (list[tuple(str, str, str)]): A structure listing the CIPD
+        packages requested to be installed onto this mock swarming task that
+        was triggered. The tuple values correspond to the package, path, and
+        version of the CIPD package.
+
+    Returns:
+      Step test data in the form of JSON output intended to mock a swarming API
+      trigger method call.
+    """
     return self.m.json.output({
-      'TaskID': '397418be219814a0',
+      'TaskID': task_id,
       'ViewURL': 'https://chromium-swarm.appspot.com/user/task/39c188c09955c210',
       'Request': {
         'expiration_secs': '3600',
@@ -121,8 +140,28 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
       },
     }
 
-  def collect_result(self, task_failure=False, infra_failure=False, timed_out=False,
-                     amount=1, output=None, outputs=None):
+  def collect(self, task_ids=(), task_failure=False, infra_failure=False,
+              timed_out=False, output=None, outputs=()):
+    """Generates test step data for the swarming API collect method.
+
+    Args:
+      task_ids (seq[str]): A sequence of task IDs, which will be assigned to
+        the collect results that are returned. The length of this sequence
+        also determines the amount of collect results to return.
+      task_failure (bool): Whether or not all of the results should be task
+        failures.
+      infra_failure (bool): Whether or not all of the results should be infra
+        failures.
+      timed_out (bool): Whether or not all of the results should have timed out.
+      output (str): Mock output for the swarming task.
+      outputs (seq[str]): A sequence of mock outputs (relative paths) to attach
+        to each collect result.
+
+    Returns:
+      Step test data in the form of JSON output intended to mock a swarming API
+      collect method call. If task_ids is left unspecified, it returns a single
+      collect result with a sample task ID.
+    """
     if task_failure:
       id = '39927049b6ae7011'
     elif infra_failure:
@@ -136,7 +175,6 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
       data['output'] = output
     if outputs:
       data['outputs'] = outputs
-    return self.m.json.output({id+str(i): data for i in range(0, amount)})
-
-  def collect(self):
-    return self.m.json.output(self._collect_result_data())
+    if not task_ids:
+      task_ids = [id]
+    return self.m.json.output({id: data for id in task_ids})

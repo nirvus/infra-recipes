@@ -678,7 +678,7 @@ APIs for interacting with swarming.
 
 Return a swarming command step.
 
-&mdash; **def [collect](/recipe_modules/swarming/api.py#149)(self, timeout, requests_json=None, tasks=[]):**
+&mdash; **def [collect](/recipe_modules/swarming/api.py#148)(self, timeout, requests_json=None, tasks=[]):**
 
 Waits on a set of Swarming tasks.
 

@@ -142,8 +142,7 @@ class SwarmingApi(recipe_api.RecipeApi):
         'trigger %s' % name,
         cmd,
         step_test_data=lambda: self.test_api.trigger(name, raw_cmd,
-            dimensions=dimensions, cipd_packages=cipd_packages,
-            outputs=outputs)
+            dimensions=dimensions, cipd_packages=cipd_packages)
     )
 
   def collect(self, timeout, requests_json=None, tasks=[]):
