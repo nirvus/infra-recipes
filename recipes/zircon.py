@@ -136,7 +136,7 @@ def RunTests(api, name, build_dir, *args, **kwargs):
     raise api.step.StepFailure(failure_reason)
 
 
-def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=False):
+def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=''):
   """TriggerTestsTask triggers a task to execute Zircon tests within QEMU.
 
   Args:
@@ -147,7 +147,11 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=False):
       artifacts.
     cmdline (list[str]): A list of kernel command line arguments to pass to
       zircon.
-    blkdev (bool): Whether a block device should be declared.
+    blkdev (str): Optional relative path to an image name on the test machine.
+      If blkdev is non-empty, the triggered task will have QEMU declare an
+      additional block device with the backing image being a file located at
+      the relative path provided. The image must be on the test machine prior
+      to command execution, so it should get there either via CIPD or isolated.
 
   Returns:
     The task ID of the triggered task.
@@ -168,7 +172,7 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=False):
 
   if blkdev:
     qemu_cmd.extend([
-      '-drive', 'file=test.fs,format=raw,if=none,id=testdisk',
+      '-drive', 'file=%s,format=raw,if=none,id=testdisk' % blkdev,
       '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
     ])
 
@@ -192,7 +196,7 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=False):
         },
         io_timeout=TEST_IO_TIMEOUT_SECS,
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
-        outputs=['test.fs'] if blkdev else None,
+        outputs=[blkdev] if blkdev else None,
     ).json.output['TaskID']
 
 
@@ -360,7 +364,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       ])
       # Trigger a task that runs tests in the standard way with runtests and
       # the autorun script.
-      booted_task = TriggerTestsTask(api, 'booted tests', arch, digest, [], blkdev=True)
+      booted_task = TriggerTestsTask(api, 'booted tests', arch, digest, [], blkdev='test.fs')
 
       # Collect task results and analyze.
       FinalizeTestsTasks(api, core_task, booted_task, build_dir)

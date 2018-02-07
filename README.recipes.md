@@ -984,11 +984,11 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#236)(api, target, toolchain, src_dir, use_isolate):**
+&mdash; **def [Build](/recipes/zircon.py#240)(api, target, toolchain, src_dir, use_isolate):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#199)(api, core_task, booted_task, build_dir, timeout='20m'):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#203)(api, core_task, booted_task, build_dir, timeout='20m'):**
 
 Waits on the tasks running core tests and booted tests, then analyzes the results.
 
@@ -998,11 +998,11 @@ Args:
   build_dir (Path): A path to the directory containing build artifacts.
   timeout (str): A timeout formatted as a Golang Duration-parsable string.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#304)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#308)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
 
 &mdash; **def [RunTests](/recipes/zircon.py#98)(api, name, build_dir, \*args, \*\*kwargs):**
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#139)(api, name, arch, isolated_hash, cmdline, blkdev=False):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#139)(api, name, arch, isolated_hash, cmdline, blkdev=''):**
 
 TriggerTestsTask triggers a task to execute Zircon tests within QEMU.
 
@@ -1014,7 +1014,11 @@ Args:
     artifacts.
   cmdline (list[str]): A list of kernel command line arguments to pass to
     zircon.
-  blkdev (bool): Whether a block device should be declared.
+  blkdev (str): Optional relative path to an image name on the test machine.
+    If blkdev is non-empty, the triggered task will have QEMU declare an
+    additional block device with the backing image being a file located at
+    the relative path provided. The image must be on the test machine prior
+    to command execution, so it should get there either via CIPD or isolated.
 
 Returns:
   The task ID of the triggered task.
