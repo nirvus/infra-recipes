@@ -117,6 +117,8 @@ def main():
     '-serial', 'stdio',
     '-monitor', 'none',
   ]
+  if args.arch == 'aarch64':
+    cmd.extend(['-machine', 'virtualization=true'])
   if args.kvm and is_kvm_supported(args.arch):
     cmd.extend(['-enable-kvm', '-cpu', 'host'])
   else:
