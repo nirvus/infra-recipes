@@ -78,7 +78,6 @@ def BuildFuchsia(api, release_build, gn_target, zircon_project,
         '--target_cpu=%s' % gn_target,
         '--packages=%s' % ','.join(packages),
         '--platforms=%s' % zircon_project,
-        '--ignore-skia'
     ]
 
     if use_goma:

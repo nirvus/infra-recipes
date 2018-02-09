@@ -182,7 +182,6 @@
       "--target_cpu=x86-64",
       "--packages=garnet/packages/sdk",
       "--platforms=x86",
-      "--ignore-skia",
       "--release"
     ],
     "name": "build fuchsia x86-64.gen",
@@ -221,7 +220,6 @@
       "--target_cpu=aarch64",
       "--packages=garnet/packages/sdk",
       "--platforms=arm64",
-      "--ignore-skia",
       "--release"
     ],
     "name": "build fuchsia aarch64.gen",
