@@ -182,7 +182,9 @@
       "--target_cpu=x86-64",
       "--packages=garnet/packages/sdk",
       "--platforms=x86",
-      "--release"
+      "--release",
+      "--args",
+      "bootfs_packages=true"
     ],
     "name": "build fuchsia x86-64.gen",
     "~followup_annotations": [
@@ -220,7 +222,11 @@
       "--target_cpu=aarch64",
       "--packages=garnet/packages/sdk",
       "--platforms=arm64",
-      "--release"
+      "--release",
+      "--args",
+      "bootfs_packages=true",
+      "--args",
+      "bootfs_packages=true"
     ],
     "name": "build fuchsia aarch64.gen",
     "~followup_annotations": [

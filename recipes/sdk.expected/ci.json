@@ -235,7 +235,9 @@
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
-      "test"
+      "test",
+      "--args",
+      "bootfs_packages=true"
     ],
     "name": "build fuchsia x86-64.gen",
     "~followup_annotations": [
@@ -374,7 +376,11 @@
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
-      "test"
+      "test",
+      "--args",
+      "bootfs_packages=true",
+      "--args",
+      "bootfs_packages=true"
     ],
     "name": "build fuchsia aarch64.gen",
     "~followup_annotations": [

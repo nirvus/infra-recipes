@@ -247,7 +247,9 @@
       "--packages=garnet/packages/sdk",
       "--platforms=x86",
       "--goma=[START_DIR]/cipd/goma",
-      "--release"
+      "--release",
+      "--args",
+      "bootfs_packages=true"
     ],
     "name": "build fuchsia x86-64.gen",
     "~followup_annotations": [
@@ -384,7 +386,11 @@
       "--packages=garnet/packages/sdk",
       "--platforms=arm64",
       "--goma=[START_DIR]/cipd/goma",
-      "--release"
+      "--release",
+      "--args",
+      "bootfs_packages=true",
+      "--args",
+      "bootfs_packages=true"
     ],
     "name": "build fuchsia aarch64.gen",
     "~followup_annotations": [

@@ -86,6 +86,7 @@ def BuildFuchsia(api, release_build, gn_target, zircon_project,
     if release_build:
       gen_cmd.append('--release')
 
+    gn_args.append('bootfs_packages=true')
     for arg in gn_args:
       gen_cmd.append('--args')
       gen_cmd.append(arg)
