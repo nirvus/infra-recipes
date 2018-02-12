@@ -26,16 +26,24 @@ class GoApi(recipe_api.RecipeApi):
       go_cmd = [self.go_executable]
       return self.m.step(name, go_cmd + list(args or []), **kwargs)
 
-  def ensure_go(self, version=None):
+  # Ensures Go is installed.
+  #
+  # If use_deprecated is True, Fuchsia's pinned Go (v1.8) is used and version
+  # is ignored.
+  def ensure_go(self, use_deprecated=False, version=None):
     """Ensures that go distribution is installed."""
     with self.m.step.nest('ensure_go'):
       with self.m.context(infra_steps=True):
-        go_package = ('fuchsia/go/%s' %
-            self.m.cipd.platform_suffix())
-        self._go_dir = self.m.path['start_dir'].join('cipd', 'go')
+        package = 'infra/go'
+        version = version or 'version:1.9.4'
+        if use_deprecated:
+          package = 'fuchsia/go'
+          version = 'release'
 
-        self.m.cipd.ensure(self._go_dir,
-                           {go_package: version or 'release'})
+        go_package = ('%s/%s' %
+            (package, self.m.cipd.platform_suffix()))
+        self._go_dir = self.m.path['start_dir'].join('cipd', 'go')
+        self.m.cipd.ensure(self._go_dir, {go_package: version})
 
         return self._go_dir
 

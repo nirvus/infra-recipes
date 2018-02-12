@@ -81,7 +81,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target):
   api.jiri.ensure_jiri()
-  api.go.ensure_go()
+  api.go.ensure_go(use_deprecated=True)
 
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,

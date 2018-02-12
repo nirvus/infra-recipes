@@ -166,7 +166,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              use_goma, gn_args):
   api.jiri.ensure_jiri()
-  api.go.ensure_go()
+  api.go.ensure_go(use_deprecated=True)
   api.gsutil.ensure_gsutil()
   if use_goma:
     api.goma.ensure_goma()
