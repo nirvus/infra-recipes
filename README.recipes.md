@@ -35,7 +35,7 @@
   * [git:examples/full](#recipes-git_examples_full)
   * [gitiles:examples/full](#recipes-gitiles_examples_full)
   * [go:examples/full](#recipes-go_examples_full)
-  * [go_tool](#recipes-go_tool) &mdash; Recipe for building and publishing Go tools  This recipe assumes that Jiri places the tool-to-build under the local path:    go/src/$tool_root  This can be controlled with the <project> tag in a manifest file like so:    <project name="foo_project"            path="go/src/$tool_root"            .
+  * [go_tool](#recipes-go_tool) &mdash; Recipe for building and publishing infra tools.
   * [go_toolchain](#recipes-go_toolchain) &mdash; Recipe for building Go toolchain.
   * [goma:examples/full](#recipes-goma_examples_full)
   * [gsutil:examples/full](#recipes-gsutil_examples_full)
@@ -821,25 +821,29 @@ Recipe for rolling Fuchsia layers into upper layers.
 &mdash; **def [RunSteps](/recipe_modules/go/examples/full.py#15)(api):**
 ### *recipes* / [go\_tool](/recipes/go_tool.py)
 
-[DEPS](/recipes/go_tool.py#20): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/go_tool.py#20): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
 
-Recipe for building and publishing Go tools
+Recipe for building and publishing infra tools.
 
-This recipe assumes that Jiri places the tool-to-build under the local path:
+This recipe builds one or more Go binaries in the specified project and
+publishes them all to CIPD.  If one or more tests for any package in the
+project fail, or one or more packages fail to build, execution stops and no
+packages are uploaded.
 
-  go/src/$tool_root
+This recipe uses golang/dep to manage dependencies, so the given project is
+expected to have a Gopkg.toml file specifying its dependency restrictions.
 
-This can be controlled with the <project> tag in a manifest file like so:
+&mdash; **def [RunSteps](/recipes/go_tool.py#107)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 
-  <project name="foo_project"
-           path="go/src/$tool_root"
-           ... />
+&mdash; **def [UploadPackage](/recipes/go_tool.py#72)(api, bin_name, bin_dir, revision, remote):**
 
-&mdash; **def [RunSteps](/recipes/go_tool.py#103)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, build_path, test_path, tool_root, package_path):**
+Creates and uploads a CIPD package containing the tool at bin_dir/bin_name.
 
-&mdash; **def [UploadPackage](/recipes/go_tool.py#74)(api, revision, project, remote, package_path, staging_dir):**
+The tool is published to CIPD under the path 'fuchsia/infra/$bin_name/$platform'
 
-Creates and uploads a CIPD package from everything in staging_dir.
+Args:
+  bin_dir: The absolute path to the parent directory of bin_name.
+  bin_name: The name of the tool binary
 ### *recipes* / [go\_toolchain](/recipes/go_toolchain.py)
 
 [DEPS](/recipes/go_toolchain.py#11): [cipd](#recipe_modules-cipd), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]

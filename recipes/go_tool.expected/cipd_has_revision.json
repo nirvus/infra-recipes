@@ -81,8 +81,8 @@
       "-v",
       "-time",
       "-name",
-      "infra",
-      "manifest",
+      "infra/infra",
+      "infra/infra",
       "https://fuchsia.googlesource.com/infra/infra"
     ],
     "infra_step": true,
@@ -135,35 +135,6 @@
     ]
   },
   {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-v",
-      "-time",
-      "-json-output",
-      "/path/to/tmp/json",
-      "infra"
-    ],
-    "infra_step": true,
-    "name": "jiri project",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"infra\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/infra\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/infra\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "ensure_packages"
   },
@@ -195,10 +166,41 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/dep",
-      "ensure"
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "-v",
+      "-time",
+      "-json-output",
+      "/path/to/tmp/json",
+      "infra/infra"
     ],
-    "cwd": "[START_DIR]/go/src/fuchsia.googlesource.com/catapult",
+    "env": {
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "jiri project",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"infra/infra\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/infra/infra\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/infra/infra\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/dep",
+      "ensure",
+      "-v"
+    ],
+    "cwd": "[START_DIR]/path/to/infra/infra",
     "env": {
       "GOPATH": "[START_DIR]/go"
     },
@@ -207,28 +209,28 @@
   {
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
-      "build",
-      "fuchsia.googlesource.com/catapult/cmd/catapult"
-    ],
-    "cwd": "[TMP_BASE]/infra_tmp_1",
-    "env": {
-      "GOPATH": "[START_DIR]/go",
-      "GOROOT": "[START_DIR]/cipd/go"
-    },
-    "name": "go build"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/go/bin/go",
       "test",
-      "fuchsia.googlesource.com/catapult/..."
+      "fuchsia.googlesource.com/infra/infra/..."
     ],
-    "cwd": "[TMP_BASE]/infra_tmp_1",
     "env": {
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
     "name": "go test"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-o",
+      "[TMP_BASE]/infra_tmp_1/catapult",
+      "fuchsia.googlesource.com/infra/infra/cmd/catapult"
+    ],
+    "env": {
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "go build"
   },
   {
     "cmd": [
@@ -242,6 +244,9 @@
       "-service-account-json",
       "/creds/service_accounts/service-account-cipd-builder.json"
     ],
+    "env": {
+      "GOPATH": "[START_DIR]/go"
+    },
     "name": "cipd search fuchsia/infra/catapult/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -254,6 +259,9 @@
   },
   {
     "cmd": [],
+    "env": {
+      "GOPATH": "[START_DIR]/go"
+    },
     "name": "Package is up-to-date"
   },
   {
