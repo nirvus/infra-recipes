@@ -105,24 +105,25 @@ class FuchsiaApi(recipe_api.RecipeApi):
       patch_project (str): The name of Gerrit project
       upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
     """
-    self.m.jiri.ensure_jiri()
-    self.m.jiri.checkout(
-        manifest,
-        remote,
-        project,
-        patch_ref,
-        patch_gerrit_url,
-        patch_project,
-    )
-    if patch_ref:
-      self.m.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
-    if upload_snapshot:
-      self.m.gsutil.ensure_gsutil()
-      snapshot_file = self.m.path['tmp_base'].join('jiri.snapshot')
-      self.m.jiri.snapshot(snapshot_file)
-      digest = self.m.hash.sha1('hash snapshot', snapshot_file,
-                                test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
-      self.m.gsutil.upload('fuchsia-snapshots', snapshot_file, digest,
+    with self.m.context(infra_steps=True):
+      self.m.jiri.ensure_jiri()
+      self.m.jiri.checkout(
+          manifest,
+          remote,
+          project,
+          patch_ref,
+          patch_gerrit_url,
+          patch_project,
+      )
+      if patch_ref:
+        self.m.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
+      if upload_snapshot:
+        self.m.gsutil.ensure_gsutil()
+        snapshot_file = self.m.path['tmp_base'].join('jiri.snapshot')
+        self.m.jiri.snapshot(snapshot_file)
+        digest = self.m.hash.sha1('hash snapshot', snapshot_file,
+                                  test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
+        self.m.gsutil.upload('fuchsia-snapshots', snapshot_file, digest,
           link_name='jiri.snapshot',
           name='upload jiri.snapshot',
           unauthenticated_url=True)

@@ -198,7 +198,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#393)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#394)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -212,7 +212,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#435)(self, step_name, minfs_image_path, build_dir, output):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#436)(self, step_name, minfs_image_path, build_dir, output):**
 
 Analyzes a MinFS image filled with task results, whose path is derived from a
 CollectResult.
@@ -227,7 +227,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#222)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#223)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -262,7 +262,7 @@ Args:
   patch_project (str): The name of Gerrit project
   upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#310)(self, build):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#311)(self, build):**
 
 Tests a Fuchsia build.
 

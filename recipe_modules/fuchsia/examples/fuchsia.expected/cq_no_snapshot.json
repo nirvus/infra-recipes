@@ -1,6 +1,7 @@
 [
   {
     "cmd": [],
+    "infra_step": true,
     "name": "ensure_jiri"
   },
   {
@@ -41,6 +42,7 @@
       "[CACHE]/git",
       "-shared"
     ],
+    "infra_step": true,
     "name": "jiri init"
   },
   {
@@ -52,6 +54,7 @@
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
+    "infra_step": true,
     "name": "jiri import"
   },
   {
@@ -63,6 +66,7 @@
       "-autoupdate=false",
       "-run-hooks=false"
     ],
+    "infra_step": true,
     "name": "jiri update"
   },
   {
@@ -78,6 +82,7 @@
       "-rebase=true",
       "refs/changes/23/123/12"
     ],
+    "infra_step": true,
     "name": "jiri patch"
   },
   {
@@ -87,6 +92,7 @@
       "-v",
       "-time"
     ],
+    "infra_step": true,
     "name": "jiri run-hooks"
   },
   {
@@ -97,6 +103,7 @@
       "-time",
       "/path/to/tmp/json"
     ],
+    "infra_step": true,
     "name": "jiri source-manifest",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
@@ -123,6 +130,7 @@
       "-rebase-tracked",
       "-local-manifest=true"
     ],
+    "infra_step": true,
     "name": "jiri update (2)"
   },
   {
