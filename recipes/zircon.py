@@ -255,7 +255,7 @@ def Build(api, target, toolchain, src_dir, use_isolate):
     autorun = [
       'msleep 1000',
       'mkdir /test',
-      'mount /dev/sys/pci/00:%s/virtio-block/block' % TEST_FS_PCI_ADDR,
+      'mount /dev/sys/pci/00:%s/virtio-block/block /test' % TEST_FS_PCI_ADDR,
       'runtests -o /test',
       'umount /test',
       'dm poweroff',

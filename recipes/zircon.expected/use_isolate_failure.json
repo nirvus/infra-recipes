@@ -161,7 +161,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "msleep 1000\nmkdir /test\nmount /dev/sys/pci/00:06.0/virtio-block/block\nruntests -o /test\numount /test\ndm poweroff",
+      "msleep 1000\nmkdir /test\nmount /dev/sys/pci/00:06.0/virtio-block/block /test\nruntests -o /test\numount /test\ndm poweroff",
       "[TMP_BASE]/zircon_tmp/autorun"
     ],
     "infra_step": true,
@@ -169,7 +169,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@autorun.sh@msleep 1000@@@",
       "@@@STEP_LOG_LINE@autorun.sh@mkdir /test@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@mount /dev/sys/pci/00:06.0/virtio-block/block@@@",
+      "@@@STEP_LOG_LINE@autorun.sh@mount /dev/sys/pci/00:06.0/virtio-block/block /test@@@",
       "@@@STEP_LOG_LINE@autorun.sh@runtests -o /test@@@",
       "@@@STEP_LOG_LINE@autorun.sh@umount /test@@@",
       "@@@STEP_LOG_LINE@autorun.sh@dm poweroff@@@",
