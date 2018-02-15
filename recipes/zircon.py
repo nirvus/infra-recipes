@@ -59,6 +59,10 @@ ZIRCON_IMAGE_NAME = 'zircon.bin'
 # The boot filesystem image.
 BOOTFS_IMAGE_NAME = 'bootdata.bin'
 
+# The path under /boot to the runcmds script (which runs tests) in the zircon
+# bootfs.
+RUNCMDS_BOOTFS_PATH = 'infra/runcmds'
+
 # The PCI address to use for the block device to contain test results. This value
 # is somewhat arbitrary, but it works very consistently and appears to be a safe
 # PCI address value to use within QEMU.
@@ -239,24 +243,25 @@ def FinalizeTestsTasks(api, core_task, booted_task, build_dir, timeout='20m'):
 
 def Build(api, target, toolchain, src_dir, use_isolate):
   """Builds zircon and returns a path to the build output directory."""
-  # Generate autorun script to drive tests.
+  # Generate runcmds script to drive tests.
   tmp_dir = api.path['tmp_base'].join('zircon_tmp')
   api.file.ensure_directory('makedirs tmp', tmp_dir)
-  autorun_path = tmp_dir.join('autorun')
+  runcmds_path = tmp_dir.join('runcmds')
   if use_isolate:
     # In the use_isolate case, we need to mount a block device to write test
-    # results and test output to. Thus, the autorun script must:
-    # 1. Wait for devmgr to spin up.
-    # 2. Make a test directory.
-    # 3. Mount the block device to that test directory (the block device
-    #    will always exist at PCI address TEST_FS_PCI_ADDR).
-    # 4. Execute runtests with -o.
-    # 5. Unmount and poweroff.
-    autorun = [
+    # results and test output to. Thus, the runcmds script must:
+    runcmds = [
+      '#!/boot/bin/sh',
+      # 1. Wait for devmgr to spin up.
       'msleep 1000',
+      # 2. Make a test directory.
       'mkdir /test',
+      # 3. Mount the block device to that test directory (the block device
+      #    will always exist at PCI address TEST_FS_PCI_ADDR).
       'mount /dev/sys/pci/00:%s/virtio-block/block /test' % TEST_FS_PCI_ADDR,
+      # 4. Execute runtests with -o.
       'runtests -o /test',
+      # 5. Unmount and poweroff.
       'umount /test',
       'dm poweroff',
     ]
@@ -264,9 +269,9 @@ def Build(api, target, toolchain, src_dir, use_isolate):
     # Script to wait for devmgr to spin up and execute runtests. runtests doesn't
     # need any additional arguments because it executes tests in five /boot
     # directories by default, representing the entire test suite.
-    autorun = ['msleep 500', 'runtests']
-  api.file.write_text('write autorun', autorun_path, '\n'.join(autorun))
-  api.step.active_result.presentation.logs['autorun.sh'] = autorun
+    runcmds = ['#!/boot/bin/sh', 'msleep 500', 'runtests']
+  api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
+  api.step.active_result.presentation.logs['runcmds.sh'] = runcmds
 
   with api.step.nest('build'):
     # Set up toolchain and build args.
@@ -296,9 +301,20 @@ def Build(api, target, toolchain, src_dir, use_isolate):
       build_args.append('THINLTO_CACHE_DIR=' +
                         str(api.path['cache'].join('thinlto')))
 
+    # Declares a runcmds as a dependency for the build image, so it will get
+    # copied into the image at RUNCMDS_BOOTFS_PATH.
+    #
+    # The bootfs manifest is a list of mappings between bootfs paths and local
+    # file paths. The syntax is roughly:
+    # install/path/under/boot=path/to/file/or/dir.
+    runcmds_manifest = '%s=%s' % (RUNCMDS_BOOTFS_PATH, runcmds_path)
+
     # Build zircon.
     with goma_context():
-      with api.context(cwd=src_dir, env={'USER_AUTORUN': autorun_path}):
+      # Set EXTRA_USER_MANIFEST_LINES, which adds runcmds_manifest to the bootfs
+      # manifest, ultimately propagating runcmds into the image.
+      env = {'EXTRA_USER_MANIFEST_LINES': runcmds_manifest}
+      with api.context(cwd=src_dir, env=env):
         api.step('build', build_args)
 
   # Return the location of the build artifacts.
@@ -323,6 +339,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   build_dir = Build(api, target, toolchain, src_dir, use_isolate)
 
   if run_tests:
+    autorun_arg = 'zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH
     api.qemu.ensure_qemu()
     if use_isolate:
       api.swarming.ensure_swarming(version='latest')
@@ -339,7 +356,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     if use_isolate:
       # Generate a MinFS image which will hold test results. This will later be
       # declared as a block device to QEMU and will then be mounted by the
-      # autorun script. The size of the MinFS should be large enough to
+      # runcmds script. The size of the MinFS should be large enough to
       # accomodate all test results and test output. The current size is picked
       # to be able to safely hold test results for quite some time (currently
       # the space used is on the order of tens of kilobytes). Having a
@@ -353,7 +370,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       isolated.add_file(test_image, wd=api.path['start_dir'])
       isolated.add_file(image_path, wd=build_dir)
       isolated.add_file(bootfs_path, wd=build_dir)
-      digest = isolated.archive('isolate %s and %s' % (ZIRCON_IMAGE_NAME, BOOTFS_IMAGE_NAME))
+      digest = isolated.archive('isolate zircon artifacts')
 
       # Trigger a task that runs the core tests in place of userspace at boot.
       core_task = TriggerTestsTask(api, 'core tests', arch, digest, [
@@ -361,8 +378,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'userboot.shutdown', # shuts down zircon after the userboot process exits.
       ])
       # Trigger a task that runs tests in the standard way with runtests and
-      # the autorun script.
-      booted_task = TriggerTestsTask(api, 'booted tests', arch, digest, [], blkdev='test.fs')
+      # the runcmds script.
+      booted_task = TriggerTestsTask(api, 'booted tests', arch, digest, [autorun_arg],
+                                     blkdev='test.fs')
 
       # Collect task results and analyze.
       FinalizeTestsTasks(api, core_task, booted_task, build_dir)
@@ -375,8 +393,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
       # Boot and run tests.
       RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=True,
-          initrd=bootfs_path, shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200,
-          step_test_data=lambda:
+          initrd=bootfs_path, cmdline=autorun_arg,
+          shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200, step_test_data=lambda:
               api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 
 

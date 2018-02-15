@@ -191,15 +191,16 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "msleep 500\nruntests",
-      "[TMP_BASE]/zircon_tmp/autorun"
+      "#!/boot/bin/sh\nmsleep 500\nruntests",
+      "[TMP_BASE]/zircon_tmp/runcmds"
     ],
     "infra_step": true,
-    "name": "write autorun",
+    "name": "write runcmds",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@autorun.sh@msleep 500@@@",
-      "@@@STEP_LOG_LINE@autorun.sh@runtests@@@",
-      "@@@STEP_LOG_END@autorun.sh@@@"
+      "@@@STEP_LOG_LINE@runcmds.sh@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@msleep 500@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@runtests@@@",
+      "@@@STEP_LOG_END@runcmds.sh@@@"
     ]
   },
   {
@@ -264,7 +265,7 @@
     ],
     "cwd": "[START_DIR]/zircon",
     "env": {
-      "USER_AUTORUN": "[TMP_BASE]/zircon_tmp/autorun"
+      "EXTRA_USER_MANIFEST_LINES": "infra/runcmds=[TMP_BASE]/zircon_tmp/runcmds"
     },
     "name": "build.build",
     "~followup_annotations": [
@@ -397,6 +398,8 @@
       "x86_64",
       "--initrd",
       "[START_DIR]/zircon/build-x86-clang/bootdata.bin",
+      "--cmdline",
+      "zircon.autorun.boot=/boot/infra/runcmds",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
       "[START_DIR]/zircon/build-x86-clang/zircon.bin"

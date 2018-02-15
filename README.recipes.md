@@ -984,11 +984,11 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#240)(api, target, toolchain, src_dir, use_isolate):**
+&mdash; **def [Build](/recipes/zircon.py#244)(api, target, toolchain, src_dir, use_isolate):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#203)(api, core_task, booted_task, build_dir, timeout='20m'):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#207)(api, core_task, booted_task, build_dir, timeout='20m'):**
 
 Waits on the tasks running core tests and booted tests, then analyzes the results.
 
@@ -998,11 +998,11 @@ Args:
   build_dir (Path): A path to the directory containing build artifacts.
   timeout (str): A timeout formatted as a Golang Duration-parsable string.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#308)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#324)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#98)(api, name, build_dir, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/zircon.py#102)(api, name, build_dir, \*args, \*\*kwargs):**
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#139)(api, name, arch, isolated_hash, cmdline, blkdev=''):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#143)(api, name, arch, isolated_hash, cmdline, blkdev=''):**
 
 TriggerTestsTask triggers a task to execute Zircon tests within QEMU.
 
@@ -1023,7 +1023,7 @@ Args:
 Returns:
   The task ID of the triggered task.
 
-&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#93)():**
+&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#97)():**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0a35d1c979628a0c8f5f3cf233ea727c7ee2ef5/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0a35d1c979628a0c8f5f3cf233ea727c7ee2ef5/README.recipes.md#recipe_modules-file
