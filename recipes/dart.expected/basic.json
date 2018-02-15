@@ -676,6 +676,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"tests\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"name\": \"/hello\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"output_file\": \"hello.out\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"result\": \"PASS\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",

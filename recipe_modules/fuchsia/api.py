@@ -522,7 +522,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
             'read summary',
             test_results_dir.join('summary.json'),
             step_test_data=lambda: self.m.json.test_api.output({
-                'tests': [{'name': '/hello', 'result': 'PASS'}],
+                'tests': [{
+                  'name': '/hello',
+                  'output_file': 'hello.out',
+                  'result': 'PASS',
+                }],
             }),
         ).json.output
 
@@ -531,10 +535,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       for test in test_summary['tests']:
         name = test['name']
         step_result = self.m.step(name, None)
-        # TODO(mknyszek): make output_name more consistently map to name.
-        output_name = name + '.out'
-        assert output_name.startswith('/')
-        output_name = output_name[1:]
+        output_name = test['output_file']
         step_result.presentation.logs['stdio'] = test_output[output_name].split('\n')
         if test['result'] != 'PASS':
           step_result.presentation.status = self.m.step.FAILURE
