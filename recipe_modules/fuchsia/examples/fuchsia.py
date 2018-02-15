@@ -86,7 +86,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
   ))
   yield api.test('isolated_tests_arm64') + api.properties(
       manifest='fuchsia',
@@ -95,7 +95,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
   ))
   yield api.test('isolated_tests_test_failure') + api.properties(
       manifest='fuchsia',
@@ -104,7 +104,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
   )) + api.step_data('test results.read summary', api.json.output({
       'tests': [{'name': '/hello', 'result': 'FAIL'}],
   })) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
@@ -115,7 +115,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
       task_failure=True,
   ))
   yield api.test('isolated_tests_task_timed_out') + api.properties(
@@ -125,7 +125,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
       timed_out=True,
   ))
   yield api.test('isolated_tests_kernel_panic') + api.properties(
@@ -136,7 +136,7 @@ def GenTests(api):
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
       output='ZIRCON KERNEL PANIC',
-      outputs=['test.fs'],
+      outputs=['output.fs'],
       task_failure=True,
   ))
   yield api.test('isolated_tests_infra_failure') + api.properties(
@@ -146,7 +146,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
       infra_failure=True,
   ))
 

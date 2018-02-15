@@ -64,7 +64,7 @@ def GenTests(api):
   # Test with all the defaults.
   yield (api.test('basic') +
       api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
     ))
   )
 
@@ -72,7 +72,7 @@ def GenTests(api):
   yield (api.test('release') +
     api.properties(build_type='release') +
     api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
     ))
   )
 

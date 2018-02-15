@@ -94,7 +94,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
-      outputs=['test.fs'],
+      outputs=['output.fs'],
   ))
 
   # Test cases for skipping Fuchsia tests.

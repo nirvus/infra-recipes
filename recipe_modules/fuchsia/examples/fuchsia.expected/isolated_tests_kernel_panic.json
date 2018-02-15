@@ -411,6 +411,60 @@
   },
   {
     "cmd": [],
+    "name": "ensure_swarming"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/luci/swarming",
+      "-ensure-file",
+      "infra/tools/luci/swarming/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-goma-client.json"
+    ],
+    "infra_step": true,
+    "name": "ensure_swarming.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/swarming/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blobstore-x86.bin -enable-kvm -cpu host -append \"zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true\" -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=input.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
+      "[START_DIR]/run-qemu.sh"
+    ],
+    "infra_step": true,
+    "name": "write qemu runner"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[START_DIR]/input.fs@32M",
+      "create"
+    ],
+    "name": "create test image"
+  },
+  {
+    "cmd": [],
     "name": "ensure_isolated"
   },
   {
@@ -440,14 +494,6 @@
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/out/build-zircon/tools/minfs",
-      "[START_DIR]/test.fs@32M",
-      "create"
-    ],
-    "name": "create test image"
   },
   {
     "cmd": [],
@@ -509,45 +555,15 @@
       "-files",
       "[START_DIR]/out/build-zircon/build-x86:zircon.bin",
       "-files",
-      "[START_DIR]:test.fs",
-      "-files",
       "[START_DIR]/out/debug-x86-64/images:fvm.blk",
       "-files",
-      "[START_DIR]/out/debug-x86-64/images:fuchsia.qcow2"
+      "[START_DIR]/out/debug-x86-64/images:fuchsia.qcow2",
+      "-files",
+      "[START_DIR]:input.fs",
+      "-files",
+      "[START_DIR]:run-qemu.sh"
     ],
     "name": "archive"
-  },
-  {
-    "cmd": [],
-    "name": "ensure_swarming"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/luci/swarming",
-      "-ensure-file",
-      "infra/tools/luci/swarming/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
-    ],
-    "infra_step": true,
-    "name": "ensure_swarming.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/swarming/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
   },
   {
     "cmd": [
@@ -578,38 +594,11 @@
       "-cipd-package",
       "qemu:fuchsia/qemu/linux-amd64=latest",
       "-output",
-      "test.fs",
+      "output.fs",
       "-raw-cmd",
       "--",
-      "./qemu/bin/qemu-system-x86_64",
-      "-m",
-      "4096",
-      "-smp",
-      "4",
-      "-nographic",
-      "-machine",
-      "q35",
-      "-kernel",
-      "zircon.bin",
-      "-serial",
-      "stdio",
-      "-monitor",
-      "none",
-      "-initrd",
-      "bootdata-blobstore-x86.bin",
-      "-enable-kvm",
-      "-cpu",
-      "host",
-      "-append",
-      "zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true",
-      "-drive",
-      "file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk",
-      "-device",
-      "virtio-blk-pci,drive=maindisk",
-      "-drive",
-      "file=test.fs,format=raw,if=none,id=testdisk",
-      "-device",
-      "virtio-blk-pci,drive=testdisk,addr=06.0"
+      "/bin/sh",
+      "run-qemu.sh"
     ],
     "infra_step": true,
     "name": "trigger all tests",
@@ -630,35 +619,8 @@
       "@@@STEP_LOG_LINE@json.output@        ]@@@",
       "@@@STEP_LOG_LINE@json.output@      }, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"command\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"./qemu/bin/qemu-system-x86_64\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-m\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"4096\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-smp\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"4\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-nographic\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-machine\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"q35\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-kernel\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"zircon.bin\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-serial\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"stdio\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-monitor\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"none\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-initrd\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"bootdata-blobstore-x86.bin\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-enable-kvm\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-cpu\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"host\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-append\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-drive\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-device\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"virtio-blk-pci,drive=maindisk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-drive\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"file=test.fs,format=raw,if=none,id=testdisk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-device\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"virtio-blk-pci,drive=testdisk,addr=06.0\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"/bin/sh\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"run-qemu.sh\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
       "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
@@ -705,7 +667,7 @@
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
-      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"./qemu/bin/qemu-system-x86_64\", \"-m\", \"4096\", \"-smp\", \"4\", \"-nographic\", \"-machine\", \"q35\", \"-kernel\", \"zircon.bin\", \"-serial\", \"stdio\", \"-monitor\", \"none\", \"-initrd\", \"bootdata-blobstore-x86.bin\", \"-enable-kvm\", \"-cpu\", \"host\", \"-append\", \"zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true\", \"-drive\", \"file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk\", \"-device\", \"virtio-blk-pci,drive=maindisk\", \"-drive\", \"file=test.fs,format=raw,if=none,id=testdisk\", \"-device\", \"virtio-blk-pci,drive=testdisk,addr=06.0\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
+      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"/bin/sh\", \"run-qemu.sh\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
     ],
     "infra_step": true,
     "name": "collect",
@@ -714,7 +676,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae7011\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"output\": \"ZIRCON KERNEL PANIC\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"test.fs\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
