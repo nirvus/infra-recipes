@@ -980,17 +980,18 @@ Recipe for building WebView.
 &mdash; **def [RunSteps](/recipes/web_view.py#38)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
-[DEPS](/recipes/zircon.py#14): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/zircon.py#15): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#244)(api, target, toolchain, src_dir, use_isolate):**
+&mdash; **def [Build](/recipes/zircon.py#266)(api, target, toolchain, src_dir, use_isolate):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#207)(api, core_task, booted_task, build_dir, timeout='20m'):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#227)(api, core_task, booted_task, booted_task_output_image, build_dir, timeout='20m'):**
 
-Waits on the tasks running core tests and booted tests, then analyzes the results.
+Waits on the tasks running core tests and booted tests, then analyzes the
+results.
 
 Args:
   core_task (str): The swarming task ID of the task running core tests.
@@ -998,20 +999,12 @@ Args:
   build_dir (Path): A path to the directory containing build artifacts.
   timeout (str): A timeout formatted as a Golang Duration-parsable string.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#324)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
+&mdash; **def [GenerateQEMUCommand](/recipes/zircon.py#144)(arch, cmdline, blkdev=''):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#102)(api, name, build_dir, \*args, \*\*kwargs):**
-
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#143)(api, name, arch, isolated_hash, cmdline, blkdev=''):**
-
-TriggerTestsTask triggers a task to execute Zircon tests within QEMU.
+GenerateQEMUCommand generates a QEMU command for executing Zircon tests.
 
 Args:
-  api: Recipe engine API object.
-  name (str): Name of the task.
   arch (str): The target architecture to execute tests for.
-  isolated_hash (str): A digest of the isolated containing the build
-    artifacts.
   cmdline (list[str]): A list of kernel command line arguments to pass to
     zircon.
   blkdev (str): Optional relative path to an image name on the test machine.
@@ -1021,9 +1014,35 @@ Args:
     to command execution, so it should get there either via CIPD or isolated.
 
 Returns:
+  A list[str] representing QEMU command which invokes QEMU from the default
+  CIPD installation directory.
+
+&mdash; **def [RunSteps](/recipes/zircon.py#346)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
+
+&mdash; **def [RunTests](/recipes/zircon.py#103)(api, name, build_dir, \*args, \*\*kwargs):**
+
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#184)(api, name, cmd, arch, isolated_hash, output=''):**
+
+TriggerTestsTask triggers a task to execute a command on a remote machine.
+
+The remote machine is guaranteed to have QEMU installed
+
+Args:
+  api: Recipe engine API object.
+  name (str): Name of the task.
+  cmd (seq[str]): The command to execute with each argument as a separate
+    list entry.
+  arch (str): The target architecture to execute tests for.
+  isolated_hash (str): A digest of the isolated containing the build
+    artifacts.
+  output (str): Optional relative path to an output file on the target
+    machine which will be isolated and returned back to the machine
+    executing this recipe.
+
+Returns:
   The task ID of the triggered task.
 
-&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#97)():**
+&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#98)():**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0a35d1c979628a0c8f5f3cf233ea727c7ee2ef5/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0a35d1c979628a0c8f5f3cf233ea727c7ee2ef5/README.recipes.md#recipe_modules-file

@@ -5,6 +5,7 @@
 """Recipe for building Zircon."""
 
 import contextlib
+import pipes
 import re
 
 from recipe_engine.config import Enum
@@ -140,15 +141,11 @@ def RunTests(api, name, build_dir, *args, **kwargs):
     raise api.step.StepFailure(failure_reason)
 
 
-def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=''):
-  """TriggerTestsTask triggers a task to execute Zircon tests within QEMU.
+def GenerateQEMUCommand(arch, cmdline, blkdev=''):
+  """GenerateQEMUCommand generates a QEMU command for executing Zircon tests.
 
   Args:
-    api: Recipe engine API object.
-    name (str): Name of the task.
     arch (str): The target architecture to execute tests for.
-    isolated_hash (str): A digest of the isolated containing the build
-      artifacts.
     cmdline (list[str]): A list of kernel command line arguments to pass to
       zircon.
     blkdev (str): Optional relative path to an image name on the test machine.
@@ -158,7 +155,8 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=''):
       to command execution, so it should get there either via CIPD or isolated.
 
   Returns:
-    The task ID of the triggered task.
+    A list[str] representing QEMU command which invokes QEMU from the default
+    CIPD installation directory.
   """
   qemu_cmd = [
     './qemu/bin/qemu-system-' + arch, # Dropped in by CIPD.
@@ -180,6 +178,29 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=''):
       '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
     ])
 
+  return qemu_cmd
+
+
+def TriggerTestsTask(api, name, cmd, arch, isolated_hash, output=''):
+  """TriggerTestsTask triggers a task to execute a command on a remote machine.
+
+  The remote machine is guaranteed to have QEMU installed
+
+  Args:
+    api: Recipe engine API object.
+    name (str): Name of the task.
+    cmd (seq[str]): The command to execute with each argument as a separate
+      list entry.
+    arch (str): The target architecture to execute tests for.
+    isolated_hash (str): A digest of the isolated containing the build
+      artifacts.
+    output (str): Optional relative path to an output file on the target
+      machine which will be isolated and returned back to the machine
+      executing this recipe.
+
+  Returns:
+    The task ID of the triggered task.
+  """
   qemu_cipd_arch = {
     'aarch64': 'arm64',
     'x86_64': 'amd64',
@@ -189,9 +210,8 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=''):
     # Trigger task.
     return api.swarming.trigger(
         name,
-        qemu_cmd,
+        cmd,
         isolated=isolated_hash,
-        dump_json=api.path.join(api.path['tmp_base'], 'qemu_test_results.json'),
         dimensions={
           'pool': 'fuchsia.tests',
           'os':   'Debian',
@@ -200,12 +220,14 @@ def TriggerTestsTask(api, name, arch, isolated_hash, cmdline, blkdev=''):
         },
         io_timeout=TEST_IO_TIMEOUT_SECS,
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
-        outputs=[blkdev] if blkdev else None,
+        outputs=[output] if output else None,
     ).json.output['TaskID']
 
 
-def FinalizeTestsTasks(api, core_task, booted_task, build_dir, timeout='20m'):
-  """Waits on the tasks running core tests and booted tests, then analyzes the results.
+def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
+                       build_dir, timeout='20m'):
+  """Waits on the tasks running core tests and booted tests, then analyzes the
+  results.
 
   Args:
     core_task (str): The swarming task ID of the task running core tests.
@@ -235,7 +257,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, build_dir, timeout='20m'):
   )
   api.fuchsia.analyze_test_results(
       'booted test results',
-      booted_result['test.fs'],
+      booted_result[booted_task_output_image],
       build_dir,
       booted_result.output,
   )
@@ -340,6 +362,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   if run_tests:
     autorun_arg = 'zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH
+    core_tests_userboot_arg = 'userboot=bin/core-tests'
     api.qemu.ensure_qemu()
     if use_isolate:
       api.swarming.ensure_swarming(version='latest')
@@ -354,6 +377,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
     arch = TARGET_TO_ARCH[target]
     if use_isolate:
+      # As part of running tests, we'll send a MinFS image over to another machine
+      # which will be declared as a block device in QEMU, at which point
+      # Zircon will mount it and write test output to. input_image_name refers to
+      # the name of the image as its created by this recipe, and sent off to the
+      # test machine. output_image_name refers to the name of the image as its
+      # returned back from the other machine.
+      input_image_name = 'input.fs'
+      output_image_name = 'output.fs'
+
       # Generate a MinFS image which will hold test results. This will later be
       # declared as a block device to QEMU and will then be mounted by the
       # runcmds script. The size of the MinFS should be large enough to
@@ -362,32 +394,74 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       # the space used is on the order of tens of kilobytes). Having a
       # larger-image-than-necessary isn't a big deal for isolate, which
       # compresses the image before uploading.
-      test_image = api.path['start_dir'].join('test.fs')
+      test_image = api.path['start_dir'].join(input_image_name)
       api.minfs.create(test_image, '32M', name='create test image')
+
+      # Generate the QEMU commands.
+      core_tests_qemu_cmd = GenerateQEMUCommand(arch=arch, cmdline=[
+        core_tests_userboot_arg,
+        'userboot.shutdown', # shuts down zircon after the userboot process exits.
+      ])
+      booted_tests_qemu_cmd = GenerateQEMUCommand(
+          arch=arch,
+          cmdline=[autorun_arg],
+          blkdev=output_image_name,
+      )
+
+      # Create a qemu runner script which trivially copies the blank MinFS image
+      # to hold test results, in order to work around a bug in swarming where
+      # modifying cached isolate downloads will modify the cache contents.
+      #
+      # TODO(mknyszek): Once the isolate bug (http://crbug.com/812925) gets fixed,
+      # don't send a runner script to the bot anymore, since we don't need to do
+      # this hack to cp the image.
+      qemu_runner_name = 'run-qemu.sh'
+      qemu_runner = api.path['start_dir'].join(qemu_runner_name)
+      qemu_runner_script = [
+        '#!/bin/sh',
+        'cp %s %s' % (input_image_name, output_image_name),
+        ' '.join(map(pipes.quote, booted_tests_qemu_cmd)),
+      ]
+      api.file.write_text(
+          'write qemu runner',
+          qemu_runner,
+          '\n'.join(qemu_runner_script),
+      )
 
       # Isolate all necessary build artifacts as well as the MinFS image.
       isolated = api.isolated.isolated()
       isolated.add_file(test_image, wd=api.path['start_dir'])
       isolated.add_file(image_path, wd=build_dir)
       isolated.add_file(bootfs_path, wd=build_dir)
+      isolated.add_file(qemu_runner, wd=api.path['start_dir'])
       digest = isolated.archive('isolate zircon artifacts')
 
       # Trigger a task that runs the core tests in place of userspace at boot.
-      core_task = TriggerTestsTask(api, 'core tests', arch, digest, [
-        'userboot=bin/core-tests',
-        'userboot.shutdown', # shuts down zircon after the userboot process exits.
-      ])
+      core_task = TriggerTestsTask(
+          api=api,
+          name='core tests',
+          cmd=core_tests_qemu_cmd,
+          arch=arch,
+          isolated_hash=digest,
+      )
       # Trigger a task that runs tests in the standard way with runtests and
       # the runcmds script.
-      booted_task = TriggerTestsTask(api, 'booted tests', arch, digest, [autorun_arg],
-                                     blkdev='test.fs')
+      booted_task = TriggerTestsTask(
+          api=api,
+          name='booted tests',
+          cmd=['/bin/sh', './' + qemu_runner_name],
+          arch=arch,
+          isolated_hash=digest,
+          output=output_image_name,
+      )
 
       # Collect task results and analyze.
-      FinalizeTestsTasks(api, core_task, booted_task, build_dir)
+      FinalizeTestsTasks(api, core_task, booted_task, output_image_name,
+                         build_dir)
     else:
       # Run core tests with userboot.
       RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
-          initrd=bootfs_path, cmdline='userboot=bin/core-tests',
+          initrd=bootfs_path, cmdline=core_tests_userboot_arg,
           shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
               api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
@@ -506,7 +580,7 @@ def GenTests(api):
       booted_tests_trigger_data +
       api.step_data('collect', api.swarming.collect(
           task_ids=['10', '11'],
-          outputs=['test.fs'],
+          outputs=['output.fs'],
       )))
   yield (api.test('use_isolate_failure') +
       api.properties(project='zircon',

@@ -297,10 +297,24 @@
   {
     "cmd": [
       "[START_DIR]/zircon/build-x86/tools/minfs",
-      "[START_DIR]/test.fs@32M",
+      "[START_DIR]/input.fs@32M",
       "create"
     ],
     "name": "create test image"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -enable-kvm -cpu host -append 'TERM=dumb kernel.halt-on-panic=true zircon.autorun.boot=/boot/infra/runcmds' -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
+      "[START_DIR]/run-qemu.sh"
+    ],
+    "infra_step": true,
+    "name": "write qemu runner"
   },
   {
     "cmd": [
@@ -317,7 +331,9 @@
       "-files",
       "[START_DIR]/zircon/build-x86:bootdata.bin",
       "-files",
-      "[START_DIR]:test.fs"
+      "[START_DIR]:input.fs",
+      "-files",
+      "[START_DIR]:run-qemu.sh"
     ],
     "name": "archive"
   },
@@ -334,7 +350,7 @@
       "-namespace",
       "default-gzip",
       "-dump-json",
-      "[TMP_BASE]/qemu_test_results.json",
+      "/path/to/tmp/json",
       "-isolated",
       "[dummy hash]",
       "-dimension",
@@ -412,7 +428,7 @@
       "-namespace",
       "default-gzip",
       "-dump-json",
-      "[TMP_BASE]/qemu_test_results.json",
+      "/path/to/tmp/json",
       "-isolated",
       "[dummy hash]",
       "-dimension",
@@ -428,34 +444,11 @@
       "-cipd-package",
       "qemu:fuchsia/qemu/linux-amd64=latest",
       "-output",
-      "test.fs",
+      "output.fs",
       "-raw-cmd",
       "--",
-      "./qemu/bin/qemu-system-x86_64",
-      "-m",
-      "4096",
-      "-smp",
-      "4",
-      "-nographic",
-      "-machine",
-      "q35",
-      "-kernel",
-      "zircon.bin",
-      "-serial",
-      "stdio",
-      "-monitor",
-      "none",
-      "-initrd",
-      "bootdata.bin",
-      "-enable-kvm",
-      "-cpu",
-      "host",
-      "-append",
-      "TERM=dumb kernel.halt-on-panic=true zircon.autorun.boot=/boot/infra/runcmds",
-      "-drive",
-      "file=test.fs,format=raw,if=none,id=testdisk",
-      "-device",
-      "virtio-blk-pci,drive=testdisk,addr=06.0"
+      "/bin/sh",
+      "./run-qemu.sh"
     ],
     "infra_step": true,
     "name": "trigger booted tests",
