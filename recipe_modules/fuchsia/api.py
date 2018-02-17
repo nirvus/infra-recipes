@@ -6,6 +6,7 @@ from recipe_engine import recipe_api
 
 import collections
 import hashlib
+import pipes
 import re
 
 
@@ -365,7 +366,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '-monitor', 'none',
       '-initrd', ramdisk_name,
       '-enable-kvm', '-cpu', 'host',
-      '-append', '"%s"' % ' '.join(cmdline),
+      '-append', ' '.join(cmdline),
 
       '-drive', 'file=%s,format=qcow2,if=none,id=maindisk' % FUCHSIA_IMAGE_NAME,
       '-device', 'virtio-blk-pci,drive=maindisk',
@@ -384,7 +385,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     qemu_runner_script = [
       '#!/bin/sh',
       'cp %s %s' % (input_image_name, output_image_name),
-      ' '.join(qemu_cmd),
+      ' '.join(map(pipes.quote, qemu_cmd)),
     ]
 
     # Write the QEMU runner to disk so that we can isolate it.
