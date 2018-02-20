@@ -398,9 +398,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
         '\n'.join(qemu_runner_script),
     )
 
-    # Create minfs image (which will hold test output).
+    # Create MinFS image (which will hold test output). We choose to make the
+    # MinFS image 16M because our current test output takes up ~1.5 MB in an
+    # absolute worst case (holding all Topaz + Zircon tests), so 16M is chosen
+    # because it is ~10x more space than we need.
     test_image = self.m.path['start_dir'].join(input_image_name)
-    self.m.minfs.create(test_image, '32M', name='create test image')
+    self.m.minfs.create(test_image, '16M', name='create test image')
 
     # Isolate the Fuchsia build artifacts in addition to the test image and the
     # qemu runner.

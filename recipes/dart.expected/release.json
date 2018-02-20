@@ -389,7 +389,7 @@
   {
     "cmd": [
       "[START_DIR]/out/build-zircon/tools/minfs",
-      "[START_DIR]/input.fs@32M",
+      "[START_DIR]/input.fs@16M",
       "create"
     ],
     "name": "create test image"
