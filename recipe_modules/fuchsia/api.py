@@ -145,6 +145,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       'mkdir /test',
       'mount %s /test' % device_topological_path,
     ] + test_cmds + [
+      'umount /test',
       'dm poweroff',
     ]
     runcmds_path = self.m.path['tmp_base'].join('runcmds')

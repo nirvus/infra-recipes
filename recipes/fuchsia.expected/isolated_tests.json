@@ -185,7 +185,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 5000\nmkdir /test\nmount /dev/sys/pci/00:06.0/virtio-block/block /test\nruntests -o /test \ndm poweroff",
+      "#!/boot/bin/sh\nmsleep 5000\nmkdir /test\nmount /dev/sys/pci/00:06.0/virtio-block/block /test\nruntests -o /test \numount /test\ndm poweroff",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
@@ -196,6 +196,7 @@
       "@@@STEP_LOG_LINE@runcmds@mkdir /test@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /test@@@",
       "@@@STEP_LOG_LINE@runcmds@runtests -o /test @@@",
+      "@@@STEP_LOG_LINE@runcmds@umount /test@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]
