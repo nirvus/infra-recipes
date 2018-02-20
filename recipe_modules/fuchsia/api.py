@@ -372,7 +372,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '-drive', 'file=%s,format=qcow2,if=none,id=maindisk' % FUCHSIA_IMAGE_NAME,
       '-device', 'virtio-blk-pci,drive=maindisk',
 
-      '-drive', 'file=%s,format=raw,if=none,id=testdisk' % input_image_name,
+      '-drive', 'file=%s,format=raw,if=none,id=testdisk' % output_image_name,
       '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
     ]
 
