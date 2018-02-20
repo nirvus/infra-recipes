@@ -988,11 +988,11 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#266)(api, target, toolchain, src_dir, use_isolate):**
+&mdash; **def [Build](/recipes/zircon.py#301)(api, target, toolchain, src_dir, use_isolate):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#227)(api, core_task, booted_task, booted_task_output_image, build_dir, timeout='20m'):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#262)(api, core_task, booted_task, booted_task_output_image, build_dir, timeout='20m'):**
 
 Waits on the tasks running core tests and booted tests, then analyzes the
 results.
@@ -1003,7 +1003,7 @@ Args:
   build_dir (Path): A path to the directory containing build artifacts.
   timeout (str): A timeout formatted as a Golang Duration-parsable string.
 
-&mdash; **def [GenerateQEMUCommand](/recipes/zircon.py#144)(arch, cmdline, blkdev=''):**
+&mdash; **def [GenerateQEMUCommand](/recipes/zircon.py#148)(arch, cmdline, use_kvm, blkdev=''):**
 
 GenerateQEMUCommand generates a QEMU command for executing Zircon tests.
 
@@ -1011,6 +1011,7 @@ Args:
   arch (str): The target architecture to execute tests for.
   cmdline (list[str]): A list of kernel command line arguments to pass to
     zircon.
+  use_kvm (bool): Whether or not KVM should be enabled in the QEMU command.
   blkdev (str): Optional relative path to an image name on the test machine.
     If blkdev is non-empty, the triggered task will have QEMU declare an
     additional block device with the backing image being a file located at
@@ -1021,11 +1022,11 @@ Returns:
   A list[str] representing QEMU command which invokes QEMU from the default
   CIPD installation directory.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#346)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#381)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, use_kvm, run_tests):**
 
-&mdash; **def [RunTests](/recipes/zircon.py#103)(api, name, build_dir, \*args, \*\*kwargs):**
+&mdash; **def [RunTests](/recipes/zircon.py#107)(api, name, build_dir, \*args, \*\*kwargs):**
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#184)(api, name, cmd, arch, isolated_hash, output=''):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#204)(api, name, cmd, arch, use_kvm, isolated_hash, output=''):**
 
 TriggerTestsTask triggers a task to execute a command on a remote machine.
 
@@ -1037,6 +1038,8 @@ Args:
   cmd (seq[str]): The command to execute with each argument as a separate
     list entry.
   arch (str): The target architecture to execute tests for.
+  use_kvm (bool): Whether or not a bot with KVM should be requested for the
+    task.
   isolated_hash (str): A digest of the isolated containing the build
     artifacts.
   output (str): Optional relative path to an output file on the target
@@ -1046,7 +1049,7 @@ Args:
 Returns:
   The task ID of the triggered task.
 
-&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#98)():**
+&emsp; **@contextlib.contextmanager**<br>&mdash; **def [no\_goma](/recipes/zircon.py#102)():**
 
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0a35d1c979628a0c8f5f3cf233ea727c7ee2ef5/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0a35d1c979628a0c8f5f3cf233ea727c7ee2ef5/README.recipes.md#recipe_modules-file

@@ -310,7 +310,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true zircon.autorun.boot=/boot/infra/runcmds' -machine q35 -enable-kvm -cpu host -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
+      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true zircon.autorun.boot=/boot/infra/runcmds' -machine q35 -cpu Haswell,+smap,-check,-fsgsbase -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
       "[START_DIR]/run-qemu.sh"
     ],
     "infra_step": true,
@@ -356,8 +356,6 @@
       "-dimension",
       "cpu=x86-64",
       "-dimension",
-      "kvm=1",
-      "-dimension",
       "os=Debian",
       "-dimension",
       "pool=fuchsia.tests",
@@ -385,9 +383,8 @@
       "TERM=dumb kernel.halt-on-panic=true userboot=bin/core-tests userboot.shutdown",
       "-machine",
       "q35",
-      "-enable-kvm",
       "-cpu",
-      "host"
+      "Haswell,+smap,-check,-fsgsbase"
     ],
     "infra_step": true,
     "name": "trigger core tests",
@@ -433,8 +430,6 @@
       "[dummy hash]",
       "-dimension",
       "cpu=x86-64",
-      "-dimension",
-      "kvm=1",
       "-dimension",
       "os=Debian",
       "-dimension",
@@ -500,26 +495,25 @@
       "@@@STEP_LOG_LINE@json.output@  \"10\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"out/hello.txt\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_version\": \"f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c47f2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2017-12-01T22:06:11.538070\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2017-12-01T22:06:08.298510\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2017-11-01T22:06:11.538070\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2017-11-01T22:06:08.298510\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"duration\": 0.06629300117492676, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"exit_code\": \"2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"failure\": true, @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2017-12-01T22:06:11.538070\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2017-11-01T22:06:11.538070\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"name\": \"test\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ae7011\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ee7011\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"started_ts\": \"2017-11-01T22:06:09.155530\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"state\": \"COMPLETED\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"tags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        \"os:Debian\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"pool:Fuchsia\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ae7011\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ee7010\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"try_number\": \"1\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"user\": \"luci\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
@@ -527,26 +521,25 @@
       "@@@STEP_LOG_LINE@json.output@  \"11\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"out/hello.txt\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_version\": \"f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c47f2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2017-12-01T22:06:11.538070\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2017-12-01T22:06:08.298510\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2017-11-01T22:06:11.538070\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2017-11-01T22:06:08.298510\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"duration\": 0.06629300117492676, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"exit_code\": \"2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"failure\": true, @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2017-12-01T22:06:11.538070\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2017-11-01T22:06:11.538070\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"name\": \"test\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ae7011\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ee7011\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"started_ts\": \"2017-11-01T22:06:09.155530\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"state\": \"COMPLETED\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"tags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        \"os:Debian\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"pool:Fuchsia\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ae7011\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ee7010\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"try_number\": \"1\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"user\": \"luci\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
@@ -564,14 +557,71 @@
     "name": "core tests task results",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@output@hello world!@@@",
-      "@@@STEP_LOG_END@output@@@",
-      "@@@STEP_EXCEPTION@@@"
+      "@@@STEP_LOG_END@output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "booted tests task results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@output@hello world!@@@",
+      "@@@STEP_LOG_END@output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "booted test results"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/build-x86/tools/minfs",
+      "[TMP_BASE]/swarming_tmp_1/11/output.fs",
+      "cp",
+      "::",
+      "[START_DIR]/minfs_isolate_results"
+    ],
+    "infra_step": true,
+    "name": "booted test results.extract",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/minfs_isolate_results/summary.json",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "booted test results.read summary",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"tests\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"/hello\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"output_file\": \"hello.out\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"result\": \"PASS\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "booted test results./hello",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@stdio@I am output.@@@",
+      "@@@STEP_LOG_END@stdio@@@"
     ]
   },
   {
     "name": "$result",
-    "reason": "Swarming task failed:\nhello world!",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

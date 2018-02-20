@@ -1,0 +1,8 @@
+[
+  {
+    "name": "$result",
+    "reason": "KVM is only available in the use_isolate case on arm64",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]

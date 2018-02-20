@@ -38,6 +38,7 @@ TARGET_TO_ARCH = dict(zip(
     TARGETS,
     ['x86_64', 'aarch64', 'aarch64', 'aarch64', 'aarch64'],
 ))
+ARCHS = ('x86_64', 'aarch64')
 
 # toolchain: (['make', 'args'], 'builddir-suffix')
 TOOLCHAINS = {
@@ -92,6 +93,9 @@ PROPERTIES = {
   'use_isolate': Property(kind=bool,
                           help='Whether to run tests on another machine',
                           default=False),
+  'use_kvm': Property(kind=bool,
+                      help='Whether to use KVM when running tests in QEMU',
+                      default=True),
 }
 
 
@@ -141,13 +145,14 @@ def RunTests(api, name, build_dir, *args, **kwargs):
     raise api.step.StepFailure(failure_reason)
 
 
-def GenerateQEMUCommand(arch, cmdline, blkdev=''):
+def GenerateQEMUCommand(arch, cmdline, use_kvm, blkdev=''):
   """GenerateQEMUCommand generates a QEMU command for executing Zircon tests.
 
   Args:
     arch (str): The target architecture to execute tests for.
     cmdline (list[str]): A list of kernel command line arguments to pass to
       zircon.
+    use_kvm (bool): Whether or not KVM should be enabled in the QEMU command.
     blkdev (str): Optional relative path to an image name on the test machine.
       If blkdev is non-empty, the triggered task will have QEMU declare an
       additional block device with the backing image being a file located at
@@ -158,19 +163,34 @@ def GenerateQEMUCommand(arch, cmdline, blkdev=''):
     A list[str] representing QEMU command which invokes QEMU from the default
     CIPD installation directory.
   """
+  assert arch in ARCHS
+
   qemu_cmd = [
     './qemu/bin/qemu-system-' + arch, # Dropped in by CIPD.
     '-m', '4096',
     '-smp', '4',
     '-nographic',
-    '-machine', {'aarch64': 'virt,gic_version=host', 'x86_64': 'q35'}[arch],
     '-kernel', ZIRCON_IMAGE_NAME,
     '-serial', 'stdio',
     '-monitor', 'none',
     '-initrd', BOOTFS_IMAGE_NAME,
-    '-enable-kvm', '-cpu', 'host',
     '-append', ' '.join(['TERM=dumb', 'kernel.halt-on-panic=true'] + cmdline),
   ]
+
+  if arch == 'aarch64':
+    machine = 'virt'
+    if use_kvm:
+      machine += ',gic_version=host'
+  elif arch == 'x86_64':
+    machine = 'q35'
+  qemu_cmd.extend(['-machine', machine])
+
+  if use_kvm:
+    qemu_cmd.extend(['-enable-kvm', '-cpu', 'host'])
+  elif arch == 'aarch64':
+    qemu_cmd.extend(['-machine', 'virtualization=true', '-cpu', 'cortex-a53'])
+  elif arch == 'x86_64':
+    qemu_cmd.extend(['-cpu', 'Haswell,+smap,-check,-fsgsbase'])
 
   if blkdev:
     qemu_cmd.extend([
@@ -181,7 +201,7 @@ def GenerateQEMUCommand(arch, cmdline, blkdev=''):
   return qemu_cmd
 
 
-def TriggerTestsTask(api, name, cmd, arch, isolated_hash, output=''):
+def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output=''):
   """TriggerTestsTask triggers a task to execute a command on a remote machine.
 
   The remote machine is guaranteed to have QEMU installed
@@ -192,6 +212,8 @@ def TriggerTestsTask(api, name, cmd, arch, isolated_hash, output=''):
     cmd (seq[str]): The command to execute with each argument as a separate
       list entry.
     arch (str): The target architecture to execute tests for.
+    use_kvm (bool): Whether or not a bot with KVM should be requested for the
+      task.
     isolated_hash (str): A digest of the isolated containing the build
       artifacts.
     output (str): Optional relative path to an output file on the target
@@ -201,10 +223,28 @@ def TriggerTestsTask(api, name, cmd, arch, isolated_hash, output=''):
   Returns:
     The task ID of the triggered task.
   """
-  qemu_cipd_arch = {
-    'aarch64': 'arm64',
-    'x86_64': 'amd64',
-  }[arch]
+  # If we're not using KVM, we'll be executing on an x86 machine, so we need to
+  # make sure we're dropping in the correct binaries.
+  if not use_kvm:
+    qemu_cipd_arch = 'amd64'
+  else:
+    qemu_cipd_arch = {
+      'aarch64': 'arm64',
+      'x86_64': 'amd64',
+    }[arch]
+
+  dimensions = {
+    'pool': 'fuchsia.tests',
+    'os':   'Debian',
+  }
+  if use_kvm:
+    dimensions['cpu'] = {'aarch64': 'arm64', 'x86_64': 'x86-64'}[arch]
+    dimensions['kvm'] = '1'
+  else:
+    # If we're not using KVM, we should use our x86 testers since we'll be in
+    # full emulation mode anyway, and our arm64 resources are much fewer in
+    # number.
+    dimensions['cpu'] = 'x86-64'
 
   with api.context(infra_steps=True):
     # Trigger task.
@@ -212,12 +252,7 @@ def TriggerTestsTask(api, name, cmd, arch, isolated_hash, output=''):
         name,
         cmd,
         isolated=isolated_hash,
-        dimensions={
-          'pool': 'fuchsia.tests',
-          'os':   'Debian',
-          'cpu':  {'aarch64': 'arm64', 'x86_64': 'x86-64'}[arch],
-          'kvm':  '1',
-        },
+        dimensions=dimensions,
         io_timeout=TEST_IO_TIMEOUT_SECS,
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
         outputs=[output] if output else None,
@@ -345,7 +380,10 @@ def Build(api, target, toolchain, src_dir, use_isolate):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, toolchain, goma_dir, use_isolate, run_tests):
+             target, toolchain, goma_dir, use_isolate, use_kvm, run_tests):
+  if target == 'arm64' and use_kvm and not use_isolate:
+    raise api.step.InfraFailure('KVM is only available in the use_isolate case on arm64')
+
   if goma_dir:
     api.goma.set_goma_dir(goma_dir)
   api.goma.ensure_goma()
@@ -401,10 +439,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       core_tests_qemu_cmd = GenerateQEMUCommand(arch=arch, cmdline=[
         core_tests_userboot_arg,
         'userboot.shutdown', # shuts down zircon after the userboot process exits.
-      ])
+      ], use_kvm=use_kvm)
       booted_tests_qemu_cmd = GenerateQEMUCommand(
           arch=arch,
           cmdline=[autorun_arg],
+          use_kvm=use_kvm,
           blkdev=output_image_name,
       )
 
@@ -442,6 +481,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
           name='core tests',
           cmd=core_tests_qemu_cmd,
           arch=arch,
+          use_kvm=use_kvm,
           isolated_hash=digest,
       )
       # Trigger a task that runs tests in the standard way with runtests and
@@ -451,6 +491,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
           name='booted tests',
           cmd=['/bin/sh', './' + qemu_runner_name],
           arch=arch,
+          use_kvm=use_kvm,
           isolated_hash=digest,
           output=output_image_name,
       )
@@ -460,25 +501,49 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                          build_dir)
     else:
       # Run core tests with userboot.
-      RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=True,
+      RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=use_kvm,
           initrd=bootfs_path, cmdline=core_tests_userboot_arg,
           shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
               api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
       # Boot and run tests.
-      RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=True,
+      RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=use_kvm,
           initrd=bootfs_path, cmdline=autorun_arg,
           shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200, step_test_data=lambda:
               api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 
 
 def GenTests(api):
-  yield (api.test('ci') +
+  yield (api.test('ci_x86') +
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x86',
                     toolchain='gcc') +
+     api.step_data('run booted tests',
+         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
+  yield (api.test('ci_arm64') +
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
+                    target='arm64',
+                    toolchain='gcc'))
+  yield (api.test('ci_x86_nokvm') +
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
+                    target='x86',
+                    toolchain='gcc',
+                    use_kvm=False) +
+     api.step_data('run booted tests',
+         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
+  yield (api.test('ci_arm64_nokvm') +
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
+                    target='arm64',
+                    toolchain='gcc',
+                    use_kvm=False) +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('asan') +
@@ -569,7 +634,33 @@ def GenTests(api):
           task_id='11',
       ),
   )
-  yield (api.test('use_isolate') +
+  # Step test data for collecting core and booted tasks.
+  collect_data = api.step_data('collect', api.swarming.collect(
+      task_ids=['10', '11'],
+      outputs=['output.fs'],
+  ))
+  yield (api.test('use_isolate_arm64') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='arm64',
+                     toolchain='gcc',
+                     use_isolate=True) +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('use_isolate_arm64_nokvm') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='arm64',
+                     toolchain='gcc',
+                     use_isolate=True,
+                     use_kvm=False) +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('use_isolate_x86') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -578,10 +669,18 @@ def GenTests(api):
                      use_isolate=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
-      api.step_data('collect', api.swarming.collect(
-          task_ids=['10', '11'],
-          outputs=['output.fs'],
-      )))
+      collect_data)
+  yield (api.test('use_isolate_x86_nokvm') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='x86',
+                     toolchain='gcc',
+                     use_isolate=True,
+                     use_kvm=False) +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
   yield (api.test('use_isolate_failure') +
       api.properties(project='zircon',
                      manifest='manifest',
