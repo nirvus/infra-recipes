@@ -122,7 +122,7 @@
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"name\": \"cobalt\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/cobalt\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/cobalt\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/cobalt\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",

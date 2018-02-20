@@ -68,7 +68,9 @@ class JiriApi(recipe_api.RecipeApi):
     if test_data is None:
       test_data = [{
           'name': p,
-          'path': '/path/to/' + p,
+          # Specify a path under start_dir to satisfy consumers that expect a
+          # "realistic" path, such as LUCI's PathApi.abs_to_path.
+          'path': str(self.m.path['start_dir'].join('path','to',p)),
           'remote': 'https://fuchsia.googlesource.com/' + p,
           'revision': 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
           'current_branch': '',

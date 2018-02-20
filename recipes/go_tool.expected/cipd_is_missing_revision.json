@@ -154,7 +154,7 @@
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"name\": \"infra\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"/path/to/infra\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/infra\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/infra\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
