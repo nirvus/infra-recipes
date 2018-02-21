@@ -182,9 +182,7 @@
       "--target_cpu=x86-64",
       "--packages=garnet/packages/sdk",
       "--platforms=x86",
-      "--release",
-      "--args",
-      "bootfs_packages=true"
+      "--release"
     ],
     "name": "build fuchsia x86-64.gen",
     "~followup_annotations": [
@@ -200,6 +198,38 @@
       "2"
     ],
     "name": "build fuchsia x86-64.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build fuchsia x86-64 (2)"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/build/gn/gen.py",
+      "--target_cpu=x86-64",
+      "--packages=garnet/packages/sdk_bootfs",
+      "--platforms=x86",
+      "--release",
+      "--args",
+      "bootfs_packages=true"
+    ],
+    "name": "build fuchsia x86-64.gen (2)",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/ninja",
+      "-C",
+      "[START_DIR]/out/release-x86-64-bootfs",
+      "-j",
+      "2"
+    ],
+    "name": "build fuchsia x86-64.ninja (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -222,11 +252,7 @@
       "--target_cpu=aarch64",
       "--packages=garnet/packages/sdk",
       "--platforms=arm64",
-      "--release",
-      "--args",
-      "bootfs_packages=true",
-      "--args",
-      "bootfs_packages=true"
+      "--release"
     ],
     "name": "build fuchsia aarch64.gen",
     "~followup_annotations": [
@@ -242,6 +268,38 @@
       "2"
     ],
     "name": "build fuchsia aarch64.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build fuchsia aarch64 (2)"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/build/gn/gen.py",
+      "--target_cpu=aarch64",
+      "--packages=garnet/packages/sdk_bootfs",
+      "--platforms=arm64",
+      "--release",
+      "--args",
+      "bootfs_packages=true"
+    ],
+    "name": "build fuchsia aarch64.gen (2)",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/ninja",
+      "-C",
+      "[START_DIR]/out/release-aarch64-bootfs",
+      "-j",
+      "2"
+    ],
+    "name": "build fuchsia aarch64.ninja (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

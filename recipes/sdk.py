@@ -86,7 +86,6 @@ def BuildFuchsia(api, release_build, gn_target, zircon_project,
     if release_build:
       gen_cmd.append('--release')
 
-    gn_args.append('bootfs_packages=true')
     for arg in gn_args:
       gen_cmd.append('--args')
       gen_cmd.append(arg)
@@ -177,7 +176,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url)
 
-  packages = ['garnet/packages/sdk']
   build_type = 'release'
   release_build = True
   gn_target_and_zircon_platforms = [
@@ -189,9 +187,16 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   for gn_target, zircon_platform in gn_target_and_zircon_platforms:
     BuildZircon(api, zircon_platform)
+    # Build a version with bootfs and a version without so consumers can transition over.
     fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
+    packages = ['garnet/packages/sdk']
     BuildFuchsia(api, release_build, gn_target, zircon_platform,
                  fuchsia_build_dir, packages, use_goma, gn_args)
+    fuchsia_build_dir_bootfs = fuchsia_out_dir.join('%s-%s-bootfs' % (build_type, gn_target))
+    packages = ['garnet/packages/sdk_bootfs']
+    gn_args_bootfs = gn_args + [ 'bootfs_packages=true' ]
+    BuildFuchsia(api, release_build, gn_target, zircon_platform,
+                 fuchsia_build_dir_bootfs, packages, use_goma, gn_args_bootfs)
 
   outdir = api.path.mkdtemp('sdk')
   sdk = api.path['tmp_base'].join('fuchsia-sdk.tgz')
