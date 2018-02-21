@@ -429,11 +429,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       # runcmds script. The size of the MinFS should be large enough to
       # accomodate all test results and test output. The current size is picked
       # to be able to safely hold test results for quite some time (currently
-      # the space used is on the order of tens of kilobytes). Having a
+      # the space used is very roughly on the order of a megabyte). Having a
       # larger-image-than-necessary isn't a big deal for isolate, which
       # compresses the image before uploading.
       test_image = api.path['start_dir'].join(input_image_name)
-      api.minfs.create(test_image, '32M', name='create test image')
+      api.minfs.create(test_image, '16M', name='create test image')
 
       # Generate the QEMU commands.
       core_tests_qemu_cmd = GenerateQEMUCommand(arch=arch, cmdline=[
