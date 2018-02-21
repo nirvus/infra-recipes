@@ -35,11 +35,11 @@
   * [git:examples/full](#recipes-git_examples_full)
   * [gitiles:examples/full](#recipes-gitiles_examples_full)
   * [go:examples/full](#recipes-go_examples_full)
-  * [go_tool](#recipes-go_tool) &mdash; Recipe for building and publishing infra tools.
   * [go_toolchain](#recipes-go_toolchain) &mdash; Recipe for building Go toolchain.
   * [goma:examples/full](#recipes-goma_examples_full)
   * [gsutil:examples/full](#recipes-gsutil_examples_full)
   * [hash:examples/full](#recipes-hash_examples_full)
+  * [infra](#recipes-infra) &mdash; Recipe for building and publishing infra tools.
   * [isolated:examples/full](#recipes-isolated_examples_full)
   * [jiri](#recipes-jiri) &mdash; Recipe for building Jiri.
   * [jiri:examples/full](#recipes-jiri_examples_full)
@@ -819,31 +819,6 @@ Recipe for rolling Fuchsia layers into upper layers.
 [DEPS](/recipe_modules/go/examples/full.py#5): [go](#recipe_modules-go), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 &mdash; **def [RunSteps](/recipe_modules/go/examples/full.py#15)(api):**
-### *recipes* / [go\_tool](/recipes/go_tool.py)
-
-[DEPS](/recipes/go_tool.py#20): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
-
-Recipe for building and publishing infra tools.
-
-This recipe builds one or more Go binaries in the specified project and
-publishes them all to CIPD.  If one or more tests for any package in the
-project fail, or one or more packages fail to build, execution stops and no
-packages are uploaded.
-
-This recipe uses golang/dep to manage dependencies, so the given project is
-expected to have a Gopkg.toml file specifying its dependency restrictions.
-
-&mdash; **def [RunSteps](/recipes/go_tool.py#107)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
-
-&mdash; **def [UploadPackage](/recipes/go_tool.py#72)(api, bin_name, bin_dir, revision, remote):**
-
-Creates and uploads a CIPD package containing the tool at bin_dir/bin_name.
-
-The tool is published to CIPD under the path 'fuchsia/infra/$bin_name/$platform'
-
-Args:
-  bin_dir: The absolute path to the parent directory of bin_name.
-  bin_name: The name of the tool binary
 ### *recipes* / [go\_toolchain](/recipes/go_toolchain.py)
 
 [DEPS](/recipes/go_toolchain.py#11): [cipd](#recipe_modules-cipd), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
@@ -866,6 +841,31 @@ Recipe for building Go toolchain.
 [DEPS](/recipe_modules/hash/examples/full.py#5): [hash](#recipe_modules-hash), [recipe\_engine/path][recipe_engine/recipe_modules/path]
 
 &mdash; **def [RunSteps](/recipe_modules/hash/examples/full.py#11)(api):**
+### *recipes* / [infra](/recipes/infra.py)
+
+[DEPS](/recipes/infra.py#20): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+
+Recipe for building and publishing infra tools.
+
+This recipe builds one or more Go binaries in the specified project and
+publishes them all to CIPD.  If one or more tests for any package in the
+project fail, or one or more packages fail to build, execution stops and no
+packages are uploaded.
+
+This recipe uses golang/dep to manage dependencies, so the given project is
+expected to have a Gopkg.toml file specifying its dependency restrictions.
+
+&mdash; **def [RunSteps](/recipes/infra.py#107)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
+
+&mdash; **def [UploadPackage](/recipes/infra.py#72)(api, bin_name, bin_dir, revision, remote):**
+
+Creates and uploads a CIPD package containing the tool at bin_dir/bin_name.
+
+The tool is published to CIPD under the path 'fuchsia/infra/$bin_name/$platform'
+
+Args:
+  bin_dir: The absolute path to the parent directory of bin_name.
+  bin_name: The name of the tool binary
 ### *recipes* / [isolated:examples/full](/recipe_modules/isolated/examples/full.py)
 
 [DEPS](/recipe_modules/isolated/examples/full.py#5): [isolated](#recipe_modules-isolated), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
