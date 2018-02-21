@@ -32,6 +32,7 @@
   * [dart](#recipes-dart) &mdash; Builds the Fuchsia Dart test image and runs the Dart tests.
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia:examples/fuchsia](#recipes-fuchsia_examples_fuchsia) &mdash; Recipe for building Fuchsia and running tests.
+  * [fuchsia_perf](#recipes-fuchsia_perf) &mdash; Recipe for building Fuchsia and running performance tests.
   * [fuchsia_roller](#recipes-fuchsia_roller) &mdash; Recipe for rolling Fuchsia layers into upper layers.
   * [gcc_toolchain](#recipes-gcc_toolchain) &mdash; Recipe for building GCC toolchain.
   * [gerrit:examples/full](#recipes-gerrit_examples_full)
@@ -845,6 +846,18 @@ Recipe for building Fuchsia and running tests.
 Recipe for building Fuchsia and running tests.
 
 &mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#56)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, target, build_type, packages, variants, gn_args, run_tests, runtests_args, upload_snapshot):**
+### *recipes* / [fuchsia\_perf](/recipes/fuchsia_perf.py)
+
+[DEPS](/recipes/fuchsia_perf.py#23): [fuchsia](#recipe_modules-fuchsia), [swarming](#recipe_modules-swarming), [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+
+Recipe for building Fuchsia and running performance tests.
+
+This differs from the fuchsia recipe in the following ways:
+* Performance Tests are run instead of unit tests.
+* Tests are always run (this recipe is not used to verify builds).
+* Test results are uploaded to the catapult dashboard after execution.
+
+&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#60)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, runtests_args):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#13): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
