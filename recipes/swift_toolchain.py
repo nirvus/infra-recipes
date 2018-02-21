@@ -65,6 +65,7 @@ use-lld-linker
 build-swift-static-stdlib=true
 build-runtime-with-host-compiler=true
 build-swift-static-sdk-overlay=true
+extra-cmake-options=%(extra_cmake_args)s
 
 xctest=false
 foundation=false
@@ -131,7 +132,7 @@ skip-test-fuchsia-host
 
 dash-dash
 
-swift-install-components=autolink-driver;compiler;clang-builtin-headers;stdlib;swift-remote-mirror;sdk-overlay;license;editor-integration;tools;dev;sourcekit-inproc
+swift-install-components=autolink-driver;compiler;clang-builtin-headers;stdlib;swift-remote-mirror;sdk-overlay;license;editor-integration;tools;dev
 install-swift
 install-prefix=/
 install-destdir=%(install_destdir)s
@@ -421,11 +422,33 @@ def RunSteps(api, url, ref, revision, goma_dir):
   zircon_dir = api.path['start_dir'].join('out', 'build-zircon')
   x86_64_sysroot = zircon_dir.join('build-user-x86-64', 'sysroot')
   aarch64_sysroot = zircon_dir.join('build-user-arm64', 'sysroot')
-  clang_path = api.path['start_dir'].join('buildtools')
+  linux_sysroot = api.path['start_dir'].join('buildtools', 'linux-x64',
+   'sysroot')
   fuchia_x64_shared = fuchsia_out_dir.join('release-x86-64','x64-shared')
   fuchia_arm64_shared = fuchsia_out_dir.join('release-aarch64','arm64-shared')
   presets_file = build_dir.join('presets.ini')
   checkout_config = build_dir.join('update-checkout.json')
+
+  extra_cmake_args = ""
+  if api.platform.name == "linux":
+    extra_cmake_args = "-DCMAKE_SYSROOT=%s " % linux_sysroot
+    # HACK: Swift uses pkg-config to find ICU paths so we need to override it.
+    # This is not the best way to do this but it will work temporarily with
+    # minimal changes to swift when a good number of features in swift are
+    # disabled. Remove all of this when proper sysroot support is added to all
+    # of swift's build system.
+    linux_sysroot_include = linux_sysroot.join('include')
+    linux_sysroot_lib = linux_sysroot.join('usr', 'lib', 'x86_64-linux-gnu')
+    extra_cmake_args += "-DSWIFT_LINUX_ICU_UC_INCLUDE=%s " % \
+      linux_sysroot_include
+    extra_cmake_args += "-DSWIFT_LINUX_ICU_I18N_INCLUDE=%s " % \
+      linux_sysroot_include
+    extra_cmake_args += "-DSWIFT_LINUX_ICU_UC=%s " % \
+      linux_sysroot_lib.join("libicuuc.so")
+    extra_cmake_args += "-DSWIFT_LINUX_ICU_I18N=%s " % \
+      linux_sysroot_lib.join("libicui18n.so")
+    extra_cmake_args += "-DSWIFT_BUILD_SOURCEKIT:BOOL=false "
+
 
   env_prefixes = {'PATH': [cipd_dir, cipd_dir.join('bin')]}
   with api.context(cwd=build_dir, env_prefixes=env_prefixes):
@@ -463,29 +486,34 @@ def RunSteps(api, url, ref, revision, goma_dir):
             'arm64_shared=%s' % fuchia_arm64_shared,
             'install_destdir=%s' % swift_install_dir,
             'install_symroot=%s' % swift_symbols,
+            'extra_cmake_args=%s' % extra_cmake_args,
         ])
+
+    # TODO: temporarly disabling the second phase compile for Linux until
+    # all depedencies have been updated to understand how to be compiled with a
+    # passed in sysroot.
 
     # HACK: Build swift again but with extras for Linux that do not work on
     # on Fuchsia yet (swiftpm, libdispatch, foundation, etc)
-    api.python(
-        'build swift linux extras',
-        swift_dir.join('utils', 'build-script'),
-        args=[
-            '--preset-file', presets_file,
-            '--jobs', api.platform.cpu_count,
-            '--preset=linux_extras_install',
-            'clang_path=%s' % cipd_dir,
-            'fuchsia_icu_uc=%s' % api.path['start_dir'].join(
-                "third_party", "icu", "source", "common"),
-            'fuchsia_icu_i18n=%s' % api.path['start_dir'].join(
-                "third_party", "icu", "source", "i18n"),
-            'x86_64_sysroot=%s' % x86_64_sysroot,
-            'aarch64_sysroot=%s' % aarch64_sysroot,
-            'x64_shared=%s' % fuchia_x64_shared,
-            'arm64_shared=%s' % fuchia_arm64_shared,
-            'install_destdir=%s' % swift_install_dir,
-            'install_symroot=%s' % swift_symbols,
-        ])
+    #api.python(
+    #    'build swift linux extras',
+    #    swift_dir.join('utils', 'build-script'),
+    #    args=[
+    #        '--preset-file', presets_file,
+    #        '--jobs', api.platform.cpu_count,
+    #        '--preset=linux_extras_install',
+    #        'clang_path=%s' % cipd_dir,
+    #        'fuchsia_icu_uc=%s' % api.path['start_dir'].join(
+    #            "third_party", "icu", "source", "common"),
+    #        'fuchsia_icu_i18n=%s' % api.path['start_dir'].join(
+    #            "third_party", "icu", "source", "i18n"),
+    #        'x86_64_sysroot=%s' % x86_64_sysroot,
+    #        'aarch64_sysroot=%s' % aarch64_sysroot,
+    #        'x64_shared=%s' % fuchia_x64_shared,
+    #        'arm64_shared=%s' % fuchia_arm64_shared,
+    #        'install_destdir=%s' % swift_install_dir,
+    #        'install_symroot=%s' % swift_symbols,
+    #    ])
 
 
   # TODO(zbowling): remove this in favor of doing it similar to the way
