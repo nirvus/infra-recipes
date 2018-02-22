@@ -290,13 +290,14 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
       booted_result,
       build_dir,
   )
-  api.fuchsia.analyze_test_results(
-      'booted test results',
-      booted_result[booted_task_output_image],
-      build_dir,
-      booted_result.output,
-  )
 
+  api.fuchsia.analyze_test_results(
+    'booted test results',
+    api.fuchsia.FuchsiaTestResults(
+        minfs_image_path=booted_result[booted_task_output_image],
+        build_dir=build_dir,
+        output=booted_result.output,
+  ))
 
 def Build(api, target, toolchain, src_dir, use_isolate):
   """Builds zircon and returns a path to the build output directory."""

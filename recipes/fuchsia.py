@@ -82,8 +82,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       test_cmds=test_cmds,
   )
   if run_tests:
-    api.fuchsia.test(build)
-
+    api.fuchsia.analyze_test_results('test results', api.fuchsia.test(build))
 
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.

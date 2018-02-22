@@ -198,7 +198,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#461)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#488)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -212,22 +212,18 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#503)(self, step_name, minfs_image_path, build_dir, output):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#530)(self, step_name, test_results):**
 
-Analyzes a MinFS image filled with task results, whose path is derived from a
-CollectResult.
+Analyzes test results represented by a FuchsiaTestResults.
 
 Args:
   step_name (str): The name of the step under which to test the analysis steps.
-  minfs_image_path (Path): A relative path to the MinFS image that may be used to
-    derive the full path to the MinFS image from a CollectResult.
-  build_dir (Path): A path to the build directory for symbolization artifacts.
-  output (str): Kernel output which may be passed to the symbolizer script.
+  test_results (FuchsiaTestResults): The test results.
 
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#229)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#255)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -246,7 +242,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#97)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#123)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -262,7 +258,7 @@ Args:
   patch_project (str): The name of Gerrit project
   upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#331)(self, build):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#357)(self, build):**
 
 Tests a Fuchsia build.
 
@@ -270,7 +266,10 @@ Expects the build and artifacts to be at the same place they were at
 the end of the build.
 
 Args:
-  build (FuchsiaBuildResults): The Fuchsia build to test
+  build (FuchsiaBuildResults): The Fuchsia build to test.
+
+Returns:
+  A FuchsiaTestResults representing the completed test.
 ### *recipe_modules* / [gerrit](/recipe_modules/gerrit)
 
 [DEPS](/recipe_modules/gerrit/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -988,7 +987,7 @@ Recipe for building WebView.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#301)(api, target, toolchain, src_dir, use_isolate):**
+&mdash; **def [Build](/recipes/zircon.py#302)(api, target, toolchain, src_dir, use_isolate):**
 
 Builds zircon and returns a path to the build output directory.
 
@@ -1022,7 +1021,7 @@ Returns:
   A list[str] representing QEMU command which invokes QEMU from the default
   CIPD installation directory.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#381)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, use_kvm, run_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#382)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, goma_dir, use_isolate, use_kvm, run_tests):**
 
 &mdash; **def [RunTests](/recipes/zircon.py#107)(api, name, build_dir, \*args, \*\*kwargs):**
 

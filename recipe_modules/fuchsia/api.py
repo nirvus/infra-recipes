@@ -91,6 +91,32 @@ class FuchsiaBuildResults(object):
 class FuchsiaApi(recipe_api.RecipeApi):
   """APIs for checking out, building, and testing Fuchsia."""
 
+  class FuchsiaTestResults(object):
+    """Represents the result of testing of a Fuchsia build."""
+    def __init__(self, minfs_image_path, build_dir, output):
+      self._minfs_image_path = minfs_image_path
+      self._build_dir = build_dir
+      self._output = output
+
+    @property
+    def minfs_image_path(self):
+      """
+      Absolute path to a MinFS image. This is usually obtained by indexing into a
+      CollectResult using the MinFS image name as the key.
+      """
+      return self._minfs_image_path
+
+    @property
+    def build_dir(self):
+      """A path to the build directory for symbolization artifacts."""
+      return self._build_dir
+
+    @property
+    def output(self):
+      """Kernel output which may be passed to the symbolizer script."""
+      return self._output
+
+
   def __init__(self, *args, **kwargs):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
 
@@ -335,7 +361,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
     the end of the build.
 
     Args:
-      build (FuchsiaBuildResults): The Fuchsia build to test
+      build (FuchsiaBuildResults): The Fuchsia build to test.
+
+    Returns:
+      A FuchsiaTestResults representing the completed test.
     """
     assert build.has_tests
     self.m.swarming.ensure_swarming(version='latest')
@@ -451,12 +480,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
       assert len(results) == 1
       result = results[0]
     self.analyze_collect_result('task results', result, build.zircon_build_dir)
-    self.analyze_test_results(
-        'test results',
-        result[output_image_name],
-        build.fuchsia_build_dir,
-        result.output,
-    )
+    return self.FuchsiaTestResults(
+        minfs_image_path=result[output_image_name],
+        build_dir=build.fuchsia_build_dir,
+        output=result.output)
 
   def analyze_collect_result(self, step_name, result, zircon_build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.
@@ -500,20 +527,20 @@ class FuchsiaApi(recipe_api.RecipeApi):
       step_result.presentation.status = self.m.step.EXCEPTION
       raise self.m.step.InfraFailure('Swarming task failed:\n%s' % result.output)
 
-  def analyze_test_results(self, step_name, minfs_image_path, build_dir, output):
-    """Analyzes a MinFS image filled with task results, whose path is derived from a
-    CollectResult.
+  def analyze_test_results(self, step_name, test_results):
+    """Analyzes test results represented by a FuchsiaTestResults.
 
     Args:
       step_name (str): The name of the step under which to test the analysis steps.
-      minfs_image_path (Path): A relative path to the MinFS image that may be used to
-        derive the full path to the MinFS image from a CollectResult.
-      build_dir (Path): A path to the build directory for symbolization artifacts.
-      output (str): Kernel output which may be passed to the symbolizer script.
+      test_results (FuchsiaTestResults): The test results.
 
     Raises:
       A StepFailure if any of the discovered tests failed.
     """
+    minfs_image_path = test_results.minfs_image_path
+    build_dir = test_results.build_dir
+    output = test_results.output
+
     with self.m.step.nest(step_name):
       test_results_dir = self.m.path['start_dir'].join('minfs_isolate_results')
       with self.m.context(infra_steps=True):

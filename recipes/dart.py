@@ -52,7 +52,7 @@ def RunSteps(api, manifest, remote, target, build_type):
             build_type, TESTS_PASSED, TESTS_FAILED),
       ],
   )
-  api.fuchsia.test(build)
+  api.fuchsia.analyze_test_results('test results', api.fuchsia.test(build))
 
 
 def GenTests(api):
