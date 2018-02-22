@@ -246,6 +246,7 @@
       "--target_cpu=x86-64",
       "--packages=garnet/packages/sdk",
       "--platforms=x86",
+      "--build-dir=[START_DIR]/out/release-x86-64",
       "--goma=[START_DIR]/cipd/goma",
       "--release"
     ],
@@ -375,6 +376,7 @@
       "--target_cpu=x86-64",
       "--packages=garnet/packages/sdk_bootfs",
       "--platforms=x86",
+      "--build-dir=[START_DIR]/out/release-x86-64-bootfs",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
@@ -486,6 +488,7 @@
       "--target_cpu=aarch64",
       "--packages=garnet/packages/sdk",
       "--platforms=arm64",
+      "--build-dir=[START_DIR]/out/release-aarch64",
       "--goma=[START_DIR]/cipd/goma",
       "--release"
     ],
@@ -587,6 +590,7 @@
       "--target_cpu=aarch64",
       "--packages=garnet/packages/sdk_bootfs",
       "--platforms=arm64",
+      "--build-dir=[START_DIR]/out/release-aarch64-bootfs",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",

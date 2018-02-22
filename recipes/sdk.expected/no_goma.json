@@ -182,6 +182,7 @@
       "--target_cpu=x86-64",
       "--packages=garnet/packages/sdk",
       "--platforms=x86",
+      "--build-dir=[START_DIR]/out/release-x86-64",
       "--release"
     ],
     "name": "build fuchsia x86-64.gen",
@@ -212,6 +213,7 @@
       "--target_cpu=x86-64",
       "--packages=garnet/packages/sdk_bootfs",
       "--platforms=x86",
+      "--build-dir=[START_DIR]/out/release-x86-64-bootfs",
       "--release",
       "--args",
       "bootfs_packages=true"
@@ -252,6 +254,7 @@
       "--target_cpu=aarch64",
       "--packages=garnet/packages/sdk",
       "--platforms=arm64",
+      "--build-dir=[START_DIR]/out/release-aarch64",
       "--release"
     ],
     "name": "build fuchsia aarch64.gen",
@@ -282,6 +285,7 @@
       "--target_cpu=aarch64",
       "--packages=garnet/packages/sdk_bootfs",
       "--platforms=arm64",
+      "--build-dir=[START_DIR]/out/release-aarch64-bootfs",
       "--release",
       "--args",
       "bootfs_packages=true"
