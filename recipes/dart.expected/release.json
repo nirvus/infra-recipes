@@ -594,7 +594,7 @@
       "-task-output-stdout",
       "json",
       "-timeout",
-      "20m",
+      "40m",
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",

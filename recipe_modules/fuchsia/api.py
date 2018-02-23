@@ -32,6 +32,10 @@ TEST_FS_PCI_ADDR = '06.0'
 # no output being produced.
 TEST_IO_TIMEOUT_SECS = 60
 
+# A string parseable by golang's ParseDuration function representing the timeout
+# for the tests task.
+TEST_TIMEOUT_STR = '40m'
+
 RUNCMDS_PACKAGE = '''
 {
     "resources": [
@@ -440,7 +444,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
           cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
       )
       # Collect results.
-      results = self.m.swarming.collect('20m', requests_json=self.m.json.input(trigger_result.json.output))
+      # TODO(mknyszek): Replace this with a better timeout mechanism which more
+      # suitable for the swarming client, and set hard_timeout for the swarming
+      # task via a property.
+      results = self.m.swarming.collect(TEST_TIMEOUT_STR, requests_json=self.m.json.input(trigger_result.json.output))
       assert len(results) == 1
       result = results[0]
     self.analyze_collect_result('task results', result, build.zircon_build_dir)
