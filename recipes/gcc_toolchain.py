@@ -48,7 +48,7 @@ def RunSteps(api, revision):
       api.cipd.default_bot_service_account_credentials)
 
   if not revision:
-    revision = api.gitiles.refs(GCC_GIT).get(GCC_REF, None)
+    revision = api.gitiles.refs(GCC_GIT, refspath='refs/tags').get(GCC_REF, None)
   cipd_pkg_name = 'fuchsia/gcc/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
