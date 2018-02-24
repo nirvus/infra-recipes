@@ -91,11 +91,12 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-xf",
+      "-xvf",
       "[TMP_BASE]/tar-example_tmp_1/output.tar",
       "-C",
       "[TMP_BASE]/tar-example_tmp_1/output",
-      "-v"
+      "--strip-components",
+      "1"
     ],
     "name": "untaring"
   },

@@ -33,18 +33,25 @@ class TarApi(recipe_api.RecipeApi):
     assert compression is None or compression in ['gzip', 'bzip2', 'xz', 'lzma']
     return TarPackage(self, archive, compression)
 
-  def extract(self, step_name, archive, dir=None, verbose=False):
-    """Step to uncompress |tar_file| file."""
+  def extract(self, step_name, archive, dir=None, strip_components=None):
+    """Uncompress |archive| file.
+
+    Args:
+      step_name: name of the step.
+      archive: absolute path to a file.
+      dir: path directory to extract the archive in.
+      strip_components: strip number of leading components from file names.
+    """
     assert self._bsdtar_path
     cmd = [
       self._bsdtar_path,
-      '-xf',
+      '-xvf',
       archive,
     ]
     if dir:
       cmd.extend(['-C', dir])
-    if verbose:
-      cmd.append('-v')
+    if strip_components:
+      cmd.extend(['--strip-components', int(strip_components)])
     return self.m.step(
         step_name,
         cmd

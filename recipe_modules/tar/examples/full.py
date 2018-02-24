@@ -34,9 +34,9 @@ def RunSteps(api):
   # Coverage for 'output' property.
   api.step('report', ['echo', package.archive])
 
-  # Untar the package.
+  # Untar the package into a directory stripping one path component.
   api.tar.extract('untaring', temp.join('output.tar'), temp.join('output'),
-                  verbose=True)
+                  strip_components=1)
   # List untarped content.
   with api.context(cwd=temp.join('output')):
     api.step('listing', ['find'])

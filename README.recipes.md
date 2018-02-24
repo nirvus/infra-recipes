@@ -737,9 +737,15 @@ Returns TarPackage object that can be used to compress a set of files.
 
 Ensures that bsdtar is installed.
 
-&mdash; **def [extract](/recipe_modules/tar/api.py#36)(self, step_name, archive, dir=None, verbose=False):**
+&mdash; **def [extract](/recipe_modules/tar/api.py#36)(self, step_name, archive, dir=None, strip_components=None):**
 
-Step to uncompress |tar_file| file.
+Uncompress |archive| file.
+
+Args:
+  step_name: name of the step.
+  archive: absolute path to a file.
+  dir: path directory to extract the archive in.
+  strip_components: strip number of leading components from file names.
 ## Recipes
 
 ### *recipes* / [authutil:examples/full](/recipe_modules/authutil/examples/full.py)
