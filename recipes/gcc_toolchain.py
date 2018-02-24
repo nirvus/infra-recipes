@@ -88,6 +88,12 @@ def RunSteps(api, revision):
   if api.platform.name == 'linux':
     extra_args = ['--with-build-sysroot=%s' % cipd_dir]
 
+  extra_env = {}
+  if api.platform.name == 'mac':
+    # needed to work around problem with clang compiler and some generated code in gcc
+    extra_env['CFLAGS'] = '-fbracket-depth=1024 -g -O2'
+    extra_env['CXXFLAGS'] = '-fbracket-depth=1024 -g -O2'
+
   for target in ['aarch64', 'x86_64']:
     # build binutils
     binutils_build_dir = staging_dir.join('binutils_%s_build_dir' % target)
@@ -126,7 +132,7 @@ def RunSteps(api, revision):
     gcc_build_dir = staging_dir.join('gcc_%s_build_dir' % target)
     api.file.ensure_directory('create gcc %s build dir' % target, gcc_build_dir)
 
-    with api.context(cwd=gcc_build_dir,
+    with api.context(cwd=gcc_build_dir, env=extra_env,
                      env_prefixes={'PATH': [pkg_dir.join('bin')]}):
       api.step('configure gcc', [
         gcc_dir.join('configure'),

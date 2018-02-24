@@ -447,6 +447,10 @@
       "--with-included-gettext"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env": {
+      "CFLAGS": "-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS": "-fbracket-depth=1024 -g -O2"
+    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -462,6 +466,10 @@
       "all-target-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env": {
+      "CFLAGS": "-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS": "-fbracket-depth=1024 -g -O2"
+    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -477,6 +485,8 @@
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
     "env": {
+      "CFLAGS": "-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS": "-fbracket-depth=1024 -g -O2",
       "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-darwin"
     },
     "env_prefixes": {
@@ -573,6 +583,10 @@
       "--with-included-gettext"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
+    "env": {
+      "CFLAGS": "-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS": "-fbracket-depth=1024 -g -O2"
+    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -588,6 +602,10 @@
       "all-target-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
+    "env": {
+      "CFLAGS": "-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS": "-fbracket-depth=1024 -g -O2"
+    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -603,6 +621,8 @@
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
     "env": {
+      "CFLAGS": "-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS": "-fbracket-depth=1024 -g -O2",
       "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-darwin"
     },
     "env_prefixes": {
