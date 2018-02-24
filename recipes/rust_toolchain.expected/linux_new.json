@@ -149,7 +149,7 @@
       "-time",
       "-name",
       "zircon",
-      "manifest",
+      "manifest/zircon",
       "https://fuchsia.googlesource.com/zircon"
     ],
     "infra_step": true,

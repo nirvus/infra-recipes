@@ -103,7 +103,7 @@ def RunSteps(api, url, ref, revision):
   with api.context(infra_steps=True):
     api.jiri.init()
     api.jiri.import_manifest(
-        'manifest',
+        'manifest/zircon',
         'https://fuchsia.googlesource.com/zircon',
         'zircon'
     )
