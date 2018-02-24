@@ -1,0 +1,712 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_gitiles"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gitiles",
+      "-ensure-file",
+      "infra/tools/luci/gitiles/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gitiles.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
+      "-json-output",
+      "/path/to/tmp/json",
+      "https://gnu.googlesource.com/gcc",
+      "refs/heads"
+    ],
+    "name": "refs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/tags/gcc-6_3_0-release\": \"75b05681239cb309a23fcb4f8864f177e5aa62da\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/gcc/linux-amd64",
+      "-tag",
+      "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-cipd-builder.json"
+    ],
+    "name": "cipd search fuchsia/gcc/linux-amd64 git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/clang/${platform} latest\nfuchsia/sysroot/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-cipd-builder.json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/binutils-gdb"
+    ],
+    "infra_step": true,
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://gnu.googlesource.com/binutils-gdb"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/tags/binutils-2_28"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "submodule update"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/gcc"
+    ],
+    "infra_step": true,
+    "name": "makedirs (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "git init (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://gnu.googlesource.com/gcc"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "git remote (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/tags/gcc-6_3_0-release"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "git fetch (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "git checkout (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "git rev-parse (2)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "git clean (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "submodule sync (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "submodule update (2)"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/gcc/contrib/download_prerequisites"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "name": "download prerequisites"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/gcc_tmp_1/gcc-linux"
+    ],
+    "infra_step": true,
+    "name": "create pkg dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create binutils aarch64 build dir"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/binutils-gdb/configure",
+      "--prefix=",
+      "--target=aarch64-elf",
+      "--enable-initfini-array",
+      "--enable-deterministic-archives",
+      "--enable-gold",
+      "--disable-werror",
+      "--disable-nls",
+      "--with-included-gettext",
+      "--with-build-sysroot=[START_DIR]/cipd",
+      "--enable-targets=arm-eabi"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "name": "configure binutils"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "all-binutils",
+      "all-gas",
+      "all-ld",
+      "all-gold"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "name": "build binutils"
+  },
+  {
+    "cmd": [
+      "make",
+      "install-strip-binutils",
+      "install-strip-gas",
+      "install-strip-ld",
+      "install-strip-gold"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "env": {
+      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-linux"
+    },
+    "name": "install binutils"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create gcc aarch64 build dir"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/gcc/configure",
+      "--prefix=",
+      "--target=aarch64-elf",
+      "--enable-languages=c,c++",
+      "--enable-initfini-array",
+      "--enable-gold",
+      "--disable-werror",
+      "--disable-libstdcxx",
+      "--disable-libssp",
+      "--disable-libquadmath",
+      "--with-included-gettext",
+      "--with-build-sysroot=[START_DIR]/cipd"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "configure gcc"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "all-gcc",
+      "all-target-libgcc"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "build gcc"
+  },
+  {
+    "cmd": [
+      "make",
+      "install-strip-gcc",
+      "install-strip-target-libgcc"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env": {
+      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-linux"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "install gcc"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create binutils x86_64 build dir"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/binutils-gdb/configure",
+      "--prefix=",
+      "--target=x86_64-elf",
+      "--enable-initfini-array",
+      "--enable-deterministic-archives",
+      "--enable-gold",
+      "--disable-werror",
+      "--disable-nls",
+      "--with-included-gettext",
+      "--with-build-sysroot=[START_DIR]/cipd",
+      "--enable-targets=x86_64-pep"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "name": "configure binutils (2)"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "all-binutils",
+      "all-gas",
+      "all-ld",
+      "all-gold"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "name": "build binutils (2)"
+  },
+  {
+    "cmd": [
+      "make",
+      "install-strip-binutils",
+      "install-strip-gas",
+      "install-strip-ld",
+      "install-strip-gold"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "env": {
+      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-linux"
+    },
+    "name": "install binutils (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create gcc x86_64 build dir"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/gcc/configure",
+      "--prefix=",
+      "--target=x86_64-elf",
+      "--enable-languages=c,c++",
+      "--enable-initfini-array",
+      "--enable-gold",
+      "--disable-werror",
+      "--disable-libstdcxx",
+      "--disable-libssp",
+      "--disable-libquadmath",
+      "--with-included-gettext",
+      "--with-build-sysroot=[START_DIR]/cipd"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "configure gcc (2)"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "all-gcc",
+      "all-target-libgcc"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "build gcc (2)"
+  },
+  {
+    "cmd": [
+      "make",
+      "install-strip-gcc",
+      "install-strip-target-libgcc"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
+    "env": {
+      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-linux"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "install gcc (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/gcc/gcc/BASE-VER",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "gcc version"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-build",
+      "-pkg-def",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/gcc.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/gcc/linux-amd64\", \"root\": \"[TMP_BASE]/gcc_tmp_1/gcc-linux\"}",
+      "-out",
+      "[TMP_BASE]/gcc.cipd",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "build fuchsia/gcc/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/gcc/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "[TMP_BASE]/gcc.cipd",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-service-account-json",
+      "/creds/service_accounts/service-account-cipd-builder.json",
+      "-ref",
+      "latest",
+      "-tag",
+      "git_repository:https://gnu.googlesource.com/gcc",
+      "-tag",
+      "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
+      "-tag",
+      "version:7.1.2"
+    ],
+    "name": "register fuchsia/gcc/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/gcc/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/gcc.cipd",
+      "gs://fuchsia/gcc/linux-amd64/40-chars-fake-of-the-package-instance_id"
+    ],
+    "infra_step": true,
+    "name": "gsutil cp",
+    "~followup_annotations": [
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/gcc/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

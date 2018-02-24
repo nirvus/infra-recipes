@@ -31,6 +31,7 @@
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia:examples/fuchsia](#recipes-fuchsia_examples_fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia_roller](#recipes-fuchsia_roller) &mdash; Recipe for rolling Fuchsia layers into upper layers.
+  * [gcc_toolchain](#recipes-gcc_toolchain) &mdash; Recipe for building GCC toolchain.
   * [gerrit:examples/full](#recipes-gerrit_examples_full)
   * [git:examples/full](#recipes-git_examples_full)
   * [gitiles:examples/full](#recipes-gitiles_examples_full)
@@ -798,6 +799,13 @@ Recipe for building Fuchsia and running tests.
 Recipe for rolling Fuchsia layers into upper layers.
 
 &mdash; **def [RunSteps](/recipes/fuchsia_roller.py#73)(api, category, project, manifest, remote, import_in, import_from, revision, dry_run, poll_timeout_secs, poll_interval_secs):**
+### *recipes* / [gcc\_toolchain](/recipes/gcc_toolchain.py)
+
+[DEPS](/recipes/gcc_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+
+Recipe for building GCC toolchain.
+
+&mdash; **def [RunSteps](/recipes/gcc_toolchain.py#43)(api, revision):**
 ### *recipes* / [gerrit:examples/full](/recipe_modules/gerrit/examples/full.py)
 
 [DEPS](/recipe_modules/gerrit/examples/full.py#5): [gerrit](#recipe_modules-gerrit), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
