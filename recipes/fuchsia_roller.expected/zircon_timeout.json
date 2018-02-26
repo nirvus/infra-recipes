@@ -349,6 +349,24 @@
     ]
   },
   {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-abandon",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"beep/boop~master~abc123\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "abandon roll: auto-roller timeout",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
     "name": "$result",
     "reason": "Failed to roll changes: roller timed out.",
     "recipe_result": null,

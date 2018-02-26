@@ -206,6 +206,7 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
     # TODO(mknyszek): Mock sleep so we're not actually sleeping during tests.
     time.sleep(poll_interval_secs)
 
+  api.gerrit.abandon('abandon roll: auto-roller timeout', full_change_id)
   raise api.step.InfraFailure('Failed to roll changes: roller timed out.')
 
 
