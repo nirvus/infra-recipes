@@ -390,8 +390,8 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--with-build-sysroot=[START_DIR]/cipd",
-      "--enable-targets=arm-eabi"
+      "--enable-targets=arm-eabi",
+      "--with-build-sysroot=[START_DIR]/cipd"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
     "name": "configure binutils"
@@ -411,15 +411,13 @@
   {
     "cmd": [
       "make",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-binutils",
       "install-strip-gas",
       "install-strip-ld",
       "install-strip-gold"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
-    "env": {
-      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-linux"
-    },
     "name": "install binutils"
   },
   {
@@ -478,13 +476,11 @@
   {
     "cmd": [
       "make",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-gcc",
       "install-strip-target-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
-    "env": {
-      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-linux"
-    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
@@ -518,8 +514,8 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--with-build-sysroot=[START_DIR]/cipd",
-      "--enable-targets=x86_64-pep"
+      "--enable-targets=x86_64-pep",
+      "--with-build-sysroot=[START_DIR]/cipd"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
     "name": "configure binutils (2)"
@@ -539,15 +535,13 @@
   {
     "cmd": [
       "make",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-binutils",
       "install-strip-gas",
       "install-strip-ld",
       "install-strip-gold"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "env": {
-      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-linux"
-    },
     "name": "install binutils (2)"
   },
   {
@@ -606,13 +600,11 @@
   {
     "cmd": [
       "make",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-gcc",
       "install-strip-target-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
-    "env": {
-      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-linux"
-    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"

@@ -386,7 +386,9 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--enable-targets=arm-eabi"
+      "--enable-targets=arm-eabi",
+      "CFLAGS=-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS=-fbracket-depth=1024 -g -O2"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
     "name": "configure binutils"
@@ -406,15 +408,13 @@
   {
     "cmd": [
       "make",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-darwin",
       "install-strip-binutils",
       "install-strip-gas",
       "install-strip-ld",
       "install-strip-gold"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
-    "env": {
-      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-darwin"
-    },
     "name": "install binutils"
   },
   {
@@ -444,13 +444,11 @@
       "--disable-libstdcxx",
       "--disable-libssp",
       "--disable-libquadmath",
-      "--with-included-gettext"
+      "--with-included-gettext",
+      "CFLAGS=-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS=-fbracket-depth=1024 -g -O2"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
-    "env": {
-      "CFLAGS": "-fbracket-depth=1024 -g -O2",
-      "CXXFLAGS": "-fbracket-depth=1024 -g -O2"
-    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -466,10 +464,6 @@
       "all-target-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
-    "env": {
-      "CFLAGS": "-fbracket-depth=1024 -g -O2",
-      "CXXFLAGS": "-fbracket-depth=1024 -g -O2"
-    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -480,15 +474,11 @@
   {
     "cmd": [
       "make",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-darwin",
       "install-strip-gcc",
       "install-strip-target-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
-    "env": {
-      "CFLAGS": "-fbracket-depth=1024 -g -O2",
-      "CXXFLAGS": "-fbracket-depth=1024 -g -O2",
-      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-darwin"
-    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -522,7 +512,9 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--enable-targets=x86_64-pep"
+      "--enable-targets=x86_64-pep",
+      "CFLAGS=-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS=-fbracket-depth=1024 -g -O2"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
     "name": "configure binutils (2)"
@@ -542,15 +534,13 @@
   {
     "cmd": [
       "make",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-darwin",
       "install-strip-binutils",
       "install-strip-gas",
       "install-strip-ld",
       "install-strip-gold"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "env": {
-      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-darwin"
-    },
     "name": "install binutils (2)"
   },
   {
@@ -580,13 +570,11 @@
       "--disable-libstdcxx",
       "--disable-libssp",
       "--disable-libquadmath",
-      "--with-included-gettext"
+      "--with-included-gettext",
+      "CFLAGS=-fbracket-depth=1024 -g -O2",
+      "CXXFLAGS=-fbracket-depth=1024 -g -O2"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
-    "env": {
-      "CFLAGS": "-fbracket-depth=1024 -g -O2",
-      "CXXFLAGS": "-fbracket-depth=1024 -g -O2"
-    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -602,10 +590,6 @@
       "all-target-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
-    "env": {
-      "CFLAGS": "-fbracket-depth=1024 -g -O2",
-      "CXXFLAGS": "-fbracket-depth=1024 -g -O2"
-    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
@@ -616,15 +600,11 @@
   {
     "cmd": [
       "make",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-darwin",
       "install-strip-gcc",
       "install-strip-target-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
-    "env": {
-      "CFLAGS": "-fbracket-depth=1024 -g -O2",
-      "CXXFLAGS": "-fbracket-depth=1024 -g -O2",
-      "DESTDIR": "[TMP_BASE]/gcc_tmp_1/gcc-darwin"
-    },
     "env_prefixes": {
       "PATH": [
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"

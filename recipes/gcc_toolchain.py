@@ -86,15 +86,16 @@ def RunSteps(api, revision):
 
   extra_args = []
   if api.platform.name == 'linux':
-    extra_args = ['--with-build-sysroot=%s' % cipd_dir]
+    extra_args.append('--with-build-sysroot=%s' % cipd_dir)
 
-  extra_env = {}
   if api.platform.name == 'mac':
-    # needed to work around problem with clang compiler and some generated code in gcc
-    extra_env['CFLAGS'] = '-fbracket-depth=1024 -g -O2'
-    extra_env['CXXFLAGS'] = '-fbracket-depth=1024 -g -O2'
+    # Needed to work around problem with clang compiler and some generated
+    # code in gcc.
+    extra_args += ['%s=-fbracket-depth=1024 -g -O2' % flagvar
+                   for flagvar in ('CFLAGS', 'CXXFLAGS')]
 
-  for target in ['aarch64', 'x86_64']:
+  for target, enable_targets in [('aarch64', 'arm-eabi'),
+                                 ('x86_64', 'x86_64-pep')]:
     # build binutils
     binutils_build_dir = staging_dir.join('binutils_%s_build_dir' % target)
     api.file.ensure_directory('create binutils %s build dir' % target, binutils_build_dir)
@@ -110,29 +111,27 @@ def RunSteps(api, revision):
         '--disable-werror', # ignore warnings reported by Clang
         '--disable-nls', # no need for locatization
         '--with-included-gettext', # use include gettext library
-      ] + extra_args + {
-        'aarch64': ['--enable-targets=arm-eabi'],
-        'x86_64': ['--enable-targets=x86_64-pep'],
-      }[target])
+        '--enable-targets=%s' % enable_targets,
+      ] + extra_args)
       api.step('build binutils', [
         'make',
         '-j%s' % api.platform.cpu_count,
         'all-binutils', 'all-gas', 'all-ld', 'all-gold',
       ])
-      with api.context(env={'DESTDIR': pkg_dir}):
-        api.step('install binutils', [
-          'make',
-          'install-strip-binutils',
-          'install-strip-gas',
-          'install-strip-ld',
-          'install-strip-gold',
-        ])
+      api.step('install binutils', [
+        'make',
+        'DESTDIR=%s' % pkg_dir,
+        'install-strip-binutils',
+        'install-strip-gas',
+        'install-strip-ld',
+        'install-strip-gold',
+      ])
 
     # build gcc
     gcc_build_dir = staging_dir.join('gcc_%s_build_dir' % target)
     api.file.ensure_directory('create gcc %s build dir' % target, gcc_build_dir)
 
-    with api.context(cwd=gcc_build_dir, env=extra_env,
+    with api.context(cwd=gcc_build_dir,
                      env_prefixes={'PATH': [pkg_dir.join('bin')]}):
       api.step('configure gcc', [
         gcc_dir.join('configure'),
@@ -152,12 +151,12 @@ def RunSteps(api, revision):
         '-j%s' % api.platform.cpu_count,
         'all-gcc', 'all-target-libgcc',
       ])
-      with api.context(env={'DESTDIR': pkg_dir}):
-        api.step('install gcc', [
-          'make',
-          'install-strip-gcc',
-          'install-strip-target-libgcc',
-        ])
+      api.step('install gcc', [
+        'make',
+        'DESTDIR=%s' % pkg_dir,
+        'install-strip-gcc',
+        'install-strip-target-libgcc',
+      ])
 
   gcc_version = api.file.read_text('gcc version', gcc_dir.join('gcc', 'BASE-VER'))
 
