@@ -858,7 +858,7 @@ Recipe for rolling Fuchsia layers into upper layers.
 
 Recipe for building GCC toolchain.
 
-&mdash; **def [RunSteps](/recipes/gcc_toolchain.py#43)(api, revision):**
+&mdash; **def [RunSteps](/recipes/gcc_toolchain.py#45)(api, binutils_revision, gcc_revision):**
 ### *recipes* / [gerrit:examples/full](/recipe_modules/gerrit/examples/full.py)
 
 [DEPS](/recipe_modules/gerrit/examples/full.py#5): [gerrit](#recipe_modules-gerrit), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]

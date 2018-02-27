@@ -36,21 +36,30 @@ GCC_GIT = 'https://gnu.googlesource.com/gcc'
 GCC_REF = 'refs/heads/roland/6.3.0/pr77609'
 
 PROPERTIES = {
-  'revision': Property(kind=str, help='Revision', default=None),
+  'binutils_revision': Property(kind=str, help='Revision in binutils repo',
+                                default=None),
+  'gcc_revision': Property(kind=str, help='Revision in GCC repo', default=None),
 }
 
 
-def RunSteps(api, revision):
+def RunSteps(api, binutils_revision, gcc_revision):
   api.gitiles.ensure_gitiles()
   api.gsutil.ensure_gsutil()
 
   api.cipd.set_service_account_credentials(
       api.cipd.default_bot_service_account_credentials)
 
-  if not revision:
-    revision = api.gitiles.refs(GCC_GIT).get(GCC_REF, None)
+  if binutils_revision is None:
+    binutils_revision = api.gitiles.refs(
+        BINUTILS_GIT, step_name='binutils refs').get(BINUTILS_REF, None)
+  if gcc_revision is None:
+    gcc_revision = api.gitiles.refs(
+        GCC_GIT, step_name='gcc refs').get(GCC_REF, None)
+
   cipd_pkg_name = 'fuchsia/gcc/' + api.cipd.platform_suffix()
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  cipd_git_revision = ','.join([gcc_revision, binutils_revision])
+
+  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + cipd_git_revision)
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
     return
@@ -69,9 +78,9 @@ def RunSteps(api, revision):
 
   with api.context(infra_steps=True):
     binutils_dir = api.path['start_dir'].join('binutils-gdb')
-    api.git.checkout(BINUTILS_GIT, binutils_dir, ref=BINUTILS_REF)
+    api.git.checkout(BINUTILS_GIT, binutils_dir, ref=binutils_revision)
     gcc_dir = api.path['start_dir'].join('gcc')
-    api.git.checkout(GCC_GIT, gcc_dir, ref=GCC_REF)
+    api.git.checkout(GCC_GIT, gcc_dir, ref=gcc_revision)
 
   with api.context(cwd=gcc_dir):
     # download GCC dependencies: GMP, ISL, MPC and MPFR libraries
@@ -98,7 +107,8 @@ def RunSteps(api, revision):
                                  ('x86_64', 'x86_64-pep')]:
     # build binutils
     binutils_build_dir = staging_dir.join('binutils_%s_build_dir' % target)
-    api.file.ensure_directory('create binutils %s build dir' % target, binutils_build_dir)
+    api.file.ensure_directory('create binutils %s build dir' % target,
+                              binutils_build_dir)
 
     with api.context(cwd=binutils_build_dir):
       api.step('configure %s binutils' % target, [
@@ -158,7 +168,13 @@ def RunSteps(api, revision):
         'install-strip-target-libgcc',
       ])
 
-  gcc_version = api.file.read_text('gcc version', gcc_dir.join('gcc', 'BASE-VER'))
+  binutils_version = api.file.read_text('binutils version',
+                                        binutils_dir.join('bfd', 'version.m4'))
+  m = re.match(r'm4_define\(\[BFD_VERSION\], \[([^]]+)\]\)', binutils_version)
+  assert m and m.group(1), 'bfd/version.m4 has unexpected format'
+  binutils_version = m.group(1)
+  gcc_version = api.file.read_text('gcc version',
+                                   gcc_dir.join('gcc', 'BASE-VER'))
 
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
@@ -178,9 +194,9 @@ def RunSteps(api, revision):
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'version': gcc_version,
-        'git_repository': GCC_GIT,
-        'git_revision': revision,
+        'version': ','.join([gcc_version, binutils_version]),
+        'git_repository': ','.join([GCC_GIT, BINUTILS_GIT]),
+        'git_revision': cipd_git_revision,
       },
   )
 
@@ -194,15 +210,25 @@ def RunSteps(api, revision):
 
 
 def GenTests(api):
-  revision = '75b05681239cb309a23fcb4f8864f177e5aa62da'
+  binutils_revision = '3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f'
+  gcc_revision = '4b5e15daff8b54440e3fda451c318ad31e532fab'
+  cipd_revision = ','.join([gcc_revision, binutils_revision])
   for platform in ('linux', 'mac'):
     yield (api.test(platform) +
            api.platform.name(platform) +
-           api.gitiles.refs('refs', (GCC_REF, revision)))
+           api.gitiles.refs('binutils refs',
+                            (BINUTILS_REF, binutils_revision)) +
+           api.gitiles.refs('gcc refs',
+                            (GCC_REF, gcc_revision)))
     yield (api.test(platform + '_new') +
            api.platform.name(platform) +
-           api.gitiles.refs('refs', (GCC_REF, revision)) +
+           api.gitiles.refs('binutils refs',
+                            (BINUTILS_REF, binutils_revision)) +
+           api.gitiles.refs('gcc refs',
+                            (GCC_REF, gcc_revision)) +
+           api.step_data('binutils version', api.file.read_text(
+               'm4_define([BFD_VERSION], [2.27.0])')) +
            api.step_data('gcc version', api.file.read_text('7.1.2')) +
            api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
-                         'git_revision:' + revision,
+                         'git_revision:' + cipd_revision,
                          api.json.output({'result': []})))
