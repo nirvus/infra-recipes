@@ -173,7 +173,7 @@
       "git",
       "fetch",
       "origin",
-      "refs/tags/binutils-2_28"
+      "binutils-2_27-branch"
     ],
     "cwd": "[START_DIR]/binutils-gdb",
     "infra_step": true,
