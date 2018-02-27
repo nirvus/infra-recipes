@@ -27,7 +27,7 @@ class GitilesApi(recipe_api.RecipeApi):
 
         return self._gitiles_path
 
-  def refs(self, url, refspath='refs/heads', step_name='refs', test_data=[]):
+  def refs(self, url, refspath='refs', step_name='refs', test_data=[]):
     """Resolves each ref in a repository to git revision
 
     Args:

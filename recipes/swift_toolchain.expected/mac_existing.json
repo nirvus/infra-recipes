@@ -96,7 +96,7 @@
       "-json-output",
       "/path/to/tmp/json",
       "https://fuchsia.googlesource.com/third_party/swift",
-      "refs/heads"
+      "refs"
     ],
     "name": "refs",
     "~followup_annotations": [
