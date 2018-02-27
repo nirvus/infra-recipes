@@ -33,7 +33,7 @@ BINUTILS_GIT = 'https://gnu.googlesource.com/binutils-gdb'
 BINUTILS_REF = 'refs/tags/binutils-2_28'
 
 GCC_GIT = 'https://gnu.googlesource.com/gcc'
-GCC_REF = 'refs/tags/gcc-6_3_0-release'
+GCC_REF = 'refs/heads/roland/6.3.0/pr77609'
 
 PROPERTIES = {
   'revision': Property(kind=str, help='Revision', default=None),
@@ -48,7 +48,7 @@ def RunSteps(api, revision):
       api.cipd.default_bot_service_account_credentials)
 
   if not revision:
-    revision = api.gitiles.refs(GCC_GIT, refspath='refs/tags').get(GCC_REF, None)
+    revision = api.gitiles.refs(GCC_GIT, refspath='refs').get(GCC_REF, None)
   cipd_pkg_name = 'fuchsia/gcc/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:

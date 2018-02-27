@@ -66,12 +66,12 @@
       "-json-output",
       "/path/to/tmp/json",
       "https://gnu.googlesource.com/gcc",
-      "refs/tags"
+      "refs"
     ],
     "name": "refs",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"refs/tags/gcc-6_3_0-release\": \"75b05681239cb309a23fcb4f8864f177e5aa62da\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/roland/6.3.0/pr77609\": \"75b05681239cb309a23fcb4f8864f177e5aa62da\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
