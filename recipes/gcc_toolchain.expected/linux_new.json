@@ -88,7 +88,7 @@
     "name": "gcc refs",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/roland/6.3.0/pr77609\": \"4b5e15daff8b54440e3fda451c318ad31e532fab\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/roland/6.3.0/zircon\": \"4b5e15daff8b54440e3fda451c318ad31e532fab\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
