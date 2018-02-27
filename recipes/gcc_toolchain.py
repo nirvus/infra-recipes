@@ -101,7 +101,7 @@ def RunSteps(api, revision):
     api.file.ensure_directory('create binutils %s build dir' % target, binutils_build_dir)
 
     with api.context(cwd=binutils_build_dir):
-      api.step('configure binutils', [
+      api.step('configure %s binutils' % target, [
         binutils_dir.join('configure'),
         '--prefix=', # we're building a relocatable package
         '--target=%s-elf' % target,
@@ -113,12 +113,12 @@ def RunSteps(api, revision):
         '--with-included-gettext', # use include gettext library
         '--enable-targets=%s' % enable_targets,
       ] + extra_args)
-      api.step('build binutils', [
+      api.step('build %s binutils' % target, [
         'make',
         '-j%s' % api.platform.cpu_count,
         'all-binutils', 'all-gas', 'all-ld', 'all-gold',
       ])
-      api.step('install binutils', [
+      api.step('install %s binutils' % target, [
         'make',
         'DESTDIR=%s' % pkg_dir,
         'install-strip-binutils',
@@ -133,7 +133,7 @@ def RunSteps(api, revision):
 
     with api.context(cwd=gcc_build_dir,
                      env_prefixes={'PATH': [pkg_dir.join('bin')]}):
-      api.step('configure gcc', [
+      api.step('configure %s gcc' % target, [
         gcc_dir.join('configure'),
         '--prefix=', # we're building a relocatable package
         '--target=%s-elf' % target,
@@ -146,12 +146,12 @@ def RunSteps(api, revision):
         '--disable-libquadmath', # and neither we need libquadmath
         '--with-included-gettext', # use included gettext library
       ] + extra_args)
-      api.step('build gcc', [
+      api.step('build %s gcc' % target, [
         'make',
         '-j%s' % api.platform.cpu_count,
         'all-gcc', 'all-target-libgcc',
       ])
-      api.step('install gcc', [
+      api.step('install %s gcc' % target, [
         'make',
         'DESTDIR=%s' % pkg_dir,
         'install-strip-gcc',

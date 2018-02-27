@@ -391,7 +391,7 @@
       "CXXFLAGS=-fbracket-depth=1024 -g -O2"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
-    "name": "configure binutils"
+    "name": "configure aarch64 binutils"
   },
   {
     "cmd": [
@@ -403,7 +403,7 @@
       "all-gold"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
-    "name": "build binutils"
+    "name": "build aarch64 binutils"
   },
   {
     "cmd": [
@@ -415,7 +415,7 @@
       "install-strip-gold"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
-    "name": "install binutils"
+    "name": "install aarch64 binutils"
   },
   {
     "cmd": [
@@ -454,7 +454,7 @@
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
-    "name": "configure gcc"
+    "name": "configure aarch64 gcc"
   },
   {
     "cmd": [
@@ -469,7 +469,7 @@
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
-    "name": "build gcc"
+    "name": "build aarch64 gcc"
   },
   {
     "cmd": [
@@ -484,7 +484,7 @@
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
-    "name": "install gcc"
+    "name": "install aarch64 gcc"
   },
   {
     "cmd": [
@@ -517,7 +517,7 @@
       "CXXFLAGS=-fbracket-depth=1024 -g -O2"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "name": "configure binutils (2)"
+    "name": "configure x86_64 binutils"
   },
   {
     "cmd": [
@@ -529,7 +529,7 @@
       "all-gold"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "name": "build binutils (2)"
+    "name": "build x86_64 binutils"
   },
   {
     "cmd": [
@@ -541,7 +541,7 @@
       "install-strip-gold"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "name": "install binutils (2)"
+    "name": "install x86_64 binutils"
   },
   {
     "cmd": [
@@ -580,7 +580,7 @@
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
-    "name": "configure gcc (2)"
+    "name": "configure x86_64 gcc"
   },
   {
     "cmd": [
@@ -595,7 +595,7 @@
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
-    "name": "build gcc (2)"
+    "name": "build x86_64 gcc"
   },
   {
     "cmd": [
@@ -610,7 +610,7 @@
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
-    "name": "install gcc (2)"
+    "name": "install x86_64 gcc"
   },
   {
     "cmd": [
