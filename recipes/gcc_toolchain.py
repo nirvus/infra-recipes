@@ -174,7 +174,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
   assert m and m.group(1), 'bfd/version.m4 has unexpected format'
   binutils_version = m.group(1)
   gcc_version = api.file.read_text('gcc version',
-                                   gcc_dir.join('gcc', 'BASE-VER'))
+                                   gcc_dir.join('gcc', 'BASE-VER')).rstrip()
 
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
@@ -228,7 +228,7 @@ def GenTests(api):
                             (GCC_REF, gcc_revision)) +
            api.step_data('binutils version', api.file.read_text(
                'm4_define([BFD_VERSION], [2.27.0])')) +
-           api.step_data('gcc version', api.file.read_text('7.1.2')) +
+           api.step_data('gcc version', api.file.read_text('7.1.2\n')) +
            api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
                          'git_revision:' + cipd_revision,
                          api.json.output({'result': []})))
