@@ -32,10 +32,6 @@ TEST_FS_PCI_ADDR = '06.0'
 # no output being produced.
 TEST_IO_TIMEOUT_SECS = 60
 
-# A string parseable by golang's ParseDuration function representing the timeout
-# for the tests task.
-TEST_TIMEOUT_STR = '40m'
-
 RUNCMDS_PACKAGE = '''
 {
     "resources": [
@@ -348,7 +344,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """Returns the location of the mounted test directory on the target."""
     return '/tmp/infra-test-output'
 
-  def test(self, build):
+  def test(self, build, timeout_secs=2400):
     """Tests a Fuchsia build.
 
     Expects the build and artifacts to be at the same place they were at
@@ -356,6 +352,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     Args:
       build (FuchsiaBuildResults): The Fuchsia build to test.
+      timeout_secs (int): The amount of seconds to wait for the tests to
+        execute before giving up.
 
     Returns:
       A FuchsiaTestResults representing the completed test.
@@ -473,6 +471,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             'kvm':  '1',
           },
           io_timeout=TEST_IO_TIMEOUT_SECS,
+          hard_timeout=timeout_secs,
           outputs=[output_image_name],
           cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
       )
@@ -480,7 +479,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       # TODO(mknyszek): Replace this with a better timeout mechanism which more
       # suitable for the swarming client, and set hard_timeout for the swarming
       # task via a property.
-      results = self.m.swarming.collect(TEST_TIMEOUT_STR, requests_json=self.m.json.input(trigger_result.json.output))
+      results = self.m.swarming.collect(requests_json=self.m.json.input(trigger_result.json.output))
       assert len(results) == 1
       result = results[0]
     self.analyze_collect_result('task results', result, build.zircon_build_dir)

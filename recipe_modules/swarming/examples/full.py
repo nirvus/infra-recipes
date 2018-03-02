@@ -25,6 +25,7 @@ def RunSteps(api):
       dimensions={'pool': 'Fuchsia', 'os': 'Debian'},
       expiration=3600,
       io_timeout=600,
+      hard_timeout=3600,
       idempotent=True,
       outputs=['out/hello.txt'],
       cipd_packages=[('cipd_bin_packages', 'infra/git/${platform}', 'version:2.14.1.chromium10')],
@@ -32,7 +33,7 @@ def RunSteps(api):
 
   # Wait for its results.
   try:
-    results = api.swarming.collect('1m', requests_json=json)
+    results = api.swarming.collect(timeout='1m', requests_json=json)
     if not results[0].is_failure() and not results[0].is_infra_failure():
       # Get the path of an output like this!
       path = results[0]['out/hello.txt']
@@ -42,7 +43,7 @@ def RunSteps(api):
     pass
 
   # You can also wait on arbitrary tasks.
-  api.swarming.collect(tasks=['398db31cc90be910', 'a9123129aaaaaa'], timeout=30)
+  api.swarming.collect(tasks=['398db31cc90be910', 'a9123129aaaaaa'], timeout='30m')
 
   # You can also run an arbitrary command.
   api.swarming('version')

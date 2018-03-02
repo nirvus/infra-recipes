@@ -238,11 +238,11 @@ parameters will be used.
 
 [DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#81)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#77)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#492)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#491)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -256,7 +256,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#534)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#533)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -267,7 +267,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#245)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#241)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=()):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -286,7 +286,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#113)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#109)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -302,11 +302,11 @@ Args:
   patch_project (str): The name of Gerrit project
   upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#347)(self):**
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#343)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#351)(self, build):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#347)(self, build, timeout_secs=2400):**
 
 Tests a Fuchsia build.
 
@@ -315,6 +315,8 @@ the end of the build.
 
 Args:
   build (FuchsiaBuildResults): The Fuchsia build to test.
+  timeout_secs (int): The amount of seconds to wait for the tests to
+    execute before giving up.
 
 Returns:
   A FuchsiaTestResults representing the completed test.
@@ -745,7 +747,7 @@ APIs for interacting with swarming.
 
 Return a swarming command step.
 
-&mdash; **def [collect](/recipe_modules/swarming/api.py#148)(self, timeout, requests_json=None, tasks=[]):**
+&mdash; **def [collect](/recipe_modules/swarming/api.py#152)(self, timeout=None, requests_json=None, tasks=[]):**
 
 Waits on a set of Swarming tasks.
 
@@ -766,7 +768,7 @@ Ensures that swarming client is installed.
 
 Changes URL of Swarming server to use.
 
-&mdash; **def [trigger](/recipe_modules/swarming/api.py#89)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
+&mdash; **def [trigger](/recipe_modules/swarming/api.py#89)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, hard_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
 
 Triggers a Swarming task.
 
@@ -778,6 +780,7 @@ Args:
   dimensions: dimensions to filter slaves on.
   expiration: seconds before this task request expires.
   io_timeout: seconds to allow the task to be silent.
+  hard_timeout: seconds before swarming should kill the task.
   idempotent: whether this task is considered idempotent.
   cipd_packages: list of 3-tuples corresponding to CIPD packages needed for
       the task: ('path', 'package_name', 'version'), defined as follows:

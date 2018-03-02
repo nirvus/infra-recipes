@@ -88,7 +88,8 @@ class SwarmingApi(recipe_api.RecipeApi):
 
   def trigger(self, name, raw_cmd, isolated=None, dump_json=None,
               dimensions=None, expiration=None, io_timeout=None,
-              idempotent=False, cipd_packages=None, outputs=None):
+              hard_timeout=None, idempotent=False, cipd_packages=None,
+              outputs=None):
     """Triggers a Swarming task.
 
     Args:
@@ -99,6 +100,7 @@ class SwarmingApi(recipe_api.RecipeApi):
       dimensions: dimensions to filter slaves on.
       expiration: seconds before this task request expires.
       io_timeout: seconds to allow the task to be silent.
+      hard_timeout: seconds before swarming should kill the task.
       idempotent: whether this task is considered idempotent.
       cipd_packages: list of 3-tuples corresponding to CIPD packages needed for
           the task: ('path', 'package_name', 'version'), defined as follows:
@@ -129,6 +131,8 @@ class SwarmingApi(recipe_api.RecipeApi):
       cmd.extend(['-expiration', str(expiration)])
     if io_timeout:
       cmd.extend(['-io-timeout', str(io_timeout)])
+    if hard_timeout:
+      cmd.extend(['-hard-timeout', str(hard_timeout)])
     if idempotent:
       cmd.append('-idempotent')
     if cipd_packages:
@@ -145,7 +149,7 @@ class SwarmingApi(recipe_api.RecipeApi):
             dimensions=dimensions, cipd_packages=cipd_packages)
     )
 
-  def collect(self, timeout, requests_json=None, tasks=[]):
+  def collect(self, timeout=None, requests_json=None, tasks=[]):
     """Waits on a set of Swarming tasks.
 
     Returns both the step result as well as a set of neatly parsed results.
@@ -164,9 +168,10 @@ class SwarmingApi(recipe_api.RecipeApi):
       '-server', self.swarming_server,
       '-task-summary-json', self.m.json.output(),
       '-task-output-stdout', 'json',
-      '-timeout', timeout,
       '-output-dir', outdir,
     ]
+    if timeout:
+      cmd.extend(['-timeout', timeout])
     if requests_json:
       cmd.extend(['-requests-json', requests_json])
     if tasks:
