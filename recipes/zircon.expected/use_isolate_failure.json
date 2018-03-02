@@ -161,7 +161,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 1000\nmkdir /test\nmount /dev/sys/pci/00:06.0/virtio-block/block /test\nruntests -o /test\numount /test\ndm poweroff",
+      "#!/boot/bin/sh\nmsleep 1000\nmkdir /tmp/infra-test-output\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output\numount /tmp/infra-test-output\ndm poweroff",
       "[TMP_BASE]/zircon_tmp/runcmds"
     ],
     "infra_step": true,
@@ -169,10 +169,10 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@runcmds.sh@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@msleep 1000@@@",
-      "@@@STEP_LOG_LINE@runcmds.sh@mkdir /test@@@",
-      "@@@STEP_LOG_LINE@runcmds.sh@mount /dev/sys/pci/00:06.0/virtio-block/block /test@@@",
-      "@@@STEP_LOG_LINE@runcmds.sh@runtests -o /test@@@",
-      "@@@STEP_LOG_LINE@runcmds.sh@umount /test@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@mkdir /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@runtests -o /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds.sh@@@"
     ]
@@ -563,8 +563,8 @@
     "cmd": [],
     "name": "core tests task results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@output@hello world!@@@",
-      "@@@STEP_LOG_END@output@@@",
+      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
+      "@@@STEP_LOG_END@kernel log@@@",
       "@@@STEP_EXCEPTION@@@"
     ]
   },

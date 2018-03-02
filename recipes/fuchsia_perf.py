@@ -69,7 +69,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   # number of suites explodes then we should look for an approach that doesn't
   # involve editing this recipe by hand each time.
   test_cmds = [
-      '/system/test/perf/run_zircon_benchmarks.sh /test/zircon_benchmarks.json',
+      '/system/test/perf/run_zircon_benchmarks.sh %s/zircon_benchmarks.json' % api.fuchsia.target_test_dir(),
   ]
 
   build = api.fuchsia.build(

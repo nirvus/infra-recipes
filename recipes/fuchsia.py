@@ -72,7 +72,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   )
   test_cmds = None
   if run_tests:
-    test_cmds = ['runtests -o /test ' + runtests_args]
+    test_cmds = ['runtests -o %s %s' % (
+      api.fuchsia.target_test_dir(),
+      runtests_args,
+    )]
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,

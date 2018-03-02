@@ -37,6 +37,7 @@ PROPERTIES = {
 
 def RunSteps(api, manifest, remote, target, build_type):
   api.fuchsia.checkout(manifest, remote)
+  target_test_file = api.fuchsia.target_test_dir() + '/summary.json'
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
@@ -48,8 +49,9 @@ def RunSteps(api, manifest, remote, target, build_type):
         # or fails. This is necessary because Dart tests are silent when they pass.
         # TODO(mknyszek): Make this much cleaner by writing out a file in the
         # tests instead of using redirects.
-        'dart --checked tools/testing/dart/main.dart --progress=line -m %s -a x64 -r vm vm > /test/dart.out && echo %s > /test/summary.json || echo %s > /test/summary.json' % (
-            build_type, TESTS_PASSED, TESTS_FAILED),
+        'dart --checked tools/testing/dart/main.dart --progress=line -m %s -a x64 -r vm vm'
+        '> /test/dart.out && echo %s > %s || echo %s > %s' % (
+            build_type, TESTS_PASSED, target_test_file, TESTS_FAILED, target_test_file),
       ],
   )
   api.fuchsia.analyze_test_results('test results', api.fuchsia.test(build))

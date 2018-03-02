@@ -169,13 +169,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Script that mounts the block device to contain test output and runs tests,
     # dropping test output into the block device.
+    test_dir = self.target_test_dir()
     runcmds = [
       '#!/boot/bin/sh',
       'msleep 5000',
-      'mkdir /test',
-      'mount %s /test' % device_topological_path,
+      'mkdir %s' % test_dir,
+      'mount %s %s' % (device_topological_path, test_dir),
     ] + test_cmds + [
-      'umount /test',
+      'umount %s' % test_dir,
       'dm poweroff',
     ]
     runcmds_path = self.m.path['tmp_base'].join('runcmds')
@@ -354,6 +355,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Archive the isolated.
     return isolated.archive('isolate artifacts')
 
+  def target_test_dir(self):
+    """Returns the location of the mounted test directory on the target."""
+    return '/tmp/infra-test-output'
+
   def test(self, build):
     """Tests a Fuchsia build.
 
@@ -500,7 +505,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     step_result = self.m.step(step_name, None)
     kernel_output_lines = result.output.split('\n')
-    step_result.presentation.logs['output'] = kernel_output_lines
+    step_result.presentation.logs['kernel log'] = kernel_output_lines
     if result.is_infra_failure():
       raise self.m.step.InfraFailure('Failed to collect: %s' % result.output)
     elif result.is_failure():

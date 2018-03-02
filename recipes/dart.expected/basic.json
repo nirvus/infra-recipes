@@ -111,7 +111,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 5000\nmkdir /test\nmount /dev/sys/pci/00:06.0/virtio-block/block /test\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm > /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /test/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /test/summary.json\numount /test\ndm poweroff",
+      "#!/boot/bin/sh\nmsleep 5000\nmkdir /tmp/infra-test-output\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm> /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /tmp/infra-test-output/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /tmp/infra-test-output/summary.json\numount /tmp/infra-test-output\ndm poweroff",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
@@ -119,11 +119,11 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds@msleep 5000@@@",
-      "@@@STEP_LOG_LINE@runcmds@mkdir /test@@@",
-      "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /test@@@",
+      "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@cd /system/test/dart@@@",
-      "@@@STEP_LOG_LINE@runcmds@dart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm > /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /test/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /test/summary.json@@@",
-      "@@@STEP_LOG_LINE@runcmds@umount /test@@@",
+      "@@@STEP_LOG_LINE@runcmds@dart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm> /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /tmp/infra-test-output/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /tmp/infra-test-output/summary.json@@@",
+      "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]
@@ -639,8 +639,8 @@
     "cmd": [],
     "name": "task results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@output@hello world!@@@",
-      "@@@STEP_LOG_END@output@@@"
+      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
+      "@@@STEP_LOG_END@kernel log@@@"
     ]
   },
   {

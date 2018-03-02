@@ -308,19 +308,20 @@ def Build(api, target, toolchain, src_dir, use_isolate):
   if use_isolate:
     # In the use_isolate case, we need to mount a block device to write test
     # results and test output to. Thus, the runcmds script must:
+    target_test_dir = api.fuchsia.target_test_dir()
     runcmds = [
       '#!/boot/bin/sh',
       # 1. Wait for devmgr to spin up.
       'msleep 1000',
       # 2. Make a test directory.
-      'mkdir /test',
+      'mkdir %s' % target_test_dir,
       # 3. Mount the block device to that test directory (the block device
       #    will always exist at PCI address TEST_FS_PCI_ADDR).
-      'mount /dev/sys/pci/00:%s/virtio-block/block /test' % TEST_FS_PCI_ADDR,
+      'mount /dev/sys/pci/00:%s/virtio-block/block %s' % (TEST_FS_PCI_ADDR, target_test_dir),
       # 4. Execute runtests with -o.
-      'runtests -o /test',
+      'runtests -o %s' % target_test_dir,
       # 5. Unmount and poweroff.
-      'umount /test',
+      'umount %s' % target_test_dir,
       'dm poweroff',
     ]
   else:
