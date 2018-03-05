@@ -374,7 +374,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build.has_tests
     self.m.swarming.ensure_swarming(version='latest')
 
-    ramdisk_name = 'bootdata-blobstore-%s.bin' % _zircon_project(build.target)
+    ramdisk_name = 'bootdata-blob-%s.bin' % _zircon_project(build.target)
     qemu_arch = {
       'arm64': 'aarch64',
       'x86-64': 'x86_64',
