@@ -543,18 +543,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     with self.m.step.nest(step_name):
       test_results_dir = self.m.path['start_dir'].join('minfs_isolate_results')
       with self.m.context(infra_steps=True):
-        # Copy test results out of image.
-        test_output = self.m.minfs.cp(
-            # Paths inside of the MinFS image are prefixed with '::', so '::'
-            # refers to the root of the MinFS image.
-            '::',
-            self.m.raw_io.output_dir(leak_to=test_results_dir),
-            minfs_image_path,
-            name='extract',
-            step_test_data=lambda: self.m.raw_io.test_api.output_dir({
-                'hello.out': 'I am output.'
-            }),
-        ).raw_io.output_dir
+        test_output = self.m.minfs.copy_image(step_name='extract',
+                                              image_path=minfs_image_path,
+                                              out_dir=test_results_dir).raw_io.output_dir
         # Read the tests summary.
         test_summary = self.m.json.read(
             'read summary',

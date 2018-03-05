@@ -648,7 +648,7 @@ Return a jiri command step.
 &mdash; **def [update](/recipe_modules/jiri/api.py#82)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, \*\*kwargs):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
 
-[DEPS](/recipe_modules/minfs/__init__.py#1): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/minfs/__init__.py#1): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [MinfsApi](/recipe_modules/minfs/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -656,6 +656,18 @@ MinfsApi provides support for Fuchia's MinFS tool.
 
 Currently this module can only be used with a Zircon build, which produces
 the local minfs binary.
+
+&mdash; **def [copy\_image](/recipe_modules/minfs/api.py#63)(self, step_name, image_path, out_dir):**
+
+Copies everything from a minfs image into a local directory.
+
+Args:
+  step_name (str): The name of the step under which to copy the minfs files.
+  image_path (Path): Full path to the minfs image.
+  out_dir (Path): Full path to the directory to copy files into.
+
+Returns:
+  A step to perform the copy.
 
 &mdash; **def [cp](/recipe_modules/minfs/api.py#36)(self, from_path, to_path, image, \*\*kwargs):**
 

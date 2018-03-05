@@ -18,6 +18,16 @@
     "name": "minfs cp"
   },
   {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "image.minfs",
+      "cp",
+      "::",
+      "output_path"
+    ],
+    "name": "copy_image_step"
+  },
+  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0

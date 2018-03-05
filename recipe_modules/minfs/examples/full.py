@@ -25,6 +25,9 @@ def RunSteps(api):
     # Copy a file from that image
     api.minfs.cp('file-on-image.json', 'file-on-host.json', 'image.minfs')
 
+    # Copy everything from the image
+    api.minfs.copy_image('copy_image_step', 'image.minfs', 'output_path')
+
 
 def GenTests(api):
     yield api.test('basic')

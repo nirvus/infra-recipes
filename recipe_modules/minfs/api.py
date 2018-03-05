@@ -69,3 +69,27 @@ class MinfsApi(recipe_api.RecipeApi):
           A step to perform the creation.
         """
         return self(str(path) + "@" + size, 'create', **kwargs)
+
+    def copy_image(self, step_name, image_path, out_dir):
+        """
+        Copies everything from a minfs image into a local directory.
+
+        Args:
+          step_name (str): The name of the step under which to copy the minfs files.
+          image_path (Path): Full path to the minfs image.
+          out_dir (Path): Full path to the directory to copy files into.
+
+        Returns:
+          A step to perform the copy.
+        """
+        return self.cp(
+            # Paths inside of the MinFS image are prefixed with '::', so '::'
+            # refers to the root of the MinFS image.
+            '::',
+            self.m.raw_io.output_dir(leak_to=out_dir),
+            image_path,
+            name=step_name,
+            step_test_data=lambda: self.m.raw_io.test_api.output_dir({
+                'hello.out': 'I am output.'
+            }),
+        )
