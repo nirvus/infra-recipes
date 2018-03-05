@@ -30,7 +30,7 @@ DEPS = [
 ]
 
 BINUTILS_GIT = 'https://gnu.googlesource.com/binutils-gdb'
-BINUTILS_REF = 'refs/heads/binutils-2_27-branch'
+BINUTILS_REF = 'refs/tags/binutils-2_30'
 
 GCC_GIT = 'https://gnu.googlesource.com/gcc'
 GCC_REF = 'refs/heads/roland/6.3.0/zircon'
