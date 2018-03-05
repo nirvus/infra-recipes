@@ -100,6 +100,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
     extra_args += ['%s=-fbracket-depth=1024 -g -O2' % flagvar
                    for flagvar in ('CFLAGS', 'CXXFLAGS')]
 
+  make_parallel = ['make', '-j%s' % api.platform.cpu_count]
   for target, enable_targets in [('aarch64', 'arm-eabi'),
                                  ('x86_64', 'x86_64-pep')]:
     # build binutils
@@ -108,6 +109,11 @@ def RunSteps(api, binutils_revision, gcc_revision):
                               binutils_build_dir)
 
     with api.context(cwd=binutils_build_dir):
+      def binutils_make_step(name, prefix, make_args=[]):
+        api.step('%s %s binutils' % (name, target),
+                 make_parallel + make_args +
+                 ['%s-%s' % (prefix, component)
+                  for component in ['binutils', 'gas', 'ld', 'gold']])
       api.step('configure %s binutils' % target, [
         binutils_dir.join('configure'),
         '--prefix=', # we're building a relocatable package
@@ -120,19 +126,9 @@ def RunSteps(api, binutils_revision, gcc_revision):
         '--with-included-gettext', # use include gettext library
         '--enable-targets=%s' % enable_targets,
       ] + extra_args)
-      api.step('build %s binutils' % target, [
-        'make',
-        '-j%s' % api.platform.cpu_count,
-        'all-binutils', 'all-gas', 'all-ld', 'all-gold',
-      ])
-      api.step('install %s binutils' % target, [
-        'make',
-        'DESTDIR=%s' % pkg_dir,
-        'install-strip-binutils',
-        'install-strip-gas',
-        'install-strip-ld',
-        'install-strip-gold',
-      ])
+      binutils_make_step('build', 'all')
+      binutils_make_step('test', 'check')
+      binutils_make_step('install', 'install-strip', ['DESTDIR=%s' % pkg_dir])
 
     # build gcc
     gcc_build_dir = staging_dir.join('gcc_%s_build_dir' % target)

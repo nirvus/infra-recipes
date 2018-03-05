@@ -422,6 +422,19 @@
   {
     "cmd": [
       "make",
+      "-j2",
+      "check-binutils",
+      "check-gas",
+      "check-ld",
+      "check-gold"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "name": "test aarch64 binutils"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
       "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-binutils",
       "install-strip-gas",
@@ -546,6 +559,19 @@
   {
     "cmd": [
       "make",
+      "-j2",
+      "check-binutils",
+      "check-gas",
+      "check-ld",
+      "check-gold"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "name": "test x86_64 binutils"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
       "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-binutils",
       "install-strip-gas",
