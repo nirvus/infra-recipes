@@ -18,7 +18,11 @@ BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
 DEPS = [
   'infra/fuchsia',
+  'infra/gsutil',
+  'infra/hash',
   'infra/swarming',
+  'infra/tar',
+  'recipe_engine/path',
   'recipe_engine/properties',
 ]
 
@@ -50,7 +54,12 @@ PROPERTIES = {
                             help='Arguments to pass to the executable running tests',
                             default=''),
   'upload_snapshot': Property(kind=bool,
-                          help='Whether to upload jiri snapshot (always False if tryjob is true)',
+                          help='Whether to upload jiri snapshot'
+                               ' (always False if tryjob is True)',
+                          default=True),
+  'upload_archive': Property(kind=bool,
+                          help='Whether to upload archive of the build artifacts'
+                               ' (always False if tryjob is True)',
                           default=True),
 }
 
@@ -58,9 +67,7 @@ PROPERTIES = {
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, build_type, packages, variant, gn_args, run_tests, runtests_args,
-             upload_snapshot):
-  if api.properties.get('tryjob'):
-    upload_snapshot = False
+             upload_snapshot, upload_archive):
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -68,7 +75,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project,
-      upload_snapshot=upload_snapshot,
+      upload_snapshot=upload_snapshot and not api.properties.get('tryjob'),
   )
   test_cmds = None
   if run_tests:
@@ -86,6 +93,19 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   )
   if run_tests:
     api.fuchsia.analyze_test_results('test results', api.fuchsia.test(build))
+  if upload_archive and not api.properties.get('tryjob'):
+    api.gsutil.ensure_gsutil()
+    api.tar.ensure_tar()
+
+    package = api.tar.create(api.path['tmp_base'].join('fuchsia.tar.gz'), 'gzip')
+    package.add(build.fuchsia_build_dir.join('images'), build.fuchsia_build_dir)
+    package.tar('tar fuchsia')
+    digest = api.hash.sha1('hash archive', package.archive,
+                           test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
+    api.gsutil.upload('fuchsia-archive', package.archive, digest,
+                      link_name='fuchsia.tar.gz',
+                      name='upload fuchsia.tar.gz')
+
 
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.
@@ -112,6 +132,7 @@ def GenTests(api):
       target='x86-64',
       packages=['topaz/packages/default'],
       upload_snapshot=False,
+      upload_archive=False,
   )
   yield api.test('cq') + api.properties.tryserver(
       patch_project='fuchsia',
@@ -120,5 +141,7 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x86-64',
       packages=['topaz/packages/default'],
+      upload_snapshot=True,
+      upload_archive=True,
       tryjob=True,
   )
