@@ -363,9 +363,9 @@
       "-H",
       "-v",
       "-p",
-      "x86"
+      "x64"
     ],
-    "name": "build zircon x86"
+    "name": "build zircon x64"
   },
   {
     "cmd": [
@@ -394,18 +394,17 @@
   },
   {
     "cmd": [],
-    "name": "build fuchsia aarch64"
+    "name": "build fuchsia arm64"
   },
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=aarch64",
+      "--target_cpu=arm64",
       "--packages=garnet/packages/default",
-      "--platforms=arm64",
       "--goma=[START_DIR]/cipd/goma",
       "--release"
     ],
-    "name": "build fuchsia aarch64.gen fuchsia",
+    "name": "build fuchsia arm64.gen fuchsia",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -416,7 +415,7 @@
       "-u",
       "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
     ],
-    "name": "build fuchsia aarch64.calculate the number of recommended jobs",
+    "name": "build fuchsia arm64.calculate the number of recommended jobs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
@@ -442,29 +441,28 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-aarch64",
+      "[START_DIR]/out/release-arm64",
       "-j",
       "50"
     ],
-    "name": "build fuchsia aarch64.ninja",
+    "name": "build fuchsia arm64.ninja",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia x86-64"
+    "name": "build fuchsia x64"
   },
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x86-64",
+      "--target_cpu=x64",
       "--packages=garnet/packages/default",
-      "--platforms=x86",
       "--goma=[START_DIR]/cipd/goma",
       "--release"
     ],
-    "name": "build fuchsia x86-64.gen fuchsia",
+    "name": "build fuchsia x64.gen fuchsia",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -473,11 +471,11 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-x86-64",
+      "[START_DIR]/out/release-x64",
       "-j",
       "50"
     ],
-    "name": "build fuchsia x86-64.ninja",
+    "name": "build fuchsia x64.ninja",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -620,10 +618,10 @@
       "clang_path=[START_DIR]/cipd",
       "fuchsia_icu_uc=[START_DIR]/third_party/icu/source/common",
       "fuchsia_icu_i18n=[START_DIR]/third_party/icu/source/i18n",
-      "x86_64_sysroot=[START_DIR]/out/build-zircon/build-user-x86-64/sysroot",
+      "x86_64_sysroot=[START_DIR]/out/build-zircon/build-user-x64/sysroot",
       "aarch64_sysroot=[START_DIR]/out/build-zircon/build-user-arm64/sysroot",
-      "x64_shared=[START_DIR]/out/release-x86-64/x64-shared",
-      "arm64_shared=[START_DIR]/out/release-aarch64/arm64-shared",
+      "x64_shared=[START_DIR]/out/release-x64/x64-shared",
+      "arm64_shared=[START_DIR]/out/release-arm64/arm64-shared",
       "install_destdir=[TMP_BASE]/swift_tmp_1/build/swift_toolchain",
       "install_symroot=[TMP_BASE]/swift_tmp_1/build/swift_symbols",
       "extra_cmake_args="

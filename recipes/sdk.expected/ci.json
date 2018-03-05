@@ -200,13 +200,13 @@
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
       "-p",
-      "x86"
+      "x64"
     ],
-    "name": "build x86"
+    "name": "build x64"
   },
   {
     "cmd": [],
-    "name": "build fuchsia x86-64"
+    "name": "build fuchsia x64"
   },
   {
     "cmd": [
@@ -221,7 +221,7 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build fuchsia x86-64.start_goma",
+    "name": "build fuchsia x64.start_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -229,16 +229,15 @@
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x86-64",
+      "--target_cpu=x64",
       "--packages=garnet/packages/sdk",
-      "--platforms=x86",
-      "--build-dir=[START_DIR]/out/release-x86-64",
+      "--build-dir=[START_DIR]/out/release-x64",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
       "test"
     ],
-    "name": "build fuchsia x86-64.gen",
+    "name": "build fuchsia x64.gen",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -249,7 +248,7 @@
       "-u",
       "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
     ],
-    "name": "build fuchsia x86-64.calculate the number of recommended jobs",
+    "name": "build fuchsia x64.calculate the number of recommended jobs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
@@ -275,11 +274,11 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-x86-64",
+      "[START_DIR]/out/release-x64",
       "-j",
       "50"
     ],
-    "name": "build fuchsia x86-64.ninja",
+    "name": "build fuchsia x64.ninja",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -297,7 +296,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x86-64.goma_jsonstatus",
+    "name": "build fuchsia x64.goma_jsonstatus",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -314,7 +313,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x86-64.goma_stat",
+    "name": "build fuchsia x64.goma_stat",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -331,14 +330,14 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x86-64.stop_goma",
+    "name": "build fuchsia x64.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia x86-64 (2)"
+    "name": "build fuchsia x64 (2)"
   },
   {
     "cmd": [
@@ -353,7 +352,7 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build fuchsia x86-64.start_goma (2)",
+    "name": "build fuchsia x64.start_goma (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -361,10 +360,9 @@
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x86-64",
+      "--target_cpu=x64",
       "--packages=garnet/packages/sdk_bootfs",
-      "--platforms=x86",
-      "--build-dir=[START_DIR]/out/release-x86-64-bootfs",
+      "--build-dir=[START_DIR]/out/release-x64-bootfs",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
@@ -372,7 +370,7 @@
       "--args",
       "bootfs_packages=true"
     ],
-    "name": "build fuchsia x86-64.gen (2)",
+    "name": "build fuchsia x64.gen (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -381,11 +379,11 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-x86-64-bootfs",
+      "[START_DIR]/out/release-x64-bootfs",
       "-j",
       "50"
     ],
-    "name": "build fuchsia x86-64.ninja (2)",
+    "name": "build fuchsia x64.ninja (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -403,7 +401,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x86-64.goma_jsonstatus (2)",
+    "name": "build fuchsia x64.goma_jsonstatus (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -420,7 +418,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x86-64.goma_stat (2)",
+    "name": "build fuchsia x64.goma_stat (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -437,7 +435,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x86-64.stop_goma (2)",
+    "name": "build fuchsia x64.stop_goma (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -452,7 +450,7 @@
   },
   {
     "cmd": [],
-    "name": "build fuchsia aarch64"
+    "name": "build fuchsia arm64"
   },
   {
     "cmd": [
@@ -467,7 +465,7 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build fuchsia aarch64.start_goma",
+    "name": "build fuchsia arm64.start_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -475,16 +473,15 @@
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=aarch64",
+      "--target_cpu=arm64",
       "--packages=garnet/packages/sdk",
-      "--platforms=arm64",
-      "--build-dir=[START_DIR]/out/release-aarch64",
+      "--build-dir=[START_DIR]/out/release-arm64",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
       "test"
     ],
-    "name": "build fuchsia aarch64.gen",
+    "name": "build fuchsia arm64.gen",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -493,11 +490,11 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-aarch64",
+      "[START_DIR]/out/release-arm64",
       "-j",
       "50"
     ],
-    "name": "build fuchsia aarch64.ninja",
+    "name": "build fuchsia arm64.ninja",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -515,7 +512,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia aarch64.goma_jsonstatus",
+    "name": "build fuchsia arm64.goma_jsonstatus",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -532,7 +529,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia aarch64.goma_stat",
+    "name": "build fuchsia arm64.goma_stat",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -549,14 +546,14 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia aarch64.stop_goma",
+    "name": "build fuchsia arm64.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia aarch64 (2)"
+    "name": "build fuchsia arm64 (2)"
   },
   {
     "cmd": [
@@ -571,7 +568,7 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build fuchsia aarch64.start_goma (2)",
+    "name": "build fuchsia arm64.start_goma (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -579,10 +576,9 @@
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=aarch64",
+      "--target_cpu=arm64",
       "--packages=garnet/packages/sdk_bootfs",
-      "--platforms=arm64",
-      "--build-dir=[START_DIR]/out/release-aarch64-bootfs",
+      "--build-dir=[START_DIR]/out/release-arm64-bootfs",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
@@ -590,7 +586,7 @@
       "--args",
       "bootfs_packages=true"
     ],
-    "name": "build fuchsia aarch64.gen (2)",
+    "name": "build fuchsia arm64.gen (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -599,11 +595,11 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-aarch64-bootfs",
+      "[START_DIR]/out/release-arm64-bootfs",
       "-j",
       "50"
     ],
-    "name": "build fuchsia aarch64.ninja (2)",
+    "name": "build fuchsia arm64.ninja (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -621,7 +617,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia aarch64.goma_jsonstatus (2)",
+    "name": "build fuchsia arm64.goma_jsonstatus (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -638,7 +634,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia aarch64.goma_stat (2)",
+    "name": "build fuchsia arm64.goma_stat (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -655,7 +651,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia aarch64.stop_goma (2)",
+    "name": "build fuchsia arm64.stop_goma (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

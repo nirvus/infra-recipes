@@ -226,7 +226,7 @@
   {
     "cmd": [
       "make",
-      "x86",
+      "x64",
       "HOST_USE_ASAN=true",
       "USE_ASAN=true",
       "GOMACC=[START_DIR]/cipd/goma/gomacc",
@@ -339,12 +339,12 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-x86-asan/bootdata.bin",
+      "[START_DIR]/zircon/build-x64-asan/bootdata.bin",
       "--cmdline",
       "userboot=bin/core-tests",
       "--shutdown_pattern",
       "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
-      "[START_DIR]/zircon/build-x86-asan/zircon.bin"
+      "[START_DIR]/zircon/build-x64-asan/zircon.bin"
     ],
     "name": "run core tests",
     "stdout": "/path/to/tmp/",
@@ -367,12 +367,12 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-x86-asan/bootdata.bin",
+      "[START_DIR]/zircon/build-x64-asan/bootdata.bin",
       "--cmdline",
       "zircon.autorun.boot=/boot/infra/runcmds",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
-      "[START_DIR]/zircon/build-x86-asan/zircon.bin"
+      "[START_DIR]/zircon/build-x64-asan/zircon.bin"
     ],
     "name": "run booted tests",
     "stdout": "/path/to/tmp/",

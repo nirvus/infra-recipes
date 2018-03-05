@@ -14,7 +14,7 @@ DEPS = [
   'recipe_engine/properties',
 ]
 
-TARGETS = ['arm64', 'x86-64']
+TARGETS = ['arm64', 'x64']
 
 # To avoid having multiple codepaths in the fuchsia recipe module, we write a
 # summary JSON file in the same structure as one produced by runtests, except
@@ -29,7 +29,7 @@ PROPERTIES = {
   'remote': Property(kind=str, help='Remote manifest repository',
                      default='https://fuchsia.googlesource.com/topaz'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build',
-                     default='x86-64'),
+                     default='x64'),
   'build_type': Property(kind=Enum('debug', 'release'),
                          help='The build type', default='debug'),
 }

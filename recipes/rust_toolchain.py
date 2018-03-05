@@ -125,7 +125,7 @@ def RunSteps(api, url, ref, revision):
   # build zircon
   zircon_dir = api.path['start_dir'].join('zircon')
 
-  for project in ['user-x86-64', 'user-arm64']:
+  for project in ['user-x64', 'user-arm64']:
     with api.context(cwd=zircon_dir):
       api.step('build ' + project, [
         'make',
@@ -151,7 +151,7 @@ def RunSteps(api, url, ref, revision):
       )
   )
 
-  x86_64_sysroot = zircon_dir.join('build-user-x86-64', 'sysroot')
+  x86_64_sysroot = zircon_dir.join('build-user-x64', 'sysroot')
   aarch64_sysroot = zircon_dir.join('build-user-arm64', 'sysroot')
 
   cargo_dir = staging_dir.join('.cargo')

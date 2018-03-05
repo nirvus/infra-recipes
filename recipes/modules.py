@@ -42,10 +42,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
                       patch_project)
 
-  # The make script defaults to a debug build unless specified otherwise. It
-  # also always hardcodes x86-64 as the target architecture. Since this is
-  # only exercising Dart code we don't parameterize the recipe for any other
-  # architecture.
+  # The make script defaults to a debug build unless specified otherwise. It also always hardcodes
+  # x64 as the target architecture. Since this is only exercising Dart code we don't parameterize
+  # the recipe for any other architecture.
   ctx = {
     'cwd': api.path['start_dir'].join(project_path),
     'env': {

@@ -88,7 +88,7 @@ def RunSteps(api, url, ref, revision):
   # build zircon
   zircon_dir = api.path['start_dir'].join('zircon')
 
-  for project in ['user-x86-64', 'user-arm64']:
+  for project in ['user-x64', 'user-arm64']:
     with api.context(cwd=zircon_dir):
       api.step('build ' + project, [
         'make',
@@ -121,7 +121,7 @@ def RunSteps(api, url, ref, revision):
       '-DCMAKE_INSTALL_PREFIX=',
       '-DSWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
       '-DBOOTSTRAP_SWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
-      '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-user-x86-64', 'sysroot'),
+      '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-user-x64', 'sysroot'),
       '-DFUCHSIA_aarch64_SYSROOT=%s' % zircon_dir.join('build-user-arm64', 'sysroot'),
       '-DLLVM_ENABLE_PROJECTS=clang;lld',
       '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',

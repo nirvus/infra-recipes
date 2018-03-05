@@ -16,7 +16,7 @@ from recipe_engine.recipe_api import Property
 
 import re
 
-TARGETS = ['arm64', 'x86-64']
+TARGETS = ['arm64', 'x64']
 
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
@@ -89,6 +89,6 @@ def GenTests(api):
   yield api.test('isolated_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
   ) + api.step_data('collect', api.swarming.collect(outputs=['output.fs'],))

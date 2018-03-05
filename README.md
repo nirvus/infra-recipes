@@ -82,7 +82,7 @@ Here's an example test case from the `fuchsia.py` recipe:
 yield api.test('failed_tests') + api.properties(
     manifest='fuchsia',
     remote='https://fuchsia.googlesource.com/manifest',
-    target='x86-64',
+    target='x64',
     tests='tests.json',
 ) + api.step_data('run tests', retcode=1)
 ```
@@ -189,7 +189,7 @@ of what that file might look like, for the `fuchsia.py` recipe:
   "remote": "https://fuchsia.googlesource.com/manifest",
   "manifest": "fuchsia",
   "build_type": "debug",
-  "target": "x86-64",
+  "target": "x64",
   "use_goma": false,
   "modules": ["test_runner_dev"],
   "tests": "runtests /system/test",

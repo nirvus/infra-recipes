@@ -189,7 +189,7 @@
       "-c",
       "-H",
       "-p",
-      "x86"
+      "x64"
     ],
     "name": "build.zircon",
     "~followup_annotations": [
@@ -259,9 +259,8 @@
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x86-64",
+      "--target_cpu=x64",
       "--packages=topaz/packages/default",
-      "--platforms=x86",
       "--goma=[START_DIR]/cipd/goma"
     ],
     "name": "build.build fuchsia.gen",
@@ -301,7 +300,7 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/debug-x86-64",
+      "[START_DIR]/out/debug-x64",
       "-j",
       "50"
     ],

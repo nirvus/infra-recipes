@@ -33,10 +33,16 @@ DEPS = [
   'recipe_engine/tempfile',
 ]
 
-TARGETS = ['x86', 'arm64', 'hikey960', 'gauss', 'odroidc2']
+TARGETS = ['x64', 'arm64']
+# TODO(dbort): Add a new class to manage these mappings more clearly.
 TARGET_TO_ARCH = dict(zip(
     TARGETS,
-    ['x86_64', 'aarch64', 'aarch64', 'aarch64', 'aarch64'],
+    ['x86_64', 'aarch64'],
+))
+# The boot filesystem image.
+TARGET_TO_BOOT_IMAGE = dict(zip(
+    TARGETS,
+    ['bootdata.bin', 'qemu-bootdata.bin'],
 ))
 ARCHS = ('x86_64', 'aarch64')
 
@@ -57,9 +63,6 @@ BOOTED_TESTS_MATCH = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
 
 # The kernel binary to pass to qemu.
 ZIRCON_IMAGE_NAME = 'zircon.bin'
-
-# The boot filesystem image.
-BOOTFS_IMAGE_NAME = 'bootdata.bin'
 
 # The path under /boot to the runcmds script (which runs tests) in the zircon
 # bootfs.
@@ -145,11 +148,11 @@ def RunTests(api, name, build_dir, *args, **kwargs):
     raise api.step.StepFailure(failure_reason)
 
 
-def GenerateQEMUCommand(arch, cmdline, use_kvm, blkdev=''):
+def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
   """GenerateQEMUCommand generates a QEMU command for executing Zircon tests.
 
   Args:
-    arch (str): The target architecture to execute tests for.
+    target (str): The zircon target architecture to execute tests for.
     cmdline (list[str]): A list of kernel command line arguments to pass to
       zircon.
     use_kvm (bool): Whether or not KVM should be enabled in the QEMU command.
@@ -163,6 +166,7 @@ def GenerateQEMUCommand(arch, cmdline, use_kvm, blkdev=''):
     A list[str] representing QEMU command which invokes QEMU from the default
     CIPD installation directory.
   """
+  arch=TARGET_TO_ARCH[target]
   assert arch in ARCHS
 
   qemu_cmd = [
@@ -173,7 +177,7 @@ def GenerateQEMUCommand(arch, cmdline, use_kvm, blkdev=''):
     '-kernel', ZIRCON_IMAGE_NAME,
     '-serial', 'stdio',
     '-monitor', 'none',
-    '-initrd', BOOTFS_IMAGE_NAME,
+    '-initrd', TARGET_TO_BOOT_IMAGE[target],
     '-append', ' '.join(['TERM=dumb', 'kernel.halt-on-panic=true'] + cmdline),
   ]
 
@@ -238,13 +242,13 @@ def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output=''):
     'os':   'Debian',
   }
   if use_kvm:
-    dimensions['cpu'] = {'aarch64': 'arm64', 'x86_64': 'x86-64'}[arch]
+    dimensions['cpu'] = {'aarch64': 'arm64', 'x86_64': 'x64'}[arch]
     dimensions['kvm'] = '1'
   else:
     # If we're not using KVM, we should use our x86 testers since we'll be in
     # full emulation mode anyway, and our arm64 resources are much fewer in
     # number.
-    dimensions['cpu'] = 'x86-64'
+    dimensions['cpu'] = 'x64'
 
   with api.context(infra_steps=True):
     # Trigger task.
@@ -408,7 +412,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.swarming.ensure_swarming(version='latest')
       api.isolated.ensure_isolated(version='latest')
 
-    bootfs_path = build_dir.join(BOOTFS_IMAGE_NAME)
+    bootfs_path = build_dir.join(TARGET_TO_BOOT_IMAGE[target])
     image_path = build_dir.join(ZIRCON_IMAGE_NAME)
 
     # The MinFS tool is generated during the Zircon build, so only after we
@@ -438,12 +442,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.minfs.create(test_image, '16M', name='create test image')
 
       # Generate the QEMU commands.
-      core_tests_qemu_cmd = GenerateQEMUCommand(arch=arch, cmdline=[
+      core_tests_qemu_cmd = GenerateQEMUCommand(target=target, cmdline=[
         core_tests_userboot_arg,
         'userboot.shutdown', # shuts down zircon after the userboot process exits.
       ], use_kvm=use_kvm)
       booted_tests_qemu_cmd = GenerateQEMUCommand(
-          arch=arch,
+          target=target,
           cmdline=[autorun_arg],
           use_kvm=use_kvm,
           blkdev=output_image_name,
@@ -520,7 +524,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='x86',
+                    target='x64',
                     toolchain='gcc') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
@@ -534,7 +538,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='x86',
+                    target='x64',
                     toolchain='gcc',
                     use_kvm=False) +
      api.step_data('run booted tests',
@@ -552,7 +556,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='x86',
+                    target='x64',
                     toolchain='asan') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
@@ -560,7 +564,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='x86',
+                    target='x64',
                     toolchain='lto') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
@@ -568,7 +572,7 @@ def GenTests(api):
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
-                    target='x86',
+                    target='x64',
                     toolchain='thinlto') +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
@@ -579,42 +583,42 @@ def GenTests(api):
          project='zircon',
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
-         target='x86',
+         target='x64',
          toolchain='clang'))
   yield (api.test('no_run_tests') +
      api.properties.tryserver(
          project='zircon',
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
-         target='x86',
+         target='x64',
          toolchain='clang',
          run_tests=False))
   yield (api.test('failed_qemu') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='x86',
+                     target='x64',
                      toolchain='gcc') +
       api.step_data('run booted tests', retcode=1))
   yield (api.test('qemu_timeout') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='x86',
+                     target='x64',
                      toolchain='gcc') +
       api.step_data('run booted tests', retcode=2))
   yield (api.test('test_ouput') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='x86',
+                     target='x64',
                      toolchain='gcc') +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
   yield (api.test('goma_dir') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='x86',
+                     target='x64',
                      toolchain='gcc',
                      goma_dir='/path/to/goma') +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
@@ -666,7 +670,7 @@ def GenTests(api):
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='x86',
+                     target='x64',
                      toolchain='gcc',
                      use_isolate=True) +
       core_tests_trigger_data +
@@ -676,7 +680,7 @@ def GenTests(api):
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='x86',
+                     target='x64',
                      toolchain='gcc',
                      use_isolate=True,
                      use_kvm=False) +
@@ -687,7 +691,7 @@ def GenTests(api):
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='x86',
+                     target='x64',
                      toolchain='gcc',
                      use_isolate=True) +
       core_tests_trigger_data +
@@ -700,6 +704,6 @@ def GenTests(api):
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
-                     target='x86',
+                     target='x64',
                      toolchain='gcc') +
       api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n')))

@@ -337,11 +337,11 @@
     "cmd": [
       "make",
       "-j2",
-      "PROJECT=user-x86-64",
+      "PROJECT=user-x64",
       "user-only"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build user-x86-64"
+    "name": "build user-x64"
   },
   {
     "cmd": [
@@ -379,7 +379,7 @@
       "-DCMAKE_INSTALL_PREFIX=",
       "-DSWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
       "-DBOOTSTRAP_SWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
-      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/zircon/build-user-x86-64/sysroot",
+      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/zircon/build-user-x64/sysroot",
       "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/zircon/build-user-arm64/sysroot",
       "-DLLVM_ENABLE_PROJECTS=clang;lld",
       "-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind",

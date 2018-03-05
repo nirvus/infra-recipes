@@ -11,7 +11,7 @@ import re
 
 
 # List of available targets.
-TARGETS = ['arm64', 'x86-64']
+TARGETS = ['arm64', 'x64']
 
 # List of available build types.
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
@@ -46,16 +46,6 @@ RUNCMDS_PACKAGE = '''
     ]
 }
 '''
-
-
-def _zircon_project(target):
-  """Returns the zircon project for the target string."""
-  return {'arm64': 'arm64', 'x86-64': 'x86'}[target]
-
-
-def _gn_target(target):
-  """Returns the GN target for the target string."""
-  return {'arm64': 'aarch64', 'x86-64': 'x86-64'}[target]
 
 
 class FuchsiaBuildResults(object):
@@ -195,7 +185,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.path['start_dir'].join('scripts', 'build-zircon.sh'),
       '-c',
       '-H',
-      '-p', _zircon_project(target),
+      '-p', target,
     ])
 
   def _setup_goma(self):
@@ -219,9 +209,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       with self.m.goma.build_with_goma(env=goma_env):
         gen_cmd = [
           self.m.path['start_dir'].join('build', 'gn', 'gen.py'),
-          '--target_cpu=%s' % _gn_target(build.target),
+          '--target_cpu=%s' % build.target,
           '--packages=%s' % ','.join(packages),
-          '--platforms=%s' % _zircon_project(build.target),
         ]
 
         gen_cmd += ['--variant=%s' % v for v in variants]
@@ -285,8 +274,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     out_dir = self.m.path['start_dir'].join('out')
     build = FuchsiaBuildResults(
         target=target,
-        zircon_build_dir=out_dir.join('build-zircon', 'build-%s' % _zircon_project(target)),
-        fuchsia_build_dir=out_dir.join('%s-%s' % (build_dir, _gn_target(target))),
+        zircon_build_dir=out_dir.join('build-zircon', 'build-%s' % target),
+        fuchsia_build_dir=out_dir.join('%s-%s' % (build_dir, target)),
         has_tests=bool(test_cmds),
     )
     with self.m.step.nest('build'):
@@ -374,10 +363,15 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build.has_tests
     self.m.swarming.ensure_swarming(version='latest')
 
-    ramdisk_name = 'bootdata-blob-%s.bin' % _zircon_project(build.target)
+    blob_board = {
+      'arm64': 'qemu',
+      'x64': 'pc',
+    }[build.target]
+
+    ramdisk_name = 'bootdata-blob-%s.bin' % blob_board
     qemu_arch = {
       'arm64': 'aarch64',
-      'x86-64': 'x86_64',
+      'x64': 'x86_64',
     }[build.target]
 
     cmdline = [
@@ -457,7 +451,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     qemu_cipd_arch = {
       'arm64': 'arm64',
-      'x86-64': 'amd64',
+      'x64': 'amd64',
     }[build.target]
 
     with self.m.context(infra_steps=True):

@@ -70,14 +70,12 @@ def GomaContext(api, use_goma):
       yield
 
 
-def BuildFuchsia(api, release_build, gn_target, zircon_project,
-                 fuchsia_build_dir, packages, use_goma, gn_args):
-  with api.step.nest('build fuchsia %s' % gn_target), GomaContext(api, use_goma):
+def BuildFuchsia(api, release_build, target_cpu, fuchsia_build_dir, packages, use_goma, gn_args):
+  with api.step.nest('build fuchsia %s' % target_cpu), GomaContext(api, use_goma):
     gen_cmd = [
         api.path['start_dir'].join('build', 'gn', 'gen.py'),
-        '--target_cpu=%s' % gn_target,
+        '--target_cpu=%s' % target_cpu,
         '--packages=%s' % ','.join(packages),
-        '--platforms=%s' % zircon_project,
         '--build-dir=%s' % fuchsia_build_dir,
     ]
 
@@ -179,25 +177,20 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   build_type = 'release'
   release_build = True
-  gn_target_and_zircon_platforms = [
-      ['x86-64', 'x86'],
-      ['aarch64', 'arm64'],
-  ]
 
   fuchsia_out_dir = api.path['start_dir'].join('out')
 
-  for gn_target, zircon_platform in gn_target_and_zircon_platforms:
-    BuildZircon(api, zircon_platform)
+  for target_cpu in ['x64', 'arm64']:
+    BuildZircon(api, target_cpu)
     # Build a version with bootfs and a version without so consumers can transition over.
-    fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, gn_target))
+    fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, target_cpu))
     packages = ['garnet/packages/sdk']
-    BuildFuchsia(api, release_build, gn_target, zircon_platform,
-                 fuchsia_build_dir, packages, use_goma, gn_args)
-    fuchsia_build_dir_bootfs = fuchsia_out_dir.join('%s-%s-bootfs' % (build_type, gn_target))
+    BuildFuchsia(api, release_build, target_cpu, fuchsia_build_dir, packages, use_goma, gn_args)
+    fuchsia_build_dir_bootfs = fuchsia_out_dir.join('%s-%s-bootfs' % (build_type, target_cpu))
     packages = ['garnet/packages/sdk_bootfs']
     gn_args_bootfs = gn_args + [ 'bootfs_packages=true' ]
-    BuildFuchsia(api, release_build, gn_target, zircon_platform,
-                 fuchsia_build_dir_bootfs, packages, use_goma, gn_args_bootfs)
+    BuildFuchsia(api, release_build, target_cpu, fuchsia_build_dir_bootfs, packages, use_goma,
+                 gn_args_bootfs)
 
   outdir = api.path.mkdtemp('sdk')
   sdk = api.path['tmp_base'].join('fuchsia-sdk.tgz')

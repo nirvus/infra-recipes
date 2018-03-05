@@ -180,7 +180,7 @@
   {
     "cmd": [
       "make",
-      "x86",
+      "x64",
       "HOST_USE_ASAN=true",
       "-j",
       "2"
@@ -239,12 +239,12 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-x86/bootdata.bin",
+      "[START_DIR]/zircon/build-x64/bootdata.bin",
       "--cmdline",
       "userboot=bin/core-tests",
       "--shutdown_pattern",
       "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
-      "[START_DIR]/zircon/build-x86/zircon.bin"
+      "[START_DIR]/zircon/build-x64/zircon.bin"
     ],
     "name": "run core tests",
     "stdout": "/path/to/tmp/",
@@ -267,12 +267,12 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-x86/bootdata.bin",
+      "[START_DIR]/zircon/build-x64/bootdata.bin",
       "--cmdline",
       "zircon.autorun.boot=/boot/infra/runcmds",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
-      "[START_DIR]/zircon/build-x86/zircon.bin"
+      "[START_DIR]/zircon/build-x64/zircon.bin"
     ],
     "name": "run booted tests",
     "stdout": "/path/to/tmp/",
@@ -289,7 +289,7 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/zircon/build-x86"
+      "[START_DIR]/zircon/build-x64"
     ],
     "name": "symbolize",
     "stdin": "SUMMARY: Ran 2 tests: 1 failed",

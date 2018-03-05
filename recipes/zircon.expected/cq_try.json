@@ -256,7 +256,7 @@
   {
     "cmd": [
       "make",
-      "x86",
+      "x64",
       "HOST_USE_ASAN=true",
       "USE_CLANG=true",
       "GOMACC=[START_DIR]/cipd/goma/gomacc",
@@ -369,12 +369,12 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-x86-clang/bootdata.bin",
+      "[START_DIR]/zircon/build-x64-clang/bootdata.bin",
       "--cmdline",
       "userboot=bin/core-tests",
       "--shutdown_pattern",
       "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
-      "[START_DIR]/zircon/build-x86-clang/zircon.bin"
+      "[START_DIR]/zircon/build-x64-clang/zircon.bin"
     ],
     "name": "run core tests",
     "stdout": "/path/to/tmp/",
@@ -397,12 +397,12 @@
       "--arch",
       "x86_64",
       "--initrd",
-      "[START_DIR]/zircon/build-x86-clang/bootdata.bin",
+      "[START_DIR]/zircon/build-x64-clang/bootdata.bin",
       "--cmdline",
       "zircon.autorun.boot=/boot/infra/runcmds",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
-      "[START_DIR]/zircon/build-x86-clang/zircon.bin"
+      "[START_DIR]/zircon/build-x64-clang/zircon.bin"
     ],
     "name": "run booted tests",
     "stdout": "/path/to/tmp/",
@@ -418,7 +418,7 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/zircon/build-x86-clang"
+      "[START_DIR]/zircon/build-x64-clang"
     ],
     "name": "symbolize",
     "stdin": "SUMMARY: Ran 2 tests: 1 failed",

@@ -317,7 +317,7 @@ UPDATE_CHECKOUT_CONFIG = """
 
 
 # TODO(zbowling): We are building packages for all of garnet. This is overkill.
-def BuildFuchsia(api, target_cpu, zircon_project, fuchsia_out_dir):
+def BuildFuchsia(api, target_cpu, fuchsia_out_dir):
   fuchsia_build_dir = fuchsia_out_dir.join('release-%s' % target_cpu)
 
   with api.step.nest('build fuchsia ' + target_cpu):
@@ -325,7 +325,6 @@ def BuildFuchsia(api, target_cpu, zircon_project, fuchsia_out_dir):
       api.path['start_dir'].join('build', 'gn', 'gen.py'),
       '--target_cpu=%s' % target_cpu,
       '--packages=garnet/packages/default',
-      '--platforms=%s' % zircon_project,
     ]
 
     gen_cmd.append('--goma=%s' % api.goma.goma_dir)
@@ -394,9 +393,9 @@ def RunSteps(api, url, ref, revision, goma_dir):
           'fuchsia/clang/${platform}': 'latest',
       })
 
-  # Build zircon for both x86 and arm64
+  # Build zircon for both x64 and arm64
   zircon_dir = api.path['start_dir'].join('zircon')
-  for project in ['x86', 'arm64']:
+  for project in ['x64', 'arm64']:
     build_zircon_cmd = [
       api.path['start_dir'].join('scripts', 'build-zircon.sh'),
       '-H',
@@ -409,8 +408,8 @@ def RunSteps(api, url, ref, revision, goma_dir):
 
   fuchsia_out_dir = api.path['start_dir'].join('out')
   with api.goma.build_with_goma():
-    BuildFuchsia(api, "aarch64", "arm64", fuchsia_out_dir)
-    BuildFuchsia(api, "x86-64", "x86", fuchsia_out_dir)
+    BuildFuchsia(api, "arm64", fuchsia_out_dir)
+    BuildFuchsia(api, "x64", fuchsia_out_dir)
 
   # build swift
   staging_dir = api.path.mkdtemp('swift')
@@ -420,12 +419,12 @@ def RunSteps(api, url, ref, revision, goma_dir):
   api.file.ensure_directory('build', build_dir)
 
   zircon_dir = api.path['start_dir'].join('out', 'build-zircon')
-  x86_64_sysroot = zircon_dir.join('build-user-x86-64', 'sysroot')
+  x86_64_sysroot = zircon_dir.join('build-user-x64', 'sysroot')
   aarch64_sysroot = zircon_dir.join('build-user-arm64', 'sysroot')
   linux_sysroot = api.path['start_dir'].join('buildtools', 'linux-x64',
    'sysroot')
-  fuchia_x64_shared = fuchsia_out_dir.join('release-x86-64','x64-shared')
-  fuchia_arm64_shared = fuchsia_out_dir.join('release-aarch64','arm64-shared')
+  fuchia_x64_shared = fuchsia_out_dir.join('release-x64','x64-shared')
+  fuchia_arm64_shared = fuchsia_out_dir.join('release-arm64','arm64-shared')
   presets_file = build_dir.join('presets.ini')
   checkout_config = build_dir.join('update-checkout.json')
 

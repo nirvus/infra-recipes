@@ -12,7 +12,7 @@ from recipe_engine.recipe_api import Property
 import re
 
 
-TARGETS = ['arm64', 'x86-64']
+TARGETS = ['arm64', 'x64']
 
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
@@ -79,10 +79,10 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
 
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.
-  yield api.test('isolated_tests_x86') + api.properties(
+  yield api.test('isolated_tests_x64') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
@@ -100,7 +100,7 @@ def GenTests(api):
   yield api.test('isolated_tests_test_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
@@ -111,7 +111,7 @@ def GenTests(api):
   yield api.test('isolated_tests_task_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
@@ -121,7 +121,7 @@ def GenTests(api):
   yield api.test('isolated_tests_task_timed_out') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
@@ -131,7 +131,7 @@ def GenTests(api):
   yield api.test('isolated_tests_kernel_panic') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
@@ -142,7 +142,7 @@ def GenTests(api):
   yield api.test('isolated_tests_infra_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
@@ -154,61 +154,61 @@ def GenTests(api):
   yield api.test('default') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
   )
   yield api.test('garnet') + api.properties(
       project='garnet',
       manifest='manifest/garnet',
       remote='https://fuchsia.googlesource.com/garnet',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
   )
   yield api.test('peridot') + api.properties(
       manifest='peridot',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
   )
   yield api.test('no_goma') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       goma_dir='/path/to/goma',
   )
   yield api.test('goma_local_cache') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       goma_local_cache=True,
   )
   yield api.test('release') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       build_type='release',
   )
   yield api.test('lto') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       build_type='lto',
   )
   yield api.test('thinlto') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       build_type='thinlto',
   )
   yield api.test('host_asan') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       variants=['host_asan'],
   )
@@ -224,7 +224,7 @@ def GenTests(api):
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       tryjob=True,
   )
@@ -233,7 +233,7 @@ def GenTests(api):
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       tryjob=True,
       upload_snapshot=False,
@@ -243,7 +243,7 @@ def GenTests(api):
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       tryjob=True,
       gn_args=['super_arg=false', 'less_super_arg=true'],
@@ -254,7 +254,7 @@ def GenTests(api):
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86-64',
+      target='x64',
       packages=['topaz/packages/default'],
       tryjob=True,
   )

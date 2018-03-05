@@ -307,9 +307,8 @@
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=aarch64",
+      "--target_cpu=arm64",
       "--packages=topaz/packages/default,[TMP_BASE]/runcmds_package",
-      "--platforms=arm64",
       "--goma=[START_DIR]/cipd/goma"
     ],
     "name": "build.build fuchsia.gen",
@@ -349,7 +348,7 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/debug-aarch64",
+      "[START_DIR]/out/debug-arm64",
       "-j",
       "50"
     ],
@@ -450,7 +449,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-aarch64 -m 4096 -smp 4 -nographic -machine virt,gic_version=host -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-arm64.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
+      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-aarch64 -m 4096 -smp 4 -nographic -machine virt,gic_version=host -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-qemu.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
       "[START_DIR]/run-qemu.sh"
     ],
     "infra_step": true,
@@ -538,7 +537,7 @@
       "fvm.blk",
       "fuchsia.qcow2"
     ],
-    "cwd": "[START_DIR]/out/debug-aarch64/images",
+    "cwd": "[START_DIR]/out/debug-arm64/images",
     "name": "qemu-img create fuchsia.qcow2"
   },
   {
@@ -552,13 +551,13 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/out/debug-aarch64/images:fvm.blk",
-      "-files",
-      "[START_DIR]/out/debug-aarch64/images:fuchsia.qcow2",
-      "-files",
-      "[START_DIR]/out/debug-aarch64:bootdata-blob-arm64.bin",
+      "[START_DIR]/out/debug-arm64:bootdata-blob-qemu.bin",
       "-files",
       "[START_DIR]/out/build-zircon/build-arm64:zircon.bin",
+      "-files",
+      "[START_DIR]/out/debug-arm64/images:fvm.blk",
+      "-files",
+      "[START_DIR]/out/debug-arm64/images:fuchsia.qcow2",
       "-files",
       "[START_DIR]:input.fs",
       "-files",

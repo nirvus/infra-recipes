@@ -168,24 +168,23 @@
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
       "-p",
-      "x86"
+      "x64"
     ],
-    "name": "build x86"
+    "name": "build x64"
   },
   {
     "cmd": [],
-    "name": "build fuchsia x86-64"
+    "name": "build fuchsia x64"
   },
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x86-64",
+      "--target_cpu=x64",
       "--packages=garnet/packages/sdk",
-      "--platforms=x86",
-      "--build-dir=[START_DIR]/out/release-x86-64",
+      "--build-dir=[START_DIR]/out/release-x64",
       "--release"
     ],
-    "name": "build fuchsia x86-64.gen",
+    "name": "build fuchsia x64.gen",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -194,31 +193,30 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-x86-64",
+      "[START_DIR]/out/release-x64",
       "-j",
       "2"
     ],
-    "name": "build fuchsia x86-64.ninja",
+    "name": "build fuchsia x64.ninja",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia x86-64 (2)"
+    "name": "build fuchsia x64 (2)"
   },
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x86-64",
+      "--target_cpu=x64",
       "--packages=garnet/packages/sdk_bootfs",
-      "--platforms=x86",
-      "--build-dir=[START_DIR]/out/release-x86-64-bootfs",
+      "--build-dir=[START_DIR]/out/release-x64-bootfs",
       "--release",
       "--args",
       "bootfs_packages=true"
     ],
-    "name": "build fuchsia x86-64.gen (2)",
+    "name": "build fuchsia x64.gen (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -227,11 +225,11 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-x86-64-bootfs",
+      "[START_DIR]/out/release-x64-bootfs",
       "-j",
       "2"
     ],
-    "name": "build fuchsia x86-64.ninja (2)",
+    "name": "build fuchsia x64.ninja (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -246,18 +244,17 @@
   },
   {
     "cmd": [],
-    "name": "build fuchsia aarch64"
+    "name": "build fuchsia arm64"
   },
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=aarch64",
+      "--target_cpu=arm64",
       "--packages=garnet/packages/sdk",
-      "--platforms=arm64",
-      "--build-dir=[START_DIR]/out/release-aarch64",
+      "--build-dir=[START_DIR]/out/release-arm64",
       "--release"
     ],
-    "name": "build fuchsia aarch64.gen",
+    "name": "build fuchsia arm64.gen",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -266,31 +263,30 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-aarch64",
+      "[START_DIR]/out/release-arm64",
       "-j",
       "2"
     ],
-    "name": "build fuchsia aarch64.ninja",
+    "name": "build fuchsia arm64.ninja",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia aarch64 (2)"
+    "name": "build fuchsia arm64 (2)"
   },
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=aarch64",
+      "--target_cpu=arm64",
       "--packages=garnet/packages/sdk_bootfs",
-      "--platforms=arm64",
-      "--build-dir=[START_DIR]/out/release-aarch64-bootfs",
+      "--build-dir=[START_DIR]/out/release-arm64-bootfs",
       "--release",
       "--args",
       "bootfs_packages=true"
     ],
-    "name": "build fuchsia aarch64.gen (2)",
+    "name": "build fuchsia arm64.gen (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -299,11 +295,11 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-aarch64-bootfs",
+      "[START_DIR]/out/release-arm64-bootfs",
       "-j",
       "2"
     ],
-    "name": "build fuchsia aarch64.ninja (2)",
+    "name": "build fuchsia arm64.ninja (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

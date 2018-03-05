@@ -49,7 +49,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   zircon_project = {
     'aarch64': 'arm64',
-    'x86_64': 'x86',
+    'x86_64': 'x64',
   }[target]
   build_zircon_cmd = [
     api.path['start_dir'].join('scripts/build-zircon.sh'),
@@ -58,7 +58,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   ]
   api.step('build zircon', build_zircon_cmd)
 
-  gen_target = {'aarch64': 'aarch64', 'x86_64': 'x86-64'}[target]
+  gen_target = {'aarch64': 'arm64', 'x86_64': 'x64'}[target]
   fuchsia_build_dir = api.path['start_dir'].join('out', 'release-%s' % gen_target)
 
   with api.step.nest('build fuchsia'), api.goma.build_with_goma():

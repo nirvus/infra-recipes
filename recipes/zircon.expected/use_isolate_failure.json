@@ -184,7 +184,7 @@
   {
     "cmd": [
       "make",
-      "x86",
+      "x64",
       "HOST_USE_ASAN=true",
       "-j",
       "2"
@@ -296,7 +296,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/zircon/build-x86/tools/minfs",
+      "[START_DIR]/zircon/build-x64/tools/minfs",
       "[START_DIR]/input.fs@16M",
       "create"
     ],
@@ -327,9 +327,9 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/zircon/build-x86:zircon.bin",
+      "[START_DIR]/zircon/build-x64:zircon.bin",
       "-files",
-      "[START_DIR]/zircon/build-x86:bootdata.bin",
+      "[START_DIR]/zircon/build-x64:bootdata.bin",
       "-files",
       "[START_DIR]:input.fs",
       "-files",
@@ -354,7 +354,7 @@
       "-isolated",
       "[dummy hash]",
       "-dimension",
-      "cpu=x86-64",
+      "cpu=x64",
       "-dimension",
       "kvm=1",
       "-dimension",
@@ -432,7 +432,7 @@
       "-isolated",
       "[dummy hash]",
       "-dimension",
-      "cpu=x86-64",
+      "cpu=x64",
       "-dimension",
       "kvm=1",
       "-dimension",

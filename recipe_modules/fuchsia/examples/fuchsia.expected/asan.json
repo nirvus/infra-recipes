@@ -257,9 +257,8 @@
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=aarch64",
+      "--target_cpu=arm64",
       "--packages=topaz/packages/default",
-      "--platforms=arm64",
       "--variant=host_asan",
       "--variant=asan",
       "--goma=[START_DIR]/cipd/goma"
@@ -301,7 +300,7 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/debug-aarch64",
+      "[START_DIR]/out/debug-arm64",
       "-j",
       "50"
     ],
