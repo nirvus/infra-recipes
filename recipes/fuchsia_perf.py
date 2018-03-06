@@ -21,9 +21,18 @@ TARGETS = ['arm64', 'x64']
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
 DEPS = [
+    'infra/catapult',
     'infra/fuchsia',
+    'infra/minfs',
     'infra/swarming',
+    'recipe_engine/buildbucket',
+    'recipe_engine/context',
+    'recipe_engine/json',
+    'recipe_engine/path',
     'recipe_engine/properties',
+    'recipe_engine/raw_io',
+    'recipe_engine/step',
+    'recipe_engine/time',
 ]
 
 PROPERTIES = {
@@ -49,27 +58,28 @@ PROPERTIES = {
     'gn_args':
         Property(
             kind=List(basestring), help='Extra args to pass to GN', default=[]),
-    'runtests_args':
-        Property(
-            kind=str,
-            help='Arguments to pass to the executable running tests',
-            default=''),
 }
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
-             variant, gn_args, runtests_args):
+             variant, gn_args):
+  api.catapult.ensure_catapult()
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
       project=project,
   )
 
+  zircon_test_output_filename = 'zircon_benchmarks.json'
+
   # TODO(kjharland): Hardcoding perf-test suite binaries is fine for now. If the
   # number of suites explodes then we should look for an approach that doesn't
   # involve editing this recipe by hand each time.
   test_cmds = [
-      '/system/test/perf/run_zircon_benchmarks.sh %s/zircon_benchmarks.json' % api.fuchsia.target_test_dir(),
+      '/system/test/perf/run_zircon_benchmarks %s/%s' % (
+          api.fuchsia.target_test_dir(),
+          zircon_test_output_filename,
+      )
   ]
 
   build = api.fuchsia.build(
@@ -81,8 +91,61 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       test_cmds=test_cmds,
   )
 
-  api.fuchsia.test(build)
-  # TODO(kjharland): Read minfs image, convert results, upload to catapult.
+  test_results = api.fuchsia.test(build)
+
+  # The host-side directory where test output files will be copied.
+  test_results_dir = api.path['start_dir'].join('minfs_isolate_results')
+  api.minfs.copy_image(
+      step_name="copy",
+      image_path=test_results.minfs_image_path,
+      out_dir=test_results_dir,
+  )
+
+  # Get build information.
+  #
+  # Default to example info when running locally.
+  builder_id = api.buildbucket.builder_id
+  # Use $project/$bucket as the bucket name because in Buildbucket v2 the bucket
+  # name does not contain the luci.{project} prefix. Names like luci.fuchsia.ci
+  # will be read here as 'ci'.  If the catapult dashboard UI changes, a name as
+  # non-descript as 'ci' might become clobbered with some other team's 'ci'
+  # bucket.
+  project = builder_id.project or 'fuchsia'
+  bucket = project + "/" + (builder_id.bucket or 'example.bucket')
+
+  builder = builder_id.builder or 'fuchsia.example.builder'
+
+  ProcessTestResults(
+      api=api,
+      step_name="analyze_zircon_benchmarks",
+      bucket=bucket,
+      builder=builder,
+      test_suite="zircon_benchmarks",
+      test_results_file=test_results_dir.join(zircon_test_output_filename),
+  )
+
+
+def ProcessTestResults(api, step_name, bucket, builder, test_suite,
+                       test_results_file):
+  """
+  Processes test results and uploads them to the Catapult dashboard.
+
+  Args:
+    step_name (str): The name of the step under which to test the processing steps.
+    test_suite (str): The name of the test suite that was run.
+    test_results_file (Path): Full path to file containing test results.
+  """
+  with api.step.nest(step_name):
+    api.catapult.make_histogram(
+        input_file=test_results_file,
+        test_suite=test_suite,
+        builder=builder,
+        bucket=bucket,
+        datetime=api.time.ms_since_epoch())
+
+  # TODO(kjharland): Save histogram output to file.
+  # TODO(kjharland): Upload to Catapult.
+
 
 def GenTests(api):
   # Test cases for running Fuchsia performance tests as a swarming task.

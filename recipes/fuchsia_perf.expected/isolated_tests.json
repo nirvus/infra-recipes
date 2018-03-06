@@ -1,6 +1,36 @@
 [
   {
     "cmd": [],
+    "name": "ensure_catapult"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/catapult",
+      "-ensure-file",
+      "fuchsia/infra/catapult/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_catapult.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/infra/catapult/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "infra_step": true,
     "name": "ensure_jiri"
   },
@@ -112,7 +142,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 5000\nmkdir /tmp/infra-test-output\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/system/test/perf/run_zircon_benchmarks.sh /tmp/infra-test-output/zircon_benchmarks.json\numount /tmp/infra-test-output\ndm poweroff",
+      "#!/boot/bin/sh\nmsleep 5000\nmkdir /tmp/infra-test-output\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/system/test/perf/run_zircon_benchmarks /tmp/infra-test-output/zircon_benchmarks.json\numount /tmp/infra-test-output\ndm poweroff",
       "[TMP_BASE]/runcmds"
     ],
     "infra_step": true,
@@ -122,7 +152,7 @@
       "@@@STEP_LOG_LINE@runcmds@msleep 5000@@@",
       "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@/system/test/perf/run_zircon_benchmarks.sh /tmp/infra-test-output/zircon_benchmarks.json@@@",
+      "@@@STEP_LOG_LINE@runcmds@/system/test/perf/run_zircon_benchmarks /tmp/infra-test-output/zircon_benchmarks.json@@@",
       "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
@@ -629,6 +659,39 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
       "@@@STEP_LOG_END@kernel log@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/output.fs",
+      "cp",
+      "::",
+      "[START_DIR]/minfs_isolate_results"
+    ],
+    "name": "copy"
+  },
+  {
+    "cmd": [],
+    "name": "analyze_zircon_benchmarks"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/catapult/catapult",
+      "make_histogram",
+      "-test-suite",
+      "zircon_benchmarks",
+      "-builder",
+      "fuchsia.example.builder",
+      "-bucket",
+      "fuchsia/example.bucket",
+      "-datetime",
+      "1337000001500",
+      "[START_DIR]/minfs_isolate_results/zircon_benchmarks.json"
+    ],
+    "name": "analyze_zircon_benchmarks.catapult make_histogram",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
