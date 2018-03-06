@@ -661,23 +661,31 @@ the local minfs binary.
 
 Copies a file or directory from an image.
 
-from_path: string/path/placeholder The path to copy from.
-to_path: string/path/placeholder The path to copy to.
-image: string/path The path to the MinFS image.
+Paths inside of the MinFS image are prefixed with '::', so '::'
+refers to the root of the MinFS image.
 
-To specify a location inside of the MinFS image, prefix
-the path with '::'.
+Args:
+  from_path (str|Path): The path to copy from.
+  to_path (str|Path): The path to copy to.
+  image (str|Path): The path to the MinFS image.
 
-&mdash; **def [create](/recipe_modules/minfs/api.py#55)(self, path, size='100M', \*\*kwargs):**
+Returns:
+  A step to perform the copy.
+
+&mdash; **def [create](/recipe_modules/minfs/api.py#60)(self, path, size='100M', \*\*kwargs):**
 
 Creates a MinFS image at the given path.
 
-path: string  The path at which to create the image.
-size: string  The size of the image, number followed by unit. Defaults to 100M.
+Args:
+  path (str): The path at which to create the image.
+  size (str): The size of the image, number followed by unit. Defaults to 100M.
+
+Returns:
+  A step to perform the creation.
 
 &emsp; **@minfs_path.setter**<br>&mdash; **def [minfs\_path](/recipe_modules/minfs/api.py#31)(self, path):**
 
-Sets the path to the minfs command.
+The path to the minfs command.
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
 
 [DEPS](/recipe_modules/qemu/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

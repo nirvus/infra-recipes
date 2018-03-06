@@ -25,23 +25,28 @@ class MinfsApi(recipe_api.RecipeApi):
 
     @property
     def minfs_path(self):
-        """Returns the path to the minfs command."""
+        """The path to the minfs command."""
         return self._minfs
 
     @minfs_path.setter
     def minfs_path(self, path):
-        """Sets the path to the minfs command."""
+        """The path to the minfs command."""
         self._minfs = path
 
     def cp(self, from_path, to_path, image, **kwargs):
-        """Copies a file or directory from an image.
+        """
+        Copies a file or directory from an image.
 
-          from_path: string/path/placeholder The path to copy from.
-          to_path: string/path/placeholder The path to copy to.
-          image: string/path The path to the MinFS image.
+        Paths inside of the MinFS image are prefixed with '::', so '::'
+        refers to the root of the MinFS image.
 
-          To specify a location inside of the MinFS image, prefix
-          the path with '::'.
+        Args:
+          from_path (str|Path): The path to copy from.
+          to_path (str|Path): The path to copy to.
+          image (str|Path): The path to the MinFS image.
+
+        Returns:
+          A step to perform the copy.
         """
         cmd = [
             image,
@@ -53,9 +58,14 @@ class MinfsApi(recipe_api.RecipeApi):
         return self(*cmd, **kwargs)
 
     def create(self, path, size="100M", **kwargs):
-        """Creates a MinFS image at the given path.
+        """
+        Creates a MinFS image at the given path.
 
-          path: string  The path at which to create the image.
-          size: string  The size of the image, number followed by unit. Defaults to 100M.
+        Args:
+          path (str): The path at which to create the image.
+          size (str): The size of the image, number followed by unit. Defaults to 100M.
+
+        Returns:
+          A step to perform the creation.
         """
         return self(str(path) + "@" + size, 'create', **kwargs)
