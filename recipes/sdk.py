@@ -56,7 +56,7 @@ PROPERTIES = {
 def BuildZircon(api, project):
   build_zircon_cmd = [
       api.path['start_dir'].join('scripts', 'build-zircon.sh'),
-      '-p', project,
+      '-t', project,
   ]
   api.step('build ' + project, build_zircon_cmd)
 
