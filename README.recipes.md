@@ -1062,7 +1062,7 @@ Recipe for building Fuchsia SDKs.
 
 Recipe for building Swift toolchain.
 
-&mdash; **def [RunSteps](/recipes/swift_toolchain.py#323)(api, url, ref, revision):**
+&mdash; **def [RunSteps](/recipes/swift_toolchain.py#326)(api, url, ref, revision, mock_build):**
 ### *recipes* / [tar:examples/full](/recipe_modules/tar/examples/full.py)
 
 [DEPS](/recipe_modules/tar/examples/full.py#5): [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step]

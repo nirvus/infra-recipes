@@ -77,26 +77,6 @@
     ]
   },
   {
-    "cmd": [
-      "cipd",
-      "search",
-      "fuchsia/swift/linux-amd64",
-      "-tag",
-      "git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
-      "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
-    ],
-    "name": "cipd search fuchsia/swift/linux-amd64 git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "ensure_packages"
   },
@@ -109,9 +89,7 @@
       "-ensure-file",
       "fuchsia/clang/${platform} latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_packages.ensure_installed",
@@ -150,9 +128,7 @@
       "-ensure-file",
       "fuchsia/tools/jiri/linux-amd64 stable",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_jiri.ensure_installed",
@@ -901,80 +877,6 @@
     ],
     "name": "swift version",
     "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "pkg-build",
-      "-in",
-      "[TMP_BASE]/swift_tmp_1/build/swift_toolchain",
-      "-name",
-      "fuchsia/swift/linux-amd64",
-      "-out",
-      "[TMP_BASE]/swift_tmp_1/swift.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
-      "-install-mode",
-      "copy"
-    ],
-    "name": "build linux-amd64",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/swift/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "cipd",
-      "pkg-register",
-      "[TMP_BASE]/swift_tmp_1/swift.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json",
-      "-ref",
-      "latest",
-      "-tag",
-      "git_repository:https://fuchsia.googlesource.com/third_party/swift",
-      "-tag",
-      "git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
-      "-tag",
-      "version:4.1-dev"
-    ],
-    "name": "register fuchsia/swift/linux-amd64",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/swift/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[TMP_BASE]/swift_tmp_1/swift.cipd",
-      "gs://fuchsia/swift/linux-amd64/40-chars-fake-of-the-package-instance_id"
-    ],
-    "infra_step": true,
-    "name": "gsutil cp",
-    "~followup_annotations": [
-      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/swift/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
-    ]
   },
   {
     "name": "$result",

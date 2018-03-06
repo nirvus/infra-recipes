@@ -41,12 +41,15 @@ PROPERTIES = {
   'url': Property(kind=str, help='Git repository URL', default=SWIFT_FUCHSIA_GIT),
   'ref': Property(kind=str, help='Git reference', default='refs/heads/upstream/fuchsia_release'),
   'revision': Property(kind=str, help='Revision', default=None),
+  'mock_build': Property(kind=bool, help='build without checking or uploading CIPD', default=False),
 }
 
-MANIFEST_FILE = """lib/libswiftCore.so=libswiftCore.so
-lib/libswiftGlibc.so=libswiftGlibc.so
-lib/libswiftSwiftOnoneSupport.so=libswiftSwiftOnoneSupport.so
-lib/libswiftRemoteMirror.so=libswiftRemoteMirror.so
+MANIFEST_FILE = """lib/libswiftCore.so=swift/fuchsia/{arch}/libswiftCore.so
+lib/libswiftGlibc.so=swift/fuchsia/{arch}/libswiftGlibc.so
+lib/libswiftSwiftOnoneSupport.so=swift/fuchsia/{arch}/libswiftSwiftOnoneSupport.so
+lib/libswiftRemoteMirror.so=swift/fuchsia/{arch}/libswiftRemoteMirror.so
+lib/libicui18n.so=swift/fuchsia/{arch}/libicui18n.so
+lib/libicuuc.so=swift/fuchsia/{arch}/libicuuc.so
 """
 
 PRESET_FILE = """
@@ -320,20 +323,23 @@ UPDATE_CHECKOUT_CONFIG = """
 """
 
 
-def RunSteps(api, url, ref, revision):
+def RunSteps(api, url, ref, revision, mock_build):
   api.gitiles.ensure_gitiles()
   api.gsutil.ensure_gsutil()
 
-  api.cipd.set_service_account_credentials(
-     api.cipd.default_bot_service_account_credentials)
+  if not mock_build:
+    api.cipd.set_service_account_credentials(
+      api.cipd.default_bot_service_account_credentials)
 
   if not revision:
     revision = api.gitiles.refs(url).get(ref, None)
-  cipd_pkg_name = 'fuchsia/swift/' + api.cipd.platform_suffix()
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if step.json.output['result']:
-    api.step('Package is up-to-date', cmd=None)
-    return
+
+  if not mock_build:
+    cipd_pkg_name = 'fuchsia/swift/' + api.cipd.platform_suffix()
+    step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+    if step.json.output['result']:
+      api.step('Package is up-to-date', cmd=None)
+      return
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
@@ -453,7 +459,20 @@ def RunSteps(api, url, ref, revision):
   for tc_arch, gn_arch in TARGETS:
     api.file.write_text('writing %s manifest' % tc_arch,
                         install_lib.join('%s-fuchsia.manifest' % tc_arch),
-                        MANIFEST_FILE)
+                        MANIFEST_FILE.format(arch=tc_arch))
+
+    # HACK: This is an ugly hack to make finalize_manifest.py happy until
+    # refactored. It's not currently able to deal with a toolchain that needs to
+    # express linkages on libraries provided by GN at later parts of the build.
+    # We copy ICU from garnet into the toolchain folder and pretend to provide
+    # it. This will get replaced later in the final boot manifest by the real
+    # ICU built by GN into the final image.
+    swift_runtime_lib = install_lib.join('swift', 'fuchsia', tc_arch)
+    for iculib in ['libicui18n.so', 'libicuuc.so']:
+      api.file.copy('copy ' + iculib + ' from garnet into toolchain ' + gn_arch,
+        fuchsia_build[gn_arch].fuchsia_build_dir
+          .join('%s-shared' % gn_arch).join(iculib),
+        swift_runtime_lib.join(iculib))
 
   cipd_pkg_file = staging_dir.join('swift.cipd')
 
@@ -464,29 +483,30 @@ def RunSteps(api, url, ref, revision):
   assert m, 'Cannot determine Swift version'
   swift_version = m.group(1)
 
-  api.cipd.build(
-      input_dir=swift_install_dir,
-      package_name=cipd_pkg_name,
-      output_package=cipd_pkg_file,
-      install_mode='copy',
-  )
-  step_result = api.cipd.register(
-      package_name=cipd_pkg_name,
-      package_path=cipd_pkg_file,
-      refs=['latest'],
-      tags={
-          'version': swift_version,
-          'git_repository': SWIFT_FUCHSIA_GIT,
-          'git_revision': revision,
-      },
-  )
+  if not mock_build:
+    api.cipd.build(
+        input_dir=swift_install_dir,
+        package_name=cipd_pkg_name,
+        output_package=cipd_pkg_file,
+        install_mode='copy',
+    )
+    step_result = api.cipd.register(
+        package_name=cipd_pkg_name,
+        package_path=cipd_pkg_file,
+        refs=['latest'],
+        tags={
+            'version': swift_version,
+            'git_repository': SWIFT_FUCHSIA_GIT,
+            'git_revision': revision,
+        },
+    )
 
-  api.gsutil.upload(
-      'fuchsia',
-      cipd_pkg_file,
-      api.gsutil.join('swift', api.cipd.platform_suffix(),
-                      step_result.json.output['result']['instance_id']),
-      unauthenticated_url=True)
+    api.gsutil.upload(
+        'fuchsia',
+        cipd_pkg_file,
+        api.gsutil.join('swift', api.cipd.platform_suffix(),
+                        step_result.json.output['result']['instance_id']),
+        unauthenticated_url=True)
 
 
 def GenTests(api):
@@ -496,7 +516,6 @@ def GenTests(api):
   for platform in ('linux','mac'):
     yield (api.test(platform + "_existing") +
            api.platform.name(platform) +
-           api.properties(goma_dir='/goma') +
            api.gitiles.refs('refs', ('refs/heads/upstream/fuchsia_release', revision)) +
            api.step_data('cipd search fuchsia/swift/' + platform + '-amd64 ' +
                          'git_revision:' + revision, api.json.output({
@@ -510,3 +529,8 @@ def GenTests(api):
                          'git_revision:' + revision, api.json.output({
                              'result': []
                          })))
+    yield (api.test(platform+"_mock") +
+           api.platform.name(platform) +
+           api.properties(mock_build=True) +
+           api.gitiles.refs('refs', ('refs/heads/upstream/fuchsia_release', revision)) +
+           api.step_data('swift version', api.raw_io.stream_output(version)))

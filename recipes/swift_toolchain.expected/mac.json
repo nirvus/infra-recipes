@@ -818,7 +818,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "lib/libswiftCore.so=libswiftCore.so\nlib/libswiftGlibc.so=libswiftGlibc.so\nlib/libswiftSwiftOnoneSupport.so=libswiftSwiftOnoneSupport.so\nlib/libswiftRemoteMirror.so=libswiftRemoteMirror.so\n",
+      "lib/libswiftCore.so=swift/fuchsia/aarch64/libswiftCore.so\nlib/libswiftGlibc.so=swift/fuchsia/aarch64/libswiftGlibc.so\nlib/libswiftSwiftOnoneSupport.so=swift/fuchsia/aarch64/libswiftSwiftOnoneSupport.so\nlib/libswiftRemoteMirror.so=swift/fuchsia/aarch64/libswiftRemoteMirror.so\nlib/libicui18n.so=swift/fuchsia/aarch64/libicui18n.so\nlib/libicuuc.so=swift/fuchsia/aarch64/libicuuc.so\n",
       "[TMP_BASE]/swift_tmp_1/build/swift_toolchain/lib/aarch64-fuchsia.manifest"
     ],
     "infra_step": true,
@@ -832,11 +832,67 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "lib/libswiftCore.so=libswiftCore.so\nlib/libswiftGlibc.so=libswiftGlibc.so\nlib/libswiftSwiftOnoneSupport.so=libswiftSwiftOnoneSupport.so\nlib/libswiftRemoteMirror.so=libswiftRemoteMirror.so\n",
+      "[START_DIR]/out/release-arm64/arm64-shared/libicui18n.so",
+      "[TMP_BASE]/swift_tmp_1/build/swift_toolchain/lib/swift/fuchsia/aarch64/libicui18n.so"
+    ],
+    "infra_step": true,
+    "name": "copy libicui18n.so from garnet into toolchain arm64"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/out/release-arm64/arm64-shared/libicuuc.so",
+      "[TMP_BASE]/swift_tmp_1/build/swift_toolchain/lib/swift/fuchsia/aarch64/libicuuc.so"
+    ],
+    "infra_step": true,
+    "name": "copy libicuuc.so from garnet into toolchain arm64"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "lib/libswiftCore.so=swift/fuchsia/x86_64/libswiftCore.so\nlib/libswiftGlibc.so=swift/fuchsia/x86_64/libswiftGlibc.so\nlib/libswiftSwiftOnoneSupport.so=swift/fuchsia/x86_64/libswiftSwiftOnoneSupport.so\nlib/libswiftRemoteMirror.so=swift/fuchsia/x86_64/libswiftRemoteMirror.so\nlib/libicui18n.so=swift/fuchsia/x86_64/libicui18n.so\nlib/libicuuc.so=swift/fuchsia/x86_64/libicuuc.so\n",
       "[TMP_BASE]/swift_tmp_1/build/swift_toolchain/lib/x86_64-fuchsia.manifest"
     ],
     "infra_step": true,
     "name": "writing x86_64 manifest"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/out/release-x64/x64-shared/libicui18n.so",
+      "[TMP_BASE]/swift_tmp_1/build/swift_toolchain/lib/swift/fuchsia/x86_64/libicui18n.so"
+    ],
+    "infra_step": true,
+    "name": "copy libicui18n.so from garnet into toolchain x64"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/out/release-x64/x64-shared/libicuuc.so",
+      "[TMP_BASE]/swift_tmp_1/build/swift_toolchain/lib/swift/fuchsia/x86_64/libicuuc.so"
+    ],
+    "infra_step": true,
+    "name": "copy libicuuc.so from garnet into toolchain x64"
   },
   {
     "cmd": [
