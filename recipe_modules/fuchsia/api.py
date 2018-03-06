@@ -454,6 +454,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
       'x64': 'amd64',
     }[build.target]
 
+    dimension_cpu = {
+      'arm64': 'arm64',
+      'x64': 'x86-64',
+    }[build.target]
+
     with self.m.context(infra_steps=True):
       # Trigger task.
       trigger_result = self.m.swarming.trigger(
@@ -464,7 +469,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           dimensions={
             'pool': 'fuchsia.tests',
             'os':   'Debian',
-            'cpu':  build.target,
+            'cpu':  dimension_cpu,
             'kvm':  '1',
           },
           io_timeout=TEST_IO_TIMEOUT_SECS,
