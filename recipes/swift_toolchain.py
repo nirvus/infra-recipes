@@ -11,11 +11,16 @@ from recipe_engine.recipe_api import Property
 
 import re
 
+TARGETS = [
+  ('aarch64', 'arm64'),
+  ('x86_64', 'x64'),
+]
+
 DEPS = [
   'infra/cipd',
+  'infra/fuchsia',
   'infra/git',
   'infra/gitiles',
-  'infra/goma',
   'infra/gsutil',
   'infra/jiri',
   'recipe_engine/context',
@@ -36,7 +41,6 @@ PROPERTIES = {
   'url': Property(kind=str, help='Git repository URL', default=SWIFT_FUCHSIA_GIT),
   'ref': Property(kind=str, help='Git reference', default='refs/heads/upstream/fuchsia_release'),
   'revision': Property(kind=str, help='Revision', default=None),
-  'goma_dir': Property(kind=str, help='Path to goma', default=None),
 }
 
 MANIFEST_FILE = """lib/libswiftCore.so=libswiftCore.so
@@ -316,43 +320,9 @@ UPDATE_CHECKOUT_CONFIG = """
 """
 
 
-# TODO(zbowling): We are building packages for all of garnet. This is overkill.
-def BuildFuchsia(api, target_cpu, fuchsia_out_dir):
-  fuchsia_build_dir = fuchsia_out_dir.join('release-%s' % target_cpu)
-
-  with api.step.nest('build fuchsia ' + target_cpu):
-    gen_cmd = [
-      api.path['start_dir'].join('build', 'gn', 'gen.py'),
-      '--target_cpu=%s' % target_cpu,
-      '--packages=garnet/packages/default',
-    ]
-
-    gen_cmd.append('--goma=%s' % api.goma.goma_dir)
-
-    # Build Fuchsia for release.
-    # In theory, we shouldn't be statically linking anything from Fuchsia.
-    gen_cmd.append('--release')
-
-    api.step('gen fuchsia', gen_cmd)
-
-    ninja_cmd = [
-      api.path['start_dir'].join('buildtools', 'ninja'),
-      '-C', fuchsia_build_dir,
-    ]
-
-    ninja_cmd.extend(['-j', api.goma.recommended_goma_jobs])
-
-    api.step('ninja', ninja_cmd)
-
-
-def RunSteps(api, url, ref, revision, goma_dir):
+def RunSteps(api, url, ref, revision):
   api.gitiles.ensure_gitiles()
   api.gsutil.ensure_gsutil()
-  api.jiri.ensure_jiri()
-  if goma_dir:
-    api.goma.set_goma_dir(goma_dir)
-
-  api.goma.ensure_goma()
 
   api.cipd.set_service_account_credentials(
      api.cipd.default_bot_service_account_credentials)
@@ -365,25 +335,6 @@ def RunSteps(api, url, ref, revision, goma_dir):
     api.step('Package is up-to-date', cmd=None)
     return
 
-  swift_source_dir = api.path['start_dir'].join('swift-source')
-  swift_dir = swift_source_dir.join('swift')
-  api.file.ensure_directory('swift-source', swift_source_dir)
-
-  with api.context(infra_steps=True):
-    api.jiri.init()
-    # TODO(zbowling): we are pulling in a garnet manifest now, but eventually
-    # Swift will be included in the garnet manfiest itself, so we will instead
-    # to pull manifest that that is just:
-    # zircon + clang toolchain + third_party/icu.
-    api.jiri.import_manifest(
-        'manifest/garnet',
-        'https://fuchsia.googlesource.com/garnet',
-        'garnet'
-    )
-    api.jiri.update()
-
-    api.git.checkout(url, swift_dir, ref=revision)
-
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
@@ -393,26 +344,24 @@ def RunSteps(api, url, ref, revision, goma_dir):
           'fuchsia/clang/${platform}': 'latest',
       })
 
-  # Build Zircon sysroot.
-  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
-  zircon_dir = api.path['start_dir'].join('zircon')
+  # TODO(zbowling): we are pulling in a garnet manifest now, but eventually
+  # Swift will be included in the garnet manfiest itself, so we will instead
+  # to pull manifest that that is just:
+  # zircon + clang toolchain + third_party/icu.
+  api.fuchsia.checkout(manifest='manifest/garnet',
+                       remote='https://fuchsia.googlesource.com/garnet')
+
+  swift_source_dir = api.path['start_dir'].join('swift-source')
+  swift_dir = swift_source_dir.join('swift')
+  with api.context(infra_steps=True):
+    api.file.ensure_directory('swift-source', swift_source_dir)
+    api.git.checkout(url, swift_dir, ref=revision)
+
   sysroot = {}
-  for tc_arch, gn_arch in [('aarch64', 'arm64'), ('x86_64', 'x64')]:
-    sysroot[tc_arch] = zircon_dir.join('build-%s' % gn_arch, 'sysroot')
-    with api.context(cwd=zircon_dir):
-      api.step('build %s sysroot' % tc_arch, [
-        'make',
-        '-j%s' % api.platform.cpu_count,
-        'PROJECT=%s' % gn_arch,
-        'sysroot',
-      ])
-
-  goma_env = {}
-
-  fuchsia_out_dir = api.path['start_dir'].join('out')
-  with api.goma.build_with_goma():
-    BuildFuchsia(api, "arm64", fuchsia_out_dir)
-    BuildFuchsia(api, "x64", fuchsia_out_dir)
+  fuchsia_build = {}
+  for tc_arch, gn_arch in TARGETS:
+    fuchsia_build[gn_arch] = api.fuchsia.build(
+        gn_arch, 'release', ['garnet/packages/default'])
 
   # build swift
   staging_dir = api.path.mkdtemp('swift')
@@ -421,15 +370,13 @@ def RunSteps(api, url, ref, revision, goma_dir):
   swift_symbols = build_dir.join("swift_symbols")
   api.file.ensure_directory('build', build_dir)
 
-  linux_sysroot = api.path['start_dir'].join('buildtools', 'linux-x64',
-   'sysroot')
-  fuchia_x64_shared = fuchsia_out_dir.join('release-x64','x64-shared')
-  fuchia_arm64_shared = fuchsia_out_dir.join('release-arm64','arm64-shared')
   presets_file = build_dir.join('presets.ini')
   checkout_config = build_dir.join('update-checkout.json')
 
   extra_cmake_args = ""
   if api.platform.name == "linux":
+    linux_sysroot = api.path['start_dir'].join(
+        'buildtools', 'linux-x64', 'sysroot')
     extra_cmake_args = "-DCMAKE_SYSROOT=%s " % linux_sysroot
     # HACK: Swift uses pkg-config to find ICU paths so we need to override it.
     # This is not the best way to do this but it will work temporarily with
@@ -455,7 +402,7 @@ def RunSteps(api, url, ref, revision, goma_dir):
     api.file.write_text('writing checkout config', checkout_config,
                         UPDATE_CHECKOUT_CONFIG)
     api.python(
-        'checkout swift depedencies',
+       'checkout swift depedencies',
         swift_dir.join('utils', 'update-checkout'),
         args=[
             '--skip-repository', 'swift', # we manage the swift repo ourselves
@@ -467,26 +414,30 @@ def RunSteps(api, url, ref, revision, goma_dir):
 
     # Build swift for Linux and Fuchsia targets without Linux extras
     api.file.write_text('writing build presets', presets_file, PRESET_FILE)
-    api.python(
-        'build swift fuchsia components',
-        swift_dir.join('utils', 'build-script'),
-        args=[
-            '--preset-file', presets_file,
-            '--jobs', api.platform.cpu_count,
-            '--preset=fuchsia_release_install',
-            'clang_path=%s' % cipd_dir,
-            'fuchsia_icu_uc=%s' % api.path['start_dir'].join(
-                "third_party", "icu", "source", "common"),
-            'fuchsia_icu_i18n=%s' % api.path['start_dir'].join(
-                "third_party", "icu", "source", "i18n"),
-            'x86_64_sysroot=%s' % sysroot['x86_64'],
-            'aarch64_sysroot=%s' % sysroot['aarch64'],
-            'x64_shared=%s' % fuchia_x64_shared,
-            'arm64_shared=%s' % fuchia_arm64_shared,
-            'install_destdir=%s' % swift_install_dir,
-            'install_symroot=%s' % swift_symbols,
-            'extra_cmake_args=%s' % extra_cmake_args,
-        ])
+    build_args = [
+        '--preset-file', presets_file,
+        '--jobs', api.platform.cpu_count,
+        'clang_path=%s' % cipd_dir,
+        'fuchsia_icu_uc=%s' % api.path['start_dir'].join(
+            "third_party", "icu", "source", "common"),
+        'fuchsia_icu_i18n=%s' % api.path['start_dir'].join(
+            "third_party", "icu", "source", "i18n"),
+        'install_destdir=%s' % swift_install_dir,
+        'install_symroot=%s' % swift_symbols,
+        'extra_cmake_args=%s' % extra_cmake_args,
+    ]
+    build_args += ['%s_sysroot=%s' % (tc_arch,
+                                      fuchsia_build[gn_arch].zircon_build_dir
+                                      .join('sysroot'))
+                   for tc_arch, gn_arch in TARGETS]
+    build_args += ['%s_shared=%s' % (gn_arch,
+                                     fuchsia_build[gn_arch].fuchsia_build_dir
+                                     .join('%s-shared' % gn_arch))
+                   for tc_arch, gn_arch in TARGETS]
+
+    api.python('build swift fuchsia components',
+               swift_dir.join('utils', 'build-script'),
+               args=build_args + ['--preset=fuchsia_release_install'])
 
     # TODO: temporarly disabling the second phase compile for Linux until
     # all depedencies have been updated to understand how to be compiled with a
@@ -494,41 +445,15 @@ def RunSteps(api, url, ref, revision, goma_dir):
 
     # HACK: Build swift again but with extras for Linux that do not work on
     # on Fuchsia yet (swiftpm, libdispatch, foundation, etc)
-    #api.python(
-    #    'build swift linux extras',
-    #    swift_dir.join('utils', 'build-script'),
-    #    args=[
-    #        '--preset-file', presets_file,
-    #        '--jobs', api.platform.cpu_count,
-    #        '--preset=linux_extras_install',
-    #        'clang_path=%s' % cipd_dir,
-    #        'fuchsia_icu_uc=%s' % api.path['start_dir'].join(
-    #            "third_party", "icu", "source", "common"),
-    #        'fuchsia_icu_i18n=%s' % api.path['start_dir'].join(
-    #            "third_party", "icu", "source", "i18n"),
-    #        'x86_64_sysroot=%s' % x86_64_sysroot,
-    #        'aarch64_sysroot=%s' % aarch64_sysroot,
-    #        'x64_shared=%s' % fuchia_x64_shared,
-    #        'arm64_shared=%s' % fuchia_arm64_shared,
-    #        'install_destdir=%s' % swift_install_dir,
-    #        'install_symroot=%s' % swift_symbols,
-    #    ])
-
-
-  # TODO(zbowling): remove this in favor of doing it similar to the way
-  # clang_path does it below.
-  swift_install_lib = swift_install_dir.join('lib','swift','fuchsia')
-  api.file.write_text('writing x86_64 manifest',
-      swift_install_lib.join("x86_64","toolchain.manifest"), MANIFEST_FILE)
-  api.file.write_text('writing aarch64 manifest',
-      swift_install_lib.join("aarch64", "toolchain.manifest"), MANIFEST_FILE)
+    #api.python('build swift linux extras',
+    #           swift_dir.join('utils', 'build-script'),
+    #           args=build_args + ['--preset=linux_extras_install'])
 
   install_lib = swift_install_dir.join('lib')
-  api.file.write_text('writing x86_64 manifest',
-      install_lib.join("x86_64-fuchsia.manifest"), MANIFEST_FILE)
-  api.file.write_text('writing aarch64 manifest',
-      install_lib.join("aarch64-fuchsia.manfiest"), MANIFEST_FILE)
-
+  for tc_arch, gn_arch in TARGETS:
+    api.file.write_text('writing %s manifest' % tc_arch,
+                        install_lib.join('%s-fuchsia.manifest' % tc_arch),
+                        MANIFEST_FILE)
 
   cipd_pkg_file = staging_dir.join('swift.cipd')
 

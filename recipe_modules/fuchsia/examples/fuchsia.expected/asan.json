@@ -184,7 +184,6 @@
   {
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
-      "-c",
       "-H",
       "-t",
       "arm64"
