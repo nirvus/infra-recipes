@@ -116,6 +116,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
                       patch_project)
+    if not revision:
+      revision = api.jiri.project(['infra/infra']).json.output[0]['revision']
+      api.step.active_result.presentation.properties['got_revision'] = revision
 
   # Install golang/dep for dependencies.
   with api.step.nest('ensure_packages'):
@@ -156,7 +159,6 @@ def GenTests(api):
       project='infra/infra',
       manifest='infra/infra',
       remote='https://fuchsia.googlesource.com/infra/infra',
-      revision='c22471f4e3f842ae18dd9adec82ed9eb78ed1127'
   ) + api.step_data(
       'cipd search fuchsia/infra/catapult/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
       api.json.output({
@@ -169,7 +171,6 @@ def GenTests(api):
       project='infra/infra',
       manifest='infra/infra',
       remote='https://fuchsia.googlesource.com/infra/infra',
-      revision='c22471f4e3f842ae18dd9adec82ed9eb78ed1127'
   ) + api.step_data(
       'cipd search fuchsia/infra/catapult/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
       api.json.output({
