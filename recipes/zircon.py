@@ -242,13 +242,13 @@ def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output=''):
     'os':   'Debian',
   }
   if use_kvm:
-    dimensions['cpu'] = {'aarch64': 'arm64', 'x86_64': 'x64'}[arch]
+    dimensions['cpu'] = {'aarch64': 'arm64', 'x86_64': 'x86-64'}[arch]
     dimensions['kvm'] = '1'
   else:
     # If we're not using KVM, we should use our x86 testers since we'll be in
     # full emulation mode anyway, and our arm64 resources are much fewer in
     # number.
-    dimensions['cpu'] = 'x64'
+    dimensions['cpu'] = 'x86-64'
 
   with api.context(infra_steps=True):
     # Trigger task.
