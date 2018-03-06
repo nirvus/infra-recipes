@@ -319,7 +319,7 @@
       "make",
       "-j2",
       "PROJECT=arm64",
-      "ENABLE_ULIB_ONLY=true"
+      "sysroot"
     ],
     "cwd": "[START_DIR]/zircon",
     "name": "build aarch64 sysroot"
@@ -329,7 +329,7 @@
       "make",
       "-j2",
       "PROJECT=x64",
-      "ENABLE_ULIB_ONLY=true"
+      "sysroot"
     ],
     "cwd": "[START_DIR]/zircon",
     "name": "build x86_64 sysroot"

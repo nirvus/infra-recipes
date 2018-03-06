@@ -404,7 +404,7 @@ def RunSteps(api, url, ref, revision, goma_dir):
         'make',
         '-j%s' % api.platform.cpu_count,
         'PROJECT=%s' % gn_arch,
-        'ENABLE_ULIB_ONLY=true'
+        'sysroot',
       ])
 
   goma_env = {}
