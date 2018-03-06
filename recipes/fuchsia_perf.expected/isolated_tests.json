@@ -162,7 +162,7 @@
       "[START_DIR]/scripts/build-zircon.sh",
       "-c",
       "-H",
-      "-p",
+      "-t",
       "x64"
     ],
     "name": "build.zircon",

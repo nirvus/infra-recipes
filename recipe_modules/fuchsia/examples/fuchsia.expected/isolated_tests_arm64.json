@@ -236,7 +236,7 @@
       "[START_DIR]/scripts/build-zircon.sh",
       "-c",
       "-H",
-      "-p",
+      "-t",
       "arm64"
     ],
     "name": "build.zircon",

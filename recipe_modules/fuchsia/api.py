@@ -185,7 +185,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.path['start_dir'].join('scripts', 'build-zircon.sh'),
       '-c',
       '-H',
-      '-p', target,
+      '-t', target,
     ])
 
   def _setup_goma(self):

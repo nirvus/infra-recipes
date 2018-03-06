@@ -657,7 +657,7 @@ MinfsApi provides support for Fuchia's MinFS tool.
 Currently this module can only be used with a Zircon build, which produces
 the local minfs binary.
 
-&mdash; **def [copy\_image](/recipe_modules/minfs/api.py#63)(self, step_name, image_path, out_dir):**
+&mdash; **def [copy\_image](/recipe_modules/minfs/api.py#73)(self, step_name, image_path, out_dir):**
 
 Copies everything from a minfs image into a local directory.
 
