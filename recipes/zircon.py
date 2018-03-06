@@ -205,7 +205,8 @@ def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
   return qemu_cmd
 
 
-def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output=''):
+def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output='',
+                     timeout_secs=60*60):
   """TriggerTestsTask triggers a task to execute a command on a remote machine.
 
   The remote machine is guaranteed to have QEMU installed
@@ -223,6 +224,8 @@ def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output=''):
     output (str): Optional relative path to an output file on the target
       machine which will be isolated and returned back to the machine
       executing this recipe.
+    timeout_secs (int): The amount of seconds the task should run for before
+      timing out.
 
   Returns:
     The task ID of the triggered task.
@@ -257,6 +260,7 @@ def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output=''):
         cmd,
         isolated=isolated_hash,
         dimensions=dimensions,
+        hard_timeout=timeout_secs,
         io_timeout=TEST_IO_TIMEOUT_SECS,
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
         outputs=[output] if output else None,
@@ -264,7 +268,7 @@ def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output=''):
 
 
 def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
-                       build_dir, timeout='20m'):
+                       build_dir):
   """Waits on the tasks running core tests and booted tests, then analyzes the
   results.
 
@@ -272,10 +276,9 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
     core_task (str): The swarming task ID of the task running core tests.
     booted_task (str): The swarming task ID of the task running booted tests.
     build_dir (Path): A path to the directory containing build artifacts.
-    timeout (str): A timeout formatted as a Golang Duration-parsable string.
   """
   with api.context(infra_steps=True):
-    collect_results = api.swarming.collect(timeout, tasks=[core_task, booted_task])
+    collect_results = api.swarming.collect(tasks=[core_task, booted_task])
   results_map = {r.id: r for r in collect_results}
 
   # Analyze core tests results. We don't try to analyze further because we don't
@@ -489,6 +492,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
           arch=arch,
           use_kvm=use_kvm,
           isolated_hash=digest,
+          timeout_secs=10*60, # 10 minute hard timeout.
       )
       # Trigger a task that runs tests in the standard way with runtests and
       # the runcmds script.
@@ -500,6 +504,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
           use_kvm=use_kvm,
           isolated_hash=digest,
           output=output_image_name,
+          timeout_secs=40*60, # 40 minute hard timeout.
       )
 
       # Collect task results and analyze.
