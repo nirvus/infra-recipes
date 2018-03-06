@@ -53,6 +53,9 @@ PROPERTIES = {
   'runtests_args': Property(kind=str,
                             help='Arguments to pass to the executable running tests',
                             default=''),
+  'test_timeout_secs': Property(kind=int,
+                                help='How long to wait until timing out on tests',
+                                default=40*60),
   'upload_snapshot': Property(kind=bool,
                           help='Whether to upload jiri snapshot'
                                ' (always False if tryjob is True)',
@@ -67,7 +70,7 @@ PROPERTIES = {
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, build_type, packages, variant, gn_args, run_tests, runtests_args,
-             upload_snapshot, upload_archive):
+             test_timeout_secs, upload_snapshot, upload_archive):
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -92,7 +95,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       test_cmds=test_cmds,
   )
   if run_tests:
-    api.fuchsia.analyze_test_results('test results', api.fuchsia.test(build))
+    test_results = api.fuchsia.test(build, timeout_secs=test_timeout_secs)
+    api.fuchsia.analyze_test_results('test results', test_results)
   if upload_archive and not api.properties.get('tryjob'):
     api.gsutil.ensure_gsutil()
     api.tar.ensure_tar()

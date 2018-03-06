@@ -347,7 +347,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """Returns the location of the mounted test directory on the target."""
     return '/tmp/infra-test-output'
 
-  def test(self, build, timeout_secs=2400):
+  def test(self, build, timeout_secs=40*60):
     """Tests a Fuchsia build.
 
     Expects the build and artifacts to be at the same place they were at
