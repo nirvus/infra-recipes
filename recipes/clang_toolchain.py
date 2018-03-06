@@ -85,16 +85,18 @@ def RunSteps(api, url, ref, revision):
   pkg_dir = staging_dir.join(pkg_name)
   api.file.ensure_directory('create pkg dir', pkg_dir)
 
-  # build zircon
+  # Build Zircon sysroot.
+  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
   zircon_dir = api.path['start_dir'].join('zircon')
-
-  for project in ['user-x64', 'user-arm64']:
+  sysroot = {}
+  for tc_arch, gn_arch in [('aarch64', 'arm64'), ('x86_64', 'x64')]:
+    sysroot[tc_arch] = zircon_dir.join('build-%s' % gn_arch, 'sysroot')
     with api.context(cwd=zircon_dir):
-      api.step('build ' + project, [
+      api.step('build %s sysroot' % tc_arch, [
         'make',
         '-j%s' % api.platform.cpu_count,
-        'PROJECT=' + project,
-        'user-only',
+        'PROJECT=%s' % gn_arch,
+        'ENABLE_ULIB_ONLY=true'
       ])
 
   # build clang+llvm
@@ -110,6 +112,9 @@ def RunSteps(api, url, ref, revision):
     'mac': [],
   }[api.platform.name]
 
+  extra_options += ['-DFUCHSIA_%s_SYSROOT=%s' % (arch, sysroot)
+                    for arch, sysroot in sorted(sysroot.iteritems())]
+
   with api.context(cwd=build_dir):
     api.step('configure clang', [
       cipd_dir.join('bin', 'cmake'),
@@ -121,8 +126,6 @@ def RunSteps(api, url, ref, revision):
       '-DCMAKE_INSTALL_PREFIX=',
       '-DSWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
       '-DBOOTSTRAP_SWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
-      '-DFUCHSIA_x86_64_SYSROOT=%s' % zircon_dir.join('build-user-x64', 'sysroot'),
-      '-DFUCHSIA_aarch64_SYSROOT=%s' % zircon_dir.join('build-user-arm64', 'sysroot'),
       '-DLLVM_ENABLE_PROJECTS=clang;lld',
       '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
     ] + extra_options + [

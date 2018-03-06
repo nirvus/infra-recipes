@@ -359,23 +359,23 @@
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-H",
-      "-v",
-      "-p",
-      "x64"
+      "make",
+      "-j2",
+      "PROJECT=arm64",
+      "ENABLE_ULIB_ONLY=true"
     ],
-    "name": "build zircon x64"
+    "cwd": "[START_DIR]/zircon",
+    "name": "build aarch64 sysroot"
   },
   {
     "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-H",
-      "-v",
-      "-p",
-      "arm64"
+      "make",
+      "-j2",
+      "PROJECT=x64",
+      "ENABLE_ULIB_ONLY=true"
     ],
-    "name": "build zircon arm64"
+    "cwd": "[START_DIR]/zircon",
+    "name": "build x86_64 sysroot"
   },
   {
     "cmd": [
@@ -618,8 +618,8 @@
       "clang_path=[START_DIR]/cipd",
       "fuchsia_icu_uc=[START_DIR]/third_party/icu/source/common",
       "fuchsia_icu_i18n=[START_DIR]/third_party/icu/source/i18n",
-      "x86_64_sysroot=[START_DIR]/out/build-zircon/build-user-x64/sysroot",
-      "aarch64_sysroot=[START_DIR]/out/build-zircon/build-user-arm64/sysroot",
+      "x86_64_sysroot=[START_DIR]/zircon/build-x64/sysroot",
+      "aarch64_sysroot=[START_DIR]/zircon/build-arm64/sysroot",
       "x64_shared=[START_DIR]/out/release-x64/x64-shared",
       "arm64_shared=[START_DIR]/out/release-arm64/arm64-shared",
       "install_destdir=[TMP_BASE]/swift_tmp_1/build/swift_toolchain",

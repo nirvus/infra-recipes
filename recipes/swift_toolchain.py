@@ -393,16 +393,19 @@ def RunSteps(api, url, ref, revision, goma_dir):
           'fuchsia/clang/${platform}': 'latest',
       })
 
-  # Build zircon for both x64 and arm64
+  # Build Zircon sysroot.
+  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
   zircon_dir = api.path['start_dir'].join('zircon')
-  for project in ['x64', 'arm64']:
-    build_zircon_cmd = [
-      api.path['start_dir'].join('scripts', 'build-zircon.sh'),
-      '-H',
-      '-v',
-      '-p', project,
-    ]
-    api.step('build zircon '+ project, build_zircon_cmd)
+  sysroot = {}
+  for tc_arch, gn_arch in [('aarch64', 'arm64'), ('x86_64', 'x64')]:
+    sysroot[tc_arch] = zircon_dir.join('build-%s' % gn_arch, 'sysroot')
+    with api.context(cwd=zircon_dir):
+      api.step('build %s sysroot' % tc_arch, [
+        'make',
+        '-j%s' % api.platform.cpu_count,
+        'PROJECT=%s' % gn_arch,
+        'ENABLE_ULIB_ONLY=true'
+      ])
 
   goma_env = {}
 
@@ -418,9 +421,6 @@ def RunSteps(api, url, ref, revision, goma_dir):
   swift_symbols = build_dir.join("swift_symbols")
   api.file.ensure_directory('build', build_dir)
 
-  zircon_dir = api.path['start_dir'].join('out', 'build-zircon')
-  x86_64_sysroot = zircon_dir.join('build-user-x64', 'sysroot')
-  aarch64_sysroot = zircon_dir.join('build-user-arm64', 'sysroot')
   linux_sysroot = api.path['start_dir'].join('buildtools', 'linux-x64',
    'sysroot')
   fuchia_x64_shared = fuchsia_out_dir.join('release-x64','x64-shared')
@@ -479,8 +479,8 @@ def RunSteps(api, url, ref, revision, goma_dir):
                 "third_party", "icu", "source", "common"),
             'fuchsia_icu_i18n=%s' % api.path['start_dir'].join(
                 "third_party", "icu", "source", "i18n"),
-            'x86_64_sysroot=%s' % x86_64_sysroot,
-            'aarch64_sysroot=%s' % aarch64_sysroot,
+            'x86_64_sysroot=%s' % sysroot['x86_64'],
+            'aarch64_sysroot=%s' % sysroot['aarch64'],
             'x64_shared=%s' % fuchia_x64_shared,
             'arm64_shared=%s' % fuchia_arm64_shared,
             'install_destdir=%s' % swift_install_dir,

@@ -122,16 +122,18 @@ def RunSteps(api, url, ref, revision):
         'fuchsia/clang/${platform}': 'latest',
       })
 
-  # build zircon
+  # Build Zircon sysroot.
+  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
   zircon_dir = api.path['start_dir'].join('zircon')
-
-  for project in ['user-x64', 'user-arm64']:
+  sysroot = {}
+  for tc_arch, gn_arch in [('aarch64', 'arm64'), ('x86_64', 'x64')]:
+    sysroot[tc_arch] = zircon_dir.join('build-%s' % gn_arch, 'sysroot')
     with api.context(cwd=zircon_dir):
-      api.step('build ' + project, [
+      api.step('build %s sysroot' % tc_arch, [
         'make',
         '-j%s' % api.platform.cpu_count,
-        'PROJECT=' + project,
-        'user-only',
+        'PROJECT=%s' % gn_arch,
+        'ENABLE_ULIB_ONLY=true'
       ])
 
   # build rust
@@ -151,9 +153,6 @@ def RunSteps(api, url, ref, revision):
       )
   )
 
-  x86_64_sysroot = zircon_dir.join('build-user-x64', 'sysroot')
-  aarch64_sysroot = zircon_dir.join('build-user-arm64', 'sysroot')
-
   cargo_dir = staging_dir.join('.cargo')
   api.file.ensure_directory('.cargo', cargo_dir)
   api.file.write_text('write config',
@@ -161,16 +160,17 @@ def RunSteps(api, url, ref, revision):
       CARGO_CONFIG.format(
           linker=cipd_dir.join('bin', 'clang'),
           ar=cipd_dir.join('bin', 'llvm-ar'),
-          x86_64_sysroot=x86_64_sysroot,
-          aarch64_sysroot=aarch64_sysroot,
+          x86_64_sysroot=sysroot['x86_64'],
+          aarch64_sysroot=sysroot['aarch64'],
       ),
   )
 
   env = {
-    'CARGO_HOME': cargo_dir,
-    'CFLAGS_x86_64-unknown-fuchsia': '--target=x86_64-unknown-fuchsia --sysroot=%s' % x86_64_sysroot,
-    'CFLAGS_aarch64-unknown-fuchsia': '--target=aarch64-unknown-fuchsia --sysroot=%s' % aarch64_sysroot,
+    'CFLAGS_%s-unknown-fuchsia' % arch: (
+        '--target=%s-unknown-fuchsia --sysroot=%s' % (arch, sysroot))
+    for arch, sysroot in sysroot.iteritems()
   }
+  env['CARGO_HOME'] = cargo_dir
   env_prefixes = {'PATH': [cipd_dir, cipd_dir.join('bin')]}
   with api.context(cwd=build_dir, env=env, env_prefixes=env_prefixes):
     api.python(

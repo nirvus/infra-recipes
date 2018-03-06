@@ -337,21 +337,21 @@
     "cmd": [
       "make",
       "-j2",
-      "PROJECT=user-x64",
-      "user-only"
+      "PROJECT=arm64",
+      "ENABLE_ULIB_ONLY=true"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build user-x64"
+    "name": "build aarch64 sysroot"
   },
   {
     "cmd": [
       "make",
       "-j2",
-      "PROJECT=user-arm64",
-      "user-only"
+      "PROJECT=x64",
+      "ENABLE_ULIB_ONLY=true"
     ],
     "cwd": "[START_DIR]/zircon",
-    "name": "build user-arm64"
+    "name": "build x86_64 sysroot"
   },
   {
     "cmd": [
@@ -379,13 +379,13 @@
       "-DCMAKE_INSTALL_PREFIX=",
       "-DSWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
       "-DBOOTSTRAP_SWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
-      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/zircon/build-user-x64/sysroot",
-      "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/zircon/build-user-arm64/sysroot",
       "-DLLVM_ENABLE_PROJECTS=clang;lld",
       "-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind",
       "-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++",
       "-DBOOTSTRAP_CMAKE_SYSROOT=[START_DIR]/cipd",
       "-DCMAKE_SYSROOT=[START_DIR]/cipd",
+      "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/zircon/build-arm64/sysroot",
+      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/zircon/build-x64/sysroot",
       "-C",
       "[START_DIR]/llvm-project/clang/cmake/caches/Fuchsia.cmake",
       "[START_DIR]/llvm-project/llvm"
