@@ -112,8 +112,13 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     }[api.platform.arch][api.platform.bits])
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
-                      patch_project)
+    api.jiri.checkout(manifest=manifest,
+                      remote=remote,
+                      project=project,
+                      revision=revision,
+                      patch_ref=patch_ref,
+                      patch_gerrit_url=patch_gerrit_url,
+                      patch_project=patch_project)
     if not revision:
       revision = api.jiri.project([project]).json.output[0]['revision']
 

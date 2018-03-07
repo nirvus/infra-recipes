@@ -300,7 +300,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#892)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#895)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -314,7 +314,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#933)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#936)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -325,7 +325,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#466)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#469)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -347,7 +347,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#225)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#225)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -358,6 +358,7 @@ Args:
   manifest (str): A path to the manifest in the remote (e.g. manifest/minimal)
   remote (str): A URL to the remote repository which Jiri will be pointed at
   project (str): The name of the project
+  revision (str): The revision of the remote repository to import
   patch_ref (str): A reference ID to the patch in Gerrit to apply
   patch_gerrit_url (str): A URL of the patch in Gerrit to apply
   patch_project (str): The name of Gerrit project
@@ -368,7 +369,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/fuchsia/api.py#273)(self, repository, revision, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/fuchsia/api.py#276)(self, repository, revision, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out Fuchsia from a Jiri snapshot.
 
@@ -389,18 +390,18 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#954)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#957)(self, test_results):**
 
 Logs individual test results in separate steps.
 
 Args:
   test_results (FuchsiaTestResults): The test results.
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#625)(self):**
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#628)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#865)(self, build, timeout_secs=(40 \* 60), external_network=False):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#868)(self, build, timeout_secs=(40 \* 60), external_network=False):**
 
 Tests a Fuchsia build on the specified device.
 
@@ -418,7 +419,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#984)(self, build_results, bucket='fuchsia-archive'):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#987)(self, build_results, bucket='fuchsia-archive'):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
@@ -736,7 +737,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#249)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#263)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -746,12 +747,13 @@ Args:
   manifest (str): Relative path to the manifest in the remote repository.
   remote (str): URL to the remote repository.
   project (str): The name that jiri should assign to the project.
+  revision (str): A revision to checkout for the remote.
   patch_ref (str): The ref at which a patch lives.
   patch_gerrit_url (str): The Gerrit URL for the patch to apply.
   patch_project (str): The Gerrit project where the patch lives.
   timeout_secs (int): A timeout for jiri update in seconds.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#288)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#304)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -763,7 +765,7 @@ Args:
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#135)(self, all=False, \*\*kwargs):**
 
-&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#154)(self, manifest, projects=None, imports=None, test_data=None):**
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#168)(self, manifest, projects=None, imports=None, test_data=None):**
 
 Creates a step to edit a Jiri manifest.
 
@@ -781,13 +783,24 @@ Returns:
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#32)(self, version=None):**
 
-&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#144)(self, manifest, remote, name=None, overwrite=False, \*\*kwargs):**
+&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#144)(self, manifest, remote, name=None, revision=None, overwrite=False, \*\*kwargs):**
+
+Imports manifest into Jiri project.
+
+Args:
+  manifest (str): A file within the repository to use.
+  remote (str): A remote manifest repository address.
+  name (str): The name of the remote manifest project.
+  revision (str): A revision to checkout for the remote.
+
+Returns:
+  A step result.
 
 &mdash; **def [init](/recipe_modules/jiri/api.py#49)(self, dir=None, \*\*kwargs):**
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#45)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#212)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#226)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects=[], out=None, test_data=None):**
 
@@ -814,7 +827,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#305)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#321)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -836,9 +849,9 @@ Returns:
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#126)(self, local_manifest=False, attempts=3):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#229)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#243)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#239)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#253)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#106)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
@@ -1052,7 +1065,7 @@ Recipe for building Clang toolchain.
 
 Recipe for building and testing Cobalt.
 
-&mdash; **def [RunSteps](/recipes/cobalt.py#30)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote):**
+&mdash; **def [RunSteps](/recipes/cobalt.py#31)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, revision):**
 ### *recipes* / [dart](/recipes/dart.py)
 
 [DEPS](/recipes/dart.py#11): [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
@@ -1087,14 +1100,14 @@ Recipe for generating docs.
 
 Recipe for building libffmpeg.so.
 
-&mdash; **def [RunSteps](/recipes/ffmpeg.py#41)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, remote, manifest, project, snapshot_gcs_bucket):**
+&mdash; **def [RunSteps](/recipes/ffmpeg.py#42)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, remote, manifest, revision, project, snapshot_gcs_bucket):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#134)(api, project, manifest, remote, checkout_snapshot, repository, revision, patch_gerrit_url, patch_project, patch_ref, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, networking_for_tests, test_timeout_secs, snapshot_gcs_bucket, upload_archive):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#131)(api, project, manifest, remote, revision, checkout_snapshot, repository, patch_gerrit_url, patch_project, patch_ref, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, networking_for_tests, test_timeout_secs, snapshot_gcs_bucket, upload_archive):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
@@ -1133,7 +1146,7 @@ Args:
 
 Recipe for rolling Fuchsia layers into upper layers.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#74)(api, category, project, manifest, remote, roll_type, import_in, import_from, revision, dry_run):**
+&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#72)(api, project, manifest, remote, roll_type, import_in, import_from, revision, dry_run):**
 ### *recipes* / [gcc\_toolchain](/recipes/gcc_toolchain.py)
 
 [DEPS](/recipes/gcc_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]
@@ -1169,7 +1182,7 @@ Recipe for building GCC toolchain.
 
 Recipe for building Go toolchain.
 
-&mdash; **def [RunSteps](/recipes/go_toolchain.py#39)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote):**
+&mdash; **def [RunSteps](/recipes/go_toolchain.py#42)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 ### *recipes* / [goma:examples/full](/recipe_modules/goma/examples/full.py)
 
 [DEPS](/recipe_modules/goma/examples/full.py#5): [goma](#recipe_modules-goma), [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1199,9 +1212,9 @@ packages are uploaded.
 This recipe uses golang/dep to manage dependencies, so the given project is
 expected to have a Gopkg.toml file specifying its dependency restrictions.
 
-&mdash; **def [RunSteps](/recipes/infra.py#105)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, packages):**
+&mdash; **def [RunSteps](/recipes/infra.py#103)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, packages):**
 
-&mdash; **def [UploadPackage](/recipes/infra.py#72)(api, bin_name, bin_dir, revision, remote):**
+&mdash; **def [UploadPackage](/recipes/infra.py#70)(api, bin_name, bin_dir, revision, remote):**
 
 Creates and uploads a CIPD package containing the tool at bin_dir/bin_name.
 
@@ -1221,7 +1234,7 @@ Args:
 
 Recipe for building Jiri.
 
-&mdash; **def [RunSteps](/recipes/jiri.py#77)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
+&mdash; **def [RunSteps](/recipes/jiri.py#77)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target):**
 
 &mdash; **def [UploadPackage](/recipes/jiri.py#42)(api, revision, staging_dir):**
 ### *recipes* / [jiri:examples/full](/recipe_modules/jiri/examples/full.py)
@@ -1247,14 +1260,14 @@ Recipe for building LLVM.
 
 Recipe for building and running pre-submit checks for the modules repo.
 
-&mdash; **def [RunSteps](/recipes/modules.py#35)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, project_path):**
+&mdash; **def [RunSteps](/recipes/modules.py#36)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, project_path):**
 ### *recipes* / [qemu](/recipes/qemu.py)
 
 [DEPS](/recipes/qemu.py#13): [cipd](#recipe_modules-cipd), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building QEMU.
 
-&mdash; **def [RunSteps](/recipes/qemu.py#43)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, platform):**
+&mdash; **def [RunSteps](/recipes/qemu.py#44)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, platform):**
 ### *recipes* / [qemu:examples/full](/recipe_modules/qemu/examples/full.py)
 
 [DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
@@ -1266,7 +1279,7 @@ Recipe for building QEMU.
 
 Recipe for testing Recipes.
 
-&mdash; **def [RunSteps](/recipes/recipes.py#29)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote):**
+&mdash; **def [RunSteps](/recipes/recipes.py#30)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, revision):**
 ### *recipes* / [rust\_toolchain](/recipes/rust_toolchain.py)
 
 [DEPS](/recipes/rust_toolchain.py#14): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
@@ -1282,9 +1295,9 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [RunSteps](/recipes/sdk.py#53)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 
-&mdash; **def [UploadArchive](/recipes/sdk.py#147)(api, sdk, out_dir, revision):**
+&mdash; **def [UploadArchive](/recipes/sdk.py#149)(api, sdk, out_dir, revision):**
 
-&mdash; **def [UploadPackage](/recipes/sdk.py#108)(api, staging_dir, revision):**
+&mdash; **def [UploadPackage](/recipes/sdk.py#110)(api, staging_dir, revision):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)
@@ -1329,18 +1342,18 @@ Recipe for building and publishing tools.
 
 Recipe for building libwebkit.so.
 
-&mdash; **def [RunSteps](/recipes/web_view.py#41)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, remote, manifest, project, snapshot_gcs_bucket):**
+&mdash; **def [RunSteps](/recipes/web_view.py#42)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, revision, manifest, remote, snapshot_gcs_bucket):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
 [DEPS](/recipes/zircon.py#15): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#495)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):**
+&mdash; **def [Build](/recipes/zircon.py#496)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#445)(api, core_task, booted_task, booted_task_output_image, build_dir):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#446)(api, core_task, booted_task, booted_task_output_image, build_dir):**
 
 Waits on the tasks running core tests and booted tests, then analyzes the
 results.
@@ -1350,7 +1363,7 @@ Args:
   booted_task (str): The swarming task ID of the task running booted tests.
   build_dir (Path): A path to the directory containing build artifacts.
 
-&mdash; **def [GenerateQEMUCommand](/recipes/zircon.py#322)(target, cmdline, use_kvm, blkdev=''):**
+&mdash; **def [GenerateQEMUCommand](/recipes/zircon.py#323)(target, cmdline, use_kvm, blkdev=''):**
 
 GenerateQEMUCommand generates a QEMU command for executing Zircon tests.
 
@@ -1369,9 +1382,9 @@ Returns:
   A list[str] representing QEMU command which invokes QEMU from the default
   CIPD installation directory.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#572)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type):**
+&mdash; **def [RunSteps](/recipes/zircon.py#573)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type):**
 
-&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#191)(api, target, build_dir, use_kvm):**
+&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#192)(api, target, build_dir, use_kvm):**
 
 Executes Zircon tests in QEMU on a different machine.
 
@@ -1381,7 +1394,7 @@ Args:
   build_dir (Path): Path to the build directory.
   use_kvm (bool): Whether or not to enable KVM with QEMU when testing.
 
-&mdash; **def [RunTestsOnDevice](/recipes/zircon.py#120)(api, target, build_dir, device_type):**
+&mdash; **def [RunTestsOnDevice](/recipes/zircon.py#121)(api, target, build_dir, device_type):**
 
 Executes Zircon tests on a hardware device.
 
@@ -1391,7 +1404,7 @@ Args:
   build_dir (Path): Path to the build directory.
   device_type (Enum(*DEVICES)): The type of device to run tests on.
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#383)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#384)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
 
 TriggerTestsTask triggers a task to execute a command on a remote machine.
 

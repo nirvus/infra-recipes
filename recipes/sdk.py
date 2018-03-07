@@ -46,7 +46,7 @@ PROPERTIES = {
     'remote':
         Property(kind=str, help='Remote manifest repository'),
     'revision':
-        Property(kind=str, help='Revision', default=None),
+        Property(kind=str, help='Revision of manifest to import', default=None),
 }
 
 
@@ -59,14 +59,16 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       manifest=manifest,
       remote=remote,
       project=project,
+      revision=revision,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project)
 
   with api.context(infra_steps=True):
-    # api.fuchsia.checkout() will have ensured that jiri exists.
-    revision = api.jiri.project(['garnet']).json.output[0]['revision']
-    api.step.active_result.presentation.properties['got_revision'] = revision
+    if not revision:
+      # api.fuchsia.checkout() will have ensured that jiri exists.
+      revision = api.jiri.project(['garnet']).json.output[0]['revision']
+      api.step.active_result.presentation.properties['got_revision'] = revision
 
   sdk_dir = api.path['cleanup'].join('sdk')
 
@@ -209,7 +211,8 @@ def GenTests(api):
       api.properties(
           project='garnet',
           manifest='manifest/garnet',
-          remote='https://fuchsia.googlesource.com/garnet') +
+          remote='https://fuchsia.googlesource.com/garnet',
+          revision=api.jiri.example_revision) +
       api.step_data('upload chromium sdk.hash archive',
                     api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
   yield (api.test('ci_new') +

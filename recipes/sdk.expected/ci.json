@@ -113,6 +113,8 @@
       "-time",
       "-name",
       "garnet",
+      "-revision",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "manifest/garnet",
       "https://fuchsia.googlesource.com/garnet"
     ],
@@ -199,35 +201,6 @@
     "infra_step": true,
     "name": "hash snapshot",
     "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-v",
-      "-time",
-      "-json-output",
-      "/path/to/tmp/json",
-      "garnet"
-    ],
-    "infra_step": true,
-    "name": "jiri project",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"garnet\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/garnet\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/garnet\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
-    ]
   },
   {
     "cmd": [],

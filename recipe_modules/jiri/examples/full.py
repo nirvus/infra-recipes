@@ -44,7 +44,9 @@ def RunSteps(api, checkout_from_snapshot):
       'minimal',
       'https://fuchsia.googlesource.com',
       name='manifest',
-      overwrite=True)
+      revision='c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
+      overwrite=True
+  )
 
   # Download all projects.
   api.jiri.update(gc=True, snapshot='snapshot', local_manifest=True)

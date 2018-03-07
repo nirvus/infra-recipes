@@ -141,10 +141,24 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def import_manifest(self, manifest, remote, name=None, overwrite=False, **kwargs):
+  def import_manifest(self, manifest, remote, name=None, revision=None,
+                      overwrite=False, **kwargs):
+    """Imports manifest into Jiri project.
+
+    Args:
+      manifest (str): A file within the repository to use.
+      remote (str): A remote manifest repository address.
+      name (str): The name of the remote manifest project.
+      revision (str): A revision to checkout for the remote.
+
+    Returns:
+      A step result.
+    """
     cmd = [ 'import' ]
     if name:
       cmd.extend(['-name', name])
+    if revision:
+      cmd.extend(['-revision', revision])
     if overwrite:
       cmd.extend(['-overwrite=true'])
     cmd.extend([manifest, remote])
@@ -246,8 +260,9 @@ class JiriApi(recipe_api.RecipeApi):
     step = self(*cmd, step_test_data=lambda: self.test_api.source_manifest(test_data), **kwargs)
     return step.json.output
 
-  def checkout(self, manifest, remote, project=None, patch_ref=None,
-               patch_gerrit_url=None, patch_project=None, timeout_secs=None):
+  def checkout(self, manifest, remote, project=None, revision=None,
+               patch_ref=None, patch_gerrit_url=None, patch_project=None,
+               timeout_secs=None):
     """Initializes and populates a jiri checkout from a remote manifest.
 
     Emits a source manifest for the build.
@@ -256,13 +271,14 @@ class JiriApi(recipe_api.RecipeApi):
       manifest (str): Relative path to the manifest in the remote repository.
       remote (str): URL to the remote repository.
       project (str): The name that jiri should assign to the project.
+      revision (str): A revision to checkout for the remote.
       patch_ref (str): The ref at which a patch lives.
       patch_gerrit_url (str): The Gerrit URL for the patch to apply.
       patch_project (str): The Gerrit project where the patch lives.
       timeout_secs (int): A timeout for jiri update in seconds.
     """
     self.init()
-    self.import_manifest(manifest, remote, project)
+    self.import_manifest(manifest, remote, name=project, revision=revision)
     # Note that timeout is not a jiri commandline argument, but a param
     # that will get passed to self.m.step() via kwargs.
     self.update(run_hooks=False, timeout=timeout_secs)

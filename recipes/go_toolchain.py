@@ -24,28 +24,38 @@ DEPS = [
 ]
 
 PROPERTIES = {
-  'category': Property(kind=str, help='Build category', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
   'patch_project': Property(kind=str, help='Gerrit project', default=None),
   'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
+  'project': Property(kind=str, help='Jiri remote manifest project',
+                      default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
+  'revision': Property(kind=str, help='Revision of manifest to import',
+                       default=None),
 }
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, manifest, remote):
+def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
+             patch_repository_url, project, manifest, remote, revision):
   api.gsutil.ensure_gsutil()
   api.jiri.ensure_jiri()
   api.go.ensure_go(use_deprecated=True)
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
-    revision = api.jiri.project(['third_party/go']).json.output[0]['revision']
-    api.step.active_result.presentation.properties['got_revision'] = revision
+    api.jiri.checkout(manifest=manifest,
+                      remote=remote,
+                      project=project,
+                      revision=revision,
+                      patch_ref=patch_ref,
+                      patch_gerrit_url=patch_gerrit_url,
+                      patch_project=patch_project)
+    if not revision:
+      revision = api.jiri.project(['third_party/go']).json.output[0]['revision']
+      api.step.active_result.presentation.properties['got_revision'] = revision
 
   go_dir = api.path['start_dir'].join('third_party', 'go')
   with api.context(cwd=go_dir.join('src'),

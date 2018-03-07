@@ -25,7 +25,6 @@ DEPS = [
 ]
 
 PROPERTIES = {
-  'category': Property(kind=str, help='Build category', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
   'patch_project': Property(kind=str, help='Gerrit project', default=None),
   'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
@@ -35,6 +34,7 @@ PROPERTIES = {
   'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
+  'revision': Property(kind=str, help='Revision of manifest to import', default=None),
   'target': Property(kind=str, help='Target to build'),
 }
 
@@ -74,17 +74,23 @@ def UploadPackage(api, revision, staging_dir):
   )
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
+def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target):
+             revision, target):
   api.jiri.ensure_jiri()
   api.go.ensure_go(use_deprecated=True)
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
-                      patch_project)
-    revision = api.jiri.project(['jiri']).json.output[0]['revision']
-    api.step.active_result.presentation.properties['got_revision'] = revision
+    api.jiri.checkout(manifest=manifest,
+                      remote=remote,
+                      project=project,
+                      revision=revision,
+                      patch_ref=patch_ref,
+                      patch_gerrit_url=patch_gerrit_url,
+                      patch_project=patch_project)
+    if not revision:
+      revision = api.jiri.project(['jiri']).json.output[0]['revision']
+      api.step.active_result.presentation.properties['got_revision'] = revision
 
   staging_dir = api.path.mkdtemp('jiri')
   jiri_dir = api.path['start_dir'].join(

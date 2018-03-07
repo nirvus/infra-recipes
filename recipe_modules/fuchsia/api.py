@@ -226,6 +226,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
                manifest,
                remote,
                project=None,
+               revision=None,
                patch_ref=None,
                patch_gerrit_url=None,
                patch_project=None,
@@ -240,6 +241,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       manifest (str): A path to the manifest in the remote (e.g. manifest/minimal)
       remote (str): A URL to the remote repository which Jiri will be pointed at
       project (str): The name of the project
+      revision (str): The revision of the remote repository to import
       patch_ref (str): A reference ID to the patch in Gerrit to apply
       patch_gerrit_url (str): A URL of the patch in Gerrit to apply
       patch_project (str): The name of Gerrit project
@@ -255,10 +257,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.jiri.checkout(
           manifest,
           remote,
-          project,
-          patch_ref,
-          patch_gerrit_url,
-          patch_project,
+          project=project,
+          revision=revision,
+          patch_ref=patch_ref,
+          patch_gerrit_url=patch_gerrit_url,
+          patch_project=patch_project,
           timeout_secs=timeout_secs,
       )
 

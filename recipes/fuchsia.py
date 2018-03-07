@@ -20,6 +20,7 @@ DEPS = [
     'infra/fuchsia',
     'infra/gsutil',
     'infra/hash',
+    'infra/jiri',
     'infra/tar',
     'recipe_engine/file',
     'recipe_engine/path',
@@ -37,6 +38,8 @@ PROPERTIES = {
         Property(kind=str, help='Jiri manifest to use', default=None),
     'remote':
         Property(kind=str, help='Remote manifest repository', default=None),
+    'revision':
+        Property(kind=str, help='Revision which triggered this build.', default=None),
 
     # Properties for checking out code from a snapshot.
     'checkout_snapshot':
@@ -49,12 +52,6 @@ PROPERTIES = {
         Property(
             kind=str,
             help='Repository which triggered this build.'
-                 ' Set by luci-scheduler. Used if checkout_snapshot is True.',
-            default=None),
-    'revision':
-        Property(
-            kind=str,
-            help='Revision which triggered this build.'
                  ' Set by luci-scheduler. Used if checkout_snapshot is True.',
             default=None),
 
@@ -131,8 +128,8 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, project, manifest, remote, checkout_snapshot, repository,
-             revision, patch_gerrit_url, patch_project, patch_ref, target,
+def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
+             repository, patch_gerrit_url, patch_project, patch_ref, target,
              build_type, packages, variant, gn_args, run_tests, runtests_args,
              device_type, networking_for_tests, test_timeout_secs,
              snapshot_gcs_bucket, upload_archive):
@@ -170,11 +167,13 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, repository,
         manifest=manifest,
         remote=remote,
         project=project,
+        revision=revision,
         patch_ref=patch_ref,
         patch_gerrit_url=patch_gerrit_url,
         patch_project=patch_project,
         snapshot_gcs_bucket=snapshot_gcs_bucket,
     )
+
   test_cmds = None
   if run_tests:
     test_cmds = [
@@ -285,6 +284,7 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
+      revision=api.jiri.example_revision,
   )
   yield api.test('staging') + api.properties(
       manifest='fuchsia',

@@ -23,18 +23,25 @@ PROPERTIES = {
   'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
+  'revision': Property(kind=str, help='Revision of manifest to import', default=None),
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
-             project, manifest, remote):
+def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project,
+             manifest, remote, revision):
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
-                      patch_project)
-    revision = api.jiri.project(['infra/recipes']).json.output[0]['revision']
-    api.step.active_result.presentation.properties['got_revision'] = revision
+    api.jiri.checkout(manifest=manifest,
+                      remote=remote,
+                      project=project,
+                      revision=revision,
+                      patch_ref=patch_ref,
+                      patch_gerrit_url=patch_gerrit_url,
+                      patch_project=patch_project)
+    if not revision:
+      revision = api.jiri.project(['infra/recipes']).json.output[0]['revision']
+      api.step.active_result.presentation.properties['got_revision'] = revision
 
   with api.context(cwd=api.path['start_dir'].join('infra', 'recipes')):
     api.python('test', api.context.cwd.join('recipes.py'),

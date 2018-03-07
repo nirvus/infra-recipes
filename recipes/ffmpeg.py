@@ -30,6 +30,7 @@ PROPERTIES = {
                       default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
+  'revision': Property(kind=str, help='Revision of manifest to import', default=None),
   'snapshot_gcs_bucket': Property(kind=str,
                                   help='The GCS bucket to upload a jiri snapshot of the build'
                                        ' to. Will not upload a snapshot if this property is'
@@ -40,13 +41,14 @@ PROPERTIES = {
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url,
-             remote, manifest, project, snapshot_gcs_bucket):
+             remote, manifest, revision, project, snapshot_gcs_bucket):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
       project=project,
+      revision=revision,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project,

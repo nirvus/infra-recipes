@@ -23,8 +23,6 @@ DEPS = [
 ]
 
 PROPERTIES = {
-    'category':
-        Property(kind=str, help='Build category', default=None),
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
@@ -71,14 +69,14 @@ COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 # useful because now we can have an auto-roller in staging, and we can block
 # updates behind 'dry_run' as a sort of feature gate. It is passed to
 # api.auto_roller.attempt_roll() which handles committing changes.
-def RunSteps(api, category, project, manifest, remote, roll_type, import_in,
-             import_from, revision, dry_run):
+def RunSteps(api, project, manifest, remote, roll_type, import_in, import_from,
+             revision, dry_run):
   api.jiri.ensure_jiri()
   api.gitiles.ensure_gitiles()
 
   with api.context(infra_steps=True):
     api.jiri.init()
-    api.jiri.import_manifest(manifest, remote, project)
+    api.jiri.import_manifest(manifest, remote, name=project)
     api.jiri.update(run_hooks=False)
 
     project_dir = api.path['start_dir'].join(*project.split('/'))

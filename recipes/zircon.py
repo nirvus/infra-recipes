@@ -88,7 +88,6 @@ TEST_IO_TIMEOUT_SECS = 60
 ZIRCON_QEMU_SUCCESS_CODE = 31
 
 PROPERTIES = {
-  'category': Property(kind=str, help='Build category', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
   'patch_project': Property(kind=str, help='Gerrit project', default=None),
   'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
@@ -98,6 +97,8 @@ PROPERTIES = {
   'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
+  'revision': Property(kind=str, help='Revision of manifest to import',
+                       default=None),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
   'toolchain': Property(kind=Enum(*(TOOLCHAINS.keys())),
                         help='Toolchain to use'),
@@ -569,16 +570,21 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
   return src_dir.join('build-%s' % target + tc_suffix)
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, project, manifest, remote,
+def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
+             patch_repository_url, project, manifest, remote, revision,
              target, toolchain, make_args, use_kvm, run_tests, runtests_args,
              device_type):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
-                      patch_project)
+    api.jiri.checkout(manifest=manifest,
+                      remote=remote,
+                      project=project,
+                      revision=revision,
+                      patch_ref=patch_ref,
+                      patch_gerrit_url=patch_gerrit_url,
+                      patch_project=patch_project)
 
   src_dir = api.path['start_dir'].join('zircon')
   build_dir = Build(
