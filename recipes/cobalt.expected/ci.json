@@ -150,6 +150,14 @@
   {
     "cmd": [
       "./cobaltb.py",
+      "lint"
+    ],
+    "cwd": "[START_DIR]/cobalt",
+    "name": "lint"
+  },
+  {
+    "cmd": [
+      "./cobaltb.py",
       "test"
     ],
     "cwd": "[START_DIR]/cobalt",

@@ -41,6 +41,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
   with api.context(cwd=api.path['start_dir'].join('cobalt')):
     api.step('setup', ['./cobaltb.py', 'setup'])
     api.step('build', ['./cobaltb.py', 'build'])
+    api.step('lint', ['./cobaltb.py', 'lint'])
     api.step('test', ['./cobaltb.py', 'test'])
 
 
