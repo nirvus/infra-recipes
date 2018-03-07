@@ -10,6 +10,11 @@ from recipe_engine.recipe_api import Property
 import re
 
 
+TARGETS = [
+  ('aarch64', 'arm64'),
+  ('x86_64', 'x64'),
+]
+
 DEPS = [
   'infra/cipd',
   'infra/git',
@@ -86,7 +91,7 @@ def RunSteps(api, url, ref, revision):
   # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
   zircon_dir = api.path['start_dir'].join('zircon')
   sysroot = {}
-  for tc_arch, gn_arch in [('aarch64', 'arm64'), ('x86_64', 'x64')]:
+  for tc_arch, gn_arch in TARGETS:
     sysroot[tc_arch] = zircon_dir.join('build-%s' % gn_arch, 'sysroot')
     with api.context(cwd=zircon_dir):
       api.step('build %s sysroot' % tc_arch, [
@@ -144,6 +149,30 @@ def RunSteps(api, url, ref, revision):
   m = re.search(r'version ([0-9.-]+)', step_result.stdout)
   assert m, 'Cannot determine Clang version'
   clang_version = m.group(1)
+
+  # TODO(TO-471): Ideally this would be done by the cmake build itself.
+  manifest_format = ''
+  for soname in [
+      'libclang_rt.asan-{arch}.so',
+      'libclang_rt.ubsan_standalone-{arch}.so',
+      'libclang_rt.scudo-{arch}.so',
+  ]:
+    manifest_format += ('lib/%s=clang/{clang_version}/lib/fuchsia/%s\n' %
+                        (soname, soname))
+  for prefix in ('', 'asan/'):
+    for soname in [
+        'libc++.so.2',
+        'libc++abi.so.1',
+        'libunwind.so.1',
+    ]:
+      manifest_format += ('lib/%s={arch}-fuchsia/lib/%s\n' %
+                         (prefix + soname, prefix + soname))
+  for tc_arch, gn_arch in TARGETS:
+    manifest_file = '%s-fuchsia.manifest' % tc_arch
+    api.file.write_text('write %s' % manifest_file,
+                        pkg_dir.join('lib', manifest_file),
+                        manifest_format.format(arch=tc_arch,
+                                               clang_version=clang_version))
 
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,

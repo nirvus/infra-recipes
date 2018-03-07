@@ -434,6 +434,34 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "lib/libclang_rt.asan-aarch64.so=clang/5.0.0/lib/fuchsia/libclang_rt.asan-aarch64.so\nlib/libclang_rt.ubsan_standalone-aarch64.so=clang/5.0.0/lib/fuchsia/libclang_rt.ubsan_standalone-aarch64.so\nlib/libclang_rt.scudo-aarch64.so=clang/5.0.0/lib/fuchsia/libclang_rt.scudo-aarch64.so\nlib/libc++.so.2=aarch64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=aarch64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=aarch64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=aarch64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=aarch64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=aarch64-fuchsia/lib/asan/libunwind.so.1\n",
+      "[TMP_BASE]/clang_tmp_1/clang+llvm-x86_64-linux/lib/aarch64-fuchsia.manifest"
+    ],
+    "infra_step": true,
+    "name": "write aarch64-fuchsia.manifest"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "lib/libclang_rt.asan-x86_64.so=clang/5.0.0/lib/fuchsia/libclang_rt.asan-x86_64.so\nlib/libclang_rt.ubsan_standalone-x86_64.so=clang/5.0.0/lib/fuchsia/libclang_rt.ubsan_standalone-x86_64.so\nlib/libclang_rt.scudo-x86_64.so=clang/5.0.0/lib/fuchsia/libclang_rt.scudo-x86_64.so\nlib/libc++.so.2=x86_64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=x86_64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=x86_64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=x86_64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=x86_64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=x86_64-fuchsia/lib/asan/libunwind.so.1\n",
+      "[TMP_BASE]/clang_tmp_1/clang+llvm-x86_64-linux/lib/x86_64-fuchsia.manifest"
+    ],
+    "infra_step": true,
+    "name": "write x86_64-fuchsia.manifest"
+  },
+  {
+    "cmd": [
       "cipd",
       "pkg-build",
       "-pkg-def",
