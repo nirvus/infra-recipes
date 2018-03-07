@@ -420,6 +420,7 @@
     "cmd": [
       "make",
       "-j2",
+      "-k",
       "check-binutils",
       "check-gas",
       "check-ld",
@@ -427,6 +428,66 @@
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
     "name": "test aarch64 binutils"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir/gas/testsuite/gas.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "infra_step": true,
+    "name": "binutils aarch64 gas/testsuite/gas.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir/binutils/binutils.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "infra_step": true,
+    "name": "binutils aarch64 binutils/binutils.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir/ld/ld.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "infra_step": true,
+    "name": "binutils aarch64 ld/ld.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir/gold/testsuite/test-suite.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "infra_step": true,
+    "name": "binutils aarch64 gold/testsuite/test-suite.log"
   },
   {
     "cmd": [
@@ -559,6 +620,7 @@
     "cmd": [
       "make",
       "-j2",
+      "-k",
       "check-binutils",
       "check-gas",
       "check-ld",
@@ -566,6 +628,66 @@
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
     "name": "test x86_64 binutils"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir/gas/testsuite/gas.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "infra_step": true,
+    "name": "binutils x86_64 gas/testsuite/gas.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir/binutils/binutils.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "infra_step": true,
+    "name": "binutils x86_64 binutils/binutils.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir/ld/ld.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "infra_step": true,
+    "name": "binutils x86_64 ld/ld.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir/gold/testsuite/test-suite.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "infra_step": true,
+    "name": "binutils x86_64 gold/testsuite/test-suite.log"
   },
   {
     "cmd": [

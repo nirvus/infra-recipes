@@ -109,11 +109,11 @@ def RunSteps(api, binutils_revision, gcc_revision):
                               binutils_build_dir)
 
     with api.context(cwd=binutils_build_dir):
-      def binutils_make_step(name, prefix, make_args=[]):
-        api.step('%s %s binutils' % (name, target),
-                 make_parallel + make_args +
-                 ['%s-%s' % (prefix, component)
-                  for component in ['binutils', 'gas', 'ld', 'gold']])
+      def binutils_make_step(name, prefix, make_args=[], logs=[]):
+        return api.step('%s %s binutils' % (name, target),
+                        make_parallel + make_args +
+                        ['%s-%s' % (prefix, component)
+                         for component in ['binutils', 'gas', 'ld', 'gold']])
       api.step('configure %s binutils' % target, [
         binutils_dir.join('configure'),
         '--prefix=', # we're building a relocatable package
@@ -127,7 +127,16 @@ def RunSteps(api, binutils_revision, gcc_revision):
         '--enable-targets=%s' % enable_targets,
       ] + extra_args)
       binutils_make_step('build', 'all')
-      binutils_make_step('test', 'check')
+      check_step = binutils_make_step('test', 'check', ['-k'])
+      for log in [
+          ('gas', 'testsuite', 'gas.log'),
+          ('binutils', 'binutils.log'),
+          ('ld', 'ld.log'),
+          ('gold', 'testsuite', 'test-suite.log'),
+      ]:
+        check_step.presentation.logs[log[0]] = api.file.read_text(
+            'binutils %s %s' % (target, '/'.join(log)),
+            binutils_build_dir.join(*log))
       binutils_make_step('install', 'install-strip', ['DESTDIR=%s' % pkg_dir])
 
     # build gcc
