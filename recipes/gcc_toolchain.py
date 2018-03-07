@@ -46,9 +46,6 @@ def RunSteps(api, binutils_revision, gcc_revision):
   api.gitiles.ensure_gitiles()
   api.gsutil.ensure_gsutil()
 
-  api.cipd.set_service_account_credentials(
-      api.cipd.default_bot_service_account_credentials)
-
   if binutils_revision is None:
     binutils_revision = api.gitiles.refs(
         BINUTILS_GIT, step_name='binutils refs').get(BINUTILS_REF, None)

@@ -327,10 +327,6 @@ def RunSteps(api, url, ref, revision, mock_build):
   api.gitiles.ensure_gitiles()
   api.gsutil.ensure_gsutil()
 
-  if not mock_build:
-    api.cipd.set_service_account_credentials(
-      api.cipd.default_bot_service_account_credentials)
-
   if not revision:
     revision = api.gitiles.refs(url).get(ref, None)
 

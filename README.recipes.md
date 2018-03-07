@@ -128,7 +128,7 @@ CIPDApi provides basic support for CIPD.
 This assumes that `cipd` (or `cipd.exe` or `cipd.bat` on windows) has been
 installed somewhere in $PATH.
 
-&mdash; **def [build](/recipe_modules/cipd/api.py#248)(self, input_dir, output_package, package_name, install_mode=None):**
+&mdash; **def [build](/recipe_modules/cipd/api.py#237)(self, input_dir, output_package, package_name, install_mode=None):**
 
 Builds, but does not upload, a cipd package from a directory.
 
@@ -141,7 +141,7 @@ Args:
     should use when installing this package. If None, defaults to the
     platform default ('copy' on windows, 'symlink' on everything else).
 
-&mdash; **def [build\_from\_pkg](/recipe_modules/cipd/api.py#236)(self, pkg_def, output_package):**
+&mdash; **def [build\_from\_pkg](/recipe_modules/cipd/api.py#225)(self, pkg_def, output_package):**
 
 Builds a package based on a PackageDefinition object.
 
@@ -150,7 +150,7 @@ Args:
     create.
   output_package (Path) - the file to write the package to.
 
-&mdash; **def [build\_from\_yaml](/recipe_modules/cipd/api.py#225)(self, pkg_def, output_package):**
+&mdash; **def [build\_from\_yaml](/recipe_modules/cipd/api.py#214)(self, pkg_def, output_package):**
 
 Builds a package based on on-disk YAML package definition file.
 
@@ -158,7 +158,7 @@ Args:
   pkg_def (Path) - The path to the yaml file.
   output_package (Path) - the file to write the package to.
 
-&mdash; **def [create\_from\_pkg](/recipe_modules/cipd/api.py#345)(self, pkg_def, refs=None, tags=None):**
+&mdash; **def [create\_from\_pkg](/recipe_modules/cipd/api.py#330)(self, pkg_def, refs=None, tags=None):**
 
 Builds and uploads a package based on a PackageDefinition object.
 
@@ -176,7 +176,7 @@ Returns the JSON 'result' section, e.g.: {
   "instance_id": "433bfdf86c0bb82d1eee2d1a0473d3709c25d2c4"
 }
 
-&mdash; **def [create\_from\_yaml](/recipe_modules/cipd/api.py#325)(self, pkg_def, refs=None, tags=None):**
+&mdash; **def [create\_from\_yaml](/recipe_modules/cipd/api.py#310)(self, pkg_def, refs=None, tags=None):**
 
 Builds and uploads a package based on on-disk YAML package definition
 file.
@@ -194,11 +194,9 @@ Returns the JSON 'result' section, e.g.: {
   "instance_id": "433bfdf86c0bb82d1eee2d1a0473d3709c25d2c4"
 }
 
-&emsp; **@property**<br>&mdash; **def [default\_bot\_service\_account\_credentials](/recipe_modules/cipd/api.py#183)(self):**
+&mdash; **def [describe](/recipe_modules/cipd/api.py#425)(self, package_name, version, test_data_refs=None, test_data_tags=None):**
 
-&mdash; **def [describe](/recipe_modules/cipd/api.py#451)(self, package_name, version, test_data_refs=None, test_data_tags=None):**
-
-&mdash; **def [ensure](/recipe_modules/cipd/api.py#366)(self, root, packages):**
+&mdash; **def [ensure](/recipe_modules/cipd/api.py#351)(self, root, packages):**
 
 Ensures that packages are installed in a given root dir.
 
@@ -206,14 +204,9 @@ packages must be a mapping from package name to its version, where
   * name must be for right platform (see also ``platform_suffix``),
   * version could be either instance_id, or ref, or unique tag.
 
-If installing a package requires credentials, call
-``set_service_account_credentials`` before calling this function.
+&emsp; **@property**<br>&mdash; **def [executable](/recipe_modules/cipd/api.py#172)(self):**
 
-&emsp; **@property**<br>&mdash; **def [executable](/recipe_modules/cipd/api.py#179)(self):**
-
-&mdash; **def [initialize](/recipe_modules/cipd/api.py#173)(self):**
-
-&mdash; **def [platform\_suffix](/recipe_modules/cipd/api.py#187)(self, name=None, arch=None, bits=None):**
+&mdash; **def [platform\_suffix](/recipe_modules/cipd/api.py#176)(self, name=None, arch=None, bits=None):**
 
 Use to get full package name that is platform indepdent.
 
@@ -225,15 +218,13 @@ Optional platform bits and architecture may be supplied to generate CIPD
 suffixes for other platforms. If any are omitted, the current platform
 parameters will be used.
 
-&mdash; **def [register](/recipe_modules/cipd/api.py#277)(self, package_name, package_path, refs=None, tags=None):**
+&mdash; **def [register](/recipe_modules/cipd/api.py#266)(self, package_name, package_path, refs=None, tags=None):**
 
-&mdash; **def [search](/recipe_modules/cipd/api.py#433)(self, package_name, tag):**
+&mdash; **def [search](/recipe_modules/cipd/api.py#409)(self, package_name, tag):**
 
-&mdash; **def [set\_ref](/recipe_modules/cipd/api.py#413)(self, package_name, version, refs):**
+&mdash; **def [set\_ref](/recipe_modules/cipd/api.py#391)(self, package_name, version, refs):**
 
-&mdash; **def [set\_service\_account\_credentials](/recipe_modules/cipd/api.py#176)(self, path):**
-
-&mdash; **def [set\_tag](/recipe_modules/cipd/api.py#393)(self, package_name, version, tags):**
+&mdash; **def [set\_tag](/recipe_modules/cipd/api.py#373)(self, package_name, version, tags):**
 ### *recipe_modules* / [fuchsia](/recipe_modules/fuchsia)
 
 [DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -957,7 +948,7 @@ packages are uploaded.
 This recipe uses golang/dep to manage dependencies, so the given project is
 expected to have a Gopkg.toml file specifying its dependency restrictions.
 
-&mdash; **def [RunSteps](/recipes/infra.py#107)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
+&mdash; **def [RunSteps](/recipes/infra.py#105)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 
 &mdash; **def [UploadPackage](/recipes/infra.py#72)(api, bin_name, bin_dir, revision, remote):**
 
@@ -979,7 +970,7 @@ Args:
 
 Recipe for building Jiri.
 
-&mdash; **def [RunSteps](/recipes/jiri.py#80)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
+&mdash; **def [RunSteps](/recipes/jiri.py#77)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
 
 &mdash; **def [UploadPackage](/recipes/jiri.py#42)(api, revision, staging_dir):**
 ### *recipes* / [jiri:examples/full](/recipe_modules/jiri/examples/full.py)

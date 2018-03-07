@@ -169,20 +169,9 @@ class CIPDApi(recipe_api.RecipeApi):
       },
   }
 
-  # pylint: disable=attribute-defined-outside-init
-  def initialize(self):
-    self._cipd_credentials = None
-
-  def set_service_account_credentials(self, path):
-    self._cipd_credentials = path
-
   @property
   def executable(self):
     return 'cipd' + ('.bat' if self.m.platform.is_win else '')
-
-  @property
-  def default_bot_service_account_credentials(self):
-    return self.m.service_account.get_json_path('cipd-builder')
 
   def platform_suffix(self, name=None, arch=None, bits=None):
     """Use to get full package name that is platform indepdent.
@@ -280,8 +269,6 @@ class CIPDApi(recipe_api.RecipeApi):
       'pkg-register', package_path,
       '-json-output', self.m.json.output(),
     ]
-    if self._cipd_credentials:
-      cmd.extend(['-service-account-json', self._cipd_credentials])
     if refs:
       for ref in refs:
         cmd.extend(['-ref', ref])
@@ -306,8 +293,6 @@ class CIPDApi(recipe_api.RecipeApi):
       '-pkg-def', pkg_def_file_or_placeholder,
       '-json-output', self.m.json.output(),
     ]
-    if self._cipd_credentials:
-      cmd.extend(['-service-account-json', self._cipd_credentials])
     for ref in refs:
       cmd.extend(['-ref', ref])
     for tag, value in sorted(tags.items()):
@@ -369,9 +354,6 @@ class CIPDApi(recipe_api.RecipeApi):
     packages must be a mapping from package name to its version, where
       * name must be for right platform (see also ``platform_suffix``),
       * version could be either instance_id, or ref, or unique tag.
-
-    If installing a package requires credentials, call
-    ``set_service_account_credentials`` before calling this function.
     """
     package_list = ['%s %s' % (name, version)
                     for name, version in sorted(packages.items())]
@@ -383,8 +365,6 @@ class CIPDApi(recipe_api.RecipeApi):
       '-ensure-file', ensure_file,
       '-json-output', self.m.json.output(),
     ]
-    if self._cipd_credentials:
-      cmd.extend(['-service-account-json', self._cipd_credentials])
     return self.m.step(
         'ensure_installed', cmd,
         step_test_data=lambda: self.test_api.example_ensure(packages)
@@ -397,8 +377,6 @@ class CIPDApi(recipe_api.RecipeApi):
       '-version', version,
       '-json-output', self.m.json.output(),
     ]
-    if self._cipd_credentials:
-      cmd.extend(['-service-account-json', self._cipd_credentials])
     for tag, value in sorted(tags.items()):
       cmd.extend(['-tag', '%s:%s' % (tag, value)])
 
@@ -417,8 +395,6 @@ class CIPDApi(recipe_api.RecipeApi):
       '-version', version,
       '-json-output', self.m.json.output(),
     ]
-    if self._cipd_credentials:
-      cmd.extend(['-service-account-json', self._cipd_credentials])
     for r in refs:
       cmd.extend(['-ref', r])
 
@@ -439,8 +415,6 @@ class CIPDApi(recipe_api.RecipeApi):
       '-tag', tag,
       '-json-output', self.m.json.output(),
     ]
-    if self._cipd_credentials:
-      cmd.extend(['-service-account-json', self._cipd_credentials])
 
     return self.m.step(
         'cipd search %s %s' % (package_name, tag),
@@ -456,8 +430,6 @@ class CIPDApi(recipe_api.RecipeApi):
       '-version', version,
       '-json-output', self.m.json.output(),
     ]
-    if self._cipd_credentials:
-      cmd.extend(['-service-account-json', self._cipd_credentials])
 
     return self.m.step(
         'cipd describe %s' % package_name,

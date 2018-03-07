@@ -42,9 +42,6 @@ PROPERTIES = {
 def UploadPackage(api, revision, staging_dir):
   api.gsutil.ensure_gsutil()
 
-  api.cipd.set_service_account_credentials(
-      api.cipd.default_bot_service_account_credentials)
-
   cipd_pkg_name = 'fuchsia/tools/jiri/' + api.cipd.platform_suffix()
 
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)

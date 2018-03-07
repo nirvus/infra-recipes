@@ -84,9 +84,7 @@
       "-tag",
       "git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search fuchsia/swift/mac-amd64 git_revision:85bce8d910db00261b4844f784dca1a8e322b7e0",
     "~followup_annotations": [

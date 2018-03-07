@@ -114,9 +114,7 @@
       "-tag",
       "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search fuchsia/rust/linux-amd64 git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
     "~followup_annotations": [
@@ -283,9 +281,7 @@
       "-ensure-file",
       "fuchsia/clang/${platform} latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\ninfra/swig/${platform} version:3.0.12",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_packages.ensure_installed",
@@ -456,8 +452,6 @@
       "[TMP_BASE]/rust_tmp_1/rust.cipd",
       "-json-output",
       "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json",
       "-ref",
       "latest",
       "-tag",

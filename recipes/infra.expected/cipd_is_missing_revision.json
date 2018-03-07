@@ -269,9 +269,7 @@
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "env": {
       "GOPATH": "[START_DIR]/go"
@@ -292,8 +290,6 @@
       "{\"data\": [{\"file\": \"catapult\"}], \"install_mode\": \"\", \"package\": \"fuchsia/infra/catapult/linux-amd64\", \"root\": \"[TMP_BASE]/infra_tmp_1\"}",
       "-json-output",
       "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json",
       "-ref",
       "latest",
       "-tag",

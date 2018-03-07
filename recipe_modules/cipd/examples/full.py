@@ -26,10 +26,6 @@ PROPERTIES = {
 
 
 def RunSteps(api, use_pkg, pkg_files, pkg_dirs, ver_files, install_mode):
-  # Set the service account credentials if needed.
-  api.cipd.set_service_account_credentials(
-      api.cipd.default_bot_service_account_credentials)
-
   package_name = 'public/package/%s' % api.cipd.platform_suffix()
   package_instance_id = '7f751b2237df2fdf3c1405be00590fefffbaea2d'
   packages = {package_name: package_instance_id}
@@ -42,7 +38,6 @@ def RunSteps(api, use_pkg, pkg_files, pkg_dirs, ver_files, install_mode):
                     version=step.json.output['result'][0]['instance_id'])
 
   # Others do, so provide creds first.
-  api.cipd.set_service_account_credentials('fake-credentials.json')
   private_package_name = 'private/package/%s' % api.cipd.platform_suffix()
   packages[private_package_name] = 'latest'
   api.cipd.ensure(cipd_root, packages)

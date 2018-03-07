@@ -169,9 +169,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if use_goma:
     api.goma.ensure_goma()
 
-  api.cipd.set_service_account_credentials(
-      api.cipd.default_bot_service_account_credentials)
-
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url)
 

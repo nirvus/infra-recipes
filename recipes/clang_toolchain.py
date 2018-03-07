@@ -42,9 +42,6 @@ def RunSteps(api, url, ref, revision):
   api.gsutil.ensure_gsutil()
   api.jiri.ensure_jiri()
 
-  api.cipd.set_service_account_credentials(
-      api.cipd.default_bot_service_account_credentials)
-
   if not revision:
     revision = api.gitiles.refs(url).get(ref, None)
   cipd_pkg_name = 'fuchsia/clang/' + api.cipd.platform_suffix()

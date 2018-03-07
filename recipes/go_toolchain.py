@@ -42,9 +42,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.jiri.ensure_jiri()
   api.go.ensure_go(use_deprecated=True)
 
-  api.cipd.set_service_account_credentials(
-      api.cipd.default_bot_service_account_credentials)
-
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, patch_ref, patch_gerrit_url)
     revision = api.jiri.project(['third_party/go']).json.output[0]['revision']

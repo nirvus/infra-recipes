@@ -114,9 +114,7 @@
       "-tag",
       "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search fuchsia/clang/linux-amd64 git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
     "~followup_annotations": [

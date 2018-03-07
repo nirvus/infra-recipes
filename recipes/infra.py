@@ -79,8 +79,6 @@ def UploadPackage(api, bin_name, bin_dir, revision, remote):
     bin_dir: The absolute path to the parent directory of bin_name.
     bin_name: The name of the tool binary
   """
-  api.cipd.set_service_account_credentials(
-      api.cipd.default_bot_service_account_credentials)
 
   cipd_pkg_name = 'fuchsia/infra/%s/%s' % (bin_name, api.cipd.platform_suffix())
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)

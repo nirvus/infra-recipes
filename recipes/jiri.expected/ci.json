@@ -257,9 +257,7 @@
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search fuchsia/tools/jiri/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [

@@ -8,9 +8,7 @@
       "-ensure-file",
       "public/package/linux-amd64 7f751b2237df2fdf3c1405be00590fefffbaea2d",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "ensure_installed",
     "~followup_annotations": [
@@ -33,9 +31,7 @@
       "-tag",
       "git_revision:40-chars-long-hash",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search public/package/linux-amd64 git_revision:40-chars-long-hash",
     "~followup_annotations": [
@@ -58,9 +54,7 @@
       "-version",
       "40-chars-fake-of-the-package-instance_id",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd describe public/package/linux-amd64",
     "~followup_annotations": [

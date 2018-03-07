@@ -101,9 +101,7 @@
       "-tag",
       "git_revision:4b5e15daff8b54440e3fda451c318ad31e532fab,3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search fuchsia/gcc/linux-amd64 git_revision:4b5e15daff8b54440e3fda451c318ad31e532fab,3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f",
     "~followup_annotations": [

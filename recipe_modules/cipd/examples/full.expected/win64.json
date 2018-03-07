@@ -8,9 +8,7 @@
       "-ensure-file",
       "public/package/windows-amd64 7f751b2237df2fdf3c1405be00590fefffbaea2d",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts\\service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "ensure_installed",
     "~followup_annotations": [
@@ -33,9 +31,7 @@
       "-tag",
       "git_revision:40-chars-long-hash",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts\\service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search public/package/windows-amd64 git_revision:40-chars-long-hash",
     "~followup_annotations": [
@@ -58,9 +54,7 @@
       "-version",
       "40-chars-fake-of-the-package-instance_id",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts\\service-account-cipd-builder.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd describe public/package/windows-amd64",
     "~followup_annotations": [
@@ -110,9 +104,7 @@
       "-ensure-file",
       "private/package/windows-amd64 latest\npublic/package/windows-amd64 7f751b2237df2fdf3c1405be00590fefffbaea2d",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json"
+      "/path/to/tmp/json"
     ],
     "name": "ensure_installed (2)",
     "~followup_annotations": [
@@ -139,9 +131,7 @@
       "-tag",
       "key:value",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search private/package/windows-amd64 key:value",
     "~followup_annotations": [
@@ -164,9 +154,7 @@
       "-version",
       "40-chars-fake-of-the-package-instance_id",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd describe private/package/windows-amd64",
     "~followup_annotations": [
@@ -259,8 +247,6 @@
       "fake-package-path",
       "-json-output",
       "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json",
       "-ref",
       "fake-ref-1",
       "-ref",
@@ -310,8 +296,6 @@
       "fake-package-path",
       "-json-output",
       "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json",
       "-ref",
       "fake-ref-1",
       "-ref",
@@ -340,8 +324,6 @@
       "[START_DIR]\\fake-package.yaml",
       "-json-output",
       "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json",
       "-ref",
       "fake-ref-1",
       "-ref",
@@ -372,8 +354,6 @@
       "long/weird/ref/which/doesn/not/fit/into/40chars",
       "-json-output",
       "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json",
       "-tag",
       "dead:beaf",
       "-tag",
@@ -402,8 +382,6 @@
       "latest",
       "-json-output",
       "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json",
       "-ref",
       "any",
       "-ref",
@@ -431,9 +409,7 @@
       "-tag",
       "dead:beaf",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "fake-credentials.json"
+      "/path/to/tmp/json"
     ],
     "name": "cipd search fake-package/windows-amd64 dead:beaf",
     "~followup_annotations": [
