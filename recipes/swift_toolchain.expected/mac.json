@@ -396,7 +396,7 @@
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/creds/service_accounts/service-account-cipd-builder.json"
     ],
     "infra_step": true,
     "name": "build.ensure_goma.ensure_installed",
@@ -578,7 +578,7 @@
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/creds/service_accounts/service-account-cipd-builder.json"
     ],
     "infra_step": true,
     "name": "build.ensure_goma.ensure_installed (2)",
@@ -936,7 +936,7 @@
       "-json-output",
       "/path/to/tmp/json",
       "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json",
+      "/creds/service_accounts/service-account-cipd-builder.json",
       "-ref",
       "latest",
       "-tag",

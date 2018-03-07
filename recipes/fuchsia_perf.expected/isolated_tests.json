@@ -186,9 +186,7 @@
       "-ensure-file",
       "infra_internal/goma/client/linux-amd64 release",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "build.ensure_goma.ensure_installed",
@@ -348,9 +346,7 @@
       "-ensure-file",
       "infra/tools/luci/swarming/linux-amd64 latest",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_swarming.ensure_installed",
@@ -402,9 +398,7 @@
       "-ensure-file",
       "infra/tools/luci/isolated/linux-amd64 latest",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_isolated.ensure_installed",
@@ -434,9 +428,7 @@
       "-ensure-file",
       "fuchsia/qemu/linux-amd64 latest",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_qemu.ensure_installed",

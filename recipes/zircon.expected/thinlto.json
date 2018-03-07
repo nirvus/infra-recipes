@@ -12,9 +12,7 @@
       "-ensure-file",
       "infra_internal/goma/client/linux-amd64 release",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_goma.ensure_installed",
@@ -44,9 +42,7 @@
       "-ensure-file",
       "fuchsia/tools/jiri/linux-amd64 stable",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_jiri.ensure_installed",
@@ -210,9 +206,7 @@
       "-ensure-file",
       "fuchsia/qemu/linux-amd64 latest",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_qemu.ensure_installed",

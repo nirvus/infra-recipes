@@ -102,9 +102,7 @@
       "-ensure-file",
       "infra_internal/goma/client/linux-amd64 release",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_goma.ensure_installed",

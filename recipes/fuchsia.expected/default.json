@@ -210,9 +210,7 @@
       "-ensure-file",
       "infra_internal/goma/client/linux-amd64 release",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "build.ensure_goma.ensure_installed",
@@ -372,9 +370,7 @@
       "-ensure-file",
       "infra/tools/gsutil latest",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure_gsutil.ensure_installed (2)",
@@ -404,9 +400,7 @@
       "-ensure-file",
       "fuchsia/tools/bsdtar/linux-amd64 latest",
       "-json-output",
-      "/path/to/tmp/json",
-      "-service-account-json",
-      "/creds/service_accounts/service-account-goma-client.json"
+      "/path/to/tmp/json"
     ],
     "infra_step": true,
     "name": "ensure bsdtar.ensure_installed",

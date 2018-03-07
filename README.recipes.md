@@ -498,7 +498,7 @@ Program is output to a temp file and run when this step executes.
 
 GomaApi contains helper functions for using goma.
 
-&emsp; **@contextmanager**<br>&mdash; **def [build\_with\_goma](/recipe_modules/goma/api.py#170)(self, env={}):**
+&emsp; **@contextmanager**<br>&mdash; **def [build\_with\_goma](/recipe_modules/goma/api.py#167)(self, env={}):**
 
 Make context wrapping goma start/stop.
 
@@ -511,7 +511,7 @@ Raises:
 
 &emsp; **@property**<br>&mdash; **def [goma\_dir](/recipe_modules/goma/api.py#73)(self):**
 
-&emsp; **@contextmanager**<br>&mdash; **def [goma\_env](/recipe_modules/goma/api.py#103)(self, env):**
+&emsp; **@contextmanager**<br>&mdash; **def [goma\_env](/recipe_modules/goma/api.py#100)(self, env):**
 
 &emsp; **@property**<br>&mdash; **def [json\_path](/recipe_modules/goma/api.py#27)(self):**
 
@@ -527,14 +527,14 @@ This function caches the _goma_jobs.
 
 This function is for local recipe test only.
 
-&mdash; **def [start](/recipe_modules/goma/api.py#114)(self, env={}, \*\*kwargs):**
+&mdash; **def [start](/recipe_modules/goma/api.py#111)(self, env={}, \*\*kwargs):**
 
 Start goma compiler_proxy.
 
 A user MUST execute ensure_goma beforehand.
 It is user's responsibility to handle failure of starting compiler_proxy.
 
-&mdash; **def [stop](/recipe_modules/goma/api.py#145)(self, env={}, \*\*kwargs):**
+&mdash; **def [stop](/recipe_modules/goma/api.py#142)(self, env={}, \*\*kwargs):**
 
 Stop goma compiler_proxy.
 

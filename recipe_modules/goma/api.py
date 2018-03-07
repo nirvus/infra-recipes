@@ -86,9 +86,6 @@ print jobs
 
     with self.m.step.nest('ensure_goma'):
       with self.m.context(infra_steps=True):
-        self.m.cipd.set_service_account_credentials(
-            self.service_account_json_path)
-
         goma_package = ('infra_internal/goma/client/%s' %
             self.m.cipd.platform_suffix())
         ref='release'
