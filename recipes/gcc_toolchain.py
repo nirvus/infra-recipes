@@ -5,7 +5,7 @@
 """Recipe for building GCC toolchain."""
 
 from recipe_engine.config import Enum, ReturnSchema, Single
-from recipe_engine.recipe_api import Property
+from recipe_engine.recipe_api import Property, StepFailure
 
 import re
 
