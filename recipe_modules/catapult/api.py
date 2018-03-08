@@ -35,7 +35,7 @@ class CatapultApi(recipe_api.RecipeApi):
 
         return self._catapult
 
-  def make_histogram(self, input_file, test_suite, builder, bucket, datetime):
+  def make_histogram(self, input_file, test_suite, builder, bucket, datetime, **kwargs):
     """
     Generates a HistogramSet from performance test output.
 
@@ -45,6 +45,7 @@ class CatapultApi(recipe_api.RecipeApi):
       bucket (string): The name of the builder's bucket
       datetime (uint): Ms since epoch when tests were executed.
       input_file (string): Full path to the input file containing test results.
+      kwargs: Keyword argments passed to the returned step.
 
     Returns:
       A step to execute the make_histogram subcommand.
@@ -60,28 +61,25 @@ class CatapultApi(recipe_api.RecipeApi):
         '-datetime',
         datetime,
         input_file,
-    )
+        **kwargs)
 
-  def upload(self, input_file, service_account_json, url, timeout):
+  def upload(self, input_file, url, timeout=None, **kwargs):
     """
     Uploads performance JSON data to a dashboard.
 
     Args:
-      service_account_json (string): Full path to a service account credentials
-          file.
+      input_file (Path): Full path to the input file to upload.
       url (string): The url to upload data to.
-      timeout (string): Request timeout duration string. e.g. 12s or 1m.
+      timeout (string): Optional request timeout duration string. e.g. 12s or
+        1m.
+      kwargs: Keyword argments passed to the returned step.
 
     Returns:
       A step to execute the upload subcommand.
     """
-    return self(
-        'upload',
-        '-service-account-json',
-        service_account_json,
-        '-url',
-        url,
-        '-timeout',
-        timeout,
-        input_file,
-    )
+    args = ['upload', '-url', url]
+    if timeout:
+      args += ['-timeout', timeout]
+    args.append(input_file)
+
+    return self(*args, **kwargs)

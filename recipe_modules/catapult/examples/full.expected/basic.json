@@ -50,21 +50,31 @@
       "123456789",
       "example_input_file"
     ],
-    "name": "catapult make_histogram"
+    "name": "catapult make_histogram",
+    "stdout": "/path/to/tmp/out"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/catapult/catapult",
       "upload",
-      "-service-account-json",
-      "example.json",
       "-url",
       "https://example.com",
       "-timeout",
       "30s",
       "example_input_file"
     ],
-    "name": "catapult upload"
+    "name": "catapult upload",
+    "stdout": "/path/to/tmp/out"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/catapult/catapult",
+      "upload",
+      "-url",
+      "http://example.com",
+      "example_input_file"
+    ],
+    "name": "catapult upload (2)"
   },
   {
     "name": "$result",

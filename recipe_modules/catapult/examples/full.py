@@ -4,6 +4,7 @@
 
 DEPS = [
     'catapult',
+    'recipe_engine/raw_io',
 ]
 
 
@@ -12,19 +13,33 @@ def RunSteps(api):
   api.catapult.ensure_catapult()
   api.catapult('help')
 
-  api.catapult.make_histogram(
+  histogram_set_data = api.catapult.make_histogram(
       'example_input_file',
       test_suite='example.suite',
       builder='example.builder',
       bucket='example.bucket',
       datetime=123456789,
-  )
+      # Verify kwargs are passed to the generated step
+      stdout=api.raw_io.output('out'),
+      step_test_data=(
+          lambda: api.raw_io.test_api.stream_output('{HISTOGRAM_SET}')),
+  ).stdout
+  assert histogram_set_data == '{HISTOGRAM_SET}'
 
-  api.catapult.upload(
+  result = api.catapult.upload(
       'example_input_file',
-      service_account_json='example.json',
       url='https://example.com',
       timeout='30s',
+      # Verify kwargs are passed to the generated step
+      stdout=api.raw_io.output('out'),
+      step_test_data=(lambda: api.raw_io.test_api.stream_output('success!')),
+  ).stdout
+  assert result == 'success!'
+
+  # Upload without timeout.
+  api.catapult.upload(
+      'example_input_file',
+      url='http://example.com',
   )
 
 
