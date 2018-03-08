@@ -31,6 +31,36 @@
   },
   {
     "cmd": [],
+    "name": "ensure_goma"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "ensure_gsutil"
   },
   {
@@ -379,6 +409,21 @@
     "cmd": [
       "python",
       "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "restart"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "infra_step": true,
+    "name": "start_goma"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
@@ -393,24 +438,56 @@
   {
     "cmd": [
       "[START_DIR]/binutils-gdb/configure",
+      "--enable-deterministic-archives",
+      "--enable-targets=arm-eabi",
       "--prefix=",
       "--target=aarch64-elf",
       "--enable-initfini-array",
-      "--enable-deterministic-archives",
       "--enable-gold",
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--enable-targets=arm-eabi",
-      "--with-build-sysroot=[START_DIR]/cipd"
+      "--with-build-sysroot=[START_DIR]/cipd",
+      "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CFLAGS=-flto -O3",
+      "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
+      "CXXFLAGS=-flto -O3 -static-libstdc++"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
     "name": "configure aarch64 binutils"
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
+    "name": "calculate the number of recommended jobs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
+      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
+      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "make",
-      "-j2",
+      "-j50",
       "all-binutils",
       "all-gas",
       "all-ld",
@@ -435,7 +512,7 @@
   {
     "cmd": [
       "make",
-      "-j2",
+      "-j1",
       "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-binutils",
       "install-strip-gas",
@@ -463,15 +540,16 @@
   {
     "cmd": [
       "[START_DIR]/gcc/configure",
-      "--prefix=",
-      "--target=aarch64-elf",
       "--enable-languages=c,c++",
-      "--enable-initfini-array",
-      "--enable-gold",
-      "--disable-werror",
       "--disable-libstdcxx",
       "--disable-libssp",
       "--disable-libquadmath",
+      "--prefix=",
+      "--target=aarch64-elf",
+      "--enable-initfini-array",
+      "--enable-gold",
+      "--disable-werror",
+      "--disable-nls",
       "--with-included-gettext",
       "--with-build-sysroot=[START_DIR]/cipd"
     ],
@@ -531,16 +609,20 @@
   {
     "cmd": [
       "[START_DIR]/binutils-gdb/configure",
+      "--enable-deterministic-archives",
+      "--enable-targets=x86_64-pep",
       "--prefix=",
       "--target=x86_64-elf",
       "--enable-initfini-array",
-      "--enable-deterministic-archives",
       "--enable-gold",
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--enable-targets=x86_64-pep",
-      "--with-build-sysroot=[START_DIR]/cipd"
+      "--with-build-sysroot=[START_DIR]/cipd",
+      "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CFLAGS=-flto -O3",
+      "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
+      "CXXFLAGS=-flto -O3 -static-libstdc++"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
     "name": "configure x86_64 binutils"
@@ -548,7 +630,7 @@
   {
     "cmd": [
       "make",
-      "-j2",
+      "-j50",
       "all-binutils",
       "all-gas",
       "all-ld",
@@ -573,7 +655,7 @@
   {
     "cmd": [
       "make",
-      "-j2",
+      "-j1",
       "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-binutils",
       "install-strip-gas",
@@ -601,15 +683,16 @@
   {
     "cmd": [
       "[START_DIR]/gcc/configure",
-      "--prefix=",
-      "--target=x86_64-elf",
       "--enable-languages=c,c++",
-      "--enable-initfini-array",
-      "--enable-gold",
-      "--disable-werror",
       "--disable-libstdcxx",
       "--disable-libssp",
       "--disable-libquadmath",
+      "--prefix=",
+      "--target=x86_64-elf",
+      "--enable-initfini-array",
+      "--enable-gold",
+      "--disable-werror",
+      "--disable-nls",
       "--with-included-gettext",
       "--with-build-sysroot=[START_DIR]/cipd"
     ],
@@ -650,6 +733,49 @@
       ]
     },
     "name": "install x86_64 gcc"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "jsonstatus",
+      "[START_DIR]/cipd/goma/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "goma_jsonstatus"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "goma_stat"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stop"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "stop_goma"
   },
   {
     "cmd": [

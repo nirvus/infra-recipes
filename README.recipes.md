@@ -887,11 +887,11 @@ Recipe for rolling Fuchsia layers into upper layers.
 &mdash; **def [RunSteps](/recipes/fuchsia_roller.py#73)(api, category, project, manifest, remote, import_in, import_from, revision, dry_run, poll_timeout_secs, poll_interval_secs):**
 ### *recipes* / [gcc\_toolchain](/recipes/gcc_toolchain.py)
 
-[DEPS](/recipes/gcc_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+[DEPS](/recipes/gcc_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]
 
 Recipe for building GCC toolchain.
 
-&mdash; **def [RunSteps](/recipes/gcc_toolchain.py#45)(api, binutils_revision, gcc_revision):**
+&mdash; **def [RunSteps](/recipes/gcc_toolchain.py#46)(api, binutils_revision, gcc_revision):**
 ### *recipes* / [gerrit:examples/full](/recipe_modules/gerrit/examples/full.py)
 
 [DEPS](/recipe_modules/gerrit/examples/full.py#5): [gerrit](#recipe_modules-gerrit), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]

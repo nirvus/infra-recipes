@@ -14,6 +14,7 @@ DEPS = [
   'infra/cipd',
   'infra/git',
   'infra/gitiles',
+  'infra/goma',
   'infra/gsutil',
   'infra/hash',
   'infra/jiri',
@@ -44,6 +45,7 @@ PROPERTIES = {
 
 def RunSteps(api, binutils_revision, gcc_revision):
   api.gitiles.ensure_gitiles()
+  api.goma.ensure_goma()
   api.gsutil.ensure_gsutil()
 
   if binutils_revision is None:
@@ -90,8 +92,19 @@ def RunSteps(api, binutils_revision, gcc_revision):
   pkg_dir = staging_dir.join(pkg_name)
   api.file.ensure_directory('create pkg dir', pkg_dir)
 
+  host_clang = '%s %s' % (api.goma.goma_dir.join('gomacc'),
+                          cipd_dir.join('bin', 'clang'))
+  host_cflags = '-flto -O3'
+  host_compiler_args = {
+      'CC': host_clang,
+      'CXX': '%s++' % host_clang,
+      'CFLAGS': host_cflags,
+      'CXXFLAGS': '%s -static-libstdc++' % host_cflags,
+  }
+
   extra_args = []
   if api.platform.name == 'linux':
+    host_compiler_args['--with-build-sysroot'] = cipd_dir
     extra_args.append('--with-build-sysroot=%s' % cipd_dir)
 
   if api.platform.name == 'mac':
@@ -100,77 +113,80 @@ def RunSteps(api, binutils_revision, gcc_revision):
     extra_args += ['%s=-fbracket-depth=1024 -g -O2' % flagvar
                    for flagvar in ('CFLAGS', 'CXXFLAGS')]
 
-  make_parallel = ['make', '-j%s' % api.platform.cpu_count]
-  for target, enable_targets in [('aarch64', 'arm-eabi'),
-                                 ('x86_64', 'x86_64-pep')]:
-    # build binutils
-    binutils_build_dir = staging_dir.join('binutils_%s_build_dir' % target)
-    api.file.ensure_directory('create binutils %s build dir' % target,
-                              binutils_build_dir)
+  host_compiler_args = sorted('%s=%s' % item
+                              for item in host_compiler_args.iteritems())
 
-    with api.context(cwd=binutils_build_dir):
-      def binutils_make_step(name, prefix, make_args=[], logs=[]):
-        return api.step('%s %s binutils' % (name, target),
-                        make_parallel + make_args +
-                        ['%s-%s' % (prefix, component)
-                         for component in ['binutils', 'gas', 'ld', 'gold']])
-      api.step('configure %s binutils' % target, [
-        binutils_dir.join('configure'),
-        '--prefix=', # we're building a relocatable package
-        '--target=%s-elf' % target,
-        '--enable-initfini-array', # Fuchsia uses .init/.fini arrays
-        '--enable-deterministic-archives', # more deterministic builds
-        '--enable-gold', # Zircon uses gold for userspace build
-        '--disable-werror', # ignore warnings reported by Clang
-        '--disable-nls', # no need for locatization
-        '--with-included-gettext', # use include gettext library
-        '--enable-targets=%s' % enable_targets,
-      ] + extra_args)
-      binutils_make_step('build', 'all')
-      try:
-        binutils_make_step('test', 'check', ['-k'])
-      except StepFailure as error: # pragma: no cover
-        for log in [
-            ('gas', 'testsuite', 'gas.log'),
-            ('binutils', 'binutils.log'),
-            ('ld', 'ld.log'),
-            ('gold', 'testsuite', 'test-suite.log'),
-        ]:
-          error.result.presentation.logs[log[0]] = api.file.read_text(
-              'binutils %s %s' % (target, '/'.join(log)),
-              binutils_build_dir.join(*log))
-      binutils_make_step('install', 'install-strip', ['DESTDIR=%s' % pkg_dir])
+  with api.goma.build_with_goma():
+    for target, enable_targets in [('aarch64', 'arm-eabi'),
+                                   ('x86_64', 'x86_64-pep')]:
+      # configure arguments that are the same for binutils and gcc.
+      common_args = [
+          '--prefix=', # we're building a relocatable package
+          '--target=%s-elf' % target,
+          '--enable-initfini-array', # Fuchsia uses .init/.fini arrays
+          '--enable-gold', # Zircon uses gold for userspace build
+          '--disable-werror', # ignore warnings reported by Clang
+          '--disable-nls', # no need for locatization
+          '--with-included-gettext', # use include gettext library
+      ]
 
-    # build gcc
-    gcc_build_dir = staging_dir.join('gcc_%s_build_dir' % target)
-    api.file.ensure_directory('create gcc %s build dir' % target, gcc_build_dir)
+      # build binutils
+      binutils_build_dir = staging_dir.join('binutils_%s_build_dir' % target)
+      api.file.ensure_directory('create binutils %s build dir' % target,
+                                binutils_build_dir)
 
-    with api.context(cwd=gcc_build_dir,
-                     env_prefixes={'PATH': [pkg_dir.join('bin')]}):
-      api.step('configure %s gcc' % target, [
-        gcc_dir.join('configure'),
-        '--prefix=', # we're building a relocatable package
-        '--target=%s-elf' % target,
-        '--enable-languages=c,c++',
-        '--enable-initfini-array', # Fuchsia uses .init/.fini arrays
-        '--enable-gold', # Zircon uses gold for userspace build
-        '--disable-werror', # ignore warnings reported by Clang
-        '--disable-libstdcxx', # we don't need libstdc++
-        '--disable-libssp', # we don't need libssp either
-        '--disable-libquadmath', # and neither we need libquadmath
-        '--with-included-gettext', # use included gettext library
-      ] + extra_args)
-      api.step('build %s gcc' % target, [
-        'make',
-        '-j%s' % api.platform.cpu_count,
-        'all-gcc', 'all-target-libgcc',
-      ])
-      api.step('install %s gcc' % target, [
-        'make',
-        'DESTDIR=%s' % pkg_dir,
-        'install-strip-gcc',
-        'install-strip-target-libgcc',
-      ])
+      with api.context(cwd=binutils_build_dir):
+        def binutils_make_step(name, prefix, jobs, make_args=[], logs=[]):
+          return api.step('%s %s binutils' % (name, target),
+                          ['make','-j%s' % jobs] + make_args +
+                          ['%s-%s' % (prefix, component)
+                           for component in ['binutils', 'gas', 'ld', 'gold']])
+        api.step('configure %s binutils' % target, [
+          binutils_dir.join('configure'),
+          '--enable-deterministic-archives', # more deterministic builds
+          '--enable-targets=%s' % enable_targets,
+        ] + common_args + host_compiler_args)
+        binutils_make_step('build', 'all', api.goma.recommended_goma_jobs)
+        try:
+          binutils_make_step('test', 'check', api.platform.cpu_count,['-k'])
+        except StepFailure as error: # pragma: no cover
+          for log in [
+              ('gas', 'testsuite', 'gas.log'),
+              ('binutils', 'binutils.log'),
+              ('ld', 'ld.log'),
+              ('gold', 'testsuite', 'test-suite.log'),
+          ]:
+            error.result.presentation.logs[log[0]] = api.file.read_text(
+                'binutils %s %s' % (target, '/'.join(log)),
+                binutils_build_dir.join(*log))
+        binutils_make_step('install', 'install-strip', 1,
+                           ['DESTDIR=%s' % pkg_dir])
+
+      # build gcc
+      gcc_build_dir = staging_dir.join('gcc_%s_build_dir' % target)
+      api.file.ensure_directory('create gcc %s build dir' % target,
+                                gcc_build_dir)
+
+      with api.context(cwd=gcc_build_dir,
+                       env_prefixes={'PATH': [pkg_dir.join('bin')]}):
+        api.step('configure %s gcc' % target, [
+          gcc_dir.join('configure'),
+          '--enable-languages=c,c++',
+          '--disable-libstdcxx', # we don't need libstdc++
+          '--disable-libssp', # we don't need libssp either
+          '--disable-libquadmath', # and neither we need libquadmath
+        ] + common_args + extra_args)
+        api.step('build %s gcc' % target, [
+          'make',
+          '-j%s' % api.platform.cpu_count,
+          'all-gcc', 'all-target-libgcc',
+        ])
+        api.step('install %s gcc' % target, [
+          'make',
+          'DESTDIR=%s' % pkg_dir,
+          'install-strip-gcc',
+          'install-strip-target-libgcc',
+        ])
 
   binutils_version = api.file.read_text('binutils version',
                                         binutils_dir.join('bfd', 'version.m4'))
