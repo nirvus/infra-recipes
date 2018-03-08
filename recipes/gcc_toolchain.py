@@ -127,16 +127,18 @@ def RunSteps(api, binutils_revision, gcc_revision):
         '--enable-targets=%s' % enable_targets,
       ] + extra_args)
       binutils_make_step('build', 'all')
-      check_step = binutils_make_step('test', 'check', ['-k'])
-      for log in [
-          ('gas', 'testsuite', 'gas.log'),
-          ('binutils', 'binutils.log'),
-          ('ld', 'ld.log'),
-          ('gold', 'testsuite', 'test-suite.log'),
-      ]:
-        check_step.presentation.logs[log[0]] = api.file.read_text(
-            'binutils %s %s' % (target, '/'.join(log)),
-            binutils_build_dir.join(*log))
+      try:
+        binutils_make_step('test', 'check', ['-k'])
+      except StepFailure as error: # pragma: no cover
+        for log in [
+            ('gas', 'testsuite', 'gas.log'),
+            ('binutils', 'binutils.log'),
+            ('ld', 'ld.log'),
+            ('gold', 'testsuite', 'test-suite.log'),
+        ]:
+          error.result.presentation.logs[log[0]] = api.file.read_text(
+              'binutils %s %s' % (target, '/'.join(log)),
+              binutils_build_dir.join(*log))
       binutils_make_step('install', 'install-strip', ['DESTDIR=%s' % pkg_dir])
 
     # build gcc
