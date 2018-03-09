@@ -870,7 +870,7 @@ Recipe for building Fuchsia and running tests.
 &mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#56)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, target, build_type, packages, variants, gn_args, run_tests, runtests_args, upload_snapshot):**
 ### *recipes* / [fuchsia\_perf](/recipes/fuchsia_perf.py)
 
-[DEPS](/recipes/fuchsia_perf.py#23): [catapult](#recipe_modules-catapult), [fuchsia](#recipe_modules-fuchsia), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
+[DEPS](/recipes/fuchsia_perf.py#25): [catapult](#recipe_modules-catapult), [fuchsia](#recipe_modules-fuchsia), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
 
 Recipe for building Fuchsia and running performance tests.
 
@@ -879,16 +879,17 @@ This differs from the fuchsia recipe in the following ways:
 * Tests are always run (this recipe is not used to verify builds).
 * Test results are uploaded to the catapult dashboard after execution.
 
-&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#128)(api, step_name, bucket, builder, test_suite, test_results_file):**
+&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#137)(api, step_name, bucket, builder, test_suite, test_results_file, catapult_url):**
 
 Processes test results and uploads them to the Catapult dashboard.
 
 Args:
-  step_name (str): The name of the step under which to test the processing steps.
+  step_name (str): The name of the step under which to test the processing
+    steps.
   test_suite (str): The name of the test suite that was run.
   test_results_file (Path): Full path to file containing test results.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#64)(api, project, manifest, remote, target, build_type, packages, variant, gn_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#72)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#13): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]

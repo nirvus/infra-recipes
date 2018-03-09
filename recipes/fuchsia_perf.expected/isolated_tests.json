@@ -690,6 +690,23 @@
       "[START_DIR]/minfs_isolate_results/zircon_benchmarks.json"
     ],
     "name": "analyze_zircon_benchmarks.catapult make_histogram",
+    "stdout": "[START_DIR]/histogram_set.json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/catapult/catapult",
+      "upload",
+      "-url",
+      "https://chromeperf.appspot.com",
+      "[START_DIR]/histogram_set.json"
+    ],
+    "name": "analyze_zircon_benchmarks.catapult upload",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

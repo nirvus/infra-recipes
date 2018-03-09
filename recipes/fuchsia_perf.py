@@ -18,6 +18,8 @@ import re
 
 TARGETS = ['arm64', 'x64']
 
+DEFAULT_CATAPULT_URL = 'https://chromeperf.appspot.com'
+
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
 DEPS = [
@@ -27,6 +29,7 @@ DEPS = [
     'infra/swarming',
     'recipe_engine/buildbucket',
     'recipe_engine/context',
+    'recipe_engine/file',
     'recipe_engine/json',
     'recipe_engine/path',
     'recipe_engine/properties',
@@ -58,11 +61,16 @@ PROPERTIES = {
     'gn_args':
         Property(
             kind=List(basestring), help='Extra args to pass to GN', default=[]),
+    'catapult_url':
+        Property(
+            kind=str,
+            help='Catapult dashboard URL',
+            default=DEFAULT_CATAPULT_URL),
 }
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
-             variant, gn_args):
+             variant, gn_args, catapult_url):
   api.catapult.ensure_catapult()
   api.fuchsia.checkout(
       manifest=manifest,
@@ -122,29 +130,46 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       builder=builder,
       test_suite="zircon_benchmarks",
       test_results_file=test_results_dir.join(zircon_test_output_filename),
+      catapult_url=catapult_url,
   )
 
 
 def ProcessTestResults(api, step_name, bucket, builder, test_suite,
-                       test_results_file):
+                       test_results_file, catapult_url):
   """
   Processes test results and uploads them to the Catapult dashboard.
 
   Args:
-    step_name (str): The name of the step under which to test the processing steps.
+    step_name (str): The name of the step under which to test the processing
+      steps.
     test_suite (str): The name of the test suite that was run.
     test_results_file (Path): Full path to file containing test results.
   """
   with api.step.nest(step_name):
+    hs_filepath = api.path['start_dir'].join('histogram_set.json')
+
+    # Create a Placeholder for histogram set data.  The
+    # placeholder is backed by a file which is referenced as
+    # placeholder.backing_file.
+    hs_placeholder = api.json.output(leak_to=hs_filepath)
+
+    # Generate the histogram set.
     api.catapult.make_histogram(
         input_file=test_results_file,
         test_suite=test_suite,
         builder=builder,
         bucket=bucket,
-        datetime=api.time.ms_since_epoch())
+        datetime=api.time.ms_since_epoch(),
+        stdout=hs_placeholder,
+    )
 
-  # TODO(kjharland): Save histogram output to file.
-  # TODO(kjharland): Upload to Catapult.
+    # Upload the file to Catapult using the current build's credentials.
+    # Use the path to the backing file for testing, since the placeholder's
+    # backing file property is `None` in a test.
+    api.catapult.upload(
+        input_file=hs_placeholder.backing_file or hs_filepath,
+        url=catapult_url,
+    )
 
 
 def GenTests(api):
