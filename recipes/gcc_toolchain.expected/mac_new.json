@@ -444,9 +444,9 @@
       "--disable-nls",
       "--with-included-gettext",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-flto -O3",
+      "CFLAGS=-O3",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-flto -O3 -static-libstdc++"
+      "CXXFLAGS=-O3 -static-libstdc++"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
     "name": "configure aarch64 binutils"
@@ -615,9 +615,9 @@
       "--disable-nls",
       "--with-included-gettext",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-flto -O3",
+      "CFLAGS=-O3",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-flto -O3 -static-libstdc++"
+      "CXXFLAGS=-O3 -static-libstdc++"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
     "name": "configure x86_64 binutils"

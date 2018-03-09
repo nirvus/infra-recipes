@@ -94,7 +94,10 @@ def RunSteps(api, binutils_revision, gcc_revision):
 
   host_clang = '%s %s' % (api.goma.goma_dir.join('gomacc'),
                           cipd_dir.join('bin', 'clang'))
-  host_cflags = '-flto -O3'
+  host_cflags = '-O3'
+  if api.platform.name != 'mac':
+    # LTO works for binutils on Linux but fails on macOS.
+    host_cflags += ' -flto'
   host_compiler_args = {
       'CC': host_clang,
       'CXX': '%s++' % host_clang,
