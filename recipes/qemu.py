@@ -57,7 +57,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       packages = {
-        'fuchsia/clang/${platform}': 'latest',
+        'fuchsia/clang/${platform}': 'goma',
       }
       if api.platform.name == 'linux':
         packages.update({

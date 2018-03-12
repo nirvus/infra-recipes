@@ -343,7 +343,7 @@ def RunSteps(api, url, ref, revision, mock_build):
       api.cipd.ensure(cipd_dir, {
           'infra/cmake/${platform}': 'version:3.9.2',
           'infra/ninja/${platform}': 'version:1.8.2',
-          'fuchsia/clang/${platform}': 'latest',
+          'fuchsia/clang/${platform}': 'goma',
       })
 
   # TODO(zbowling): we are pulling in a garnet manifest now, but eventually

@@ -116,7 +116,7 @@ def RunSteps(api, url, ref, revision):
         'infra/cmake/${platform}': 'version:3.9.2',
         'infra/ninja/${platform}': 'version:1.8.2',
         'infra/swig/${platform}': 'version:3.0.12',
-        'fuchsia/clang/${platform}': 'latest',
+        'fuchsia/clang/${platform}': 'goma',
       })
 
   # Build Zircon sysroot.

@@ -67,7 +67,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       packages = {
-        'fuchsia/clang/${platform}': 'latest',
+        'fuchsia/clang/${platform}': 'goma',
       }
       if api.platform.name == 'linux':
         packages.update({

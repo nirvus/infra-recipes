@@ -172,7 +172,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/clang/${platform} latest\nfuchsia/sysroot/linux-amd64 latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2",
+      "fuchsia/clang/${platform} goma\nfuchsia/sysroot/linux-amd64 latest\ninfra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -183,7 +183,7 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
