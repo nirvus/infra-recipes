@@ -84,6 +84,9 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
     project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):
       changes = api.jiri.edit_manifest(import_in, imports=[(import_from, revision)])
+      if len(changes['imports']) == 0:
+        api.step.active_result.presentation.step_text = 'manifest up-to-date, nothing to roll'
+        return
       old_rev = changes['imports'][0]['old_revision']
       new_rev = changes['imports'][0]['new_revision']
       url = FUCHSIA_URL + import_from
@@ -243,6 +246,18 @@ def GenTests(api):
                         poll_interval_secs=0.001,
                         poll_timeout_secs=0.1) +
          api.gitiles.log('log', 'A') + new_change_data + success_step_data)
+
+  # Test a no-op roll of zircon into garnet.
+  yield (api.test('zircon-noop') +
+         api.properties(project='garnet',
+                        manifest='manifest/minimal',
+                        import_in='manifest/garnet',
+                        import_from='zircon',
+                        remote='https://fuchsia.googlesource.com/garnet',
+                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
+                        poll_interval_secs=0.001,
+                        poll_timeout_secs=0.1) +
+         api.step_data('jiri edit', api.json.output({'imports':[]})))
 
   # Test a successful roll of garnet into peridot.
   yield (api.test('garnet') +
