@@ -13,6 +13,7 @@ expected to have a Gopkg.toml file specifying its dependency restrictions.
 """
 
 from recipe_engine.recipe_api import Property
+from recipe_engine.config import List
 from recipe_engine import config
 
 import os
@@ -53,6 +54,8 @@ PROPERTIES = {
         Property(kind=str, help='Remote manifest repository'),
     'revision':
         Property(kind=str, help='Revision', default=None),
+    'packages':
+        Property(kind=List(str), help='The list of packages to build'),
 }
 
 # The tag referencing the golang/dep CIPD package used to install dependencies.
@@ -64,9 +67,6 @@ DEP_VERSION = 'version:0.3.2'
 
 # The Go import path for Fuchsia's infra tools project.
 PKG_NAME = 'fuchsia.googlesource.com/infra/infra'
-
-# The list of packages to build.
-PACKAGES = set([PKG_NAME + '/cmd/catapult'])
 
 
 def UploadPackage(api, bin_name, bin_dir, revision, remote):
@@ -104,7 +104,7 @@ def UploadPackage(api, bin_name, bin_dir, revision, remote):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             revision):
+             revision, packages):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
 
@@ -141,7 +141,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     bin_dir = api.path.mkdtemp('infra')
 
     # Build all tools.
-    for pkg in PACKAGES:
+    for pkg in packages:
       bin_name = pkg.split('/')[-1]
       api.go('build', '-o', bin_dir.join(bin_name), pkg)
 
@@ -157,6 +157,7 @@ def GenTests(api):
       project='infra/infra',
       manifest='infra/infra',
       remote='https://fuchsia.googlesource.com/infra/infra',
+      packages=['fuchsia.googlesource.com/infra/infra/cmd/catapult']
   ) + api.step_data(
       'cipd search fuchsia/infra/catapult/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
       api.json.output({
@@ -169,6 +170,7 @@ def GenTests(api):
       project='infra/infra',
       manifest='infra/infra',
       remote='https://fuchsia.googlesource.com/infra/infra',
+      packages=['fuchsia.googlesource.com/infra/infra/cmd/catapult']
   ) + api.step_data(
       'cipd search fuchsia/infra/catapult/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
       api.json.output({
@@ -181,4 +183,5 @@ def GenTests(api):
       project='infra/infra',
       manifest='infra/infra',
       tryjob=True,
-      remote='https://fuchsia.googlesource.com/infra/infra'))
+      remote='https://fuchsia.googlesource.com/infra/infra',
+      packages=['fuchsia.googlesource.com/infra/infra/cmd/catapult']))
