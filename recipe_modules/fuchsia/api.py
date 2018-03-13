@@ -44,6 +44,12 @@ RUNCMDS_PACKAGE = '''
 '''
 
 
+# TODO(mknyszek): Figure out whether its safe to derive this from target.
+def _board_name(target):
+  """Returns the name of the matching "board name" given a target."""
+  return {'arm64': 'qemu', 'x64': 'pc'}[target]
+
+
 class FuchsiaBuildResults(object):
   """Represents a completed build of Fuchsia."""
   def __init__(self, target, zircon_build_dir, fuchsia_build_dir, has_tests):
@@ -361,12 +367,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build.has_tests
     self.m.swarming.ensure_swarming(version='latest')
 
-    blob_board = {
-      'arm64': 'qemu',
-      'x64': 'pc',
-    }[build.target]
-
-    ramdisk_name = 'bootdata-blob-%s.bin' % blob_board
+    ramdisk_name = 'bootdata-blob-%s.bin' % _board_name(build.target)
     qemu_arch = {
       'arm64': 'aarch64',
       'x64': 'x86_64',
@@ -488,6 +489,81 @@ class FuchsiaApi(recipe_api.RecipeApi):
           step_name='extract results',
           image_path=result[output_image_name],
           out_dir=test_results_dir,
+      ).raw_io.output_dir
+    return self.FuchsiaTestResults(
+        build_dir=build.fuchsia_build_dir,
+        output=result.output,
+        outputs=test_results_map,
+    )
+
+  def test_on_device(self, device_type, build, timeout_secs=40*60):
+    """Tests a Fuchsia on a specific device.
+
+    Expects the build and artifacts to be at the same place they were at
+    the end of the build.
+
+    Args:
+      device_type (str): The type of device to run tests on. This will be
+        passed to swarming as the device_type dimension.
+      build (FuchsiaBuildResults): The Fuchsia build to test.
+      timeout_secs (int): The amount of seconds to wait for the tests to
+        execute before giving up.
+
+    Returns:
+      A FuchsiaTestResults representing the completed test.
+    """
+    assert build.has_tests
+    self.m.swarming.ensure_swarming(version='latest')
+
+    # Construct the botanist command.
+    ramdisk_name = 'netboot-%s.bin' % _board_name(build.target)
+    output_archive_name = 'out.tar'
+    botanist_cmd = [
+      './botanist/botanist',
+      '-config', '/etc/botanist/config.json',
+      '-kernel', ZIRCON_IMAGE_NAME,
+      '-ramdisk', ramdisk_name,
+      '-test', self.target_test_dir(),
+      '-out', output_archive_name,
+      'zircon.autorun.system=/system/data/infra/runcmds',
+    ]
+
+    # Isolate the Fuchsia build artifacts.
+    isolated_hash = self._isolate_artifacts(
+        ramdisk_name,
+        build.zircon_build_dir,
+        build.fuchsia_build_dir,
+    )
+
+    with self.m.context(infra_steps=True):
+      # Trigger task.
+      trigger_result = self.m.swarming.trigger(
+          'all tests',
+          botanist_cmd,
+          isolated=isolated_hash,
+          dimensions={
+            'pool': 'fuchsia.tests',
+            'device_type': device_type,
+          },
+          io_timeout=TEST_IO_TIMEOUT_SECS,
+          hard_timeout=timeout_secs,
+          outputs=[output_archive_name],
+          cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest')],
+      )
+      # Collect results.
+      results = self.m.swarming.collect(requests_json=self.m.json.input(trigger_result.json.output))
+      assert len(results) == 1
+      result = results[0]
+    self.analyze_collect_result('task results', result, build.zircon_build_dir)
+
+    # Extract test results.
+    test_results_dir = self.m.path['start_dir'].join('test_results')
+    with self.m.context(infra_steps=True):
+      self.m.tar.ensure_tar()
+      test_results_map = self.m.tar.extract(
+          step_name='extract results',
+          archive=result[output_archive_name],
+          dir=self.m.raw_io.output_dir(leak_to=test_results_dir),
       ).raw_io.output_dir
     return self.FuchsiaTestResults(
         build_dir=build.fuchsia_build_dir,

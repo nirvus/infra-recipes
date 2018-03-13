@@ -47,6 +47,9 @@ PROPERTIES = {
   'runtests_args': Property(kind=str,
                             help='Arguments to pass to the executable running tests',
                             default=''),
+  'device_type': Property(kind=str,
+                          help='The type of device to run tests on',
+                          default='qemu'),
   'upload_snapshot': Property(kind=bool,
                           help='Whether to upload jiri snapshot (always False if tryjob is true)',
                           default=True),
@@ -55,7 +58,7 @@ PROPERTIES = {
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
              remote, target, build_type, packages, variants, gn_args, run_tests,
-             runtests_args, upload_snapshot):
+             runtests_args, device_type, upload_snapshot):
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -74,7 +77,10 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       test_cmds=['runtests' + runtests_args] if run_tests else None,
   )
   if run_tests:
-    test_results = api.fuchsia.test(build)
+    if device_type == 'qemu':
+      test_results = api.fuchsia.test(build)
+    else:
+      test_results = api.fuchsia.test_on_device(device_type, build)
     api.fuchsia.analyze_test_results('test results', test_results)
 
 def GenTests(api):
@@ -114,6 +120,18 @@ def GenTests(api):
   ) + api.step_data('collect', api.swarming.collect(
       outputs=['output.fs'],
   ))
+  yield api.test('isolated_tests_device') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='arm64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+      device_type='NUC',
+  ) + api.step_data('collect', api.swarming.collect(
+      outputs=['out.tar'],
+  )) + api.step_data('extract results', api.raw_io.output_dir({
+      'hello.out': 'I am output.'
+  }))
   yield api.test('isolated_tests_test_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',

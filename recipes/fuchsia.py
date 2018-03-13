@@ -16,6 +16,8 @@ TARGETS = ['arm64', 'x64']
 
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
+DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK']
+
 DEPS = [
   'infra/fuchsia',
   'infra/gsutil',
@@ -24,6 +26,7 @@ DEPS = [
   'infra/tar',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/raw_io',
 ]
 
 PROPERTIES = {
@@ -53,6 +56,9 @@ PROPERTIES = {
   'runtests_args': Property(kind=str,
                             help='Arguments to pass to the executable running tests',
                             default=''),
+  'device_type': Property(kind=Enum(*DEVICES),
+                          help='The type of device to execute tests on',
+                          default='QEMU'),
   'test_timeout_secs': Property(kind=int,
                                 help='How long to wait until timing out on tests',
                                 default=40*60),
@@ -70,7 +76,7 @@ PROPERTIES = {
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, build_type, packages, variant, gn_args, run_tests, runtests_args,
-             test_timeout_secs, upload_snapshot, upload_archive):
+             device_type, test_timeout_secs, upload_snapshot, upload_archive):
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -95,7 +101,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       test_cmds=test_cmds,
   )
   if run_tests:
-    test_results = api.fuchsia.test(build, timeout_secs=test_timeout_secs)
+    if device_type == 'QEMU':
+      test_results = api.fuchsia.test(build, timeout_secs=test_timeout_secs)
+    else:
+      test_results = api.fuchsia.test_on_device(
+          device_type=device_type,
+          build=build,
+          timeout_secs=test_timeout_secs,
+      )
     api.fuchsia.analyze_test_results('test results', test_results)
   if upload_archive and not api.properties.get('tryjob'):
     api.gsutil.ensure_gsutil()
@@ -122,6 +135,18 @@ def GenTests(api):
   ) + api.step_data('collect', api.swarming.collect(
       outputs=['output.fs'],
   ))
+  yield api.test('device_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+      device_type='Intel NUC Kit NUC6i3SYK',
+  ) + api.step_data('collect', api.swarming.collect(
+      outputs=['out.tar'],
+  )) + api.step_data('extract results', api.raw_io.output_dir({
+      'hello.out': 'I am output.'
+  }))
 
   # Test cases for skipping Fuchsia tests.
   yield api.test('default') + api.properties(

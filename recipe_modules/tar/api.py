@@ -54,7 +54,7 @@ class TarApi(recipe_api.RecipeApi):
       cmd.extend(['--strip-components', int(strip_components)])
     return self.m.step(
         step_name,
-        cmd
+        cmd,
     )
 
 
