@@ -101,14 +101,6 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
 
   test_results = api.fuchsia.test(build)
 
-  # The host-side directory where test output files will be copied.
-  test_results_dir = api.path['start_dir'].join('minfs_isolate_results')
-  api.minfs.copy_image(
-      step_name="copy",
-      image_path=test_results.minfs_image_path,
-      out_dir=test_results_dir,
-  )
-
   # Get build information.
   #
   # WARNING: DO NOT use '/' in any of these names. Catapult creates a database
@@ -134,13 +126,13 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       bucket=bucket,
       builder=builder,
       test_suite="zircon_benchmarks",
-      test_results_file=test_results_dir.join(zircon_test_output_filename),
+      test_results=test_results.outputs[zircon_test_output_filename],
       catapult_url=catapult_url,
   )
 
 
 def ProcessTestResults(api, step_name, bucket, builder, test_suite,
-                       test_results_file, catapult_url):
+                       test_results, catapult_url):
   """
   Processes test results and uploads them to the Catapult dashboard.
 
@@ -160,7 +152,7 @@ def ProcessTestResults(api, step_name, bucket, builder, test_suite,
 
     # Generate the histogram set.
     api.catapult.make_histogram(
-        input_file=test_results_file,
+        input_file=api.json.input(test_results),
         test_suite=test_suite,
         builder=builder,
         bucket=bucket,
@@ -184,4 +176,9 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-  ) + api.step_data('collect', api.swarming.collect(outputs=['output.fs'],))
+  ) + api.step_data('collect', api.swarming.collect(
+      outputs=['output.fs'],
+  )) + api.step_data('extract results', api.raw_io.output_dir({
+      'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+  }))
+

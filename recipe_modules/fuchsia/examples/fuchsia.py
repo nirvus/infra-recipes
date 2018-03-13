@@ -78,6 +78,14 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
     api.fuchsia.analyze_test_results('test results', test_results)
 
 def GenTests(api):
+  good_outputs = api.step_data('extract results', api.raw_io.output_dir({
+      'summary.json': '{"tests":[{"name": "/hello", "output_file": "hello.out", "result": "PASS"}]}',
+      'hello.out': 'hello',
+  }))
+  bad_outputs = api.step_data('extract results', api.raw_io.output_dir({
+      'summary.json': '{"tests":[{"name": "/hello", "output_file": "hello.out", "result": "FAIL"}]}',
+      'hello.out': 'uh oh',
+  }))
   # Test cases for running Fuchsia tests as a swarming task.
   yield api.test('isolated_tests_x64') + api.properties(
       manifest='fuchsia',
@@ -87,11 +95,20 @@ def GenTests(api):
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
       outputs=['output.fs'],
-  ))
+  )) + good_outputs
   yield api.test('isolated_tests_arm64') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='arm64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+  ) + api.step_data('collect', api.swarming.collect(
+      outputs=['output.fs'],
+  )) + good_outputs
+  yield api.test('isolated_tests_no_json') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
@@ -105,9 +122,7 @@ def GenTests(api):
       run_tests=True,
   ) + api.step_data('collect', api.swarming.collect(
       outputs=['output.fs'],
-  )) + api.step_data('test results.read summary', api.json.output({
-      'tests': [{'name': '/hello', 'output_file': 'hello.out', 'result': 'FAIL'}],
-  })) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
+  )) + bad_outputs + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
   yield api.test('isolated_tests_task_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',

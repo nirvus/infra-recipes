@@ -79,18 +79,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
   class FuchsiaTestResults(object):
     """Represents the result of testing of a Fuchsia build."""
-    def __init__(self, minfs_image_path, build_dir, output):
-      self._minfs_image_path = minfs_image_path
+    def __init__(self, build_dir, output, outputs):
       self._build_dir = build_dir
       self._output = output
-
-    @property
-    def minfs_image_path(self):
-      """
-      Absolute path to a MinFS image. This is usually obtained by indexing into a
-      CollectResult using the MinFS image name as the key.
-      """
-      return self._minfs_image_path
+      self._outputs = outputs
 
     @property
     def build_dir(self):
@@ -101,6 +93,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     def output(self):
       """Kernel output which may be passed to the symbolizer script."""
       return self._output
+
+    @property
+    def outputs(self):
+      """A mapping between relative paths for output files to their contents."""
+      return self._outputs
 
 
   def __init__(self, *args, **kwargs):
@@ -479,17 +476,24 @@ class FuchsiaApi(recipe_api.RecipeApi):
           cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
       )
       # Collect results.
-      # TODO(mknyszek): Replace this with a better timeout mechanism which more
-      # suitable for the swarming client, and set hard_timeout for the swarming
-      # task via a property.
       results = self.m.swarming.collect(requests_json=self.m.json.input(trigger_result.json.output))
       assert len(results) == 1
       result = results[0]
     self.analyze_collect_result('task results', result, build.zircon_build_dir)
+
+    # Extract test results.
+    test_results_dir = self.m.path['start_dir'].join('test_results')
+    with self.m.context(infra_steps=True):
+      test_results_map = self.m.minfs.copy_image(
+          step_name='extract results',
+          image_path=result[output_image_name],
+          out_dir=test_results_dir,
+      ).raw_io.output_dir
     return self.FuchsiaTestResults(
-        minfs_image_path=result[output_image_name],
         build_dir=build.fuchsia_build_dir,
-        output=result.output)
+        output=result.output,
+        outputs=test_results_map,
+    )
 
   def analyze_collect_result(self, step_name, result, zircon_build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.
@@ -543,28 +547,17 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Raises:
       A StepFailure if any of the discovered tests failed.
     """
-    minfs_image_path = test_results.minfs_image_path
     build_dir = test_results.build_dir
     output = test_results.output
+    outputs = test_results.outputs
 
     with self.m.step.nest(step_name):
-      test_results_dir = self.m.path['start_dir'].join('minfs_isolate_results')
-      with self.m.context(infra_steps=True):
-        test_output = self.m.minfs.copy_image(step_name='extract',
-                                              image_path=minfs_image_path,
-                                              out_dir=test_results_dir).raw_io.output_dir
-        # Read the tests summary.
-        test_summary = self.m.json.read(
-            'read summary',
-            test_results_dir.join('summary.json'),
-            step_test_data=lambda: self.m.json.test_api.output({
-                'tests': [{
-                  'name': '/hello',
-                  'output_file': 'hello.out',
-                  'result': 'PASS',
-                }],
-            }),
-        ).json.output
+      # Read the tests summary.
+      if 'summary.json' not in outputs:
+        raise self.m.step.StepFailure('Test summary JSON not found, see kernel log for details')
+      raw_summary = outputs['summary.json']
+      self.m.step.active_result.presentation.logs['summary.json'] = raw_summary.split('\n')
+      test_summary = self.m.json.loads(raw_summary)
 
       # Report test results.
       failed_tests = collections.OrderedDict()
@@ -572,10 +565,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
         name = test['name']
         step_result = self.m.step(name, None)
         output_name = test['output_file']
-        step_result.presentation.logs['stdio'] = test_output[output_name].split('\n')
+        step_result.presentation.logs['stdio'] = outputs[output_name].split('\n')
         if test['result'] != 'PASS':
           step_result.presentation.status = self.m.step.FAILURE
-          failed_tests[name] = test_output[output_name]
+          failed_tests[name] = outputs[output_name]
 
     # Symbolize the kernel output if any tests failed.
     if failed_tests:

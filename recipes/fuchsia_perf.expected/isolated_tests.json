@@ -667,9 +667,10 @@
       "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/output.fs",
       "cp",
       "::",
-      "[START_DIR]/minfs_isolate_results"
+      "[START_DIR]/test_results"
     ],
-    "name": "copy"
+    "infra_step": true,
+    "name": "extract results"
   },
   {
     "cmd": [],
@@ -687,7 +688,7 @@
       "fuchsia.example.bucket",
       "-datetime",
       "1337000001500",
-      "[START_DIR]/minfs_isolate_results/zircon_benchmarks.json"
+      "\"I am a benchmark, ha ha!\""
     ],
     "name": "analyze_zircon_benchmarks.catapult make_histogram",
     "stdout": "[START_DIR]/histogram_set.json",

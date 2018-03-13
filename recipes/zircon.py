@@ -298,12 +298,21 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
       build_dir,
   )
 
+  # Extract test results from the MinFS image.
+  test_results_dir = api.path['start_dir'].join('test_results')
+  test_results_map = api.minfs.copy_image(
+      step_name='extract results',
+      image_path=booted_result[booted_task_output_image],
+      out_dir=test_results_dir,
+  ).raw_io.output_dir
+
+  # Analyze the test results and report them in the presentation.
   api.fuchsia.analyze_test_results(
     'booted test results',
     api.fuchsia.FuchsiaTestResults(
-        minfs_image_path=booted_result[booted_task_output_image],
         build_dir=build_dir,
         output=booted_result.output,
+        outputs=test_results_map,
   ))
 
 def Build(api, target, toolchain, src_dir, use_isolate):

@@ -563,59 +563,23 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "booted test results"
-  },
-  {
     "cmd": [
       "[START_DIR]/zircon/build-arm64/tools/minfs",
       "[TMP_BASE]/swarming_tmp_1/11/output.fs",
       "cp",
       "::",
-      "[START_DIR]/minfs_isolate_results"
+      "[START_DIR]/test_results"
     ],
-    "infra_step": true,
-    "name": "booted test results.extract",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[START_DIR]/minfs_isolate_results/summary.json",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "booted test results.read summary",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"tests\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"name\": \"/hello\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"output_file\": \"hello.out\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"result\": \"PASS\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
+    "name": "extract results"
   },
   {
     "cmd": [],
-    "name": "booted test results./hello",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@stdio@I am output.@@@",
-      "@@@STEP_LOG_END@stdio@@@"
-    ]
+    "name": "booted test results"
   },
   {
     "name": "$result",
+    "reason": "Test summary JSON not found, see kernel log for details",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]
