@@ -684,7 +684,7 @@
       "-builder",
       "fuchsia.example.builder",
       "-bucket",
-      "fuchsia/example.bucket",
+      "fuchsia.example.bucket",
       "-datetime",
       "1337000001500",
       "[START_DIR]/minfs_isolate_results/zircon_benchmarks.json"

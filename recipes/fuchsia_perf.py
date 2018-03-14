@@ -111,6 +111,11 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
 
   # Get build information.
   #
+  # WARNING: DO NOT use '/' in any of these names. Catapult creates a database
+  # key from these names and each component of the key is separated by a '/'.
+  # Using '/' in the names breaks this scheme and causes information in the
+  # dashboard to render incorrectly.
+  #
   # Default to example info when running locally.
   builder_id = api.buildbucket.builder_id
   # Use $project/$bucket as the bucket name because in Buildbucket v2 the bucket
@@ -119,7 +124,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   # non-descript as 'ci' might become clobbered with some other team's 'ci'
   # bucket.
   project = builder_id.project or 'fuchsia'
-  bucket = project + "/" + (builder_id.bucket or 'example.bucket')
+  bucket = project + "." + (builder_id.bucket or 'example.bucket')
 
   builder = builder_id.builder or 'fuchsia.example.builder'
 
