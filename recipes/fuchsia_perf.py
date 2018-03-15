@@ -101,6 +101,16 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
 
   test_results = api.fuchsia.test(build)
 
+  # Skip analysis steps if our test output is missing. This avoids masking a system
+  # failure with an obscure and unrelated error later on.
+  if zircon_test_output_filename not in test_results.outputs:
+    raise api.step.StepFailure(
+        'Missing test output file %s. see kernel log for details. Found files %s'
+        % (
+            zircon_test_output_filename,
+            list(test_results.outputs.keys()),
+        ))
+
   # Get build information.
   #
   # WARNING: DO NOT use '/' in any of these names. Catapult creates a database
@@ -176,9 +186,20 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-  )) + api.step_data('extract results', api.raw_io.output_dir({
-      'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
-  }))
-
+  ) + api.step_data(
+      'collect', api.swarming.collect(outputs=['output.fs'],)) + api.step_data(
+          'extract results',
+          api.raw_io.output_dir({
+              'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+          }))
+  yield api.test('missing test results') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+  ) + api.step_data(
+      'collect', api.swarming.collect(outputs=['output.fs'],)) + api.step_data(
+          'extract results',
+          api.raw_io.output_dir({
+              'not_zircon_benchmarks.json': 'No one cares about this data',
+          }))
