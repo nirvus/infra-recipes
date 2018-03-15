@@ -10,7 +10,6 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
   'infra/fuchsia',
-  'infra/swarming',
   'recipe_engine/properties',
 ]
 
@@ -65,16 +64,14 @@ def GenTests(api):
 
   # Test with all the defaults.
   yield (api.test('basic') +
-      api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-    ))
+    api.fuchsia.task_step_data() +
+    api.fuchsia.test_step_data()
   )
 
   # Test a release build.
   yield (api.test('release') +
     api.properties(build_type='release') +
-    api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-    ))
+    api.fuchsia.task_step_data() +
+    api.fuchsia.test_step_data()
   )
 

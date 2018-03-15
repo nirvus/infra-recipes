@@ -91,14 +91,6 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
     api.fuchsia.analyze_test_results('test results', test_results)
 
 def GenTests(api):
-  good_outputs = api.step_data('extract results', api.raw_io.output_dir({
-      'summary.json': '{"tests":[{"name": "/hello", "output_file": "hello.out", "result": "PASS"}]}',
-      'hello.out': 'hello',
-  }))
-  bad_outputs = api.step_data('extract results', api.raw_io.output_dir({
-      'summary.json': '{"tests":[{"name": "/hello", "output_file": "hello.out", "result": "FAIL"}]}',
-      'hello.out': 'uh oh',
-  }))
   # Test cases for running Fuchsia tests as a swarming task.
   yield api.test('isolated_tests_x64') + api.properties(
       manifest='fuchsia',
@@ -106,27 +98,21 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-  )) + good_outputs
+  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
   yield api.test('isolated_tests_arm64') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='arm64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-  )) + good_outputs
+  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
   yield api.test('isolated_tests_no_json') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-  ))
+  ) + api.fuchsia.task_step_data()
   yield api.test('isolated_tests_device') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -134,61 +120,44 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
       device_type='NUC',
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['out.tar'],
-  )) + api.step_data('extract results', api.raw_io.output_dir({
-      'hello.out': 'I am output.'
-  }))
+  ) + api.fuchsia.task_step_data(device=True) + api.fuchsia.test_step_data()
   yield api.test('isolated_tests_test_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-  )) + bad_outputs + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
+  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data(
+      failure=True,
+  ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
   yield api.test('isolated_tests_task_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-      task_failure=True,
-  ))
+  ) + api.fuchsia.task_step_data(task_failure=True)
   yield api.test('isolated_tests_task_timed_out') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-      timed_out=True,
-  ))
+  ) + api.fuchsia.task_step_data(timed_out=True)
   yield api.test('isolated_tests_kernel_panic') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      output='ZIRCON KERNEL PANIC',
-      outputs=['output.fs'],
-      task_failure=True,
-  ))
+  ) + api.fuchsia.task_step_data(task_failure=True, output='KERNEL PANIC')
   yield api.test('isolated_tests_infra_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-      infra_failure=True,
-  ))
+  ) + api.fuchsia.task_step_data(infra_failure=True)
 
   # Test cases for skipping Fuchsia tests.
   yield api.test('default') + api.properties(

@@ -682,7 +682,7 @@
   },
   {
     "name": "$result",
-    "reason": "Missing test output file zircon_benchmarks.json. see kernel log for details. Found files ['not_zircon_benchmarks.json']",
+    "reason": "Missing test output file zircon_benchmarks.json. see kernel log for details. Found files ['something_else.txt']",
     "recipe_result": null,
     "status_code": 1
   }

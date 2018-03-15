@@ -181,13 +181,12 @@ def ProcessTestResults(api, step_name, bucket, builder, test_suite,
 
 def GenTests(api):
   # Test cases for running Fuchsia performance tests as a swarming task.
-  yield api.test('isolated_tests') + api.properties(
+  yield api.test('successful run') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-  ) + api.step_data(
-      'collect', api.swarming.collect(outputs=['output.fs'],)) + api.step_data(
+  ) + api.fuchsia.task_step_data() + api.step_data(
           'extract results',
           api.raw_io.output_dir({
               'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
@@ -197,9 +196,8 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-  ) + api.step_data(
-      'collect', api.swarming.collect(outputs=['output.fs'],)) + api.step_data(
+  ) + api.fuchsia.task_step_data() + api.step_data(
           'extract results',
           api.raw_io.output_dir({
-              'not_zircon_benchmarks.json': 'No one cares about this data',
+              'something_else.txt': 'I am a benchmark, ha ha!',
           }))

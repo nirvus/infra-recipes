@@ -737,7 +737,7 @@
     "name": "test results./hello",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@stdio@uh oh@@@",
+      "@@@STEP_LOG_LINE@stdio@hello@@@",
       "@@@STEP_LOG_END@stdio@@@",
       "@@@STEP_FAILURE@@@"
     ]

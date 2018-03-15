@@ -674,7 +674,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae7011\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"output\": \"ZIRCON KERNEL PANIC\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"output\": \"KERNEL PANIC\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
       "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
@@ -702,7 +702,7 @@
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@39927049b6ae7011.stdout@ZIRCON KERNEL PANIC@@@",
+      "@@@STEP_LOG_LINE@39927049b6ae7011.stdout@KERNEL PANIC@@@",
       "@@@STEP_LOG_END@39927049b6ae7011.stdout@@@"
     ]
   },
@@ -711,7 +711,7 @@
     "name": "task results",
     "~followup_annotations": [
       "@@@STEP_TEXT@kernel panic@@@",
-      "@@@STEP_LOG_LINE@kernel log@ZIRCON KERNEL PANIC@@@",
+      "@@@STEP_LOG_LINE@kernel log@KERNEL PANIC@@@",
       "@@@STEP_LOG_END@kernel log@@@",
       "@@@STEP_FAILURE@@@"
     ]
@@ -724,7 +724,7 @@
       "[START_DIR]/out/build-zircon/build-x64"
     ],
     "name": "symbolize",
-    "stdin": "ZIRCON KERNEL PANIC",
+    "stdin": "KERNEL PANIC",
     "stdout": "/path/to/tmp/"
   },
   {

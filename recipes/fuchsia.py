@@ -22,12 +22,10 @@ DEPS = [
   'infra/fuchsia',
   'infra/gsutil',
   'infra/hash',
-  'infra/swarming',
   'infra/tar',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
-  'recipe_engine/raw_io',
 ]
 
 PROPERTIES = {
@@ -158,9 +156,7 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['output.fs'],
-  ))
+  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
   yield api.test('device_tests') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -168,11 +164,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       run_tests=True,
       device_type='Intel NUC Kit NUC6i3SYK',
-  ) + api.step_data('collect', api.swarming.collect(
-      outputs=['out.tar'],
-  )) + api.step_data('extract results', api.raw_io.output_dir({
-      'hello.out': 'I am output.'
-  }))
+  ) + api.fuchsia.task_step_data(device=True) + api.fuchsia.test_step_data()
 
   # Test cases for skipping Fuchsia tests.
   yield api.test('default') + api.properties(

@@ -869,11 +869,11 @@ Recipe for building and testing Cobalt.
 &mdash; **def [RunSteps](/recipes/cobalt.py#30)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote):**
 ### *recipes* / [dart](/recipes/dart.py)
 
-[DEPS](/recipes/dart.py#11): [fuchsia](#recipe_modules-fuchsia), [swarming](#recipe_modules-swarming), [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+[DEPS](/recipes/dart.py#11): [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
 Builds the Fuchsia Dart test image and runs the Dart tests.
 
-&mdash; **def [RunSteps](/recipes/dart.py#38)(api, manifest, remote, target, build_type):**
+&mdash; **def [RunSteps](/recipes/dart.py#37)(api, manifest, remote, target, build_type):**
 ### *recipes* / [dart\_toolchain](/recipes/dart_toolchain.py)
 
 [DEPS](/recipes/dart_toolchain.py#10): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -883,11 +883,11 @@ Recipe for building Dart toolchain.
 &mdash; **def [RunSteps](/recipes/dart_toolchain.py#35)(api, url, ref, revision):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#21): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
+[DEPS](/recipes/fuchsia.py#21): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#77)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, upload_snapshot, upload_archive):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#75)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, upload_snapshot, upload_archive):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
