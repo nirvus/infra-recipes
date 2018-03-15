@@ -150,7 +150,7 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
-  ) + api.fuchsia.task_step_data(task_failure=True, output='KERNEL PANIC')
+  ) + api.fuchsia.task_step_data(output='KERNEL PANIC')
   yield api.test('isolated_tests_infra_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',

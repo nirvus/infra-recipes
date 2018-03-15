@@ -250,7 +250,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#630)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#627)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 

@@ -604,16 +604,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     if result.is_infra_failure():
       raise self.m.step.InfraFailure('Failed to collect: %s' % result.output)
     elif result.is_failure():
-      # If the kernel panics, chances are it will result in a task failure since
-      # the task will likely time out and QEMU will be forcibly killed.
-      if 'KERNEL PANIC' in result.output:
-        step_result.presentation.step_text = 'kernel panic'
-        step_result.presentation.status = self.m.step.FAILURE
-        self._symbolize(zircon_build_dir, result.output)
-        raise self.m.step.StepFailure('Found kernel panic. See symbolized output for details.')
-      # If we have a timeout with a successful collect, then this must be an
-      # io_timeout failure, since task timeout > collect timeout.
       if result.timed_out():
+        # If we have a timeout with a successful collect, then this must be an
+        # io_timeout failure, since task timeout > collect timeout.
         step_result.presentation.step_text = 'i/o timeout'
         step_result.presentation.status = self.m.step.FAILURE
         self._symbolize(zircon_build_dir, result.output)
@@ -622,10 +615,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
           'Last 10 lines of kernel output:',
         ] + kernel_output_lines[-10:]
         raise self.m.step.StepFailure('\n'.join(failure_lines))
-      # At this point its likely an infra issue with QEMU,
-      # though a deadlock might also reach this state.
+      # At this point its likely an infra issue with QEMU.
       step_result.presentation.status = self.m.step.EXCEPTION
       raise self.m.step.InfraFailure('Swarming task failed:\n%s' % result.output)
+    elif 'KERNEL PANIC' in result.output:
+      step_result.presentation.step_text = 'kernel panic'
+      step_result.presentation.status = self.m.step.FAILURE
+      self._symbolize(zircon_build_dir, result.output)
+      raise self.m.step.StepFailure('Found kernel panic. See symbolized output for details.')
 
   def analyze_test_results(self, step_name, test_results):
     """Analyzes test results represented by a FuchsiaTestResults.
