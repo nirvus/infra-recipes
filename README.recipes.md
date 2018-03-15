@@ -887,7 +887,7 @@ Args:
   step_name (str): The name of the step under which to test the processing
     steps.
   test_suite (str): The name of the test suite that was run.
-  test_results_file (Path): Full path to file containing test results.
+  test_results (str): The raw test results output.
 
 &mdash; **def [RunSteps](/recipes/fuchsia_perf.py#72)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)

@@ -140,7 +140,7 @@ def ProcessTestResults(api, step_name, bucket, builder, test_suite,
     step_name (str): The name of the step under which to test the processing
       steps.
     test_suite (str): The name of the test suite that was run.
-    test_results_file (Path): Full path to file containing test results.
+    test_results (str): The raw test results output.
   """
   with api.step.nest(step_name):
     hs_filepath = api.path['start_dir'].join('histogram_set.json')
