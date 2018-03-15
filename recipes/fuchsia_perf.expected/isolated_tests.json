@@ -688,7 +688,7 @@
       "fuchsia.example.bucket",
       "-datetime",
       "1337000001500",
-      "\"I am a benchmark, ha ha!\""
+      "I am a benchmark, ha ha!"
     ],
     "name": "analyze_zircon_benchmarks.catapult make_histogram",
     "stdout": "[START_DIR]/histogram_set.json",

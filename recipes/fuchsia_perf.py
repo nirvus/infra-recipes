@@ -152,7 +152,7 @@ def ProcessTestResults(api, step_name, bucket, builder, test_suite,
 
     # Generate the histogram set.
     api.catapult.make_histogram(
-        input_file=api.json.input(test_results),
+        input_file=api.raw_io.input_text(test_results),
         test_suite=test_suite,
         builder=builder,
         bucket=bucket,
