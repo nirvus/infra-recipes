@@ -74,7 +74,8 @@
       "update",
       "-v",
       "-time",
-      "-autoupdate=false"
+      "-autoupdate=false",
+      "-attempts=3"
     ],
     "infra_step": true,
     "name": "jiri update"

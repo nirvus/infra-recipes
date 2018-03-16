@@ -125,6 +125,7 @@
       "-v",
       "-time",
       "-autoupdate=false",
+      "-attempts=3",
       "-run-hooks=false"
     ],
     "infra_step": true,
@@ -135,7 +136,8 @@
       "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
       "-v",
-      "-time"
+      "-time",
+      "-attempts=3"
     ],
     "infra_step": true,
     "name": "jiri run-hooks"

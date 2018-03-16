@@ -80,10 +80,11 @@ class JiriApi(recipe_api.RecipeApi):
     return self(*cmd, step_test_data=lambda: self.test_api.project(test_data))
 
   def update(self, gc=False, rebase_tracked=False, local_manifest=False,
-             run_hooks=True, snapshot=None, **kwargs):
+             run_hooks=True, snapshot=None, attempts=3, **kwargs):
     cmd = [
       'update',
       '-autoupdate=false',
+      '-attempts=%d' % attempts,
     ]
     if gc:
       cmd.append('-gc=true')
@@ -98,8 +99,11 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def run_hooks(self, local_manifest=False):
-    cmd = ['run-hooks']
+  def run_hooks(self, local_manifest=False, attempts=3):
+    cmd = [
+      'run-hooks',
+      '-attempts=%d' % attempts,
+    ]
     if local_manifest:
       cmd.append('-local-manifest=true')
     return self(*cmd)

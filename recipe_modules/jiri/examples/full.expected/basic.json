@@ -61,6 +61,7 @@
       "-v",
       "-time",
       "-autoupdate=false",
+      "-attempts=3",
       "-run-hooks=false"
     ],
     "name": "jiri update"
@@ -83,7 +84,8 @@
       "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
       "-v",
-      "-time"
+      "-time",
+      "-attempts=3"
     ],
     "name": "jiri run-hooks"
   },
@@ -146,6 +148,7 @@
       "-v",
       "-time",
       "-autoupdate=false",
+      "-attempts=3",
       "-gc=true",
       "-local-manifest=true",
       "snapshot"
@@ -190,6 +193,7 @@
       "-v",
       "-time",
       "-autoupdate=false",
+      "-attempts=3",
       "-rebase-tracked",
       "-run-hooks=false"
     ],
@@ -201,6 +205,7 @@
       "run-hooks",
       "-v",
       "-time",
+      "-attempts=3",
       "-local-manifest=true"
     ],
     "name": "jiri run-hooks (2)"
