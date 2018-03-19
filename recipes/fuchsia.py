@@ -87,6 +87,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       upload_snapshot=upload_snapshot and not api.properties.get('tryjob'),
   )
   test_cmds = None
+  test_in_qemu = (device_type == 'QEMU')
   if run_tests:
     test_cmds = ['runtests -o %s %s' % (
       api.fuchsia.target_test_dir(),
@@ -99,9 +100,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       variants=variant,
       gn_args=gn_args,
       test_cmds=test_cmds,
+      test_in_qemu=test_in_qemu,
   )
   if run_tests:
-    if device_type == 'QEMU':
+    if test_in_qemu:
       test_results = api.fuchsia.test(build, timeout_secs=test_timeout_secs)
     else:
       test_results = api.fuchsia.test_on_device(

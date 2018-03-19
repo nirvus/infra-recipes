@@ -152,7 +152,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           name='upload jiri.snapshot',
           unauthenticated_url=True)
 
-  def _create_runcmds_package(self, test_cmds):
+  def _create_runcmds_package(self, test_cmds, test_in_qemu=True):
     """Creates a Fuchsia package which contains a script for running tests automatically."""
     # The device topological path is the toplogical path to the block device
     # which will contain test output.
@@ -167,11 +167,16 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '#!/boot/bin/sh',
       'msleep 5000',
       'mkdir %s' % test_dir,
-      'mount %s %s' % (device_topological_path, test_dir),
-    ] + test_cmds + [
-      'umount %s' % test_dir,
-      'dm poweroff',
     ]
+    if test_in_qemu:
+      runcmds.extend([
+        'mount %s %s' % (device_topological_path, test_dir),
+      ] + test_cmds + [
+        'umount %s' % test_dir,
+        'dm poweroff',
+      ])
+    else:
+      runcmds.extend(test_cmds)
     runcmds_path = self.m.path['tmp_base'].join('runcmds')
     self.m.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
     self.m.step.active_result.presentation.logs['runcmds'] = runcmds
@@ -245,7 +250,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.step('ninja', ninja_cmd)
 
   def build(self, target, build_type, packages, variants=(), gn_args=(),
-            test_cmds=()):
+            test_cmds=(), test_in_qemu=True):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -259,6 +264,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       gn_args (sequence[str]): Additional arguments to pass to GN
       test_cmds (sequence[str]): A sequence of commands to run on the device
         during testing. If empty, no test package will be added to the build.
+      test_in_qemu (bool): Whether or not the tests will be run in QEMU.
 
     Returns:
       A FuchsiaBuildResults, representing the recently completed build.
@@ -267,7 +273,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build_type in BUILD_TYPES
 
     if test_cmds:
-      packages.append(self._create_runcmds_package(test_cmds))
+      packages.append(self._create_runcmds_package(test_cmds, test_in_qemu))
 
     if build_type == 'debug':
       build_dir = 'debug'
@@ -351,7 +357,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     return '/tmp/infra-test-output'
 
   def test(self, build, timeout_secs=40*60):
-    """Tests a Fuchsia build.
+    """Tests a Fuchsia build inside of QEMU.
 
     Expects the build and artifacts to be at the same place they were at
     the end of the build.

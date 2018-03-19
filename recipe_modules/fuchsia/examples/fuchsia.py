@@ -68,6 +68,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       patch_project=patch_project,
       upload_snapshot=upload_snapshot,
   )
+  test_in_qemu = (device_type == 'qemu')
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
@@ -75,9 +76,10 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       variants=variants,
       gn_args=gn_args,
       test_cmds=['runtests' + runtests_args] if run_tests else None,
+      test_in_qemu=test_in_qemu,
   )
   if run_tests:
-    if device_type == 'qemu':
+    if test_in_qemu:
       test_results = api.fuchsia.test(build)
     else:
       test_results = api.fuchsia.test_on_device(device_type, build)
