@@ -24,6 +24,7 @@ DEPS = [
   'infra/hash',
   'infra/swarming',
   'infra/tar',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
@@ -112,12 +113,35 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
           timeout_secs=test_timeout_secs,
       )
     api.fuchsia.analyze_test_results('test results', test_results)
+
+  # Upload an archive containing build artifacts if the properties say to do so.
+  # Note: if we ran tests, this will only execute if the tests passed.
   if upload_archive and not api.properties.get('tryjob'):
     api.gsutil.ensure_gsutil()
     api.tar.ensure_tar()
 
+    # Glob for bootdata binaries.
+    bootdata_paths = api.file.glob_paths(
+        name='glob bootdata',
+        source=build.fuchsia_build_dir,
+        pattern='bootdata-blob-*.bin',
+        test_data=['/path/to/out/bootdata-blob-pc.bin'],
+    )
+    # Begin creating a tar package.
     package = api.tar.create(api.path['tmp_base'].join('fuchsia.tar.gz'), 'gzip')
+
+    # Add the images directory, which contain system images, to the package.
     package.add(build.fuchsia_build_dir.join('images'), build.fuchsia_build_dir)
+
+    # Add all the bootdata-*.bin files to the package, which contain the core
+    # ramdisk necessary to boot.
+    for p in bootdata_paths:
+      package.add(p, build.fuchsia_build_dir)
+
+    # Add the zircon kernel binary to the package.
+    package.add(build.zircon_build_dir.join('zircon.bin'), build.zircon_build_dir)
+
+    # Finalize the package and upload it.
     package.tar('tar fuchsia')
     digest = api.hash.sha1('hash archive', package.archive,
                            test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
