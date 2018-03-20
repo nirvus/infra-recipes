@@ -181,10 +181,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     BuildZircon(api, target_cpu)
     # Build a version with bootfs and a version without so consumers can transition over.
     fuchsia_build_dir = fuchsia_out_dir.join('%s-%s' % (build_type, target_cpu))
-    packages = ['garnet/packages/sdk']
+    packages = ['garnet/packages/sdk/base']
     BuildFuchsia(api, release_build, target_cpu, fuchsia_build_dir, packages, use_goma, gn_args)
     fuchsia_build_dir_bootfs = fuchsia_out_dir.join('%s-%s-bootfs' % (build_type, target_cpu))
-    packages = ['garnet/packages/sdk_bootfs']
+    packages = ['garnet/packages/sdk/bootfs']
     gn_args_bootfs = gn_args + [ 'bootfs_packages=true' ]
     BuildFuchsia(api, release_build, target_cpu, fuchsia_build_dir_bootfs, packages, use_goma,
                  gn_args_bootfs)

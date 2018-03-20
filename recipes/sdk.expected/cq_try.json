@@ -242,7 +242,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x64",
-      "--packages=garnet/packages/sdk",
+      "--packages=garnet/packages/sdk/base",
       "--build-dir=[START_DIR]/out/release-x64",
       "--goma=[START_DIR]/cipd/goma",
       "--release"
@@ -371,7 +371,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x64",
-      "--packages=garnet/packages/sdk_bootfs",
+      "--packages=garnet/packages/sdk/bootfs",
       "--build-dir=[START_DIR]/out/release-x64-bootfs",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
@@ -482,7 +482,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=arm64",
-      "--packages=garnet/packages/sdk",
+      "--packages=garnet/packages/sdk/base",
       "--build-dir=[START_DIR]/out/release-arm64",
       "--goma=[START_DIR]/cipd/goma",
       "--release"
@@ -583,7 +583,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=arm64",
-      "--packages=garnet/packages/sdk_bootfs",
+      "--packages=garnet/packages/sdk/bootfs",
       "--build-dir=[START_DIR]/out/release-arm64-bootfs",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
