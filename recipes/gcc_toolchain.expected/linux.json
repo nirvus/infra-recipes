@@ -101,7 +101,7 @@
     "name": "binutils refs",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"refs/tags/binutils-2_30\": \"3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/binutils-2_30-branch\": \"3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
