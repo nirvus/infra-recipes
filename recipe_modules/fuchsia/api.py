@@ -434,6 +434,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         qemu_runner,
         '\n'.join(qemu_runner_script),
     )
+    self.m.step.active_result.presentation.logs[qemu_runner_name] = qemu_runner_script
 
     # Create MinFS image (which will hold test output). We choose to make the
     # MinFS image 16M because our current test output takes up ~1.5 MB in an

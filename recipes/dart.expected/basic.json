@@ -380,7 +380,13 @@
       "[START_DIR]/run-qemu.sh"
     ],
     "infra_step": true,
-    "name": "write qemu runner"
+    "name": "write qemu runner",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0@@@",
+      "@@@STEP_LOG_END@run-qemu.sh@@@"
+    ]
   },
   {
     "cmd": [
