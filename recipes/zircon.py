@@ -116,7 +116,7 @@ PROPERTIES = {
   'goma_dir': Property(kind=str, help='Path to goma', default=None),
   'use_isolate': Property(kind=bool,
                           help='Whether to run tests on another machine',
-                          default=False),
+                          default=True),
   'use_kvm': Property(kind=bool,
                       help='Whether to use KVM when running tests in QEMU',
                       default=True),
@@ -710,7 +710,8 @@ def GenTests(api):
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x64',
-                    toolchain='gcc') +
+                    toolchain='gcc',
+                    use_isolate=False) +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('ci_arm64') +
@@ -718,14 +719,16 @@ def GenTests(api):
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='arm64',
-                    toolchain='gcc'))
+                    toolchain='gcc',
+                    use_isolate=False))
   yield (api.test('ci_x86_nokvm') +
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x64',
                     toolchain='gcc',
-                    use_kvm=False) +
+                    use_kvm=False,
+                    use_isolate=False) +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('ci_arm64_nokvm') +
@@ -734,7 +737,8 @@ def GenTests(api):
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='arm64',
                     toolchain='gcc',
-                    use_kvm=False) +
+                    use_kvm=False,
+                    use_isolate=False) +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('device_without_isolate') +
@@ -743,13 +747,15 @@ def GenTests(api):
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='arm64',
                     toolchain='gcc',
-                    device_type='Intel NUC Kit NUC6i3SYK'))
+                    device_type='Intel NUC Kit NUC6i3SYK',
+                    use_isolate=False))
   yield (api.test('asan') +
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x64',
-                    toolchain='asan') +
+                    toolchain='asan',
+                    use_isolate=False) +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('lto') +
@@ -757,7 +763,8 @@ def GenTests(api):
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x64',
-                    toolchain='lto') +
+                    toolchain='lto',
+                    use_isolate=False) +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('thinlto') +
@@ -765,7 +772,8 @@ def GenTests(api):
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x64',
-                    toolchain='thinlto') +
+                    toolchain='thinlto',
+                    use_isolate=False) +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
   yield (api.test('cq_try') +
@@ -776,7 +784,8 @@ def GenTests(api):
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
          target='x64',
-         toolchain='clang'))
+         toolchain='clang',
+         use_isolate=False))
   yield (api.test('no_run_tests') +
      api.properties.tryserver(
          project='zircon',
@@ -784,27 +793,31 @@ def GenTests(api):
          remote='https://fuchsia.googlesource.com/zircon',
          target='x64',
          toolchain='clang',
-         run_tests=False))
+         run_tests=False,
+         use_isolate=False))
   yield (api.test('failed_qemu') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='gcc') +
+                     toolchain='gcc',
+                     use_isolate=False) +
       api.step_data('run booted tests', retcode=1))
   yield (api.test('qemu_timeout') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='gcc') +
+                     toolchain='gcc',
+                     use_isolate=False) +
       api.step_data('run booted tests', retcode=2))
   yield (api.test('test_ouput') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='gcc') +
+                     toolchain='gcc',
+                     use_isolate=False) +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
   yield (api.test('goma_dir') +
       api.properties(project='zircon',
@@ -812,7 +825,8 @@ def GenTests(api):
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
                      toolchain='gcc',
-                     goma_dir='/path/to/goma') +
+                     goma_dir='/path/to/goma',
+                     use_isolate=False) +
       api.step_data('run booted tests', api.raw_io.stream_output('')))
   # Step test data for triggering the core tests task.
   core_tests_trigger_data = api.step_data(
@@ -842,8 +856,7 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='arm64',
-                     toolchain='gcc',
-                     use_isolate=True) +
+                     toolchain='gcc') +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -853,7 +866,6 @@ def GenTests(api):
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='arm64',
                      toolchain='gcc',
-                     use_isolate=True,
                      use_kvm=False) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
@@ -863,8 +875,7 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='gcc',
-                     use_isolate=True) +
+                     toolchain='gcc') +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -874,7 +885,6 @@ def GenTests(api):
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
                      toolchain='gcc',
-                     use_isolate=True,
                      device_type='Intel NUC Kit NUC6i3SYK') +
       booted_tests_trigger_data +
       api.step_data('collect', api.swarming.collect(
@@ -886,7 +896,6 @@ def GenTests(api):
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
                      toolchain='gcc',
-                     use_isolate=True,
                      use_kvm=False) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
@@ -896,8 +905,7 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='gcc',
-                     use_isolate=True) +
+                     toolchain='gcc') +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       api.step_data('collect', api.swarming.collect(
@@ -909,5 +917,6 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='gcc') +
+                     toolchain='gcc',
+                     use_isolate=False) +
       api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n')))
