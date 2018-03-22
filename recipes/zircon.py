@@ -147,6 +147,107 @@ def RunTests(api, name, build_dir, *args, **kwargs):
 
     raise api.step.StepFailure(failure_reason)
 
+def RunTestsInQEMU(api, target, build_dir, use_kvm):
+  """Executes Zircon tests in QEMU on a different machine.
+
+  Args:
+    api (recipe_engine.Api): The recipe engine API for this recipe.
+    target (str): The zircon target architecture to execute tests on.
+    build_dir (Path): Path to the build directory.
+    use_kvm (bool): Whether or not to enable KVM with QEMU when testing.
+  """
+  arch = TARGET_TO_ARCH[target]
+  assert arch in ARCHS
+
+  # As part of running tests, we'll send a MinFS image over to another machine
+  # which will be declared as a block device in QEMU, at which point
+  # Zircon will mount it and write test output to. input_image_name refers to
+  # the name of the image as its created by this recipe, and sent off to the
+  # test machine. output_image_name refers to the name of the image as its
+  # returned back from the other machine.
+  input_image_name = 'input.fs'
+  output_image_name = 'output.fs'
+
+  # Generate a MinFS image which will hold test results. This will later be
+  # declared as a block device to QEMU and will then be mounted by the
+  # runcmds script. The size of the MinFS should be large enough to
+  # accomodate all test results and test output. The current size is picked
+  # to be able to safely hold test results for quite some time (as of 03/18
+  # the space used is very roughly on the order of a megabyte). Having a
+  # larger-image-than-necessary isn't a big deal for isolate, which
+  # compresses the image before uploading.
+  test_image = api.path['start_dir'].join(input_image_name)
+  api.minfs.create(test_image, '16M', name='create test image')
+
+  # Generate the QEMU commands.
+  core_tests_qemu_cmd = GenerateQEMUCommand(target=target, cmdline=[
+    'userboot=bin/core-tests', # executes bin/core-tests in place of userspace.
+    'userboot.shutdown', # shuts down zircon after the userboot process exits.
+  ], use_kvm=use_kvm)
+  booted_tests_qemu_cmd = GenerateQEMUCommand(
+      target=target,
+      # On boot, execute the RUNCMDS script.
+      cmdline=['zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH],
+      use_kvm=use_kvm,
+      blkdev=output_image_name,
+  )
+
+  # Create a qemu runner script which trivially copies the blank MinFS image
+  # to hold test results, in order to work around a bug in swarming where
+  # modifying cached isolate downloads will modify the cache contents.
+  #
+  # TODO(mknyszek): Once the isolate bug (http://crbug.com/812925) gets fixed,
+  # don't send a runner script to the bot anymore, since we don't need to do
+  # this hack to cp the image.
+  qemu_runner_name = 'run-qemu.sh'
+  qemu_runner = api.path['start_dir'].join(qemu_runner_name)
+  qemu_runner_script = [
+    '#!/bin/sh',
+    'cp %s %s' % (input_image_name, output_image_name),
+    ' '.join(map(pipes.quote, booted_tests_qemu_cmd)),
+  ]
+  api.file.write_text(
+      'write qemu runner',
+      qemu_runner,
+      '\n'.join(qemu_runner_script),
+  )
+
+  # Isolate all necessary build artifacts as well as the MinFS image.
+  isolated = api.isolated.isolated()
+  isolated.add_file(build_dir.join(ZIRCON_IMAGE_NAME), wd=build_dir)
+  isolated.add_file(build_dir.join(TARGET_TO_BOOT_IMAGE[target]), wd=build_dir)
+  isolated.add_file(test_image, wd=api.path['start_dir'])
+  isolated.add_file(qemu_runner, wd=api.path['start_dir'])
+  digest = isolated.archive('isolate zircon artifacts')
+
+  # Trigger a task that runs the core tests in place of userspace at boot.
+  core_task = TriggerTestsTask(
+      api=api,
+      name='core tests',
+      cmd=core_tests_qemu_cmd,
+      arch=arch,
+      use_kvm=use_kvm,
+      isolated_hash=digest,
+      timeout_secs=10*60, # 10 minute hard timeout.
+  )
+  # Trigger a task that runs tests in the standard way with runtests and
+  # the runcmds script.
+  booted_task = TriggerTestsTask(
+      api=api,
+      name='booted tests',
+      # Swarming will drop qemu_runner_name into the PWD in the new task.
+      cmd=['/bin/sh', './' + qemu_runner_name],
+      arch=arch,
+      use_kvm=use_kvm,
+      isolated_hash=digest,
+      output=output_image_name,
+      timeout_secs=40*60, # 40 minute hard timeout.
+  )
+
+  # Collect task results and analyze.
+  FinalizeTestsTasks(api, core_task, booted_task, output_image_name,
+                     build_dir)
+
 
 def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
   """GenerateQEMUCommand generates a QEMU command for executing Zircon tests.
@@ -166,7 +267,7 @@ def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
     A list[str] representing QEMU command which invokes QEMU from the default
     CIPD installation directory.
   """
-  arch=TARGET_TO_ARCH[target]
+  arch = TARGET_TO_ARCH[target]
   assert arch in ARCHS
 
   qemu_cmd = [
@@ -315,6 +416,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
         outputs=test_results_map,
   ))
 
+
 def Build(api, target, toolchain, src_dir, use_isolate):
   """Builds zircon and returns a path to the build output directory."""
   # Generate runcmds script to drive tests.
@@ -417,118 +519,30 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   build_dir = Build(api, target, toolchain, src_dir, use_isolate)
 
   if run_tests:
-    autorun_arg = 'zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH
-    core_tests_userboot_arg = 'userboot=bin/core-tests'
     api.qemu.ensure_qemu()
     if use_isolate:
       api.swarming.ensure_swarming(version='latest')
       api.isolated.ensure_isolated(version='latest')
 
-    bootfs_path = build_dir.join(TARGET_TO_BOOT_IMAGE[target])
-    image_path = build_dir.join(ZIRCON_IMAGE_NAME)
+      # The MinFS tool is generated during the Zircon build, so only after we
+      # build may we set the recipe module's tool path.
+      api.minfs.minfs_path = build_dir.join('tools', 'minfs')
 
-    # The MinFS tool is generated during the Zircon build, so only after we
-    # build may we set the recipe module's tool path.
-    api.minfs.minfs_path = build_dir.join('tools', 'minfs')
-
-    arch = TARGET_TO_ARCH[target]
-    if use_isolate:
-      # As part of running tests, we'll send a MinFS image over to another machine
-      # which will be declared as a block device in QEMU, at which point
-      # Zircon will mount it and write test output to. input_image_name refers to
-      # the name of the image as its created by this recipe, and sent off to the
-      # test machine. output_image_name refers to the name of the image as its
-      # returned back from the other machine.
-      input_image_name = 'input.fs'
-      output_image_name = 'output.fs'
-
-      # Generate a MinFS image which will hold test results. This will later be
-      # declared as a block device to QEMU and will then be mounted by the
-      # runcmds script. The size of the MinFS should be large enough to
-      # accomodate all test results and test output. The current size is picked
-      # to be able to safely hold test results for quite some time (currently
-      # the space used is very roughly on the order of a megabyte). Having a
-      # larger-image-than-necessary isn't a big deal for isolate, which
-      # compresses the image before uploading.
-      test_image = api.path['start_dir'].join(input_image_name)
-      api.minfs.create(test_image, '16M', name='create test image')
-
-      # Generate the QEMU commands.
-      core_tests_qemu_cmd = GenerateQEMUCommand(target=target, cmdline=[
-        core_tests_userboot_arg,
-        'userboot.shutdown', # shuts down zircon after the userboot process exits.
-      ], use_kvm=use_kvm)
-      booted_tests_qemu_cmd = GenerateQEMUCommand(
-          target=target,
-          cmdline=[autorun_arg],
-          use_kvm=use_kvm,
-          blkdev=output_image_name,
-      )
-
-      # Create a qemu runner script which trivially copies the blank MinFS image
-      # to hold test results, in order to work around a bug in swarming where
-      # modifying cached isolate downloads will modify the cache contents.
-      #
-      # TODO(mknyszek): Once the isolate bug (http://crbug.com/812925) gets fixed,
-      # don't send a runner script to the bot anymore, since we don't need to do
-      # this hack to cp the image.
-      qemu_runner_name = 'run-qemu.sh'
-      qemu_runner = api.path['start_dir'].join(qemu_runner_name)
-      qemu_runner_script = [
-        '#!/bin/sh',
-        'cp %s %s' % (input_image_name, output_image_name),
-        ' '.join(map(pipes.quote, booted_tests_qemu_cmd)),
-      ]
-      api.file.write_text(
-          'write qemu runner',
-          qemu_runner,
-          '\n'.join(qemu_runner_script),
-      )
-
-      # Isolate all necessary build artifacts as well as the MinFS image.
-      isolated = api.isolated.isolated()
-      isolated.add_file(test_image, wd=api.path['start_dir'])
-      isolated.add_file(image_path, wd=build_dir)
-      isolated.add_file(bootfs_path, wd=build_dir)
-      isolated.add_file(qemu_runner, wd=api.path['start_dir'])
-      digest = isolated.archive('isolate zircon artifacts')
-
-      # Trigger a task that runs the core tests in place of userspace at boot.
-      core_task = TriggerTestsTask(
-          api=api,
-          name='core tests',
-          cmd=core_tests_qemu_cmd,
-          arch=arch,
-          use_kvm=use_kvm,
-          isolated_hash=digest,
-          timeout_secs=10*60, # 10 minute hard timeout.
-      )
-      # Trigger a task that runs tests in the standard way with runtests and
-      # the runcmds script.
-      booted_task = TriggerTestsTask(
-          api=api,
-          name='booted tests',
-          cmd=['/bin/sh', './' + qemu_runner_name],
-          arch=arch,
-          use_kvm=use_kvm,
-          isolated_hash=digest,
-          output=output_image_name,
-          timeout_secs=40*60, # 40 minute hard timeout.
-      )
-
-      # Collect task results and analyze.
-      FinalizeTestsTasks(api, core_task, booted_task, output_image_name,
-                         build_dir)
+      # Execute tests.
+      RunTestsInQEMU(api, target, build_dir, use_kvm)
     else:
+      bootfs_path = build_dir.join(TARGET_TO_BOOT_IMAGE[target])
+      image_path = build_dir.join(ZIRCON_IMAGE_NAME)
+
       # Run core tests with userboot.
-      RunTests(api, 'run core tests', build_dir, arch, image_path, kvm=use_kvm,
-          initrd=bootfs_path, cmdline=core_tests_userboot_arg,
+      RunTests(api, 'run core tests', build_dir, TARGET_TO_ARCH[target], image_path,
+          kvm=use_kvm, initrd=bootfs_path, cmdline='userboot=bin/core-tests',
           shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
               api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
       # Boot and run tests.
-      RunTests(api, 'run booted tests', build_dir, arch, image_path, kvm=use_kvm,
-          initrd=bootfs_path, cmdline=autorun_arg,
+      RunTests(api, 'run booted tests', build_dir, TARGET_TO_ARCH[target], image_path,
+          kvm=use_kvm, initrd=bootfs_path, cmdline='zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH,
           shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200, step_test_data=lambda:
               api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 
