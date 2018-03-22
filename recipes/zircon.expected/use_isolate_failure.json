@@ -302,7 +302,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true zircon.autorun.boot=/boot/infra/runcmds' -machine q35 -enable-kvm -cpu host -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
+      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true zircon.autorun.boot=/boot/infra/runcmds' -device isa-debug-exit,iobase=0xf4,iosize=0x04 -machine q35 -enable-kvm -cpu host -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
       "[START_DIR]/run-qemu.sh"
     ],
     "infra_step": true,
@@ -377,6 +377,8 @@
       "bootdata.bin",
       "-append",
       "TERM=dumb kernel.halt-on-panic=true userboot=bin/core-tests userboot.shutdown",
+      "-device",
+      "isa-debug-exit,iobase=0xf4,iosize=0x04",
       "-machine",
       "q35",
       "-enable-kvm",

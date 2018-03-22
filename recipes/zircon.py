@@ -364,6 +364,9 @@ def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
       machine += ',gic_version=host'
   elif arch == 'x86_64':
     machine = 'q35'
+    # Necessary for userboot.shutdown to trigger properly, since it writes to
+    # 0xf4 to debug-exit in QEMU.
+    qemu_cmd.extend(['-device', 'isa-debug-exit,iobase=0xf4,iosize=0x04'])
   qemu_cmd.extend(['-machine', machine])
 
   if use_kvm:
