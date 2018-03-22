@@ -21,6 +21,7 @@ DEPS = [
   'infra/minfs',
   'infra/qemu',
   'infra/swarming',
+  'infra/tar',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -45,6 +46,9 @@ TARGET_TO_BOOT_IMAGE = dict(zip(
     ['bootdata.bin', 'qemu-bootdata.bin'],
 ))
 ARCHS = ('x86_64', 'aarch64')
+
+# Supported device types for testing.
+DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK']
 
 # toolchain: (['make', 'args'], 'builddir-suffix')
 TOOLCHAINS = {
@@ -99,6 +103,9 @@ PROPERTIES = {
   'use_kvm': Property(kind=bool,
                       help='Whether to use KVM when running tests in QEMU',
                       default=True),
+  'device_type': Property(kind=Enum(*DEVICES),
+                          help='The type of device to execute tests on',
+                          default='QEMU'),
 }
 
 
@@ -146,6 +153,75 @@ def RunTests(api, name, build_dir, *args, **kwargs):
       symbolize_result.presentation.status = api.step.FAILURE
 
     raise api.step.StepFailure(failure_reason)
+
+def RunTestsOnDevice(api, target, build_dir, device_type):
+  """Executes Zircon tests on a hardware device.
+
+  Args:
+    api (recipe_engine.Api): The recipe engine API for this recipe.
+    target (str): The zircon target architecture to execute tests on.
+    build_dir (Path): Path to the build directory.
+    device_type (Enum(*DEVICES)): The type of device to run tests on.
+  """
+  ramdisk_name = TARGET_TO_BOOT_IMAGE[target]
+  output_archive_name = 'out.tar'
+  botanist_cmd = [
+    './botanist/botanist',
+    '-kernel', ZIRCON_IMAGE_NAME,
+    '-ramdisk', ramdisk_name,
+    '-test', api.fuchsia.target_test_dir(),
+    '-out', output_archive_name,
+    'zircon.autorun.system=/system/data/infra/runcmds',
+  ]
+
+  # Isolate all necessary build artifacts.
+  isolated = api.isolated.isolated()
+  isolated.add_file(build_dir.join(ZIRCON_IMAGE_NAME), wd=build_dir)
+  isolated.add_file(build_dir.join(ramdisk_name), wd=build_dir)
+  digest = isolated.archive('isolate zircon artifacts')
+
+  with api.context(infra_steps=True):
+    # Trigger task.
+    trigger_result = api.swarming.trigger(
+        'booted tests',
+        botanist_cmd,
+        isolated=digest,
+        dimensions={
+          'pool': 'fuchsia.tests',
+          'device_type': device_type,
+        },
+        io_timeout=TEST_IO_TIMEOUT_SECS,
+        hard_timeout=40*60, # 40 minute hard timeout
+        outputs=[output_archive_name],
+        cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest')],
+    )
+    # Collect results.
+    results = api.swarming.collect(requests_json=api.json.input(trigger_result.json.output))
+    # This assert just makes sure that we only get 1 result back, as requested.
+    # If this assert fails, it indicates a fatal error in our stack.
+    assert len(results) == 1
+    result = results[0]
+  api.fuchsia.analyze_collect_result('task results', result, build_dir)
+
+  # Extract test results.
+  test_results_dir = api.path['start_dir'].join('test_results')
+  with api.context(infra_steps=True):
+    api.tar.ensure_tar()
+    test_results_map = api.tar.extract(
+        step_name='extract results',
+        archive=result[output_archive_name],
+        dir=api.raw_io.output_dir(leak_to=test_results_dir),
+    ).raw_io.output_dir
+
+  # Analyze the test results and report them in the presentation.
+  api.fuchsia.analyze_test_results(
+    'booted test results',
+    api.fuchsia.FuchsiaTestResults(
+        build_dir=build_dir,
+        output=result.output,
+        outputs=test_results_map,
+    )
+  )
 
 def RunTestsInQEMU(api, target, build_dir, use_kvm):
   """Executes Zircon tests in QEMU on a different machine.
@@ -417,7 +493,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   ))
 
 
-def Build(api, target, toolchain, src_dir, use_isolate):
+def Build(api, target, toolchain, src_dir, use_isolate, needs_blkdev):
   """Builds zircon and returns a path to the build output directory."""
   # Generate runcmds script to drive tests.
   tmp_dir = api.path['tmp_base'].join('zircon_tmp')
@@ -433,15 +509,25 @@ def Build(api, target, toolchain, src_dir, use_isolate):
       'msleep 1000',
       # 2. Make a test directory.
       'mkdir %s' % target_test_dir,
-      # 3. Mount the block device to that test directory (the block device
-      #    will always exist at PCI address TEST_FS_PCI_ADDR).
-      'mount /dev/sys/pci/00:%s/virtio-block/block %s' % (TEST_FS_PCI_ADDR, target_test_dir),
-      # 4. Execute runtests with -o.
-      'runtests -o %s' % target_test_dir,
-      # 5. Unmount and poweroff.
-      'umount %s' % target_test_dir,
-      'dm poweroff',
     ]
+    if needs_blkdev:
+      runcmds.extend([
+        # 3. Mount the block device to that test directory (the block device
+        #    will always exist at PCI address TEST_FS_PCI_ADDR).
+        'mount /dev/sys/pci/00:%s/virtio-block/block %s' % (TEST_FS_PCI_ADDR, target_test_dir),
+        # 4. Execute runtests with -o (i.e. write test output to files with a
+        # JSON summary).
+        'runtests -o %s' % target_test_dir,
+        # 5. Unmount and poweroff.
+        'umount %s' % target_test_dir,
+        'dm poweroff',
+      ])
+    else:
+      runcmds.extend([
+        # 3. Execute runtests with -o (i.e. write test output to files with a
+        # JSON summary).
+        'runtests -o %s' % target_test_dir,
+      ])
   else:
     # Script to wait for devmgr to spin up and execute runtests. runtests doesn't
     # need any additional arguments because it executes tests in five /boot
@@ -500,7 +586,10 @@ def Build(api, target, toolchain, src_dir, use_isolate):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, toolchain, goma_dir, use_isolate, use_kvm, run_tests):
+             target, toolchain, goma_dir, use_isolate, use_kvm, run_tests,
+             device_type):
+  if device_type != 'QEMU' and not use_isolate:
+    raise api.step.InfraFailure('Device types other than QEMU are not available without use_isolate')
   if target == 'arm64' and use_kvm and not use_isolate:
     raise api.step.InfraFailure('KVM is only available in the use_isolate case on arm64')
 
@@ -516,20 +605,29 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
 
   src_dir = api.path['start_dir'].join('zircon')
-  build_dir = Build(api, target, toolchain, src_dir, use_isolate)
+  build_dir = Build(
+      api=api,
+      target=target,
+      toolchain=toolchain,
+      src_dir=src_dir,
+      use_isolate=use_isolate,
+      needs_blkdev=use_isolate and device_type == 'QEMU',
+  )
 
   if run_tests:
     api.qemu.ensure_qemu()
     if use_isolate:
       api.swarming.ensure_swarming(version='latest')
       api.isolated.ensure_isolated(version='latest')
+      if device_type == 'QEMU':
+        # The MinFS tool is generated during the Zircon build, so only after we
+        # build may we set the recipe module's tool path.
+        api.minfs.minfs_path = build_dir.join('tools', 'minfs')
 
-      # The MinFS tool is generated during the Zircon build, so only after we
-      # build may we set the recipe module's tool path.
-      api.minfs.minfs_path = build_dir.join('tools', 'minfs')
-
-      # Execute tests.
-      RunTestsInQEMU(api, target, build_dir, use_kvm)
+        # Execute tests.
+        RunTestsInQEMU(api, target, build_dir, use_kvm)
+      else:
+        RunTestsOnDevice(api, target, build_dir, device_type)
     else:
       bootfs_path = build_dir.join(TARGET_TO_BOOT_IMAGE[target])
       image_path = build_dir.join(ZIRCON_IMAGE_NAME)
@@ -580,6 +678,13 @@ def GenTests(api):
                     use_kvm=False) +
      api.step_data('run booted tests',
          api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
+  yield (api.test('device_without_isolate') +
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
+                    target='arm64',
+                    toolchain='gcc',
+                    device_type='Intel NUC Kit NUC6i3SYK'))
   yield (api.test('asan') +
      api.properties(project='zircon',
                     manifest='manifest',
@@ -704,6 +809,18 @@ def GenTests(api):
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
+  yield (api.test('use_isolate_device') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='x64',
+                     toolchain='gcc',
+                     use_isolate=True,
+                     device_type='Intel NUC Kit NUC6i3SYK') +
+      booted_tests_trigger_data +
+      api.step_data('collect', api.swarming.collect(
+          outputs=['out.tar'],
+      )))
   yield (api.test('use_isolate_x86_nokvm') +
       api.properties(project='zircon',
                      manifest='manifest',
