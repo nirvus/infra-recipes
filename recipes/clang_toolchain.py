@@ -10,13 +10,9 @@ from recipe_engine.recipe_api import Property
 import re
 
 
-TARGETS = [
-  ('aarch64', 'arm64'),
-  ('x86_64', 'x64'),
-]
-
 DEPS = [
   'infra/cipd',
+  'infra/fuchsia',
   'infra/git',
   'infra/gitiles',
   'infra/goma',
@@ -32,6 +28,11 @@ DEPS = [
   'recipe_engine/raw_io',
   'recipe_engine/step',
   'recipe_engine/tempfile',
+]
+
+TARGETS = [
+  ('aarch64', 'arm64'),
+  ('x86_64', 'x64'),
 ]
 
 LLVM_PROJECT_GIT = 'https://fuchsia.googlesource.com/third_party/llvm-project'
@@ -58,14 +59,6 @@ def RunSteps(api, url, ref, revision):
     return
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest(
-        'manifest/zircon',
-        'https://fuchsia.googlesource.com/zircon',
-        'zircon'
-    )
-    api.jiri.update()
-
     llvm_dir = api.path['start_dir'].join('llvm-project')
     api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
 
@@ -91,17 +84,21 @@ def RunSteps(api, url, ref, revision):
 
   # Build Zircon sysroot.
   # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
-  zircon_dir = api.path['start_dir'].join('zircon')
+  api.fuchsia.checkout(
+      manifest='manifest/garnet',
+      remote='https://fuchsia.googlesource.com/garnet',
+      project='garnet',
+  )
   sysroot = {}
   for tc_arch, gn_arch in TARGETS:
-    sysroot[tc_arch] = zircon_dir.join('build-%s' % gn_arch, 'sysroot')
-    with api.context(cwd=zircon_dir):
-      api.step('build %s sysroot' % tc_arch, [
-        'make',
-        '-j%s' % api.platform.cpu_count,
-        'PROJECT=%s' % gn_arch,
-        'sysroot',
-      ])
+    build = api.fuchsia.build(
+        target=gn_arch,
+        build_type='release',
+        packages=['garnet/packages/sdk/base'],
+    )
+    # TODO(TO-688): This is an implementation detail of the GN build and we
+    # shouldn't rely on it outside of that build and instead use SDK.
+    sysroot[tc_arch] = build.fuchsia_build_dir.join('sdks', 'zircon_sysroot', 'sysroot')
 
   # build clang+llvm
   build_dir = staging_dir.join('llvm_build_dir')

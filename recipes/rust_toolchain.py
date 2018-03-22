@@ -12,6 +12,7 @@ import re
 
 DEPS = [
   'infra/cipd',
+  'infra/fuchsia',
   'infra/git',
   'infra/gitiles',
   'infra/gsutil',
@@ -26,6 +27,11 @@ DEPS = [
   'recipe_engine/file',
   'recipe_engine/step',
   'recipe_engine/url',
+]
+
+TARGETS = [
+  ('aarch64', 'arm64'),
+  ('x86_64', 'x64'),
 ]
 
 RUST_FUCHSIA_GIT = 'https://fuchsia.googlesource.com/third_party/rust'
@@ -98,14 +104,6 @@ def RunSteps(api, url, ref, revision):
     return
 
   with api.context(infra_steps=True):
-    api.jiri.init()
-    api.jiri.import_manifest(
-        'manifest/zircon',
-        'https://fuchsia.googlesource.com/zircon',
-        'zircon'
-    )
-    api.jiri.update()
-
     rust_dir = api.path['start_dir'].join('rust')
     api.git.checkout(url, rust_dir, ref=revision)
 
@@ -121,17 +119,21 @@ def RunSteps(api, url, ref, revision):
 
   # Build Zircon sysroot.
   # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
-  zircon_dir = api.path['start_dir'].join('zircon')
+  api.fuchsia.checkout(
+      manifest='manifest/garnet',
+      remote='https://fuchsia.googlesource.com/garnet',
+      project='garnet',
+  )
   sysroot = {}
-  for tc_arch, gn_arch in [('aarch64', 'arm64'), ('x86_64', 'x64')]:
-    sysroot[tc_arch] = zircon_dir.join('build-%s' % gn_arch, 'sysroot')
-    with api.context(cwd=zircon_dir):
-      api.step('build %s sysroot' % tc_arch, [
-        'make',
-        '-j%s' % api.platform.cpu_count,
-        'PROJECT=%s' % gn_arch,
-        'sysroot',
-      ])
+  for tc_arch, gn_arch in TARGETS:
+    build = api.fuchsia.build(
+        target=gn_arch,
+        build_type='release',
+        packages=['garnet/packages/sdk/base'],
+    )
+    # TODO(TO-688): This is an implementation detail of the GN build and we
+    # shouldn't rely on it outside of that build and instead use SDK.
+    sysroot[tc_arch] = build.fuchsia_build_dir.join('sdks', 'zircon_sysroot', 'sysroot')
 
   # build rust
   staging_dir = api.path.mkdtemp('rust')
