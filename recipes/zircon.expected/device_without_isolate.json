@@ -1,8 +1,0 @@
-[
-  {
-    "name": "$result",
-    "reason": "Device types other than QEMU are not available without use_isolate",
-    "recipe_result": null,
-    "status_code": 1
-  }
-]

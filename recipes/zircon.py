@@ -70,12 +70,6 @@ TOOLCHAINS = {
   'thinlto': (['USE_LTO=true', 'USE_THINLTO=true'], '-thinlto'),
 }
 
-# Test summary from the core tests, which run directly from userboot.
-CORE_TESTS_MATCH = r'CASES: +(\d+) +SUCCESS: +(\d+) +FAILED: +(?P<failed>\d+)'
-
-# Test summary from the runtests command on a booted system.
-BOOTED_TESTS_MATCH = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
-
 # The path under /boot to the runcmds script (which runs tests) in the zircon
 # bootfs.
 RUNCMDS_BOOTFS_PATH = 'infra/runcmds'
@@ -114,9 +108,6 @@ PROPERTIES = {
                         help='Toolchain to use'),
   'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True),
   'goma_dir': Property(kind=str, help='Path to goma', default=None),
-  'use_isolate': Property(kind=bool,
-                          help='Whether to run tests on another machine',
-                          default=True),
   'use_kvm': Property(kind=bool,
                       help='Whether to use KVM when running tests in QEMU',
                       default=True),
@@ -130,46 +121,6 @@ PROPERTIES = {
 def no_goma():
     yield
 
-
-def RunTests(api, name, build_dir, *args, **kwargs):
-  step_result = None
-  failure_reason = None
-  try:
-    step_result = api.qemu.run(name, *args, **kwargs)
-  except StepFailure as error:
-    step_result = error.result
-    if error.retcode == 2:
-      failure_reason = 'Test timed out'
-    else:
-      raise api.step.InfraFailure('QEMU failure')
-
-  qemu_log = step_result.stdout
-  step_result.presentation.logs['qemu.stdout'] = qemu_log.splitlines()
-
-  if failure_reason is None:
-    m = re.search(kwargs['shutdown_pattern'], qemu_log)
-    if not m:
-      raise api.step.InfraFailure('Test output missing')
-    elif int(m.group('failed')) > 0:
-      step_result.presentation.status = api.step.FAILURE
-      failure_reason = m.group(0)
-
-  if failure_reason is not None:
-    symbolize_cmd = [
-      api.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
-      '--no-echo',
-      '--build-dir', build_dir,
-    ]
-    symbolize_result = api.step('symbolize', symbolize_cmd,
-        stdin=api.raw_io.input(data=qemu_log),
-        stdout=api.raw_io.output(),
-        step_test_data=lambda: api.raw_io.test_api.stream_output(''))
-    symbolized_lines = symbolize_result.stdout.splitlines()
-    if symbolized_lines:
-      symbolize_result.presentation.logs['symbolized backtrace'] = symbolized_lines
-      symbolize_result.presentation.status = api.step.FAILURE
-
-    raise api.step.StepFailure(failure_reason)
 
 def RunTestsOnDevice(api, target, build_dir, device_type):
   """Executes Zircon tests on a hardware device.
@@ -540,56 +491,50 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   ))
 
 
-def Build(api, target, toolchain, src_dir, use_isolate, needs_blkdev):
+def Build(api, target, toolchain, src_dir, needs_blkdev):
   """Builds zircon and returns a path to the build output directory."""
   # Generate runcmds script to drive tests.
   tmp_dir = api.path['cleanup'].join('zircon_tmp')
   api.file.ensure_directory('makedirs tmp', tmp_dir)
   runcmds_path = tmp_dir.join('runcmds')
-  if use_isolate:
-    # In the use_isolate case, we need to mount a block device to write test
-    # results and test output to. Thus, the runcmds script must:
-    target_test_dir = api.fuchsia.target_test_dir()
-    runcmds = [
-      '#!/boot/bin/sh',
-      # 1. Make a test directory.
-      'mkdir %s' % target_test_dir,
-    ]
-    if needs_blkdev:
-      # If we need a block device to get test output off Fuchsia, then we need
-      # to mount a MinFS image which we'll declare as a block device to QEMU at
-      # PCI address TEST_FS_PCI_ADDR.
-      #
-      # This topological path is the path on the device to the MinFS image as a
-      # raw block device.
-      device_topological_path = '/dev/sys/pci/00:%s/virtio-block/block' % TEST_FS_PCI_ADDR
-      runcmds.extend([
-        # 2. Wait for devmgr to bring up the MinFS test output image (max
-        # <timeout> ms).
-        'waitfor class=block topo=%s timeout=60000' % device_topological_path,
-        # 3. Mount the block device to the new test directory.
-        'mount %s %s' % (device_topological_path, target_test_dir),
-        # 4. Execute runtests with -o (i.e. write test output to files with a
-        # JSON summary).
-        'runtests -o %s' % target_test_dir,
-        # 5. Unmount and poweroff.
-        'umount %s' % target_test_dir,
-        'dm poweroff',
-      ])
-    else:
-      # If we don't need a block device, just run the tests and wait for
-      # something to copy the test results off. Note that in this case we do not
-      # power off the device (via `dm poweroff`).
-      runcmds.extend([
-        # 2. Execute runtests with -o (i.e. write test output to files with a
-        # JSON summary).
-        'runtests -o %s' % target_test_dir,
-      ])
+  # In the use_isolate case, we need to mount a block device to write test
+  # results and test output to. Thus, the runcmds script must:
+  target_test_dir = api.fuchsia.target_test_dir()
+  runcmds = [
+    '#!/boot/bin/sh',
+    # 1. Make a test directory.
+    'mkdir %s' % target_test_dir,
+  ]
+  if needs_blkdev:
+    # If we need a block device to get test output off Fuchsia, then we need
+    # to mount a MinFS image which we'll declare as a block device to QEMU at
+    # PCI address TEST_FS_PCI_ADDR.
+    #
+    # This topological path is the path on the device to the MinFS image as a
+    # raw block device.
+    device_topological_path = '/dev/sys/pci/00:%s/virtio-block/block' % TEST_FS_PCI_ADDR
+    runcmds.extend([
+      # 2. Wait for devmgr to bring up the MinFS test output image (max
+      # <timeout> ms).
+      'waitfor class=block topo=%s timeout=60000' % device_topological_path,
+      # 3. Mount the block device to the new test directory.
+      'mount %s %s' % (device_topological_path, target_test_dir),
+      # 4. Execute runtests with -o (i.e. write test output to files with a
+      # JSON summary).
+      'runtests -o %s' % target_test_dir,
+      # 5. Unmount and poweroff.
+      'umount %s' % target_test_dir,
+      'dm poweroff',
+    ])
   else:
-    # Script to wait for devmgr to spin up and execute runtests. runtests doesn't
-    # need any additional arguments because it executes tests in five /boot
-    # directories by default, representing the entire test suite.
-    runcmds = ['#!/boot/bin/sh', 'msleep 500', 'runtests']
+    # If we don't need a block device, just run the tests and wait for
+    # something to copy the test results off. Note that in this case we do not
+    # power off the device (via `dm poweroff`).
+    runcmds.extend([
+      # 2. Execute runtests with -o (i.e. write test output to files with a
+      # JSON summary).
+      'runtests -o %s' % target_test_dir,
+    ])
   api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
   api.step.active_result.presentation.logs['runcmds.sh'] = runcmds
 
@@ -643,13 +588,7 @@ def Build(api, target, toolchain, src_dir, use_isolate, needs_blkdev):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, toolchain, goma_dir, use_isolate, use_kvm, run_tests,
-             device_type):
-  if device_type != 'QEMU' and not use_isolate:
-    raise api.step.InfraFailure('Device types other than QEMU are not available without use_isolate')
-  if target == 'arm64' and use_kvm and not use_isolate:
-    raise api.step.InfraFailure('KVM is only available in the use_isolate case on arm64')
-
+             target, toolchain, goma_dir, use_kvm, run_tests, device_type):
   if goma_dir:
     api.goma.set_goma_dir(goma_dir)
   api.goma.ensure_goma()
@@ -667,176 +606,25 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       target=target,
       toolchain=toolchain,
       src_dir=src_dir,
-      use_isolate=use_isolate,
-      needs_blkdev=use_isolate and device_type == 'QEMU',
+      needs_blkdev=(device_type == 'QEMU'),
   )
 
   if run_tests:
     api.qemu.ensure_qemu()
-    if use_isolate:
-      api.swarming.ensure_swarming(version='latest')
-      api.isolated.ensure_isolated(version='latest')
-      if device_type == 'QEMU':
-        # The MinFS tool is generated during the Zircon build, so only after we
-        # build may we set the recipe module's tool path.
-        api.minfs.minfs_path = build_dir.join('tools', 'minfs')
+    api.swarming.ensure_swarming(version='latest')
+    api.isolated.ensure_isolated(version='latest')
+    if device_type == 'QEMU':
+      # The MinFS tool is generated during the Zircon build, so only after we
+      # build may we set the recipe module's tool path.
+      api.minfs.minfs_path = build_dir.join('tools', 'minfs')
 
-        # Execute tests.
-        RunTestsInQEMU(api, target, build_dir, use_kvm)
-      else:
-        RunTestsOnDevice(api, target, build_dir, device_type)
+      # Execute tests.
+      RunTestsInQEMU(api, target, build_dir, use_kvm)
     else:
-      bootfs_path = build_dir.join(TARGET_TO_BOOT_IMAGE[target])
-      image_path = build_dir.join(TARGET_TO_KERNEL_IMAGE[target])
-
-      # Run core tests with userboot.
-      RunTests(api, 'run core tests', build_dir, TARGET_TO_ARCH[target], image_path,
-          kvm=use_kvm, initrd=bootfs_path, cmdline=' '.join(
-              ['userboot=bin/core-tests'] + TARGET_CMDLINE[target]),
-          shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
-              api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
-
-      # Boot and run tests.
-      RunTests(api, 'run booted tests', build_dir, TARGET_TO_ARCH[target], image_path,
-          kvm=use_kvm, initrd=bootfs_path, cmdline=' '.join(
-              ['zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH] + TARGET_CMDLINE[target]),
-          shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200, step_test_data=lambda:
-              api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
+      RunTestsOnDevice(api, target, build_dir, device_type)
 
 
 def GenTests(api):
-  yield (api.test('ci_x86') +
-     api.properties(project='zircon',
-                    manifest='manifest',
-                    remote='https://fuchsia.googlesource.com/zircon',
-                    target='x64',
-                    toolchain='gcc',
-                    use_isolate=False) +
-     api.step_data('run booted tests',
-         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
-  yield (api.test('ci_arm64') +
-     api.properties(project='zircon',
-                    manifest='manifest',
-                    remote='https://fuchsia.googlesource.com/zircon',
-                    target='arm64',
-                    toolchain='gcc',
-                    use_isolate=False))
-  yield (api.test('ci_x86_nokvm') +
-     api.properties(project='zircon',
-                    manifest='manifest',
-                    remote='https://fuchsia.googlesource.com/zircon',
-                    target='x64',
-                    toolchain='gcc',
-                    use_kvm=False,
-                    use_isolate=False) +
-     api.step_data('run booted tests',
-         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
-  yield (api.test('ci_arm64_nokvm') +
-     api.properties(project='zircon',
-                    manifest='manifest',
-                    remote='https://fuchsia.googlesource.com/zircon',
-                    target='arm64',
-                    toolchain='gcc',
-                    use_kvm=False,
-                    use_isolate=False) +
-     api.step_data('run booted tests',
-         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
-  yield (api.test('device_without_isolate') +
-     api.properties(project='zircon',
-                    manifest='manifest',
-                    remote='https://fuchsia.googlesource.com/zircon',
-                    target='arm64',
-                    toolchain='gcc',
-                    device_type='Intel NUC Kit NUC6i3SYK',
-                    use_isolate=False))
-  yield (api.test('asan') +
-     api.properties(project='zircon',
-                    manifest='manifest',
-                    remote='https://fuchsia.googlesource.com/zircon',
-                    target='x64',
-                    toolchain='asan',
-                    use_isolate=False) +
-     api.step_data('run booted tests',
-         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
-  yield (api.test('lto') +
-     api.properties(project='zircon',
-                    manifest='manifest',
-                    remote='https://fuchsia.googlesource.com/zircon',
-                    target='x64',
-                    toolchain='lto',
-                    use_isolate=False) +
-     api.step_data('run booted tests',
-         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
-  yield (api.test('thinlto') +
-     api.properties(project='zircon',
-                    manifest='manifest',
-                    remote='https://fuchsia.googlesource.com/zircon',
-                    target='x64',
-                    toolchain='thinlto',
-                    use_isolate=False) +
-     api.step_data('run booted tests',
-         api.raw_io.stream_output('SUMMARY: Ran 2 tests: 0 failed')))
-  yield (api.test('cq_try') +
-     api.properties.tryserver(
-         gerrit_project='zircon',
-         patch_gerrit_url='fuchsia-review.googlesource.com',
-         project='zircon',
-         manifest='manifest',
-         remote='https://fuchsia.googlesource.com/zircon',
-         target='x64',
-         toolchain='clang',
-         use_isolate=False))
-  yield (api.test('no_run_tests') +
-     api.properties.tryserver(
-         project='zircon',
-         manifest='manifest',
-         remote='https://fuchsia.googlesource.com/zircon',
-         target='x64',
-         toolchain='clang',
-         run_tests=False,
-         use_isolate=False))
-  yield (api.test('failed_qemu') +
-      api.properties(project='zircon',
-                     manifest='manifest',
-                     remote='https://fuchsia.googlesource.com/zircon',
-                     target='x64',
-                     toolchain='gcc',
-                     use_isolate=False) +
-      api.step_data('run booted tests', retcode=1))
-  yield (api.test('qemu_timeout') +
-      api.properties(project='zircon',
-                     manifest='manifest',
-                     remote='https://fuchsia.googlesource.com/zircon',
-                     target='x64',
-                     toolchain='gcc',
-                     use_isolate=False) +
-      api.step_data('run booted tests', retcode=2))
-  yield (api.test('test_ouput') +
-      api.properties(project='zircon',
-                     manifest='manifest',
-                     remote='https://fuchsia.googlesource.com/zircon',
-                     target='x64',
-                     toolchain='gcc',
-                     use_isolate=False) +
-      api.step_data('run booted tests', api.raw_io.stream_output('')))
-  yield (api.test('goma_dir') +
-      api.properties(project='zircon',
-                     manifest='manifest',
-                     remote='https://fuchsia.googlesource.com/zircon',
-                     target='x64',
-                     toolchain='gcc',
-                     goma_dir='/path/to/goma',
-                     use_isolate=False) +
-      api.step_data('run booted tests', api.raw_io.stream_output('')))
-  # Step test data for triggering the core tests task.
-  core_tests_trigger_data = api.step_data(
-      'trigger core tests',
-      api.swarming.trigger(
-          'core tests',
-          'qemu',
-          task_id='10',
-      ),
-  )
   # Step test data for triggering the booted tests task.
   booted_tests_trigger_data = api.step_data(
       'trigger booted tests',
@@ -851,7 +639,16 @@ def GenTests(api):
       task_ids=['10', '11'],
       outputs=['output.fs'],
   ))
-  yield (api.test('use_isolate_arm64') +
+  # Step test data for triggering the core tests task.
+  core_tests_trigger_data = api.step_data(
+      'trigger core tests',
+      api.swarming.trigger(
+          'core tests',
+          'qemu',
+          task_id='10',
+      ),
+  )
+  yield (api.test('ci_arm64') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -860,7 +657,7 @@ def GenTests(api):
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
-  yield (api.test('use_isolate_arm64_nokvm') +
+  yield (api.test('ci_arm64_nokvm') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -870,7 +667,7 @@ def GenTests(api):
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
-  yield (api.test('use_isolate_x86') +
+  yield (api.test('ci_x86') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -879,7 +676,17 @@ def GenTests(api):
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
-  yield (api.test('use_isolate_device') +
+  yield (api.test('ci_x86_nokvm') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='x64',
+                     toolchain='gcc',
+                     use_kvm=False) +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('ci_device') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -890,17 +697,7 @@ def GenTests(api):
       api.step_data('collect', api.swarming.collect(
           outputs=['out.tar'],
       )))
-  yield (api.test('use_isolate_x86_nokvm') +
-      api.properties(project='zircon',
-                     manifest='manifest',
-                     remote='https://fuchsia.googlesource.com/zircon',
-                     target='x64',
-                     toolchain='gcc',
-                     use_kvm=False) +
-      core_tests_trigger_data +
-      booted_tests_trigger_data +
-      collect_data)
-  yield (api.test('use_isolate_failure') +
+  yield (api.test('task_failure') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -912,11 +709,60 @@ def GenTests(api):
           task_ids=['10', '11'],
           task_failure=True,
       )))
-  yield (api.test('symbolized_output') +
+  yield (api.test('asan') +
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
+                    target='x64',
+                    toolchain='asan') +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('lto') +
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
+                    target='x64',
+                    toolchain='lto') +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('thinlto') +
+     api.properties(project='zircon',
+                    manifest='manifest',
+                    remote='https://fuchsia.googlesource.com/zircon',
+                    target='x64',
+                    toolchain='thinlto') +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('cq_try') +
+     api.properties.tryserver(
+         gerrit_project='zircon',
+         patch_gerrit_url='fuchsia-review.googlesource.com',
+         project='zircon',
+         manifest='manifest',
+         remote='https://fuchsia.googlesource.com/zircon',
+         target='x64',
+         toolchain='clang') +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('no_run_tests') +
+     api.properties.tryserver(
+         project='zircon',
+         manifest='manifest',
+         remote='https://fuchsia.googlesource.com/zircon',
+         target='x64',
+         toolchain='clang',
+         run_tests=False))
+  yield (api.test('goma_dir') +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
                      toolchain='gcc',
-                     use_isolate=False) +
-      api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n')))
+                     goma_dir='/path/to/goma') +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)

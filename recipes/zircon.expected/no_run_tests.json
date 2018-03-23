@@ -188,15 +188,19 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 500\nruntests",
+      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output\numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/zircon_tmp/runcmds"
     ],
     "infra_step": true,
     "name": "write runcmds",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@runcmds.sh@#!/boot/bin/sh@@@",
-      "@@@STEP_LOG_LINE@runcmds.sh@msleep 500@@@",
-      "@@@STEP_LOG_LINE@runcmds.sh@runtests@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@mkdir /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@runtests -o /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@umount /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds.sh@@@"
     ]
   },
