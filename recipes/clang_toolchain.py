@@ -58,10 +58,6 @@ def RunSteps(api, url, ref, revision):
     api.step('Package is up-to-date', cmd=None)
     return
 
-  with api.context(infra_steps=True):
-    llvm_dir = api.path['start_dir'].join('llvm-project')
-    api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
-
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
@@ -82,13 +78,18 @@ def RunSteps(api, url, ref, revision):
   pkg_dir = staging_dir.join(pkg_name)
   api.file.ensure_directory('create pkg dir', pkg_dir)
 
-  # Build Zircon sysroot.
-  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
   api.fuchsia.checkout(
       manifest='manifest/garnet',
       remote='https://fuchsia.googlesource.com/garnet',
       project='garnet',
   )
+
+  with api.context(infra_steps=True):
+    llvm_dir = api.path['start_dir'].join('llvm-project')
+    api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
+
+  # Build Zircon sysroot.
+  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
   sysroot = {}
   for tc_arch, gn_arch in TARGETS:
     build = api.fuchsia.build(

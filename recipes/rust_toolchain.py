@@ -103,10 +103,6 @@ def RunSteps(api, url, ref, revision):
     api.step('Package is up-to-date', cmd=None)
     return
 
-  with api.context(infra_steps=True):
-    rust_dir = api.path['start_dir'].join('rust')
-    api.git.checkout(url, rust_dir, ref=revision)
-
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
@@ -117,13 +113,18 @@ def RunSteps(api, url, ref, revision):
         'fuchsia/clang/${platform}': 'goma',
       })
 
-  # Build Zircon sysroot.
-  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
   api.fuchsia.checkout(
       manifest='manifest/garnet',
       remote='https://fuchsia.googlesource.com/garnet',
       project='garnet',
   )
+
+  with api.context(infra_steps=True):
+    rust_dir = api.path['start_dir'].join('rust')
+    api.git.checkout(url, rust_dir, ref=revision)
+
+  # Build Zircon sysroot.
+  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
   sysroot = {}
   for tc_arch, gn_arch in TARGETS:
     build = api.fuchsia.build(
