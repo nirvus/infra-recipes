@@ -161,8 +161,8 @@ def RunSteps(api, binutils_revision, gcc_revision):
           ]:
             error.result.presentation.logs[log[0]] = api.file.read_text(
                 'binutils %s %s' % (target, '/'.join(log)),
-                binutils_build_dir.join(*log))
-            raise error
+                binutils_build_dir.join(*log)).splitlines()
+          raise error
         binutils_make_step('install', 'install-strip', 1,
                            ['DESTDIR=%s' % pkg_dir])
 
