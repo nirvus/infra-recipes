@@ -302,7 +302,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/bin/sh\n./qemu/bin/qemu-system-aarch64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd qemu-bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true userboot=bin/core-tests userboot.shutdown' -machine virt,gic_version=host -enable-kvm -cpu host",
+      "#!/bin/sh\n./qemu/bin/qemu-system-aarch64 -m 4096 -smp 4 -nographic -kernel qemu-zircon.bin -serial stdio -monitor none -initrd qemu-bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true userboot=bin/core-tests userboot.shutdown' -machine virt,gic_version=host -enable-kvm -cpu host",
       "[START_DIR]/run-qemu-core.sh"
     ],
     "infra_step": true,
@@ -333,7 +333,7 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/zircon/build-arm64:zircon.bin",
+      "[START_DIR]/zircon/build-arm64:qemu-zircon.bin",
       "-files",
       "[START_DIR]/zircon/build-arm64:qemu-bootdata.bin",
       "-files",

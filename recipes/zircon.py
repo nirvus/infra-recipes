@@ -40,6 +40,11 @@ TARGET_TO_ARCH = dict(zip(
     TARGETS,
     ['x86_64', 'aarch64'],
 ))
+# The kernel image.
+TARGET_TO_KERNEL_IMAGE = dict(zip(
+    TARGETS,
+    ['zircon.bin', 'qemu-zircon.bin'],
+))
 # The boot filesystem image.
 TARGET_TO_BOOT_IMAGE = dict(zip(
     TARGETS,
@@ -64,9 +69,6 @@ CORE_TESTS_MATCH = r'CASES: +(\d+) +SUCCESS: +(\d+) +FAILED: +(?P<failed>\d+)'
 
 # Test summary from the runtests command on a booted system.
 BOOTED_TESTS_MATCH = r'SUMMARY: Ran (\d+) tests: (?P<failed>\d+) failed'
-
-# The kernel binary to pass to qemu.
-ZIRCON_IMAGE_NAME = 'zircon.bin'
 
 # The path under /boot to the runcmds script (which runs tests) in the zircon
 # bootfs.
@@ -172,11 +174,12 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     build_dir (Path): Path to the build directory.
     device_type (Enum(*DEVICES)): The type of device to run tests on.
   """
+  kernel_name = TARGET_TO_KERNEL_IMAGE[target]
   ramdisk_name = TARGET_TO_BOOT_IMAGE[target]
   output_archive_name = 'out.tar'
   botanist_cmd = [
     './botanist/botanist',
-    '-kernel', ZIRCON_IMAGE_NAME,
+    '-kernel', kernel_name,
     '-ramdisk', ramdisk_name,
     '-test', api.fuchsia.target_test_dir(),
     '-out', output_archive_name,
@@ -185,7 +188,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
 
   # Isolate all necessary build artifacts.
   isolated = api.isolated.isolated()
-  isolated.add_file(build_dir.join(ZIRCON_IMAGE_NAME), wd=build_dir)
+  isolated.add_file(build_dir.join(kernel_name), wd=build_dir)
   isolated.add_file(build_dir.join(ramdisk_name), wd=build_dir)
   digest = isolated.archive('isolate zircon artifacts')
 
@@ -323,7 +326,7 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
 
   # Isolate all necessary build artifacts as well as the MinFS image.
   isolated = api.isolated.isolated()
-  isolated.add_file(build_dir.join(ZIRCON_IMAGE_NAME), wd=build_dir)
+  isolated.add_file(build_dir.join(TARGET_TO_KERNEL_IMAGE[target]), wd=build_dir)
   isolated.add_file(build_dir.join(TARGET_TO_BOOT_IMAGE[target]), wd=build_dir)
   isolated.add_file(test_image, wd=api.path['start_dir'])
   isolated.add_file(qemu_runner_core, wd=api.path['start_dir'])
@@ -385,7 +388,7 @@ def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
     '-m', '4096',
     '-smp', '4',
     '-nographic',
-    '-kernel', ZIRCON_IMAGE_NAME,
+    '-kernel', TARGET_TO_KERNEL_IMAGE[target],
     '-serial', 'stdio',
     '-monitor', 'none',
     '-initrd', TARGET_TO_BOOT_IMAGE[target],
@@ -669,7 +672,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         RunTestsOnDevice(api, target, build_dir, device_type)
     else:
       bootfs_path = build_dir.join(TARGET_TO_BOOT_IMAGE[target])
-      image_path = build_dir.join(ZIRCON_IMAGE_NAME)
+      image_path = build_dir.join(TARGET_TO_KERNEL_IMAGE[target])
 
       # Run core tests with userboot.
       RunTests(api, 'run core tests', build_dir, TARGET_TO_ARCH[target], image_path,

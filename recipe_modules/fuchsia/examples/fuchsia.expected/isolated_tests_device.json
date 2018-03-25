@@ -522,7 +522,7 @@
       "-files",
       "[START_DIR]/out/debug-arm64:netboot-qemu.bin",
       "-files",
-      "[START_DIR]/out/build-zircon/build-arm64:zircon.bin",
+      "[START_DIR]/out/build-zircon/build-arm64:qemu-zircon.bin",
       "-files",
       "[START_DIR]/out/debug-arm64/images:fvm.blk",
       "-files",

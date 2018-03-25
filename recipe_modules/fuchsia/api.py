@@ -11,13 +11,16 @@ import re
 
 
 # List of available targets.
-TARGETS = ['arm64', 'x64']
+TARGETS = ['x64', 'arm64']
+
+# The kernel image.
+TARGET_TO_KERNEL_IMAGE = dict(zip(
+    TARGETS,
+    ['zircon.bin', 'qemu-zircon.bin'],
+))
 
 # List of available build types.
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
-
-# The kernel binary to pass to qemu.
-ZIRCON_IMAGE_NAME = 'zircon.bin'
 
 # The name of the CoW Fuchsia image to create.
 FUCHSIA_IMAGE_NAME = 'fuchsia.qcow2'
@@ -315,10 +318,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
       symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
       symbolize_result.presentation.status = self.m.step.FAILURE
 
-  def _isolate_artifacts(self, ramdisk_name, zircon_build_dir, fuchsia_build_dir, extra_files=()):
+  def _isolate_artifacts(self, kernel_name, ramdisk_name, zircon_build_dir, fuchsia_build_dir, extra_files=()):
     """Isolates known Fuchia build artifacts necessary for testing.
 
     Args:
+      kernel_name (str): The name of the zircon kernel image.
       ramdisk_name (str): The name of the zircon ramdisk image.
       zircon_build_dir (Path): A path to the build artifacts produced by
         building Zircon.
@@ -336,7 +340,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     isolated = self.m.isolated.isolated()
 
     # Add zircon image to isolated at the top-level.
-    isolated.add_file(zircon_build_dir.join(ZIRCON_IMAGE_NAME), wd=zircon_build_dir)
+    isolated.add_file(zircon_build_dir.join(kernel_name), wd=zircon_build_dir)
 
     # Add ramdisk binary blob to isolated at the top-level.
     isolated.add_file(fuchsia_build_dir.join(ramdisk_name), wd=fuchsia_build_dir)
@@ -380,6 +384,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build.has_tests
     self.m.swarming.ensure_swarming(version='latest')
 
+    kernel_name = TARGET_TO_KERNEL_IMAGE[build.target]
     ramdisk_name = 'bootdata-blob-%s.bin' % _board_name(build.target)
     qemu_arch = {
       'arm64': 'aarch64',
@@ -406,7 +411,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '-smp', '4',
       '-nographic',
       '-machine', {'aarch64': 'virt,gic_version=host', 'x86_64': 'q35'}[qemu_arch],
-      '-kernel', ZIRCON_IMAGE_NAME,
+      '-kernel', kernel_name,
       '-serial', 'stdio',
       '-monitor', 'none',
       '-initrd', ramdisk_name,
@@ -453,6 +458,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Isolate the Fuchsia build artifacts in addition to the test image and the
     # qemu runner.
     isolated_hash = self._isolate_artifacts(
+        kernel_name,
         ramdisk_name,
         build.zircon_build_dir,
         build.fuchsia_build_dir,
@@ -530,12 +536,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.swarming.ensure_swarming(version='latest')
 
     # Construct the botanist command.
+    kernel_name = TARGET_TO_KERNEL_IMAGE[build.target]
     ramdisk_name = 'netboot-%s.bin' % _board_name(build.target)
     output_archive_name = 'out.tar'
     botanist_cmd = [
       './botanist/botanist',
       '-config', '/etc/botanist/config.json',
-      '-kernel', ZIRCON_IMAGE_NAME,
+      '-kernel', kernel_name,
       '-ramdisk', ramdisk_name,
       '-test', self.target_test_dir(),
       '-out', output_archive_name,
@@ -544,6 +551,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Isolate the Fuchsia build artifacts.
     isolated_hash = self._isolate_artifacts(
+        kernel_name,
         ramdisk_name,
         build.zircon_build_dir,
         build.fuchsia_build_dir,
