@@ -81,6 +81,15 @@ TEST_FS_PCI_ADDR = '06.0'
 # no output being produced.
 TEST_IO_TIMEOUT_SECS = 60
 
+# Exit code that QEMU may return if running Zircon on x64.
+# More specifically, this is necessary because for Zircon to shutdown graceful
+# when it's executing core-tests (e.g. kernel command line
+# "userboot=bin/core-tests userboot.shutdown") it writes a value to a specially
+# declared I/O port. That value ("val") is used to compute the return code as
+# ("val" << 1) | 1, which effectively means it will always be odd and non-zero.
+# This magic number of 31 is that computed return code.
+ZIRCON_QEMU_SUCCESS_CODE = 31
+
 PROPERTIES = {
   'category': Property(kind=str, help='Build category', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
@@ -268,6 +277,30 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
       blkdev=output_image_name,
   )
 
+  # When executing core-tests, QEMU's return code will be
+  # ZIRCON_QEMU_SUCCESS_CODE on x64 due to the way userboot.shutdown is
+  # initiated. Catch that here, and exit gracefully with a return code of 0
+  # so Swarming doesn't report a failure.
+  qemu_runner_core_name = 'run-qemu-core.sh'
+  qemu_runner_core = api.path['start_dir'].join(qemu_runner_core_name)
+  qemu_runner_core_script = [
+    '#!/bin/sh',
+    ' '.join(map(pipes.quote, core_tests_qemu_cmd)),
+  ]
+  if target == 'x64':
+    qemu_runner_core_script.extend([
+      'rc=$?',
+      'if [ "$rc" -eq "%d" ]; then' % ZIRCON_QEMU_SUCCESS_CODE,
+      '  exit 0',
+      'fi',
+      'exit $rc',
+    ])
+  api.file.write_text(
+      'write qemu runner for core-tests',
+      qemu_runner_core,
+      '\n'.join(qemu_runner_core_script),
+  )
+
   # Create a qemu runner script which trivially copies the blank MinFS image
   # to hold test results, in order to work around a bug in swarming where
   # modifying cached isolate downloads will modify the cache contents.
@@ -293,6 +326,7 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
   isolated.add_file(build_dir.join(ZIRCON_IMAGE_NAME), wd=build_dir)
   isolated.add_file(build_dir.join(TARGET_TO_BOOT_IMAGE[target]), wd=build_dir)
   isolated.add_file(test_image, wd=api.path['start_dir'])
+  isolated.add_file(qemu_runner_core, wd=api.path['start_dir'])
   isolated.add_file(qemu_runner, wd=api.path['start_dir'])
   digest = isolated.archive('isolate zircon artifacts')
 
@@ -300,7 +334,7 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
   core_task = TriggerTestsTask(
       api=api,
       name='core tests',
-      cmd=core_tests_qemu_cmd,
+      cmd=['/bin/sh', './' + qemu_runner_core_name],
       arch=arch,
       use_kvm=use_kvm,
       isolated_hash=digest,
