@@ -339,7 +339,7 @@
       "/tmp/infra-test-output",
       "-out",
       "out.tar",
-      "zircon.autorun.system=/system/data/infra/runcmds"
+      "zircon.autorun.boot=/boot/infra/runcmds"
     ],
     "infra_step": true,
     "name": "trigger booted tests",

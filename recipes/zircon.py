@@ -180,7 +180,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     '-ramdisk', ramdisk_name,
     '-test', api.fuchsia.target_test_dir(),
     '-out', output_archive_name,
-    'zircon.autorun.system=/system/data/infra/runcmds',
+    'zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH,
   ]
 
   # Isolate all necessary build artifacts.
