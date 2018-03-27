@@ -30,6 +30,7 @@
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
   * [cobalt](#recipes-cobalt) &mdash; Recipe for building and testing Cobalt.
   * [dart](#recipes-dart) &mdash; Builds the Fuchsia Dart test image and runs the Dart tests.
+  * [dart_toolchain](#recipes-dart_toolchain) &mdash; Recipe for building Dart toolchain.
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia:examples/fuchsia](#recipes-fuchsia_examples_fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia_perf](#recipes-fuchsia_perf) &mdash; Recipe for building Fuchsia and running performance tests.
@@ -872,6 +873,13 @@ Recipe for building and testing Cobalt.
 Builds the Fuchsia Dart test image and runs the Dart tests.
 
 &mdash; **def [RunSteps](/recipes/dart.py#38)(api, manifest, remote, target, build_type):**
+### *recipes* / [dart\_toolchain](/recipes/dart_toolchain.py)
+
+[DEPS](/recipes/dart_toolchain.py#12): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe for building Dart toolchain.
+
+&mdash; **def [RunSteps](/recipes/dart_toolchain.py#38)(api, url, ref, revision):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#21): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
