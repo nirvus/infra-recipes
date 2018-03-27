@@ -152,16 +152,20 @@ def RunSteps(api, binutils_revision, gcc_revision):
         binutils_make_step('build', 'all', api.goma.recommended_goma_jobs)
         try:
           binutils_make_step('test', 'check', api.platform.cpu_count,['-k'])
-        except StepFailure as error: # pragma: no cover
-          for log in [
+        except StepFailure as error:
+          logs = {
+            l[0]: api.file.read_text('binutils %s %s' % (target, '/'.join(l)),
+                                     binutils_build_dir.join(*l)).splitlines()
+            for l in [
               ('gas', 'testsuite', 'gas.log'),
               ('binutils', 'binutils.log'),
               ('ld', 'ld.log'),
               ('gold', 'testsuite', 'test-suite.log'),
-          ]:
-            error.result.presentation.logs[log[0]] = api.file.read_text(
-                'binutils %s %s' % (target, '/'.join(log)),
-                binutils_build_dir.join(*log)).splitlines()
+            ]
+          }
+          step_result = api.step('binutils test failure', cmd=None)
+          for name, text in logs.iteritems():
+            step_result.presentation.logs[name] = text
           raise error
         binutils_make_step('install', 'install-strip', 1,
                            ['DESTDIR=%s' % pkg_dir])
@@ -253,6 +257,16 @@ def GenTests(api):
            api.step_data('binutils version', api.file.read_text(
                'm4_define([BFD_VERSION], [2.27.0])')) +
            api.step_data('gcc version', api.file.read_text('7.1.2\n')) +
+           api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
+                         'git_revision:' + cipd_revision,
+                         api.json.output({'result': []})))
+    yield (api.test(platform + '_error') +
+           api.platform.name(platform) +
+           api.gitiles.refs('binutils refs',
+                            (BINUTILS_REF, binutils_revision)) +
+           api.gitiles.refs('gcc refs',
+                            (GCC_REF, gcc_revision)) +
+           api.step_data('test x86_64 binutils', retcode=1) +
            api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
                          'git_revision:' + cipd_revision,
                          api.json.output({'result': []})))
