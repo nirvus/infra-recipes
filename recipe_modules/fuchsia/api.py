@@ -165,6 +165,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     test_dir = self.target_test_dir()
     runcmds = [
       '#!/boot/bin/sh',
+      # TODO(ZX-1903): Replace this with a way to block until PCI enumeration
+      # has finished.
       'msleep 5000',
       'mkdir %s' % test_dir,
     ]

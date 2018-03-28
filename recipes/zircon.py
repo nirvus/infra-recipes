@@ -542,8 +542,10 @@ def Build(api, target, toolchain, src_dir, use_isolate, needs_blkdev):
     target_test_dir = api.fuchsia.target_test_dir()
     runcmds = [
       '#!/boot/bin/sh',
-      # 1. Wait for devmgr to spin up.
-      'msleep 1000',
+      # 1. Wait for devmgr to bring up devices.
+      # TODO(ZX-1903): Replace this with a way to block until PCI enumeration
+      # has finished.
+      'msleep 5000',
       # 2. Make a test directory.
       'mkdir %s' % target_test_dir,
     ]
