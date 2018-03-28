@@ -75,6 +75,19 @@ def RunSteps(api, binutils_revision, gcc_revision):
         })
       api.cipd.ensure(cipd_dir, packages)
 
+  if api.platform.name == 'linux':
+    host_sysroot = cipd_dir
+  elif api.platform.name == 'mac':
+    # TODO(IN-148): Eventually use our own hermetic sysroot as for Linux.
+    step_result = api.step(
+        'xcrun', ['xcrun', '--show-sdk-path'],
+        stdout=api.raw_io.output(name='sdk-path', add_output_log=True),
+        step_test_data=lambda: api.raw_io.test_api.stream_output(
+            '/some/xcode/path'))
+    host_sysroot = step_result.stdout.strip()
+  else: # pragma: no cover
+    assert false, "what platform?"
+
   with api.context(infra_steps=True):
     binutils_dir = api.path['start_dir'].join('binutils-gdb')
     api.git.checkout(BINUTILS_GIT, binutils_dir, ref=binutils_revision)
@@ -105,10 +118,8 @@ def RunSteps(api, binutils_revision, gcc_revision):
       'CXXFLAGS': '%s -static-libstdc++' % host_cflags,
   }
 
-  extra_args = []
-  if api.platform.name == 'linux':
-    host_compiler_args['--with-build-sysroot'] = cipd_dir
-    extra_args.append('--with-build-sysroot=%s' % cipd_dir)
+  host_compiler_args['--with-build-sysroot'] = host_sysroot
+  extra_args = [ '--with-build-sysroot=%s' % host_sysroot ]
 
   if api.platform.name == 'mac':
     # Needed to work around problem with clang compiler and some generated
@@ -248,12 +259,16 @@ def GenTests(api):
                             (BINUTILS_REF, binutils_revision)) +
            api.gitiles.refs('gcc refs',
                             (GCC_REF, gcc_revision)))
-    yield (api.test(platform + '_new') +
-           api.platform.name(platform) +
-           api.gitiles.refs('binutils refs',
-                            (BINUTILS_REF, binutils_revision)) +
-           api.gitiles.refs('gcc refs',
-                            (GCC_REF, gcc_revision)) +
+    testdata = (api.test(platform + '_new') +
+                api.platform.name(platform) +
+                api.gitiles.refs('binutils refs',
+                                 (BINUTILS_REF, binutils_revision)) +
+                api.gitiles.refs('gcc refs',
+                                 (GCC_REF, gcc_revision)))
+    if platform == 'mac':
+      testdata += api.step_data('xcrun',
+                                stdout=api.raw_io.output('/some/xcode/path'))
+    yield (testdata +
            api.step_data('binutils version', api.file.read_text(
                'm4_define([BFD_VERSION], [2.27.0])')) +
            api.step_data('gcc version', api.file.read_text('7.1.2\n')) +

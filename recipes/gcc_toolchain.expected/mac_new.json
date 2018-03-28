@@ -173,6 +173,18 @@
   },
   {
     "cmd": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "name": "xcrun",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@raw_io.output[sdk-path]@/some/xcode/path@@@",
+      "@@@STEP_LOG_END@raw_io.output[sdk-path]@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -443,6 +455,7 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
+      "--with-build-sysroot=/some/xcode/path",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
       "CFLAGS=-O3",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
@@ -546,6 +559,7 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
+      "--with-build-sysroot=/some/xcode/path",
       "CFLAGS=-fbracket-depth=1024 -g -O2",
       "CXXFLAGS=-fbracket-depth=1024 -g -O2"
     ],
@@ -614,6 +628,7 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
+      "--with-build-sysroot=/some/xcode/path",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
       "CFLAGS=-O3",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
@@ -689,6 +704,7 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
+      "--with-build-sysroot=/some/xcode/path",
       "CFLAGS=-fbracket-depth=1024 -g -O2",
       "CXXFLAGS=-fbracket-depth=1024 -g -O2"
     ],
