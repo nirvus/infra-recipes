@@ -300,19 +300,19 @@ UPDATE_CHECKOUT_CONFIG = """
     "branch-schemes": {
         "fuchsia": {
             "repos": {
-                "compiler-rt": "61fa9e3fd80fb9c2abc71e34b254c1c8b12c9c71",
-                "llvm": "cf0f1343596c56da3cbf3e98900b0402248d1c61",
-                "swift-corelibs-foundation": "ad2f29b446c6aba991f250500d2e6f3a8706c6fa",
-                "clang": "ef223bbbebb24d836334f2712d9ca68ff265269b",
-                "llbuild": "473365152503f0fce2cde3be7f7dcb9699fdca87",
+                "compiler-rt": "dfe85d634bd270b34252c97fd97bd14f6baa0a2f",
+                "llvm": "8eb8559f587b807e9ad83f5fcb117cd4b5d72888",
+                "swift-corelibs-foundation": "2022d3e4407ed58103190c04f9426843ffb59efb",
+                "clang": "9b5b1dc91898a1e33885396cde2b6b5b52c64b25",
+                "llbuild": "57a3aaaf9a76048e9bfc22b927f27ac95a6ba510",
                 "cmark": "d875488a6a95d5487b7c675f79a8dafef210a65f",
-                "lldb": "14981bfc6cb9a482e729d6411b6be1ac5d8a12e4",
-                "swiftpm": "0297d83f1c991ae7e5e74fa39849b0b70b9f387f",
-                "swift-corelibs-xctest": "732d9533c70dca9ede2c745b64a11f8c7dc7f824",
+                "lldb": "4d8af682b97eeadc6f6000243ff0d50c84487364",
+                "swiftpm": "58a1d0b42d829dbc9034eed673f0f2c01f519463",
+                "swift-corelibs-xctest": "01e6126d1cd1c5a81e7a1695487c09d57261577c",
                 "ninja": "253e94c1fa511704baeb61cf69995bbf09ba435e",
                 "swift-integration-tests": "01eecd5a83279635823e78101a538132784bc628",
-                "swift": "6058ffab78270a048e27047292becc847fbc0184",
-                "swift-corelibs-libdispatch": "e52c174b1f1883eebad6ba7bdd54edbd4736617e"
+                "swift": "a4d6bbf5ba33bf0b55b33157e89d1336729a1f55",
+                "swift-corelibs-libdispatch": "f151b33ec3c0b4df89fc190d1db45c5908e0961d"
             },
             "aliases": [
                 "fuchsia"
