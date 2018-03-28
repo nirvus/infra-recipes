@@ -363,7 +363,8 @@ def RunSteps(api, url, ref, revision, mock_build):
   fuchsia_build = {}
   for tc_arch, gn_arch in TARGETS:
     fuchsia_build[gn_arch] = api.fuchsia.build(
-        gn_arch, 'release', ['garnet/packages/default'])
+        target=gn_arch, build_type='release',
+        packages=['garnet/packages/default'])
 
   # build swift
   staging_dir = api.path.mkdtemp('swift')
