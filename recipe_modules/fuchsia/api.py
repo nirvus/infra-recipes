@@ -209,7 +209,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     return goma_env
 
-  def _build_fuchsia(self, build, build_type, packages, variants, gn_args):
+  def _build_fuchsia(self, build, build_type, packages, variants,
+                     gn_args, ninja_targets):
     """Builds fuchsia given a FuchsiaBuildResults and other GN options."""
     goma_env = self._setup_goma()
     with self.m.step.nest('build fuchsia'):
@@ -246,11 +247,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
         ]
 
         ninja_cmd.extend(['-j', self.m.goma.recommended_goma_jobs])
+        ninja_cmd.extend(ninja_targets)
 
         self.m.step('ninja', ninja_cmd)
 
   def build(self, target, build_type, packages, variants=(), gn_args=(),
-            test_cmds=(), test_in_qemu=True):
+            ninja_targets=(), test_cmds=(), test_in_qemu=True):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -262,6 +264,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       variants (sequence[str]): A sequence of build variants to pass to gen.py
         via --variant
       gn_args (sequence[str]): Additional arguments to pass to GN
+      ninja_targets (sequence[str]): Additional target args to pass to ninja
       test_cmds (sequence[str]): A sequence of commands to run on the device
         during testing. If empty, no test package will be added to the build.
       test_in_qemu (bool): Whether or not the tests will be run in QEMU.
@@ -288,7 +291,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     )
     with self.m.step.nest('build'):
       self._build_zircon(target)
-      self._build_fuchsia(build, build_type, packages, variants, gn_args)
+      self._build_fuchsia(build=build, build_type=build_type, packages=packages,
+                          variants=variants, gn_args=gn_args,
+                          ninja_targets=ninja_targets)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
     return build
 

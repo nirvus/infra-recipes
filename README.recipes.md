@@ -236,7 +236,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#581)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#586)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -250,7 +250,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#623)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#628)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -261,7 +261,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#252)(self, target, build_type, packages, variants=(), gn_args=(), test_cmds=(), test_in_qemu=True):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#254)(self, target, build_type, packages, variants=(), gn_args=(), ninja_targets=(), test_cmds=(), test_in_qemu=True):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -274,6 +274,7 @@ Args:
   variants (sequence[str]): A sequence of build variants to pass to gen.py
     via --variant
   gn_args (sequence[str]): Additional arguments to pass to GN
+  ninja_targets (sequence[str]): Additional target args to pass to ninja
   test_cmds (sequence[str]): A sequence of commands to run on the device
     during testing. If empty, no test package will be added to the build.
   test_in_qemu (bool): Whether or not the tests will be run in QEMU.
@@ -299,11 +300,11 @@ Args:
   timeout_secs (int): How long to wait for the checkout to complete
       before failing
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#355)(self):**
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#360)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#359)(self, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#364)(self, build, timeout_secs=(40 \* 60)):**
 
 Tests a Fuchsia build inside of QEMU.
 
@@ -318,7 +319,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [test\_on\_device](/recipe_modules/fuchsia/api.py#506)(self, device_type, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test\_on\_device](/recipe_modules/fuchsia/api.py#511)(self, device_type, build, timeout_secs=(40 \* 60)):**
 
 Tests a Fuchsia on a specific device.
 
@@ -893,7 +894,7 @@ Recipe for building Fuchsia and running tests.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#59)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, target, build_type, packages, variants, gn_args, run_tests, runtests_args, device_type, upload_snapshot):**
+&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#62)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, upload_snapshot):**
 ### *recipes* / [fuchsia\_perf](/recipes/fuchsia_perf.py)
 
 [DEPS](/recipes/fuchsia_perf.py#25): [catapult](#recipe_modules-catapult), [fuchsia](#recipe_modules-fuchsia), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]

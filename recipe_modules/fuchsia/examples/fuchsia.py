@@ -41,6 +41,9 @@ PROPERTIES = {
                       help='--variant arguments to gen.py', default=[]),
   'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
                       default=[]),
+  'ninja_targets': Property(kind=List(basestring),
+                            help='Extra target args to pass to ninja',
+                            default=[]),
   'run_tests': Property(kind=bool,
                         help='Whether to run tests or not',
                         default=False),
@@ -57,8 +60,9 @@ PROPERTIES = {
 
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
-             remote, target, build_type, packages, variants, gn_args, run_tests,
-             runtests_args, device_type, upload_snapshot):
+             remote, target, build_type, packages, variants, gn_args,
+             ninja_targets, run_tests, runtests_args, device_type,
+             upload_snapshot):
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -75,6 +79,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       packages=packages,
       variants=variants,
       gn_args=gn_args,
+      ninja_targets=ninja_targets,
       test_cmds=['runtests' + runtests_args] if run_tests else None,
       test_in_qemu=test_in_qemu,
   )
@@ -282,6 +287,16 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       tryjob=True,
       gn_args=['super_arg=false', 'less_super_arg=true'],
+  )
+  yield api.test('ninja_targets') + api.properties.tryserver(
+      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_ref='refs/changes/23/123/12',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      tryjob=True,
+      ninja_targets=['//target:one', '//target:two'],
   )
   yield api.test('manifest') + api.properties.tryserver(
       patch_project='manifest',
