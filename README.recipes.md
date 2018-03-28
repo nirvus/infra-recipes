@@ -60,7 +60,7 @@
   * [swift_toolchain](#recipes-swift_toolchain) &mdash; Recipe for building Swift toolchain.
   * [tar:examples/full](#recipes-tar_examples_full)
   * [third_party_rust_crates](#recipes-third_party_rust_crates) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
-  * [web_view](#recipes-web_view) &mdash; Recipe for building WebView.
+  * [web_view](#recipes-web_view) &mdash; Recipe for building libwebkit.
   * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
 ## Recipe Modules
 
@@ -1107,11 +1107,11 @@ Recipe for checking licenses in the repo hosting third-party Rust crates.
 &mdash; **def [RunSteps](/recipes/third_party_rust_crates.py#31)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url):**
 ### *recipes* / [web\_view](/recipes/web_view.py)
 
-[DEPS](/recipes/web_view.py#11): [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/web_view.py#11): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-Recipe for building WebView.
+Recipe for building libwebkit.so.
 
-&mdash; **def [RunSteps](/recipes/web_view.py#38)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target):**
+&mdash; **def [RunSteps](/recipes/web_view.py#48)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, remote, manifest, project, target, upload_snapshot):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
 [DEPS](/recipes/zircon.py#15): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]

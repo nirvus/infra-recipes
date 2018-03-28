@@ -74,6 +74,22 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-v",
+      "-time",
+      "-host",
+      "fuchsia-review.googlesource.com",
+      "-project",
+      "fuchsia",
+      "-rebase=true",
+      "refs/changes/89/456789/12"
+    ],
+    "infra_step": true,
+    "name": "jiri patch"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
       "-v",
       "-time",
@@ -107,78 +123,19 @@
     ]
   },
   {
-    "cmd": [],
-    "infra_step": true,
-    "name": "ensure_gsutil"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "snapshot",
+      "update",
       "-v",
       "-time",
-      "[TMP_BASE]/jiri.snapshot"
+      "-autoupdate=false",
+      "-attempts=3",
+      "-gc=true",
+      "-rebase-tracked",
+      "-local-manifest=true"
     ],
     "infra_step": true,
-    "name": "jiri snapshot"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[TMP_BASE]/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "hash snapshot",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[TMP_BASE]/jiri.snapshot",
-      "gs://fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97@@@"
-    ]
+    "name": "jiri update (2)"
   },
   {
     "cmd": [
@@ -390,55 +347,6 @@
     "name": "build.build fuchsia.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_gsutil (2)"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[START_DIR]/out/release-x64/x64-shared/libwebkit.so",
-      "gs://fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/libwebkit.so"
-    ],
-    "infra_step": true,
-    "name": "upload libwebkit.so",
-    "~followup_annotations": [
-      "@@@STEP_LINK@libwebkit.so@https://storage.googleapis.com/fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/libwebkit.so@@@"
     ]
   },
   {
