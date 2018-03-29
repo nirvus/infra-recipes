@@ -108,6 +108,10 @@ def RunSteps(api, binutils_revision, gcc_revision):
   host_clang = '%s %s' % (api.goma.goma_dir.join('gomacc'),
                           cipd_dir.join('bin', 'clang'))
   host_cflags = '-O3 --sysroot=%s' % host_sysroot
+  # Needed to work around problem with clang compiler and some generated
+  # code in gcc.
+  # TODO(mcgrathr): Remove this after updating gcc.
+  host_cflags += ' -fbracket-depth=1024'
   if api.platform.name != 'mac':
     # LTO works for binutils on Linux but fails on macOS.
     host_cflags += ' -flto'
@@ -121,25 +125,11 @@ def RunSteps(api, binutils_revision, gcc_revision):
   host_compiler_args = sorted('%s=%s' % item
                               for item in host_compiler_args.iteritems())
 
-  # TODO(mcgrathr): Still using host compiler for gcc until we get
-  # to a newer gcc that builds happily with clang.
-  gcc_host_cflags = '-O2 --sysroot=%s' % host_sysroot
-  if api.platform.name == 'mac':
-    # Needed to work around problem with clang compiler and some generated
-    # code in gcc.
-    gcc_host_cflags += ' -fbracket-depth=1024'
-  gcc_host_compiler_args = {
-      'CFLAGS': gcc_host_cflags,
-      'CXXFLAGS': '%s -static-libstdc++' % gcc_host_cflags,
-  }
-  extra_args = sorted('%s=%s' % item
-                      for item in gcc_host_compiler_args.iteritems())
-
   with api.goma.build_with_goma():
     for target, enable_targets in [('aarch64', 'arm-eabi'),
                                    ('x86_64', 'x86_64-pep')]:
       # configure arguments that are the same for binutils and gcc.
-      common_args = [
+      common_args =  host_compiler_args + [
           '--prefix=', # we're building a relocatable package
           '--target=%s-elf' % target,
           '--enable-initfini-array', # Fuchsia uses .init/.fini arrays
@@ -164,7 +154,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
           binutils_dir.join('configure'),
           '--enable-deterministic-archives', # more deterministic builds
           '--enable-targets=%s' % enable_targets,
-        ] + common_args + host_compiler_args)
+        ] + common_args)
         binutils_make_step('build', 'all', api.goma.recommended_goma_jobs)
         try:
           binutils_make_step('test', 'check', api.platform.cpu_count,['-k'])
@@ -198,8 +188,8 @@ def RunSteps(api, binutils_revision, gcc_revision):
           '--enable-languages=c,c++',
           '--disable-libstdcxx', # we don't need libstdc++
           '--disable-libssp', # we don't need libssp either
-          '--disable-libquadmath', # and neither we need libquadmath
-        ] + common_args + extra_args)
+          '--disable-libquadmath', # and nor do we need libquadmath
+        ] + common_args)
         api.step('build %s gcc' % target, [
           'make',
           '-j%s' % api.platform.cpu_count,
