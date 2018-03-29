@@ -73,7 +73,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
   build = api.fuchsia.build(
       target=target,
       build_type=BUILD_TYPE,
-      packages=['topaz/packages/webkit'],
+      packages=['topaz/packages/prod/webkit'],
       gn_args=['use_prebuilt_webkit=false'],
       ninja_targets=['topaz/runtime/web_view:webkit'],
   )

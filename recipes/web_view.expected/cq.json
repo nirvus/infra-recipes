@@ -244,7 +244,7 @@
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=x64",
-      "--packages=topaz/packages/webkit",
+      "--packages=topaz/packages/prod/webkit",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
