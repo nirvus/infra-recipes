@@ -455,11 +455,10 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--with-build-sysroot=/some/xcode/path",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-O3",
+      "CFLAGS=-O3 --sysroot=/some/xcode/path",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 -static-libstdc++"
+      "CXXFLAGS=-O3 --sysroot=/some/xcode/path -static-libstdc++"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
     "name": "configure aarch64 binutils"
@@ -559,9 +558,8 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--with-build-sysroot=/some/xcode/path",
-      "CFLAGS=-fbracket-depth=1024 -g -O2",
-      "CXXFLAGS=-fbracket-depth=1024 -g -O2"
+      "CFLAGS=-O2 --sysroot=/some/xcode/path -fbracket-depth=1024",
+      "CXXFLAGS=-O2 --sysroot=/some/xcode/path -fbracket-depth=1024 -static-libstdc++"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
     "env_prefixes": {
@@ -628,11 +626,10 @@
       "--disable-werror",
       "--disable-nls",
       "--with-included-gettext",
-      "--with-build-sysroot=/some/xcode/path",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-O3",
+      "CFLAGS=-O3 --sysroot=/some/xcode/path",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 -static-libstdc++"
+      "CXXFLAGS=-O3 --sysroot=/some/xcode/path -static-libstdc++"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
     "name": "configure x86_64 binutils"

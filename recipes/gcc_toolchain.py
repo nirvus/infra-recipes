@@ -107,7 +107,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
 
   host_clang = '%s %s' % (api.goma.goma_dir.join('gomacc'),
                           cipd_dir.join('bin', 'clang'))
-  host_cflags = '-O3'
+  host_cflags = '-O3 --sysroot=%s' % host_sysroot
   if api.platform.name != 'mac':
     # LTO works for binutils on Linux but fails on macOS.
     host_cflags += ' -flto'
@@ -118,17 +118,22 @@ def RunSteps(api, binutils_revision, gcc_revision):
       'CXXFLAGS': '%s -static-libstdc++' % host_cflags,
   }
 
-  host_compiler_args['--with-build-sysroot'] = host_sysroot
-  extra_args = [ '--with-build-sysroot=%s' % host_sysroot ]
+  host_compiler_args = sorted('%s=%s' % item
+                              for item in host_compiler_args.iteritems())
 
+  # TODO(mcgrathr): Still using host compiler for gcc until we get
+  # to a newer gcc that builds happily with clang.
+  gcc_host_cflags = '-O2 --sysroot=%s' % host_sysroot
   if api.platform.name == 'mac':
     # Needed to work around problem with clang compiler and some generated
     # code in gcc.
-    extra_args += ['%s=-fbracket-depth=1024 -g -O2' % flagvar
-                   for flagvar in ('CFLAGS', 'CXXFLAGS')]
-
-  host_compiler_args = sorted('%s=%s' % item
-                              for item in host_compiler_args.iteritems())
+    gcc_host_cflags += ' -fbracket-depth=1024'
+  gcc_host_compiler_args = {
+      'CFLAGS': gcc_host_cflags,
+      'CXXFLAGS': '%s -static-libstdc++' % gcc_host_cflags,
+  }
+  extra_args = sorted('%s=%s' % item
+                      for item in gcc_host_compiler_args.iteritems())
 
   with api.goma.build_with_goma():
     for target, enable_targets in [('aarch64', 'arm-eabi'),
