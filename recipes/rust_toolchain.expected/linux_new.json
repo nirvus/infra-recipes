@@ -315,7 +315,8 @@
     "cmd": [
       "git",
       "fetch",
-      "origin"
+      "origin",
+      "--recurse-submodules"
     ],
     "cwd": "[START_DIR]/rust",
     "infra_step": true,
@@ -373,7 +374,8 @@
       "git",
       "submodule",
       "update",
-      "--init"
+      "--init",
+      "--recursive"
     ],
     "cwd": "[START_DIR]/rust",
     "infra_step": true,
@@ -782,7 +784,9 @@
     "env": {
       "CARGO_HOME": "[TMP_BASE]/rust_tmp_1/.cargo",
       "CFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/out/release-arm64/sdks/zircon_sysroot/sysroot",
-      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot/sysroot"
+      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot/sysroot",
+      "LDFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/out/release-arm64/sdks/zircon_sysroot/sysroot",
+      "LDFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot/sysroot"
     },
     "env_prefixes": {
       "PATH": [

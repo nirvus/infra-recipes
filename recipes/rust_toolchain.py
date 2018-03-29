@@ -8,6 +8,7 @@ from recipe_engine.config import Enum, ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
 import re
+from itertools import product
 
 
 DEPS = [
@@ -121,7 +122,7 @@ def RunSteps(api, url, ref, revision):
 
   with api.context(infra_steps=True):
     rust_dir = api.path['start_dir'].join('rust')
-    api.git.checkout(url, rust_dir, ref=revision)
+    api.git.checkout(url, rust_dir, ref=revision, recursive=True)
 
   # Build Zircon sysroot.
   # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
@@ -166,9 +167,9 @@ def RunSteps(api, url, ref, revision):
   )
 
   env = {
-    'CFLAGS_%s-unknown-fuchsia' % arch: (
+    '%s_%s-unknown-fuchsia' % (flag, arch): (
         '--target=%s-unknown-fuchsia --sysroot=%s' % (arch, sysroot))
-    for arch, sysroot in sysroot.iteritems()
+    for flag, (arch, sysroot) in product(['CFLAGS', 'LDFLAGS'], sysroot.iteritems())
   }
   env['CARGO_HOME'] = cargo_dir
   env_prefixes = {'PATH': [cipd_dir, cipd_dir.join('bin')]}
