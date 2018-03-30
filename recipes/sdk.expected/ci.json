@@ -1,6 +1,37 @@
 [
   {
     "cmd": [],
+    "name": "ensure_go"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/go",
+      "-ensure-file",
+      "infra/go/linux-amd64 version:1.9.4",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_go.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.9.4---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/go/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
     "name": "ensure_jiri"
   },
   {
@@ -23,96 +54,6 @@
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_go"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/go",
-      "-ensure-file",
-      "fuchsia/go/linux-amd64 release",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_go.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/go/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_gsutil"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_goma"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/goma",
-      "-ensure-file",
-      "infra_internal/goma/client/linux-amd64 release",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_goma.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -159,7 +100,8 @@
       "-run-hooks=false"
     ],
     "infra_step": true,
-    "name": "jiri update"
+    "name": "jiri update",
+    "timeout": 1200
   },
   {
     "cmd": [
@@ -197,16 +139,177 @@
     ]
   },
   {
+    "cmd": [],
+    "infra_step": true,
+    "name": "ensure_gsutil"
+  },
+  {
     "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "x64"
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
-    "name": "build x64"
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "snapshot",
+      "-v",
+      "-time",
+      "[TMP_BASE]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "jiri snapshot"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[TMP_BASE]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "hash snapshot",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/jiri.snapshot",
+      "gs://fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "-v",
+      "-time",
+      "-json-output",
+      "/path/to/tmp/json",
+      "garnet"
+    ],
+    "infra_step": true,
+    "name": "jiri project",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"garnet\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/garnet\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/garnet\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
+    ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia x64"
+    "name": "build arm64"
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.bootfs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.bootfs.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-H",
+      "-t",
+      "arm64"
+    ],
+    "name": "build arm64.bootfs.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.bootfs.build.ensure_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "build arm64.bootfs.build.ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.bootfs.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
   },
   {
     "cmd": [
@@ -221,25 +324,24 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build fuchsia x64.start_goma",
+    "name": "build arm64.bootfs.build.build fuchsia.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x64",
-      "--packages=garnet/packages/sdk/base",
-      "--build-dir=[START_DIR]/out/release-x64",
+      "--target_cpu=arm64",
+      "--packages=garnet/packages/sdk/bootfs",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
-      "test"
+      "bootfs_packages=true"
     ],
-    "name": "build fuchsia x64.gen",
+    "name": "build arm64.bootfs.build.build fuchsia.gen",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -248,10 +350,10 @@
       "-u",
       "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
     ],
-    "name": "build fuchsia x64.calculate the number of recommended jobs",
+    "name": "build arm64.bootfs.build.build fuchsia.calculate the number of recommended jobs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_NEST_LEVEL@4@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
@@ -274,13 +376,13 @@
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-x64",
+      "[START_DIR]/out/release-arm64",
       "-j",
       "50"
     ],
-    "name": "build fuchsia x64.ninja",
+    "name": "build arm64.bootfs.build.build fuchsia.ninja",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -296,9 +398,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x64.goma_jsonstatus",
+    "name": "build arm64.bootfs.build.build fuchsia.goma_jsonstatus",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -313,9 +415,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x64.goma_stat",
+    "name": "build arm64.bootfs.build.build fuchsia.goma_stat",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -330,127 +432,93 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia x64.stop_goma",
+    "name": "build arm64.bootfs.build.build fuchsia.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "move",
+      "[START_DIR]/out/release-arm64",
+      "[START_DIR]/out/release-arm64-bootfs"
+    ],
+    "infra_step": true,
+    "name": "build arm64.bootfs.move out dir",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.base",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia x64 (2)"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "restart"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
-    },
-    "infra_step": true,
-    "name": "build fuchsia x64.start_goma (2)",
+    "name": "build arm64.base.build",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x64",
-      "--packages=garnet/packages/sdk/bootfs",
-      "--build-dir=[START_DIR]/out/release-x64-bootfs",
-      "--goma=[START_DIR]/cipd/goma",
-      "--release",
-      "--args",
-      "test",
-      "--args",
-      "bootfs_packages=true"
-    ],
-    "name": "build fuchsia x64.gen (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/buildtools/ninja",
-      "-C",
-      "[START_DIR]/out/release-x64-bootfs",
-      "-j",
-      "50"
-    ],
-    "name": "build fuchsia x64.ninja (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
-    },
-    "name": "build fuchsia x64.goma_jsonstatus (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stat"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
-    },
-    "name": "build fuchsia x64.goma_stat (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stop"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
-    },
-    "name": "build fuchsia x64.stop_goma (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
+      "-H",
       "-t",
       "arm64"
     ],
-    "name": "build arm64"
+    "name": "build arm64.base.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia arm64"
+    "name": "build arm64.base.build.ensure_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "build arm64.base.build.ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.base.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
   },
   {
     "cmd": [
@@ -465,9 +533,9 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build fuchsia arm64.start_goma",
+    "name": "build arm64.base.build.build fuchsia.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -475,15 +543,12 @@
       "[START_DIR]/build/gn/gen.py",
       "--target_cpu=arm64",
       "--packages=garnet/packages/sdk/base",
-      "--build-dir=[START_DIR]/out/release-arm64",
       "--goma=[START_DIR]/cipd/goma",
-      "--release",
-      "--args",
-      "test"
+      "--release"
     ],
-    "name": "build fuchsia arm64.gen",
+    "name": "build arm64.base.build.build fuchsia.gen",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -494,9 +559,9 @@
       "-j",
       "50"
     ],
-    "name": "build fuchsia arm64.ninja",
+    "name": "build arm64.base.build.build fuchsia.ninja",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -512,9 +577,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia arm64.goma_jsonstatus",
+    "name": "build arm64.base.build.build fuchsia.goma_jsonstatus",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -529,9 +594,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia arm64.goma_stat",
+    "name": "build arm64.base.build.build fuchsia.goma_stat",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -546,14 +611,80 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia arm64.stop_goma",
+    "name": "build arm64.base.build.build fuchsia.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64"
+  },
+  {
+    "cmd": [],
+    "name": "build x64.bootfs",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build fuchsia arm64 (2)"
+    "name": "build x64.bootfs.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-H",
+      "-t",
+      "x64"
+    ],
+    "name": "build x64.bootfs.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.bootfs.build.ensure_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "build x64.bootfs.build.ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.bootfs.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
   },
   {
     "cmd": [
@@ -568,40 +699,37 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build fuchsia arm64.start_goma (2)",
+    "name": "build x64.bootfs.build.build fuchsia.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
     "cmd": [
       "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=arm64",
+      "--target_cpu=x64",
       "--packages=garnet/packages/sdk/bootfs",
-      "--build-dir=[START_DIR]/out/release-arm64-bootfs",
       "--goma=[START_DIR]/cipd/goma",
       "--release",
       "--args",
-      "test",
-      "--args",
       "bootfs_packages=true"
     ],
-    "name": "build fuchsia arm64.gen (2)",
+    "name": "build x64.bootfs.build.build fuchsia.gen",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
     "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
-      "[START_DIR]/out/release-arm64-bootfs",
+      "[START_DIR]/out/release-x64",
       "-j",
       "50"
     ],
-    "name": "build fuchsia arm64.ninja (2)",
+    "name": "build x64.bootfs.build.build fuchsia.ninja",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -617,9 +745,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia arm64.goma_jsonstatus (2)",
+    "name": "build x64.bootfs.build.build fuchsia.goma_jsonstatus",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -634,9 +762,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia arm64.goma_stat (2)",
+    "name": "build x64.bootfs.build.build fuchsia.goma_stat",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -651,10 +779,193 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build fuchsia arm64.stop_goma (2)",
+    "name": "build x64.bootfs.build.build fuchsia.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "move",
+      "[START_DIR]/out/release-x64",
+      "[START_DIR]/out/release-x64-bootfs"
+    ],
+    "infra_step": true,
+    "name": "build x64.bootfs.move out dir",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.base",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.base.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-H",
+      "-t",
+      "x64"
+    ],
+    "name": "build x64.base.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.base.build.ensure_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "build x64.base.build.ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.base.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "restart"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "infra_step": true,
+    "name": "build x64.base.build.build fuchsia.start_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/build/gn/gen.py",
+      "--target_cpu=x64",
+      "--packages=garnet/packages/sdk/base",
+      "--goma=[START_DIR]/cipd/goma",
+      "--release"
+    ],
+    "name": "build x64.base.build.build fuchsia.gen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/ninja",
+      "-C",
+      "[START_DIR]/out/release-x64",
+      "-j",
+      "50"
+    ],
+    "name": "build x64.base.build.build fuchsia.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "jsonstatus",
+      "[START_DIR]/cipd/goma/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "build x64.base.build.build fuchsia.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "build x64.base.build.build fuchsia.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stop"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+    },
+    "name": "build x64.base.build.build fuchsia.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "make sdk"
   },
   {
     "cmd": [
@@ -670,7 +981,47 @@
     "env": {
       "GOROOT": "[START_DIR]/cipd/go"
     },
-    "name": "go run"
+    "name": "make sdk.go run",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload sdk"
+  },
+  {
+    "cmd": [],
+    "name": "upload sdk.ensure_gsutil",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "upload sdk.ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
@@ -682,8 +1033,11 @@
       "[TMP_BASE]/fuchsia-sdk.tgz"
     ],
     "infra_step": true,
-    "name": "hash archive",
-    "stdout": "/path/to/tmp/"
+    "name": "upload sdk.hash archive",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -699,38 +1053,10 @@
       "gs://fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
     ],
     "infra_step": true,
-    "name": "upload fuchsia-sdk 27a0c185de8bb5dba483993ff1e362bc9e2c7643",
+    "name": "upload sdk.upload fuchsia-sdk 27a0c185de8bb5dba483993ff1e362bc9e2c7643",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "snapshot",
-      "-v",
-      "-time",
-      "[TMP_BASE]/jiri.snapshot"
-    ],
-    "name": "jiri snapshot"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[TMP_BASE]/jiri.snapshot",
-      "gs://fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
     ]
   },
   {
@@ -748,8 +1074,9 @@
       "-install-mode",
       "copy"
     ],
-    "name": "build linux-amd64",
+    "name": "upload sdk.build linux-amd64",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
@@ -771,8 +1098,9 @@
       "-tag",
       "jiri_snapshot:27a0c185de8bb5dba483993ff1e362bc9e2c7643"
     ],
-    "name": "register fuchsia/sdk/linux-amd64",
+    "name": "upload sdk.register fuchsia/sdk/linux-amd64",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
@@ -796,8 +1124,9 @@
       "gs://fuchsia/sdk/linux-amd64/40-chars-fake-of-the-package-instance_id"
     ],
     "infra_step": true,
-    "name": "gsutil cp",
+    "name": "upload sdk.gsutil cp",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
     ]
   },
