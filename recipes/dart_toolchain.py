@@ -72,7 +72,7 @@ def RunSteps(api, url, ref, revision):
   with api.context(infra_steps=True):
     api.jiri.ensure_jiri()
     api.jiri.checkout(
-        manifest='manifest/dart_toolchain',
+        manifest='dart_toolchain',
         remote='https://fuchsia.googlesource.com/manifest',
         project='manifest',
     )

@@ -178,7 +178,7 @@
       "-time",
       "-name",
       "manifest",
-      "manifest/dart_toolchain",
+      "dart_toolchain",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "infra_step": true,
