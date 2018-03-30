@@ -17,12 +17,7 @@ DEPS = [
   'recipe_engine/step',
 ]
 
-TARGETS = [
-    'arm64', 'x64',
-    # TODO(dbort): Remove these entries and the mapping in RunSteps once the
-    # buildbucket config starts using the new ones.
-    'aarch64', 'x86_64',
-]
+TARGETS = ['arm64', 'x64']
 
 BUILD_TYPE = 'release'
 
@@ -63,13 +58,6 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project(['third_party/webkit']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  # TODO(dbort): Remove this mapping and the entries in TARGETS once the
-  # buildbucket config starts using the new ones.
-  if target == 'aarch64': # pragma: no cover
-    target = 'arm64'
-  if target == 'x86_64': # pragma: no cover
-    target = 'x64'
-
   build = api.fuchsia.build(
       target=target,
       build_type=BUILD_TYPE,
@@ -99,13 +87,13 @@ def GenTests(api):
   yield api.test('default') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86_64',
+      target='x64',
   )
   yield api.test('cq') + api.properties.tryserver(
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x86_64',
+      target='x64',
       tryjob=True,
   )
