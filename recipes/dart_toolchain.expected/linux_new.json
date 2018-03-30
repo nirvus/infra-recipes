@@ -234,13 +234,18 @@
   },
   {
     "cmd": [
-      "[START_DIR]/depot_tools/gclient",
+      "gclient",
       "config",
       "--unmanaged",
       "-v",
       "https://dart.googlesource.com/sdk.git"
     ],
     "cwd": "[START_DIR]/dart",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/depot_tools"
+      ]
+    },
     "infra_step": true,
     "name": "gclient config"
   },
@@ -253,12 +258,17 @@
       "301b5a1f16414bc031091eb214ddd6c589e6ed9a"
     ],
     "cwd": "[START_DIR]/dart",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/depot_tools"
+      ]
+    },
     "infra_step": true,
     "name": "pin git"
   },
   {
     "cmd": [
-      "[START_DIR]/depot_tools/gclient",
+      "gclient",
       "sync",
       "--no-history",
       "-v",
@@ -266,6 +276,11 @@
       "/path/to/tmp/json"
     ],
     "cwd": "[START_DIR]/dart",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/depot_tools"
+      ]
+    },
     "infra_step": true,
     "name": "gclient sync",
     "~followup_annotations": [

@@ -78,11 +78,12 @@ def RunSteps(api, url, ref, revision):
     )
 
   # Use gclient to fetch the DEPS, but don't let it change dart/sdk itself.
-  gclient = api.path['start_dir'].join('depot_tools', 'gclient')
   dart_dir = api.path['start_dir'].join('dart')
-  with api.context(infra_steps=True, cwd=dart_dir):
+  with api.context(infra_steps=True, cwd=dart_dir,
+                   env_prefixes={'PATH': [
+                       api.path['start_dir'].join('depot_tools')]}):
     api.step('gclient config', [
-        gclient,
+        'gclient',
         'config',
         '--unmanaged',
         # TODO(mcgrathr): Set --cache-dir?
@@ -91,7 +92,7 @@ def RunSteps(api, url, ref, revision):
     ])
     api.step('pin git', ['git', '-C', 'sdk', 'checkout', revision])
     api.step('gclient sync', [
-        gclient,
+        'gclient',
         'sync',
         '--no-history',
         '-v',
