@@ -47,7 +47,9 @@ def RunSteps(api, url, ref, revision):
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
-      packages = {}
+      packages = {
+        'infra/ninja/${platform}': 'version:1.8.2',
+      }
       if api.platform.name == 'linux':
         packages.update({
           'fuchsia/sysroot/${platform}': 'latest'
