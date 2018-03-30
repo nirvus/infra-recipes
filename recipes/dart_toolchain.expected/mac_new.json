@@ -351,7 +351,7 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=/some/xcode/path",
+      "--target-sysroot=x64=/some/xcode/path",
       "--arch=x64",
       "--platform-sdk"
     ],
@@ -364,7 +364,7 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=/some/xcode/path",
+      "--target-sysroot=x64=/some/xcode/path",
       "--arch=simarm64"
     ],
     "cwd": "[START_DIR]/dart/sdk",

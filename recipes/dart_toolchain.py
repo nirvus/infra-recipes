@@ -108,7 +108,7 @@ def RunSteps(api, url, ref, revision):
       '-v',
       '--mode=release',
       '--goma',
-      '--target-sysroot=%s' % host_sysroot,
+      '--target-sysroot=x64=%s' % host_sysroot,
   ]
   # These are the names used by tools/gn.py.
   out_x64_dir = dart_sdk_dir.join('out', 'ReleaseX64')
