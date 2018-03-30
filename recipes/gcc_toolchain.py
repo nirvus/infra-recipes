@@ -34,7 +34,7 @@ BINUTILS_GIT = 'https://gnu.googlesource.com/binutils-gdb'
 BINUTILS_REF = 'refs/heads/binutils-2_30-branch'
 
 GCC_GIT = 'https://gnu.googlesource.com/gcc'
-GCC_REF = 'refs/heads/roland/6.3.0/zircon'
+GCC_REF = 'refs/heads/roland/6/pr77609'
 
 PROPERTIES = {
   'binutils_revision': Property(kind=str, help='Revision in binutils repo',
