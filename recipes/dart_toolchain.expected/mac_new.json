@@ -378,7 +378,7 @@
       "gen_snapshot_product",
       "runtime",
       "-C",
-      "[START_DIR]/dart/sdk/out/ReleaseX64",
+      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64",
       "create_sdk"
     ],
     "cwd": "[START_DIR]/dart/sdk",
@@ -392,7 +392,7 @@
       "gen_snapshot_product",
       "runtime",
       "-C",
-      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64"
+      "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64"
     ],
     "cwd": "[START_DIR]/dart/sdk",
     "name": "build arm64"
@@ -468,7 +468,7 @@
       "/path/to/tmp/json",
       "copytree",
       "--symlinks",
-      "[START_DIR]/dart/sdk/out/ReleaseX64/dart-sdk",
+      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/dart-sdk",
       "[TMP_BASE]/dart-sdk_tmp_1/dart-sdk"
     ],
     "infra_step": true,
@@ -485,7 +485,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/out/ReleaseX64/exe.stripped/gen_snapshot",
+      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot",
       "[TMP_BASE]/dart-sdk_tmp_1/dest_filename"
     ],
     "infra_step": true,
@@ -502,7 +502,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/out/ReleaseX64/exe.stripped/gen_snapshot_product",
+      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot_product",
       "[TMP_BASE]/dart-sdk_tmp_1/dest_filename"
     ],
     "infra_step": true,
@@ -519,7 +519,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64/exe.stripped/gen_snapshot",
+      "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64/exe.stripped/gen_snapshot",
       "[TMP_BASE]/dart-sdk_tmp_1/dest_filename"
     ],
     "infra_step": true,
@@ -536,7 +536,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64/exe.stripped/gen_snapshot_product",
+      "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64/exe.stripped/gen_snapshot_product",
       "[TMP_BASE]/dart-sdk_tmp_1/dest_filename"
     ],
     "infra_step": true,

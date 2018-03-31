@@ -111,8 +111,12 @@ def RunSteps(api, url, ref, revision):
       '--target-sysroot=x64=%s' % host_sysroot,
   ]
   # These are the names used by tools/gn.py.
-  out_x64_dir = dart_sdk_dir.join('out', 'ReleaseX64')
-  out_arm64_dir = dart_sdk_dir.join('out', 'ReleaseSIMARM64')
+  if api.platform.name == 'mac':
+    out_prefix = 'xcodebuild'
+  else:
+    out_prefix = 'out'
+  out_x64_dir = dart_sdk_dir.join(out_prefix, 'ReleaseX64')
+  out_arm64_dir = dart_sdk_dir.join(out_prefix, 'ReleaseSIMARM64')
   ninja_common = [
       cipd_dir.join('ninja'),
       '-j%d' % api.goma.recommended_goma_jobs,
