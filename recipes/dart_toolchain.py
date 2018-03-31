@@ -112,7 +112,7 @@ def RunSteps(api, url, ref, revision):
       # Dart target CPU the build is configured for, but wants it in the
       # form `%(target_cpu)s=%(host_sysroot)s`.
       '--target-sysroot=' + ','.join('%s=%s' % (arch, host_sysroot)
-                                     for arch in ['x64', 'arm64']),
+                                     for arch in ['x64', 'simarm64']),
   ]
   # These are the names used by tools/gn.py.
   if api.platform.name == 'mac':
@@ -157,7 +157,11 @@ def RunSteps(api, url, ref, revision):
         dest_filename = '%s.%s' % (filename, install_suffix)
         api.file.copy('install %s' % dest_filename,
                       out_dir.join('exe.stripped', filename),
-                      pkg_dir.join('dest_filename'))
+                      pkg_dir.join(dest_filename))
+
+  dart_sdk_version = api.file.read_text('read dart-sdk version',
+                                        pkg_dir.join('dart-sdk', 'version'),
+                                        test_data='2.0.0-edge.' + revision)
 
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
@@ -179,6 +183,7 @@ def RunSteps(api, url, ref, revision):
       tags={
         'git_repository': DART_SDK_GIT,
         'git_revision': revision,
+        'dart_sdk_version': dart_sdk_version,
       },
   )
 

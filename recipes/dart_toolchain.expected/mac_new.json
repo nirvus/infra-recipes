@@ -351,7 +351,7 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=x64=/some/xcode/path,arm64=/some/xcode/path",
+      "--target-sysroot=x64=/some/xcode/path,simarm64=/some/xcode/path",
       "--arch=x64",
       "--platform-sdk"
     ],
@@ -364,7 +364,7 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=x64=/some/xcode/path,arm64=/some/xcode/path",
+      "--target-sysroot=x64=/some/xcode/path,simarm64=/some/xcode/path",
       "--arch=simarm64"
     ],
     "cwd": "[START_DIR]/dart/sdk",
@@ -486,7 +486,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot",
-      "[TMP_BASE]/dart-sdk_tmp_1/dest_filename"
+      "[TMP_BASE]/dart-sdk_tmp_1/gen_snapshot.x64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot.x64",
@@ -503,7 +503,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot_product",
-      "[TMP_BASE]/dart-sdk_tmp_1/dest_filename"
+      "[TMP_BASE]/dart-sdk_tmp_1/gen_snapshot_product.x64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot_product.x64",
@@ -520,7 +520,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64/exe.stripped/gen_snapshot",
-      "[TMP_BASE]/dart-sdk_tmp_1/dest_filename"
+      "[TMP_BASE]/dart-sdk_tmp_1/gen_snapshot.arm64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot.arm64",
@@ -537,13 +537,27 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64/exe.stripped/gen_snapshot_product",
-      "[TMP_BASE]/dart-sdk_tmp_1/dest_filename"
+      "[TMP_BASE]/dart-sdk_tmp_1/gen_snapshot_product.arm64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot_product.arm64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/dart-sdk_tmp_1/dart-sdk/version",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read dart-sdk version"
   },
   {
     "cmd": [
@@ -576,6 +590,8 @@
       "/path/to/tmp/json",
       "-ref",
       "latest",
+      "-tag",
+      "dart_sdk_version:2.0.0-edge.301b5a1f16414bc031091eb214ddd6c589e6ed9a",
       "-tag",
       "git_repository:https://dart.googlesource.com/sdk.git",
       "-tag",
