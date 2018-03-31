@@ -159,9 +159,11 @@ def RunSteps(api, url, ref, revision):
                       out_dir.join('exe.stripped', filename),
                       pkg_dir.join(dest_filename))
 
-  dart_sdk_version = api.file.read_text('read dart-sdk version',
-                                        pkg_dir.join('dart-sdk', 'version'),
-                                        test_data='2.0.0-edge.' + revision)
+  dart_sdk_version = api.file.read_text(
+      'read dart-sdk version',
+      pkg_dir.join('dart-sdk', 'version'),
+      test_data='2.0.0-edge.' + revision + '\n',
+  ).strip()
 
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
