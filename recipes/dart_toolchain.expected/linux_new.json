@@ -342,7 +342,7 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=x64=[START_DIR]/cipd",
+      "--target-sysroot=x64=[START_DIR]/cipd,arm64=[START_DIR]/cipd",
       "--arch=x64",
       "--platform-sdk"
     ],
@@ -355,7 +355,7 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=x64=[START_DIR]/cipd",
+      "--target-sysroot=x64=[START_DIR]/cipd,arm64=[START_DIR]/cipd",
       "--arch=simarm64"
     ],
     "cwd": "[START_DIR]/dart/sdk",

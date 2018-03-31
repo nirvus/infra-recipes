@@ -108,7 +108,11 @@ def RunSteps(api, url, ref, revision):
       '-v',
       '--mode=release',
       '--goma',
-      '--target-sysroot=x64=%s' % host_sysroot,
+      # It actually wants a sysroot for the build host regardless of what
+      # Dart target CPU the build is configured for, but wants it in the
+      # form `%(target_cpu)s=%(host_sysroot)s`.
+      '--target-sysroot=' + ','.join('%s=%s' % (arch, host_sysroot)
+                                     for arch in ['x64', 'arm64']),
   ]
   # These are the names used by tools/gn.py.
   if api.platform.name == 'mac':
