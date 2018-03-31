@@ -185,6 +185,45 @@
   },
   {
     "cmd": [
+      "cipd",
+      "describe",
+      "fuchsia/gcc/mac-amd64",
+      "-version",
+      "latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "cipd describe fuchsia/gcc/mac-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"pin\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/gcc/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"refs\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"modified_by\": \"user:44-blablbla@developer.gserviceaccount.com\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"modified_ts\": 1446574210, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ref\": \"latest\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"registered_by\": \"user:44-blablbla@developer.gserviceaccount.com\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"registered_ts\": 1446574210, @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"tags\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"registered_by\": \"user:44-blablbla@developer.gserviceaccount.com\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"registered_ts\": 1446574210, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"tag\": \"git_revision:b824b5a2484202f6eabbe118b1cf7682ce77b76e,5898623efb820fc56123da2e316756a9a32cb59b\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -289,6 +328,23 @@
   },
   {
     "cmd": [
+      "git",
+      "diff",
+      "--name-only",
+      "5898623efb820fc56123da2e316756a9a32cb59b..3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f"
+    ],
+    "cwd": "[START_DIR]/binutils-gdb",
+    "infra_step": true,
+    "name": "check for changes other than bfd/version.h",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@raw_io.output[changed files]@bfd/version.h@@@",
+      "@@@STEP_LOG_LINE@raw_io.output[changed files]@others@@@",
+      "@@@STEP_LOG_END@raw_io.output[changed files]@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -390,6 +446,23 @@
     "cwd": "[START_DIR]/gcc",
     "infra_step": true,
     "name": "submodule update (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "diff",
+      "--name-only",
+      "b824b5a2484202f6eabbe118b1cf7682ce77b76e..4b5e15daff8b54440e3fda451c318ad31e532fab"
+    ],
+    "cwd": "[START_DIR]/gcc",
+    "infra_step": true,
+    "name": "check for changes other than gcc/DATESTAMP",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@raw_io.output[changed files]@gcc/DATESTAMP@@@",
+      "@@@STEP_LOG_LINE@raw_io.output[changed files]@others@@@",
+      "@@@STEP_LOG_END@raw_io.output[changed files]@@@"
+    ]
   },
   {
     "cmd": [

@@ -43,6 +43,19 @@ PROPERTIES = {
 }
 
 
+# binutils and gcc both have a daily robocommit to a specific file that
+# just updates a date stamp.  If that's the only change since the last
+# revision we built, this new revision is not worth building.
+def DoCheckout(api, url, checkout_dir, revision, last_revision, useless_file):
+  api.git.checkout(url, checkout_dir, revision)
+  with api.context(cwd=checkout_dir):
+    step = api.git('diff', '--name-only', '%s..%s' % (last_revision, revision),
+                   name='check for changes other than %s' % useless_file,
+                   stdout=api.raw_io.output(name='changed files',
+                                            add_output_log=True))
+  return step.stdout.strip() == useless_file
+
+
 def RunSteps(api, binutils_revision, gcc_revision):
   api.gitiles.ensure_gitiles()
   api.goma.ensure_goma()
@@ -88,11 +101,26 @@ def RunSteps(api, binutils_revision, gcc_revision):
   else: # pragma: no cover
     assert false, "what platform?"
 
+  step = api.cipd.describe(cipd_pkg_name, 'latest',
+                           test_data_tags=['git_revision:b824b5a2484202f6eabbe118b1cf7682ce77b76e,5898623efb820fc56123da2e316756a9a32cb59b'])
+  [last_tag] = [tag_dict['tag']
+                for tag_dict in step.json.output['result']['tags']
+                if tag_dict['tag'].startswith('git_revision:')]
+  [last_gcc_revision, last_binutils_revision] = last_tag[
+      len('git_revision:'):].split(',')
+
   with api.context(infra_steps=True):
     binutils_dir = api.path['start_dir'].join('binutils-gdb')
-    api.git.checkout(BINUTILS_GIT, binutils_dir, ref=binutils_revision)
+    binutils_no_change = DoCheckout(api, BINUTILS_GIT, binutils_dir,
+                                    binutils_revision, last_binutils_revision,
+                                    'bfd/version.h')
     gcc_dir = api.path['start_dir'].join('gcc')
-    api.git.checkout(GCC_GIT, gcc_dir, ref=gcc_revision)
+    gcc_no_change = DoCheckout(api, GCC_GIT, gcc_dir,
+                               gcc_revision, last_gcc_revision,
+                               'gcc/DATESTAMP')
+    if binutils_no_change and gcc_no_change:
+      api.step('Revisions contain no useful changes', cmd=None)
+      return
 
   with api.context(cwd=gcc_dir):
     # download GCC dependencies: GMP, ISL, MPC and MPFR libraries
@@ -254,29 +282,46 @@ def GenTests(api):
                             (BINUTILS_REF, binutils_revision)) +
            api.gitiles.refs('gcc refs',
                             (GCC_REF, gcc_revision)))
-    testdata = (api.test(platform + '_new') +
-                api.platform.name(platform) +
-                api.gitiles.refs('binutils refs',
-                                 (BINUTILS_REF, binutils_revision)) +
-                api.gitiles.refs('gcc refs',
-                                 (GCC_REF, gcc_revision)))
-    if platform == 'mac':
-      testdata += api.step_data('xcrun',
-                                stdout=api.raw_io.output('/some/xcode/path'))
-    yield (testdata +
-           api.step_data('binutils version', api.file.read_text(
-               'm4_define([BFD_VERSION], [2.27.0])')) +
-           api.step_data('gcc version', api.file.read_text('7.1.2\n')) +
+    yield (api.test(platform + '_new') +
+           api.platform.name(platform) +
+           api.gitiles.refs('binutils refs',
+                            (BINUTILS_REF, binutils_revision)) +
+           api.gitiles.refs('gcc refs',
+                            (GCC_REF, gcc_revision)) +
            api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
                          'git_revision:' + cipd_revision,
-                         api.json.output({'result': []})))
+                         api.json.output({'result': []})) +
+           api.step_data('check for changes other than bfd/version.h',
+                         api.raw_io.stream_output('bfd/version.h\nothers\n',
+                                                  name='changed files')) +
+           api.step_data('check for changes other than gcc/DATESTAMP',
+                         api.raw_io.stream_output('gcc/DATESTAMP\nothers\n',
+                                                  name='changed files')) +
+           api.step_data('binutils version', api.file.read_text(
+               'm4_define([BFD_VERSION], [2.27.0])')) +
+           api.step_data('gcc version', api.file.read_text('7.1.2\n')))
     yield (api.test(platform + '_error') +
            api.platform.name(platform) +
            api.gitiles.refs('binutils refs',
                             (BINUTILS_REF, binutils_revision)) +
            api.gitiles.refs('gcc refs',
                             (GCC_REF, gcc_revision)) +
-           api.step_data('test x86_64 binutils', retcode=1) +
            api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
                          'git_revision:' + cipd_revision,
-                         api.json.output({'result': []})))
+                         api.json.output({'result': []})) +
+           api.step_data('test x86_64 binutils', retcode=1))
+    yield (api.test(platform + '_useless') +
+           api.platform.name(platform) +
+           api.gitiles.refs('binutils refs',
+                            (BINUTILS_REF, binutils_revision)) +
+           api.gitiles.refs('gcc refs',
+                            (GCC_REF, gcc_revision)) +
+           api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
+                         'git_revision:' + cipd_revision,
+                         api.json.output({'result': []})) +
+           api.step_data('check for changes other than bfd/version.h',
+                         api.raw_io.stream_output('bfd/version.h\n',
+                                                  name='changed files')) +
+           api.step_data('check for changes other than gcc/DATESTAMP',
+                         api.raw_io.stream_output('gcc/DATESTAMP\n',
+                                                  name='changed files')))
