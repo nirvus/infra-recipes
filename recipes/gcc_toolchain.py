@@ -53,7 +53,8 @@ def DoCheckout(api, url, checkout_dir, revision, last_revision, useless_file):
                    name='check for changes other than %s' % useless_file,
                    stdout=api.raw_io.output(name='changed files',
                                             add_output_log=True))
-  return step.stdout.strip() == useless_file
+  changed_files = set(step.stdout.splitlines()) - set([useless_file])
+  return changed_files == set()
 
 
 def RunSteps(api, binutils_revision, gcc_revision):
@@ -309,6 +310,12 @@ def GenTests(api):
            api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
                          'git_revision:' + cipd_revision,
                          api.json.output({'result': []})) +
+           api.step_data('check for changes other than bfd/version.h',
+                         api.raw_io.stream_output('bfd/version.h\nothers\n',
+                                                  name='changed files')) +
+           api.step_data('check for changes other than gcc/DATESTAMP',
+                         api.raw_io.stream_output('gcc/DATESTAMP\nothers\n',
+                                                  name='changed files')) +
            api.step_data('test x86_64 binutils', retcode=1))
     yield (api.test(platform + '_useless') +
            api.platform.name(platform) +

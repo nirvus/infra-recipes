@@ -330,6 +330,8 @@
     "name": "check for changes other than bfd/version.h",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
+      "@@@STEP_LOG_LINE@raw_io.output[changed files]@bfd/version.h@@@",
+      "@@@STEP_LOG_LINE@raw_io.output[changed files]@others@@@",
       "@@@STEP_LOG_END@raw_io.output[changed files]@@@"
     ]
   },
@@ -449,6 +451,8 @@
     "name": "check for changes other than gcc/DATESTAMP",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
+      "@@@STEP_LOG_LINE@raw_io.output[changed files]@gcc/DATESTAMP@@@",
+      "@@@STEP_LOG_LINE@raw_io.output[changed files]@others@@@",
       "@@@STEP_LOG_END@raw_io.output[changed files]@@@"
     ]
   },
