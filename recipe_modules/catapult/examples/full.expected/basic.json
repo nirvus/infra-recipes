@@ -48,6 +48,8 @@
       "example.bucket",
       "-datetime",
       "123456789",
+      "-log",
+      "example.suite",
       "example_input_file"
     ],
     "name": "catapult make_histogram",

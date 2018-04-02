@@ -107,7 +107,7 @@ Args:
 Returns:
   A step to execute the make_histogram subcommand.
 
-&mdash; **def [upload](/recipe_modules/catapult/api.py#66)(self, input_file, url, timeout=None, \*\*kwargs):**
+&mdash; **def [upload](/recipe_modules/catapult/api.py#68)(self, input_file, url, timeout=None, \*\*kwargs):**
 
 Uploads performance JSON data to a dashboard.
 
