@@ -60,8 +60,6 @@ class CatapultApi(recipe_api.RecipeApi):
         bucket,
         '-datetime',
         datetime,
-        '-log',
-        test_suite,
         input_file,
         **kwargs)
 
