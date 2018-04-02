@@ -114,15 +114,15 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmsleep 5000\nmkdir /tmp/infra-test-output\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm> /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /tmp/infra-test-output/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /tmp/infra-test-output/summary.json\numount /tmp/infra-test-output\ndm poweroff",
+      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm> /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /tmp/infra-test-output/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /tmp/infra-test-output/summary.json\numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/runcmds"
     ],
     "infra_step": true,
     "name": "write runcmds",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
-      "@@@STEP_LOG_LINE@runcmds@msleep 5000@@@",
       "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@cd /system/test/dart@@@",
       "@@@STEP_LOG_LINE@runcmds@dart --checked tools/testing/dart/main.dart --progress=line -m debug -a x64 -r vm vm> /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /tmp/infra-test-output/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /tmp/infra-test-output/summary.json@@@",

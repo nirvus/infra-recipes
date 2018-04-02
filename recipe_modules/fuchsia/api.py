@@ -34,6 +34,10 @@ FUCHSIA_IMAGE_NAME = 'fuchsia.qcow2'
 # The FVM block name.
 FVM_BLOCK_NAME = 'fvm.blk'
 
+# The GUID string for the system partition.
+# Defined in //zircon/system/public/zircon/hw/gpt.h
+GUID_SYSTEM_STRING = '606B000B-B7C7-4653-A7D5-B737332C899D'
+
 # The PCI address to use for the block device to contain test results.
 TEST_FS_PCI_ADDR = '06.0'
 
@@ -186,13 +190,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
     test_dir = self.target_test_dir()
     runcmds = [
       '#!/boot/bin/sh',
-      # TODO(ZX-1903): Replace this with a way to block until PCI enumeration
-      # has finished.
-      'msleep 5000',
       'mkdir %s' % test_dir,
     ]
     if test_in_qemu:
       runcmds.extend([
+        # Wait until the MinFS test image shows up (max <timeout> ms).
+        'waitfor class=block topo=%s timeout=60000' % device_topological_path,
         'mount %s %s' % (device_topological_path, test_dir),
       ] + test_cmds + [
         'umount %s' % test_dir,

@@ -552,18 +552,23 @@ def Build(api, target, toolchain, src_dir, use_isolate, needs_blkdev):
     target_test_dir = api.fuchsia.target_test_dir()
     runcmds = [
       '#!/boot/bin/sh',
-      # 1. Wait for devmgr to bring up devices.
-      # TODO(ZX-1903): Replace this with a way to block until PCI enumeration
-      # has finished.
-      'msleep 5000',
-      # 2. Make a test directory.
+      # 1. Make a test directory.
       'mkdir %s' % target_test_dir,
     ]
     if needs_blkdev:
+      # If we need a block device to get test output off Fuchsia, then we need
+      # to mount a MinFS image which we'll declare as a block device to QEMU at
+      # PCI address TEST_FS_PCI_ADDR.
+      #
+      # This topological path is the path on the device to the MinFS image as a
+      # raw block device.
+      device_topological_path = '/dev/sys/pci/00:%s/virtio-block/block' % TEST_FS_PCI_ADDR
       runcmds.extend([
-        # 3. Mount the block device to that test directory (the block device
-        #    will always exist at PCI address TEST_FS_PCI_ADDR).
-        'mount /dev/sys/pci/00:%s/virtio-block/block %s' % (TEST_FS_PCI_ADDR, target_test_dir),
+        # 2. Wait for devmgr to bring up the MinFS test output image (max
+        # <timeout> ms).
+        'waitfor class=block topo=%s timeout=60000' % device_topological_path,
+        # 3. Mount the block device to the new test directory.
+        'mount %s %s' % (device_topological_path, target_test_dir),
         # 4. Execute runtests with -o (i.e. write test output to files with a
         # JSON summary).
         'runtests -o %s' % target_test_dir,
@@ -572,8 +577,11 @@ def Build(api, target, toolchain, src_dir, use_isolate, needs_blkdev):
         'dm poweroff',
       ])
     else:
+      # If we don't need a block device, just run the tests and wait for
+      # something to copy the test results off. Note that in this case we do not
+      # power off the device (via `dm poweroff`).
       runcmds.extend([
-        # 3. Execute runtests with -o (i.e. write test output to files with a
+        # 2. Execute runtests with -o (i.e. write test output to files with a
         # JSON summary).
         'runtests -o %s' % target_test_dir,
       ])
