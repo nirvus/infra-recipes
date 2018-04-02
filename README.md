@@ -222,6 +222,24 @@ docs](https://fuchsia.googlesource.com/docs/+/master/getting_started.md#googlers
 If something strange is happening between re-runs, consider deleting the local
 work directory as is done on bots (`rm -rf .recipe_deps`).
 
+## Developer workflow
+
+### Formatting
+
+We format python code according to the Chrome team's style, using
+[yapf](https://github.com/google/yapf).  After committing your changes you can
+format the files in your commit by running this in your recipes project root:
+(Make sure yapf is in your PATH)
+
+```sh
+git diff --name-only HEAD^ | grep -E '.py$' | xargs yapf -i
+```
+
+* `--name-only` tells git to list file paths instead of contents.
+* `HEAD^` specifies only files that have changed in the latest commit.
+* `-E` enables regular expressions for grep.
+* `-i` instructs yapf to format files in-place instead of writing to stdout.
+
 ## Existing Fuchsia recipes
 
 See [the generated documentation for our existing recipes and
