@@ -73,6 +73,11 @@ class FuchsiaBuildResults(object):
     return self._zircon_build_dir
 
   @property
+  def zircon_kernel_image(self):
+    """The Zircon kernel image file name."""
+    return TARGET_TO_KERNEL_IMAGE[self._target]
+
+  @property
   def fuchsia_build_dir(self):
     """The directory where Fuchsia build artifacts may be found."""
     return self._fuchsia_build_dir
@@ -384,7 +389,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build.has_tests
     self.m.swarming.ensure_swarming(version='latest')
 
-    kernel_name = TARGET_TO_KERNEL_IMAGE[build.target]
+    kernel_name = build.zircon_kernel_image
     ramdisk_name = 'bootdata-blob-%s.bin' % _board_name(build.target)
     qemu_arch = {
       'arm64': 'aarch64',
@@ -536,7 +541,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.swarming.ensure_swarming(version='latest')
 
     # Construct the botanist command.
-    kernel_name = TARGET_TO_KERNEL_IMAGE[build.target]
+    kernel_name = build.zircon_kernel_image
     ramdisk_name = 'netboot-%s.bin' % _board_name(build.target)
     output_archive_name = 'out.tar'
     botanist_cmd = [

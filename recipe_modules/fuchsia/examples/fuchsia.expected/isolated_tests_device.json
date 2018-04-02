@@ -564,7 +564,7 @@
       "-config",
       "/etc/botanist/config.json",
       "-kernel",
-      "zircon.bin",
+      "qemu-zircon.bin",
       "-ramdisk",
       "netboot-qemu.bin",
       "-test",
@@ -596,7 +596,7 @@
       "@@@STEP_LOG_LINE@json.output@        \"-config\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"/etc/botanist/config.json\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-kernel\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"zircon.bin\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"qemu-zircon.bin\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-ramdisk\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"netboot-qemu.bin\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"-test\", @@@",
@@ -640,7 +640,7 @@
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
-      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"-config\", \"/etc/botanist/config.json\", \"-kernel\", \"zircon.bin\", \"-ramdisk\", \"netboot-qemu.bin\", \"-test\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/system/data/infra/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"NUC\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
+      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"-config\", \"/etc/botanist/config.json\", \"-kernel\", \"qemu-zircon.bin\", \"-ramdisk\", \"netboot-qemu.bin\", \"-test\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/system/data/infra/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"NUC\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
     ],
     "infra_step": true,
     "name": "collect",

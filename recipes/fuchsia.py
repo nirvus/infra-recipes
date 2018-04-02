@@ -137,7 +137,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       package.add(p, build.fuchsia_build_dir)
 
     # Add the zircon kernel binary to the package.
-    package.add(build.zircon_build_dir.join('zircon.bin'), build.zircon_build_dir)
+    package.add(build.zircon_build_dir.join(build.zircon_kernel_image), build.zircon_build_dir)
 
     # Finalize the package and upload it.
     package.tar('tar fuchsia')
