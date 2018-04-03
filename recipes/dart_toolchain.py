@@ -4,6 +4,7 @@
 
 """Recipe for building Dart toolchain."""
 
+from recipe_engine.config import Enum
 from recipe_engine.recipe_api import Property
 
 
@@ -29,16 +30,39 @@ PROPERTIES = {
   'url': Property(kind=str, help='Git repository URL', default=DART_SDK_GIT),
   'ref': Property(kind=str, help='Git reference', default='refs/heads/master'),
   'revision': Property(kind=str, help='Revision', default=None),
+  'host_cpu': Property(kind=Enum('arm64', 'x64'),
+                       help='GN $host_cpu toolchain will run on',
+                       default=None),
+  'host_os': Property(kind=Enum('linux', 'mac'),
+                      help='GN $host_os toolchain will run on',
+                      default=None),
+}
+
+# Fuchsia targets the toolchain must support.
+FUCHSIA_TARGETS = [
+  'arm64',
+  'x64',
+]
+
+GN_CIPD_CPU_MAP = {
+  'x64': 'amd64',
 }
 
 
-def RunSteps(api, url, ref, revision):
+def RunSteps(api, url, ref, revision, host_cpu, host_os):
   api.gitiles.ensure_gitiles()
   api.goma.ensure_goma()
 
+  if not host_cpu:
+    # TODO(mcgrathr): Native bots are all x64 and api.platform.arch is useless.
+    host_cpu = 'x64'
+  if not host_os:
+    host_os = api.platform.name
+  cipd_platform = '%s-%s' % (host_os, GN_CIPD_CPU_MAP.get(host_cpu, host_cpu))
+
   if not revision:
     revision = api.gitiles.refs(url).get(ref, None)
-  cipd_pkg_name = 'fuchsia/dart-sdk/' + api.cipd.platform_suffix()
+  cipd_pkg_name = 'fuchsia/dart-sdk/' + cipd_platform
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
@@ -48,19 +72,19 @@ def RunSteps(api, url, ref, revision):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       packages = {
-        'infra/ninja/${platform}': 'version:1.8.2',
+          'infra/ninja/${platform}': 'version:1.8.2',
       }
-      if api.platform.name == 'linux':
-        packages.update({
-          'fuchsia/sysroot/${platform}': 'latest'
-        })
+      if host_os == 'linux':
+        packages['fuchsia/sysroot/%s' % cipd_platform] = 'latest'
       api.cipd.ensure(cipd_dir, packages)
+
+  ninja = [cipd_dir.join('ninja'), '-j%d' % api.goma.recommended_goma_jobs]
 
   # TODO(mcgrathr): Move this logic into a host_build recipe module shared
   # with gcc_toolchain.py and others.
-  if api.platform.name == 'linux':
+  if host_os == 'linux':
     host_sysroot = cipd_dir
-  elif api.platform.name == 'mac':
+  elif host_os == 'mac':
     with api.context(infra_steps=True):
       step_result = api.step(
           'xcrun', ['xcrun', '--show-sdk-path'],
@@ -102,6 +126,10 @@ def RunSteps(api, url, ref, revision):
         api.json.output(),
     ])
 
+  dart_targets = sorted(set([host_cpu] +
+                            ['sim' + cpu if cpu != host_cpu else cpu
+                             for cpu in FUCHSIA_TARGETS]))
+
   dart_sdk_dir = dart_dir.join('sdk')
   gn_common = [
       'tools/gn.py',
@@ -111,57 +139,71 @@ def RunSteps(api, url, ref, revision):
       # It actually wants a sysroot for the build host regardless of what
       # Dart target CPU the build is configured for, but wants it in the
       # form `%(target_cpu)s=%(host_sysroot)s`.
-      '--target-sysroot=' + ','.join('%s=%s' % (arch, host_sysroot)
-                                     for arch in ['x64', 'simarm64']),
+      '--target-sysroot=' + ','.join('%s=%s' % (cpu, host_sysroot)
+                                     for cpu in dart_targets),
   ]
+
   # These are the names used by tools/gn.py.
   if api.platform.name == 'mac':
     out_prefix = 'xcodebuild'
   else:
     out_prefix = 'out'
-  out_x64_dir = dart_sdk_dir.join(out_prefix, 'ReleaseX64')
-  out_arm64_dir = dart_sdk_dir.join(out_prefix, 'ReleaseSIMARM64')
-  ninja_common = [
-      cipd_dir.join('ninja'),
-      '-j%d' % api.goma.recommended_goma_jobs,
-      'gen_snapshot',
-      'gen_snapshot_product',
-      'runtime',
-  ]
+  def out_dir(cpu):
+    return dart_sdk_dir.join(out_prefix, 'Release' + cpu.upper())
+
   with api.goma.build_with_goma(), api.context(cwd=dart_sdk_dir):
-    api.step('gn x64', gn_common + ['--arch=x64', '--platform-sdk'])
-    api.step('gn arm64', gn_common + ['--arch=simarm64'])
-    api.step('build x64', ninja_common + ['-C', out_x64_dir, 'create_sdk'])
-    api.step('build arm64', ninja_common + ['-C', out_arm64_dir])
+    api.step('gn host (%s)' % host_cpu,
+             gn_common + ['--arch=%s' % host_cpu, '--platform-sdk'])
+    for cpu in dart_targets:
+      if cpu != host_cpu:
+        api.step('gn %s' % cpu, gn_common + ['--arch=%s' % cpu])
+    api.step('build host (%s) SDK' % host_cpu, ninja + [
+        '-C',
+        out_dir(host_cpu),
+        'create_sdk',
+        'gen_snapshot',
+        'gen_snapshot_product',
+    ])
+    for cpu in dart_targets:
+      api.step('build %s' % cpu, ninja + [
+          '-C',
+          out_dir(cpu),
+          'gen_snapshot_fuchsia',
+          'gen_snapshot_product_fuchsia',
+          'runtime',
+      ])
     api.step('run tests', [
-      'tools/test.py',
-      '--mode=release',
-      '--arch=x64,simarm64',
-      '--progress=line',
-      '--report',
-      '--time',
-      '--runtime=vm',
-      'vm',
-      'language',
+        'tools/test.py',
+        '--mode=release',
+        '--arch=%s' % ','.join(dart_targets),
+        '--progress=line',
+        '--report',
+        '--time',
+        '--runtime=vm',
+        'vm',
+        'language',
     ])
 
   with api.step.nest('install'):
     pkg_dir = api.path.mkdtemp('dart-sdk')
     api.file.copytree('install dart-sdk',
-                      out_x64_dir.join('dart-sdk'),
-                      pkg_dir.join('dart-sdk'),
+                      out_dir(host_cpu).join('dart-sdk'),
+                      pkg_dir,
                       symlinks=True)
-    for out_dir, install_suffix in [(out_x64_dir, 'x64'),
-                                    (out_arm64_dir, 'arm64')]:
-      for filename in ['gen_snapshot', 'gen_snapshot_product']:
-        dest_filename = '%s.%s' % (filename, install_suffix)
-        api.file.copy('install %s' % dest_filename,
-                      out_dir.join('exe.stripped', filename),
-                      pkg_dir.join(dest_filename))
+    for cpu, is_host in [(host_cpu, True)] + [(cpu, False)
+                                              for cpu in dart_targets]:
+      for tool in ['gen_snapshot', 'gen_snapshot_product']:
+        src = out_dir(cpu).join('exe.stripped',
+                                tool + ('' if is_host else '_fuchsia'))
+        if not is_host and cpu.startswith('sim'):
+          cpu = cpu[3:]
+        dst_name = '%s.%s-%s' % (tool, host_os if is_host else 'fuchsia', cpu)
+        dst = pkg_dir.join('bin', dst_name)
+        api.file.copy('install %s' % dst_name, src, dst)
 
   dart_sdk_version = api.file.read_text(
       'read dart-sdk version',
-      pkg_dir.join('dart-sdk', 'version'),
+      pkg_dir.join('version'),
       test_data='2.0.0-edge.' + revision + '\n',
   ).strip()
 
@@ -183,9 +225,9 @@ def RunSteps(api, url, ref, revision):
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'git_repository': DART_SDK_GIT,
-        'git_revision': revision,
-        'dart_sdk_version': dart_sdk_version,
+          'git_repository': url,
+          'git_revision': revision,
+          'dart_sdk_version': dart_sdk_version,
       },
   )
 
@@ -201,6 +243,17 @@ def GenTests(api):
            api.gitiles.refs('refs', ('refs/heads/master', revision)) +
            api.step_data(
                'cipd search fuchsia/dart-sdk/' + platform + '-amd64 ' +
+               'git_revision:' + revision,
+               api.json.output({'result': []})) +
+           api.step_data('gclient sync', api.json.output({'solutions': {}})))
+  for host_os, host_cpu, cipd_host_cpu in [('linux', 'arm64', 'arm64')]:
+    cipd_platform = host_os + '-' + cipd_host_cpu
+    yield (api.test(host_os + '_cross') +
+           api.platform.name(host_os) +
+           api.properties(host_cpu=host_cpu, host_os=host_os) +
+           api.gitiles.refs('refs', ('refs/heads/master', revision)) +
+           api.step_data(
+               'cipd search fuchsia/dart-sdk/' + cipd_platform + ' ' +
                'git_revision:' + revision,
                api.json.output({'result': []})) +
            api.step_data('gclient sync', api.json.output({'solutions': {}})))

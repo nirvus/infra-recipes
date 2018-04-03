@@ -10,7 +10,7 @@
       "-root",
       "[START_DIR]/cipd/gitiles",
       "-ensure-file",
-      "infra/tools/luci/gitiles/mac-amd64 latest",
+      "infra/tools/luci/gitiles/linux-amd64 latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -22,7 +22,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -40,7 +40,7 @@
       "-root",
       "[START_DIR]/cipd/goma",
       "-ensure-file",
-      "infra_internal/goma/client/mac-amd64 release",
+      "infra_internal/goma/client/linux-amd64 release",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -52,7 +52,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -80,13 +80,13 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/dart-sdk/mac-amd64",
+      "fuchsia/dart-sdk/linux-arm64",
       "-tag",
       "git_revision:301b5a1f16414bc031091eb214ddd6c589e6ed9a",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/dart-sdk/mac-amd64 git_revision:301b5a1f16414bc031091eb214ddd6c589e6ed9a",
+    "name": "cipd search fuchsia/dart-sdk/linux-arm64 git_revision:301b5a1f16414bc031091eb214ddd6c589e6ed9a",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -105,7 +105,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "infra/ninja/${platform} version:1.8.2",
+      "fuchsia/sysroot/linux-arm64 latest\ninfra/ninja/${platform} version:1.8.2",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -115,6 +115,10 @@
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/linux-arm64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
@@ -152,19 +156,6 @@
     ]
   },
   {
-    "cmd": [
-      "xcrun",
-      "--show-sdk-path"
-    ],
-    "infra_step": true,
-    "name": "xcrun",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@raw_io.output[sdk-path]@/some/xcode/path@@@",
-      "@@@STEP_LOG_END@raw_io.output[sdk-path]@@@"
-    ]
-  },
-  {
     "cmd": [],
     "infra_step": true,
     "name": "ensure_jiri"
@@ -176,7 +167,7 @@
       "-root",
       "[START_DIR]/cipd/jiri",
       "-ensure-file",
-      "fuchsia/tools/jiri/mac-amd64 stable",
+      "fuchsia/tools/jiri/linux-amd64 stable",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -188,7 +179,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -351,12 +342,12 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=simarm64=/some/xcode/path,x64=/some/xcode/path",
-      "--arch=x64",
+      "--target-sysroot=arm64=[START_DIR]/cipd,simx64=[START_DIR]/cipd",
+      "--arch=arm64",
       "--platform-sdk"
     ],
     "cwd": "[START_DIR]/dart/sdk",
-    "name": "gn host (x64)"
+    "name": "gn host (arm64)"
   },
   {
     "cmd": [
@@ -364,56 +355,56 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=simarm64=/some/xcode/path,x64=/some/xcode/path",
-      "--arch=simarm64"
+      "--target-sysroot=arm64=[START_DIR]/cipd,simx64=[START_DIR]/cipd",
+      "--arch=simx64"
     ],
     "cwd": "[START_DIR]/dart/sdk",
-    "name": "gn simarm64"
+    "name": "gn simx64"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-j50",
       "-C",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64",
+      "[START_DIR]/dart/sdk/out/ReleaseARM64",
       "create_sdk",
       "gen_snapshot",
       "gen_snapshot_product"
     ],
     "cwd": "[START_DIR]/dart/sdk",
-    "name": "build host (x64) SDK"
+    "name": "build host (arm64) SDK"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-j50",
       "-C",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64",
+      "[START_DIR]/dart/sdk/out/ReleaseARM64",
       "gen_snapshot_fuchsia",
       "gen_snapshot_product_fuchsia",
       "runtime"
     ],
     "cwd": "[START_DIR]/dart/sdk",
-    "name": "build simarm64"
+    "name": "build arm64"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-j50",
       "-C",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64",
+      "[START_DIR]/dart/sdk/out/ReleaseSIMX64",
       "gen_snapshot_fuchsia",
       "gen_snapshot_product_fuchsia",
       "runtime"
     ],
     "cwd": "[START_DIR]/dart/sdk",
-    "name": "build x64"
+    "name": "build simx64"
   },
   {
     "cmd": [
       "tools/test.py",
       "--mode=release",
-      "--arch=simarm64,x64",
+      "--arch=arm64,simx64",
       "--progress=line",
       "--report",
       "--time",
@@ -480,7 +471,7 @@
       "/path/to/tmp/json",
       "copytree",
       "--symlinks",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/dart-sdk",
+      "[START_DIR]/dart/sdk/out/ReleaseARM64/dart-sdk",
       "[TMP_BASE]/dart-sdk_tmp_1"
     ],
     "infra_step": true,
@@ -497,11 +488,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot",
-      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.mac-x64"
+      "[START_DIR]/dart/sdk/out/ReleaseARM64/exe.stripped/gen_snapshot",
+      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.linux-arm64"
     ],
     "infra_step": true,
-    "name": "install.install gen_snapshot.mac-x64",
+    "name": "install.install gen_snapshot.linux-arm64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -514,11 +505,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot_product",
-      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.mac-x64"
+      "[START_DIR]/dart/sdk/out/ReleaseARM64/exe.stripped/gen_snapshot_product",
+      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.linux-arm64"
     ],
     "infra_step": true,
-    "name": "install.install gen_snapshot_product.mac-x64",
+    "name": "install.install gen_snapshot_product.linux-arm64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -531,7 +522,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64/exe.stripped/gen_snapshot_fuchsia",
+      "[START_DIR]/dart/sdk/out/ReleaseARM64/exe.stripped/gen_snapshot_fuchsia",
       "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.fuchsia-arm64"
     ],
     "infra_step": true,
@@ -548,7 +539,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseARM64/exe.stripped/gen_snapshot_product_fuchsia",
+      "[START_DIR]/dart/sdk/out/ReleaseARM64/exe.stripped/gen_snapshot_product_fuchsia",
       "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.fuchsia-arm64"
     ],
     "infra_step": true,
@@ -565,7 +556,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot_fuchsia",
+      "[START_DIR]/dart/sdk/out/ReleaseSIMX64/exe.stripped/gen_snapshot_fuchsia",
       "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.fuchsia-x64"
     ],
     "infra_step": true,
@@ -582,7 +573,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot_product_fuchsia",
+      "[START_DIR]/dart/sdk/out/ReleaseX64/exe.stripped/gen_snapshot_product_fuchsia",
       "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.fuchsia-x64"
     ],
     "infra_step": true,
@@ -610,18 +601,18 @@
       "cipd",
       "pkg-build",
       "-pkg-def",
-      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/dart-sdk.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/dart-sdk/mac-amd64\", \"root\": \"[TMP_BASE]/dart-sdk_tmp_1\"}",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/dart-sdk.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/dart-sdk/linux-arm64\", \"root\": \"[TMP_BASE]/dart-sdk_tmp_1\"}",
       "-out",
       "[TMP_BASE]/dart-sdk.cipd",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "build fuchsia/dart-sdk/mac-amd64",
+    "name": "build fuchsia/dart-sdk/linux-arm64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/dart-sdk/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/dart-sdk/linux-arm64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
@@ -643,12 +634,12 @@
       "-tag",
       "git_revision:301b5a1f16414bc031091eb214ddd6c589e6ed9a"
     ],
-    "name": "register fuchsia/dart-sdk/mac-amd64",
+    "name": "register fuchsia/dart-sdk/linux-arm64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/dart-sdk/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/dart-sdk/linux-arm64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"

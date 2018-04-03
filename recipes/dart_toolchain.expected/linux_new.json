@@ -105,7 +105,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/sysroot/${platform} latest\ninfra/ninja/${platform} version:1.8.2",
+      "fuchsia/sysroot/linux-amd64 latest\ninfra/ninja/${platform} version:1.8.2",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -117,7 +117,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
@@ -126,6 +126,33 @@
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
+    ],
+    "name": "calculate the number of recommended jobs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
+      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
+      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
   {
@@ -298,33 +325,6 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
-    ],
-    "name": "calculate the number of recommended jobs",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
-      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
-      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "[START_DIR]/cipd/goma/goma_ctl.py",
       "restart"
     ],
@@ -342,12 +342,12 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=x64=[START_DIR]/cipd,simarm64=[START_DIR]/cipd",
+      "--target-sysroot=simarm64=[START_DIR]/cipd,x64=[START_DIR]/cipd",
       "--arch=x64",
       "--platform-sdk"
     ],
     "cwd": "[START_DIR]/dart/sdk",
-    "name": "gn x64"
+    "name": "gn host (x64)"
   },
   {
     "cmd": [
@@ -355,44 +355,56 @@
       "-v",
       "--mode=release",
       "--goma",
-      "--target-sysroot=x64=[START_DIR]/cipd,simarm64=[START_DIR]/cipd",
+      "--target-sysroot=simarm64=[START_DIR]/cipd,x64=[START_DIR]/cipd",
       "--arch=simarm64"
     ],
     "cwd": "[START_DIR]/dart/sdk",
-    "name": "gn arm64"
+    "name": "gn simarm64"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "-j50",
-      "gen_snapshot",
-      "gen_snapshot_product",
-      "runtime",
       "-C",
       "[START_DIR]/dart/sdk/out/ReleaseX64",
-      "create_sdk"
+      "create_sdk",
+      "gen_snapshot",
+      "gen_snapshot_product"
+    ],
+    "cwd": "[START_DIR]/dart/sdk",
+    "name": "build host (x64) SDK"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja",
+      "-j50",
+      "-C",
+      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64",
+      "gen_snapshot_fuchsia",
+      "gen_snapshot_product_fuchsia",
+      "runtime"
+    ],
+    "cwd": "[START_DIR]/dart/sdk",
+    "name": "build simarm64"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja",
+      "-j50",
+      "-C",
+      "[START_DIR]/dart/sdk/out/ReleaseX64",
+      "gen_snapshot_fuchsia",
+      "gen_snapshot_product_fuchsia",
+      "runtime"
     ],
     "cwd": "[START_DIR]/dart/sdk",
     "name": "build x64"
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/ninja",
-      "-j50",
-      "gen_snapshot",
-      "gen_snapshot_product",
-      "runtime",
-      "-C",
-      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64"
-    ],
-    "cwd": "[START_DIR]/dart/sdk",
-    "name": "build arm64"
-  },
-  {
-    "cmd": [
       "tools/test.py",
       "--mode=release",
-      "--arch=x64,simarm64",
+      "--arch=simarm64,x64",
       "--progress=line",
       "--report",
       "--time",
@@ -460,7 +472,7 @@
       "copytree",
       "--symlinks",
       "[START_DIR]/dart/sdk/out/ReleaseX64/dart-sdk",
-      "[TMP_BASE]/dart-sdk_tmp_1/dart-sdk"
+      "[TMP_BASE]/dart-sdk_tmp_1"
     ],
     "infra_step": true,
     "name": "install.install dart-sdk",
@@ -477,10 +489,10 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/out/ReleaseX64/exe.stripped/gen_snapshot",
-      "[TMP_BASE]/dart-sdk_tmp_1/gen_snapshot.x64"
+      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.linux-x64"
     ],
     "infra_step": true,
-    "name": "install.install gen_snapshot.x64",
+    "name": "install.install gen_snapshot.linux-x64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -494,10 +506,10 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/out/ReleaseX64/exe.stripped/gen_snapshot_product",
-      "[TMP_BASE]/dart-sdk_tmp_1/gen_snapshot_product.x64"
+      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.linux-x64"
     ],
     "infra_step": true,
-    "name": "install.install gen_snapshot_product.x64",
+    "name": "install.install gen_snapshot_product.linux-x64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -510,11 +522,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64/exe.stripped/gen_snapshot",
-      "[TMP_BASE]/dart-sdk_tmp_1/gen_snapshot.arm64"
+      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64/exe.stripped/gen_snapshot_fuchsia",
+      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.fuchsia-arm64"
     ],
     "infra_step": true,
-    "name": "install.install gen_snapshot.arm64",
+    "name": "install.install gen_snapshot.fuchsia-arm64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -527,11 +539,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64/exe.stripped/gen_snapshot_product",
-      "[TMP_BASE]/dart-sdk_tmp_1/gen_snapshot_product.arm64"
+      "[START_DIR]/dart/sdk/out/ReleaseARM64/exe.stripped/gen_snapshot_product_fuchsia",
+      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.fuchsia-arm64"
     ],
     "infra_step": true,
-    "name": "install.install gen_snapshot_product.arm64",
+    "name": "install.install gen_snapshot_product.fuchsia-arm64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -544,7 +556,41 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/dart-sdk_tmp_1/dart-sdk/version",
+      "[START_DIR]/dart/sdk/out/ReleaseX64/exe.stripped/gen_snapshot_fuchsia",
+      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.fuchsia-x64"
+    ],
+    "infra_step": true,
+    "name": "install.install gen_snapshot.fuchsia-x64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/dart/sdk/out/ReleaseX64/exe.stripped/gen_snapshot_product_fuchsia",
+      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.fuchsia-x64"
+    ],
+    "infra_step": true,
+    "name": "install.install gen_snapshot_product.fuchsia-x64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/dart-sdk_tmp_1/version",
       "/path/to/tmp/"
     ],
     "infra_step": true,

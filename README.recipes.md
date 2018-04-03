@@ -880,7 +880,7 @@ Builds the Fuchsia Dart test image and runs the Dart tests.
 
 Recipe for building Dart toolchain.
 
-&mdash; **def [RunSteps](/recipes/dart_toolchain.py#35)(api, url, ref, revision):**
+&mdash; **def [RunSteps](/recipes/dart_toolchain.py#48)(api, url, ref, revision, host_platform):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#21): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
