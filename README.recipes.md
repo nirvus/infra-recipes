@@ -950,11 +950,11 @@ Recipe for building Dart toolchain.
 &mdash; **def [RunSteps](/recipes/dart_toolchain.py#52)(api, url, ref, revision, host_cpu, host_os):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#21): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+[DEPS](/recipes/fuchsia.py#21): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#78)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, upload_snapshot, upload_archive):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#79)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, upload_snapshot, upload_archive):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]

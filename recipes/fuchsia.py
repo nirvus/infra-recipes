@@ -26,6 +26,7 @@ DEPS = [
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/python',
 ]
 
 PROPERTIES = {
@@ -94,6 +95,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api.fuchsia.target_test_dir(),
       runtests_args,
     )]
+  verify_build_packages = project and (project in ['garnet', 'peridot', 'topaz']
+                                       or project.startswith('vendor/'))
+  if verify_build_packages:
+    # Add the tool required to validate build packages.
+    packages.append('build/packages/json_validator')
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
@@ -103,6 +109,27 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       test_cmds=test_cmds,
       test_device_type=device_type,
   )
+  if verify_build_packages:
+    validator = build.fuchsia_build_dir.join('tools', 'json_validator')
+    if project.startswith('vendor/'):
+      layer_args = [
+        '--vendor-layer',
+        project[7:],
+      ]
+    else:
+      layer_args = [
+        '--layer',
+        project,
+      ]
+    api.python(
+      'verify build packages',
+      api.path['start_dir'].join('scripts', 'packages', 'verify_layer.py'),
+      args = layer_args + [
+        '--json-validator',
+        validator,
+      ]
+    )
+
   if run_tests:
     test_results = api.fuchsia.test(build, test_timeout_secs)
     api.fuchsia.analyze_test_results('test results', test_results)
@@ -194,4 +221,20 @@ def GenTests(api):
       upload_snapshot=True,
       upload_archive=True,
       tryjob=True,
+  )
+
+  # Test cases for verifying build packages.
+  yield api.test('build-packages') + api.properties(
+      manifest='manifest/topaz',
+      project='topaz',
+      remote='https://fuchsia.googlesource.com/topaz',
+      target='x64',
+      packages=['topaz/packages/default'],
+  )
+  yield api.test('build-packages-vendor') + api.properties(
+      manifest='manifest/foobar',
+      project='vendor/foobar',
+      remote='https://fuchsia.googlesource.com/foobar',
+      target='x64',
+      packages=['vendor/foobar/packages/default'],
   )
