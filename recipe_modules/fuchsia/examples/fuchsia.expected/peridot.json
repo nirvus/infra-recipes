@@ -255,12 +255,12 @@
   },
   {
     "cmd": [
-      "[START_DIR]/build/gn/gen.py",
-      "--target_cpu=x64",
-      "--packages=topaz/packages/default",
-      "--goma=[START_DIR]/cipd/goma"
+      "[START_DIR]/buildtools/gn",
+      "gen",
+      "[START_DIR]/out/debug-x64",
+      "--args=target_cpu=\"x64\" fuchsia_packages=\"topaz/packages/default\" use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true"
     ],
-    "name": "build.build fuchsia.gen",
+    "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
     ]

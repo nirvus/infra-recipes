@@ -236,41 +236,43 @@ class FuchsiaApi(recipe_api.RecipeApi):
     goma_env = self._setup_goma()
     with self.m.step.nest('build fuchsia'):
       with self.m.goma.build_with_goma(env=goma_env):
-        gen_cmd = [
-          self.m.path['start_dir'].join('build', 'gn', 'gen.py'),
-          '--target_cpu=%s' % build.target,
-          '--packages=%s' % ','.join(packages),
+        args = [
+          'target_cpu="%s"' % build.target,
+          'fuchsia_packages="%s"' % ','.join(packages),
+          'use_goma=true',
+          'goma_dir="%s"' % self.m.goma.goma_dir,
+          'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
         ]
 
-        gen_cmd += ['--variant=%s' % v for v in variants]
+        args += {
+          'lto': [
+            'use_lto=true',
+            'use_thinlto=false',
+          ],
+          'thinlto': [
+            'use_lto=true',
+            'use_thinlto=true',
+            'thinlto_cache_dir="%s"' % self.m.path['cache'].join('thinlto'),
+          ],
+        }.get(build_type, [])
 
-        gen_cmd.append('--goma=%s' % self.m.goma.goma_dir)
+        if variants:
+          args.append('select_variant=[%s]' %
+                         ','.join(['"%s"' % v for v in variants]))
 
-        if build_type != 'debug':
-          gen_cmd.append('--release')
+        self.m.step('gn gen', [
+          self.m.path['start_dir'].join('buildtools', 'gn'),
+          'gen',
+          build.fuchsia_build_dir,
+          '--args=%s' % ' '.join(args + list(gn_args)),
+        ])
 
-        if build_type == 'lto':
-          gen_cmd.append('--lto=full')
-        elif build_type == 'thinlto':
-          gen_cmd.append('--lto=thin')
-          gn_args.append('thinlto_cache_dir=\"%s\"' %
-                         str(self.m.path['cache'].join('thinlto')))
-
-        for arg in gn_args:
-          gen_cmd.append('--args')
-          gen_cmd.append(arg)
-
-        self.m.step('gen', gen_cmd)
-
-        ninja_cmd = [
+        self.m.step('ninja', [
           self.m.path['start_dir'].join('buildtools', 'ninja'),
           '-C', build.fuchsia_build_dir,
-        ]
+          '-j', self.m.goma.recommended_goma_jobs,
+        ] + list(ninja_targets))
 
-        ninja_cmd.extend(['-j', self.m.goma.recommended_goma_jobs])
-        ninja_cmd.extend(ninja_targets)
-
-        self.m.step('ninja', ninja_cmd)
 
   def build(self, target, build_type, packages, variants=(), gn_args=(),
             ninja_targets=(), test_cmds=(), test_in_qemu=True):
@@ -282,8 +284,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       target (str): The build target, see TARGETS for allowed targets
       build_type (str): One of the build types in BUILD_TYPES
       packages (sequence[str]): A sequence of packages to pass to GN to build
-      variants (sequence[str]): A sequence of build variants to pass to gen.py
-        via --variant
+      variants (sequence[str]): A sequence of build variant selectors to pass
+        to GN in `select_variant`
       gn_args (sequence[str]): Additional arguments to pass to GN
       ninja_targets (sequence[str]): Additional target args to pass to ninja
       test_cmds (sequence[str]): A sequence of commands to run on the device

@@ -236,7 +236,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#612)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#614)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -250,7 +250,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#651)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#653)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -261,7 +261,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#275)(self, target, build_type, packages, variants=(), gn_args=(), ninja_targets=(), test_cmds=(), test_in_qemu=True):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#277)(self, target, build_type, packages, variants=(), gn_args=(), ninja_targets=(), test_cmds=(), test_in_qemu=True):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -271,8 +271,8 @@ Args:
   target (str): The build target, see TARGETS for allowed targets
   build_type (str): One of the build types in BUILD_TYPES
   packages (sequence[str]): A sequence of packages to pass to GN to build
-  variants (sequence[str]): A sequence of build variants to pass to gen.py
-    via --variant
+  variants (sequence[str]): A sequence of build variant selectors to pass
+    to GN in `select_variant`
   gn_args (sequence[str]): Additional arguments to pass to GN
   ninja_targets (sequence[str]): Additional target args to pass to ninja
   test_cmds (sequence[str]): A sequence of commands to run on the device
@@ -300,11 +300,11 @@ Args:
   timeout_secs (int): How long to wait for the checkout to complete
       before failing
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#382)(self):**
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#384)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#386)(self, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#388)(self, build, timeout_secs=(40 \* 60)):**
 
 Tests a Fuchsia build inside of QEMU.
 
@@ -319,7 +319,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [test\_on\_device](/recipe_modules/fuchsia/api.py#535)(self, device_type, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test\_on\_device](/recipe_modules/fuchsia/api.py#537)(self, device_type, build, timeout_secs=(40 \* 60)):**
 
 Tests a Fuchsia on a specific device.
 
@@ -887,7 +887,7 @@ Recipe for building Dart toolchain.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#75)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, upload_snapshot, upload_archive):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#76)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, upload_snapshot, upload_archive):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]

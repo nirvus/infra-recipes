@@ -56,7 +56,7 @@ PROPERTIES = {
     'variant':
         Property(
             kind=List(basestring),
-            help='--variant arguments to gen.py',
+            help='--variant arguments to GN in `select_variant`',
             default=[]),
     'gn_args':
         Property(

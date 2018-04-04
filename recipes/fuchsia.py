@@ -46,7 +46,8 @@ PROPERTIES = {
                        default=[]),
   # TODO(mknyszek): Rename to 'variants' since this property is a list.
   'variant': Property(kind=List(basestring),
-                      help='--variant arguments to gen.py', default=[]),
+                      help='--variant arguments to GN in `select_variant`',
+                      default=[]),
   'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
                       default=[]),
   'run_tests': Property(kind=bool,
