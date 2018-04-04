@@ -109,8 +109,13 @@ To run the unit tests and generate the "expected" data, run the following
 command from the root of this repo:
 
 ```
-python recipes.py test train --filter [recipe_name]
+python recipes.py test train
+
+# Optionally specify a configuration file with --package
+# (default is infra/config/recipes.cfg)
+python recipes.py --package infra/config/recipes.cfg test train
 ```
+
 
 The name of the recipe is simply the name of the recipe's Python file minus the
 `.py` extension. So, for example, the recipe in `recipes/fuchsia.py` is called
