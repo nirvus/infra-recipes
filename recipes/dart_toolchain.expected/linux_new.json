@@ -539,7 +539,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/dart/sdk/out/ReleaseARM64/exe.stripped/gen_snapshot_product_fuchsia",
+      "[START_DIR]/dart/sdk/out/ReleaseSIMARM64/exe.stripped/gen_snapshot_product_fuchsia",
       "[CLEANUP]/dart-sdk/bin/gen_snapshot_product.fuchsia-arm64"
     ],
     "infra_step": true,

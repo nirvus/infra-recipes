@@ -192,11 +192,11 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
                       symlinks=True)
     for cpu, is_host in [(host_cpu, True)] + [(cpu, False)
                                               for cpu in dart_targets]:
+      exe_dir = out_dir(cpu).join('exe.stripped')
+      if not is_host and cpu.startswith('sim'):
+        cpu = cpu[3:]
       for tool in ['gen_snapshot', 'gen_snapshot_product']:
-        src = out_dir(cpu).join('exe.stripped',
-                                tool + ('' if is_host else '_fuchsia'))
-        if not is_host and cpu.startswith('sim'):
-          cpu = cpu[3:]
+        src = exe_dir.join(tool + ('' if is_host else '_fuchsia'))
         dst_name = '%s.%s-%s' % (tool, host_os if is_host else 'fuchsia', cpu)
         dst = pkg_dir.join('bin', dst_name)
         api.file.copy('install %s' % dst_name, src, dst)
