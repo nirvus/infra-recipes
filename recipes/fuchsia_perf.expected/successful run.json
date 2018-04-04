@@ -695,6 +695,8 @@
       "fuchsia.example.bucket",
       "-datetime",
       "1337000001500",
+      "-logdog-stream-name",
+      "zircon_benchmarks",
       "I am a benchmark, ha ha!"
     ],
     "name": "analyze_zircon_benchmarks.catapult make_histogram",

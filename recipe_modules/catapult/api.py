@@ -60,6 +60,8 @@ class CatapultApi(recipe_api.RecipeApi):
         bucket,
         '-datetime',
         datetime,
+        '-logdog-stream-name',
+        test_suite,
         input_file,
         **kwargs)
 
