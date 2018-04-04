@@ -317,7 +317,7 @@
       "-name",
       "fuchsia/qemu/mac-amd64",
       "-out",
-      "[TMP_BASE]/qemu.cipd",
+      "[CLEANUP]/qemu.cipd",
       "-json-output",
       "/path/to/tmp/json",
       "-install-mode",
@@ -338,7 +338,7 @@
     "cmd": [
       "cipd",
       "pkg-register",
-      "[TMP_BASE]/qemu.cipd",
+      "[CLEANUP]/qemu.cipd",
       "-json-output",
       "/path/to/tmp/json",
       "-ref",
@@ -371,7 +371,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[TMP_BASE]/qemu.cipd",
+      "[CLEANUP]/qemu.cipd",
       "gs://fuchsia/qemu/mac-amd64/40-chars-fake-of-the-package-instance_id"
     ],
     "infra_step": true,

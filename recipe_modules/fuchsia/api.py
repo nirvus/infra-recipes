@@ -158,7 +158,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
       if upload_snapshot:
         self.m.gsutil.ensure_gsutil()
-        snapshot_file = self.m.path['tmp_base'].join('jiri.snapshot')
+        snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
         self.m.jiri.snapshot(snapshot_file)
         digest = self.m.hash.sha1('hash snapshot', snapshot_file,
                                   test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
@@ -194,11 +194,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
       ])
     else:
       runcmds.extend(test_cmds)
-    runcmds_path = self.m.path['tmp_base'].join('runcmds')
+    runcmds_path = self.m.path['cleanup'].join('runcmds')
     self.m.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
     self.m.step.active_result.presentation.logs['runcmds'] = runcmds
 
-    runcmds_package_path = self.m.path['tmp_base'].join('runcmds_package')
+    runcmds_package_path = self.m.path['cleanup'].join('runcmds_package')
     runcmds_package = RUNCMDS_PACKAGE % runcmds_path
     self.m.file.write_text('write runcmds package', runcmds_package_path, runcmds_package)
     self.m.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
@@ -502,7 +502,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           'all tests',
           ['/bin/sh', qemu_runner_name],
           isolated=isolated_hash,
-          dump_json=self.m.path.join(self.m.path['tmp_base'], 'qemu_test_results.json'),
+          dump_json=self.m.path.join(self.m.path['cleanup'], 'qemu_test_results.json'),
           dimensions={
             'pool': 'fuchsia.tests',
             'os':   'Debian',

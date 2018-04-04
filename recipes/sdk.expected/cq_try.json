@@ -918,7 +918,7 @@
       "-out-dir",
       "[TMP_BASE]/sdk_tmp_1",
       "-output",
-      "[TMP_BASE]/fuchsia-sdk.tgz",
+      "[CLEANUP]/fuchsia-sdk.tgz",
       "[START_DIR]"
     ],
     "env": {

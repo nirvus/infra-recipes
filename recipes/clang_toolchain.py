@@ -184,7 +184,7 @@ def RunSteps(api, url, ref, revision):
   pkg_def.add_dir(pkg_dir)
   pkg_def.add_version_file('.versions/clang.cipd_version')
 
-  cipd_pkg_file = api.path['tmp_base'].join('clang.cipd')
+  cipd_pkg_file = api.path['cleanup'].join('clang.cipd')
 
   api.cipd.build_from_pkg(
       pkg_def=pkg_def,

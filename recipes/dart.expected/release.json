@@ -115,7 +115,7 @@
       "/path/to/tmp/json",
       "copy",
       "#!/boot/bin/sh\nmsleep 5000\nmkdir /tmp/infra-test-output\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\ncd /system/test/dart\ndart --checked tools/testing/dart/main.dart --progress=line -m release -a x64 -r vm vm> /test/dart.out && echo {\"tests\": [{\"name\": \"dart\", \"result\": \"PASS\"}]} > /tmp/infra-test-output/summary.json || echo {\"tests\": [{\"name\": \"dart\", \"result\": \"FAIL\"}]} > /tmp/infra-test-output/summary.json\numount /tmp/infra-test-output\ndm poweroff",
-      "[TMP_BASE]/runcmds"
+      "[CLEANUP]/runcmds"
     ],
     "infra_step": true,
     "name": "write runcmds",
@@ -139,8 +139,8 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n{\n    \"resources\": [\n        {\n            \"bootfs_path\": \"data/infra/runcmds\",\n            \"file\": \"[TMP_BASE]/runcmds\"\n        }\n    ]\n}\n",
-      "[TMP_BASE]/runcmds_package"
+      "\n{\n    \"resources\": [\n        {\n            \"bootfs_path\": \"data/infra/runcmds\",\n            \"file\": \"[CLEANUP]/runcmds\"\n        }\n    ]\n}\n",
+      "[CLEANUP]/runcmds_package"
     ],
     "infra_step": true,
     "name": "write runcmds package",
@@ -150,7 +150,7 @@
       "@@@STEP_LOG_LINE@runcmds_package@    \"resources\": [@@@",
       "@@@STEP_LOG_LINE@runcmds_package@        {@@@",
       "@@@STEP_LOG_LINE@runcmds_package@            \"bootfs_path\": \"data/infra/runcmds\",@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@            \"file\": \"[TMP_BASE]/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package@            \"file\": \"[CLEANUP]/runcmds\"@@@",
       "@@@STEP_LOG_LINE@runcmds_package@        }@@@",
       "@@@STEP_LOG_LINE@runcmds_package@    ]@@@",
       "@@@STEP_LOG_LINE@runcmds_package@}@@@",
@@ -235,7 +235,7 @@
       "[START_DIR]/buildtools/gn",
       "gen",
       "[START_DIR]/out/release-x64",
-      "--args=target_cpu=\"x64\" fuchsia_packages=\"topaz/packages/default,[TMP_BASE]/runcmds_package\" use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]"
+      "--args=target_cpu=\"x64\" fuchsia_packages=\"topaz/packages/default,[CLEANUP]/runcmds_package\" use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false extra_bootdata = [ \"//third_party/dart:dart_test_bootfs\" ]"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -504,7 +504,7 @@
       "-namespace",
       "default-gzip",
       "-dump-json",
-      "[TMP_BASE]/qemu_test_results.json",
+      "[CLEANUP]/qemu_test_results.json",
       "-isolated",
       "[dummy hash]",
       "-dimension",

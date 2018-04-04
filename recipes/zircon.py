@@ -536,7 +536,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
 def Build(api, target, toolchain, src_dir, use_isolate, needs_blkdev):
   """Builds zircon and returns a path to the build output directory."""
   # Generate runcmds script to drive tests.
-  tmp_dir = api.path['tmp_base'].join('zircon_tmp')
+  tmp_dir = api.path['cleanup'].join('zircon_tmp')
   api.file.ensure_directory('makedirs tmp', tmp_dir)
   runcmds_path = tmp_dir.join('runcmds')
   if use_isolate:

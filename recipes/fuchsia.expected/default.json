@@ -143,7 +143,7 @@
       "snapshot",
       "-v",
       "-time",
-      "[TMP_BASE]/jiri.snapshot"
+      "[CLEANUP]/jiri.snapshot"
     ],
     "infra_step": true,
     "name": "jiri snapshot"
@@ -155,7 +155,7 @@
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
       "-a",
       "sha1",
-      "[TMP_BASE]/jiri.snapshot"
+      "[CLEANUP]/jiri.snapshot"
     ],
     "infra_step": true,
     "name": "hash snapshot",
@@ -171,7 +171,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[TMP_BASE]/jiri.snapshot",
+      "[CLEANUP]/jiri.snapshot",
       "gs://fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
     ],
     "infra_step": true,
@@ -441,7 +441,7 @@
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
       "-cf",
-      "[TMP_BASE]/fuchsia.tar.gz",
+      "[CLEANUP]/fuchsia.tar.gz",
       "-z",
       "-C",
       "[START_DIR]/out/build-zircon/build-x64",
@@ -460,7 +460,7 @@
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
       "-a",
       "sha1",
-      "[TMP_BASE]/fuchsia.tar.gz"
+      "[CLEANUP]/fuchsia.tar.gz"
     ],
     "infra_step": true,
     "name": "hash archive",
@@ -476,7 +476,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[TMP_BASE]/fuchsia.tar.gz",
+      "[CLEANUP]/fuchsia.tar.gz",
       "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,

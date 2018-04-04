@@ -42,7 +42,7 @@
       "-namespace",
       "default-gzip",
       "-dump-json",
-      "[TMP_BASE]/task.json",
+      "[CLEANUP]/task.json",
       "-isolated",
       "606d94add94223636ee516c6bc9918f937823ccc",
       "-dimension",
@@ -125,7 +125,7 @@
       "-timeout",
       "1m",
       "-requests-json",
-      "[TMP_BASE]/task.json"
+      "[CLEANUP]/task.json"
     ],
     "infra_step": true,
     "name": "collect",

@@ -94,7 +94,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
   with api.step.nest('make sdk'):
     outdir = api.path.mkdtemp('sdk')
-    sdk = api.path['tmp_base'].join('fuchsia-sdk.tgz')
+    sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
     MakeSdk(api, outdir, sdk)
 
   if not api.properties.get('tryjob'):
@@ -126,7 +126,7 @@ def UploadArchive(api, sdk, digest):
 
 def UploadPackage(api, outdir, digest):
   cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
-  cipd_pkg_file = api.path['tmp_base'].join('sdk.cipd')
+  cipd_pkg_file = api.path['cleanup'].join('sdk.cipd')
 
   api.cipd.build(
       input_dir=outdir,

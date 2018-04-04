@@ -47,7 +47,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[TMP_BASE]/file",
+      "[CLEANUP]/file",
       "gs://example/path/to/file"
     ],
     "infra_step": true,
@@ -77,7 +77,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[TMP_BASE]/file",
+      "[CLEANUP]/file",
       "gs://example/path/to/file"
     ],
     "infra_step": true,
@@ -113,7 +113,7 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "gs://example/path/to/file",
-      "[TMP_BASE]/file"
+      "[CLEANUP]/file"
     ],
     "infra_step": true,
     "name": "gsutil download url"
@@ -129,7 +129,7 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "gs://example/staging/to/file",
-      "[TMP_BASE]/erang"
+      "[CLEANUP]/erang"
     ],
     "infra_step": true,
     "name": "gsutil cp (4)"

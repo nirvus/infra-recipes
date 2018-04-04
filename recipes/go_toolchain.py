@@ -78,7 +78,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
     return
-  cipd_pkg_file = api.path['tmp_base'].join('go.cipd')
+  cipd_pkg_file = api.path['cleanup'].join('go.cipd')
 
   api.cipd.build(
       input_dir=pkg_dir,

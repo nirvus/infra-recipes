@@ -246,7 +246,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
   pkg_def.add_dir(pkg_dir)
   pkg_def.add_version_file('.versions/gcc.cipd_version')
 
-  cipd_pkg_file = api.path['tmp_base'].join('gcc.cipd')
+  cipd_pkg_file = api.path['cleanup'].join('gcc.cipd')
 
   api.cipd.build_from_pkg(
       pkg_def=pkg_def,

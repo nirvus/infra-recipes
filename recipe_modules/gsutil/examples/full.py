@@ -11,7 +11,7 @@ DEPS = [
 def RunSteps(api):
   api.gsutil.ensure_gsutil()
 
-  local_file = api.path['tmp_base'].join('file')
+  local_file = api.path['cleanup'].join('file')
   bucket = 'example'
   cloud_file = api.gsutil.join('path/', 'to', 'file/')
 
@@ -55,7 +55,7 @@ def RunSteps(api):
     pass
 
   new_cloud_file = 'staging/to/file'
-  new_local_file = api.path['tmp_base'].join('erang')
+  new_local_file = api.path['cleanup'].join('erang')
   api.gsutil('cp', 'gs://%s/%s' % (bucket, new_cloud_file), new_local_file)
 
   private_key_file = 'path/to/key'

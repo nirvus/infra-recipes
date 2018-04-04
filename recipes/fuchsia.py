@@ -127,7 +127,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         test_data=['/path/to/out/bootdata-blob-pc.bin'],
     )
     # Begin creating a tar package.
-    package = api.tar.create(api.path['tmp_base'].join('fuchsia.tar.gz'), 'gzip')
+    package = api.tar.create(api.path['cleanup'].join('fuchsia.tar.gz'), 'gzip')
 
     # Add the images directory, which contain system images, to the package.
     package.add(build.fuchsia_build_dir.join('images'), build.fuchsia_build_dir)

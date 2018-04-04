@@ -48,7 +48,7 @@ def UploadPackage(api, revision, staging_dir):
   if step.json.output['result']:
     return
 
-  cipd_pkg_file = api.path['tmp_base'].join('jiri.cipd')
+  cipd_pkg_file = api.path['cleanup'].join('jiri.cipd')
 
   api.cipd.build(
       input_dir=staging_dir,

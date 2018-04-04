@@ -15,7 +15,7 @@ def RunSteps(api):
 
   api.swarming.swarming_server = 'chromium-swarm-dev.appspot.com'
 
-  json = api.path['tmp_base'].join('task.json')
+  json = api.path['cleanup'].join('task.json')
 
   # Trigger a new Swarming task.
   api.swarming.trigger('recipes-go',

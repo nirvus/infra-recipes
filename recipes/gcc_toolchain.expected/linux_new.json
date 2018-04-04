@@ -889,7 +889,7 @@
       "-pkg-def",
       "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/gcc.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/gcc/linux-amd64\", \"root\": \"[TMP_BASE]/gcc_tmp_1/gcc-linux\"}",
       "-out",
-      "[TMP_BASE]/gcc.cipd",
+      "[CLEANUP]/gcc.cipd",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -908,7 +908,7 @@
     "cmd": [
       "cipd",
       "pkg-register",
-      "[TMP_BASE]/gcc.cipd",
+      "[CLEANUP]/gcc.cipd",
       "-json-output",
       "/path/to/tmp/json",
       "-ref",
@@ -941,7 +941,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[TMP_BASE]/gcc.cipd",
+      "[CLEANUP]/gcc.cipd",
       "gs://fuchsia/gcc/linux-amd64/40-chars-fake-of-the-package-instance_id"
     ],
     "infra_step": true,

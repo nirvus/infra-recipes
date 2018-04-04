@@ -146,7 +146,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/zircon_tmp"
+      "[CLEANUP]/zircon_tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp"
@@ -160,7 +160,7 @@
       "/path/to/tmp/json",
       "copy",
       "#!/boot/bin/sh\nmsleep 5000\nmkdir /tmp/infra-test-output\nruntests -o /tmp/infra-test-output",
-      "[TMP_BASE]/zircon_tmp/runcmds"
+      "[CLEANUP]/zircon_tmp/runcmds"
     ],
     "infra_step": true,
     "name": "write runcmds",
@@ -186,7 +186,7 @@
     ],
     "cwd": "[START_DIR]/zircon",
     "env": {
-      "EXTRA_USER_MANIFEST_LINES": "infra/runcmds=[TMP_BASE]/zircon_tmp/runcmds"
+      "EXTRA_USER_MANIFEST_LINES": "infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"
     },
     "name": "build.build",
     "~followup_annotations": [
