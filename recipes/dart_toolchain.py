@@ -185,7 +185,7 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
     ])
 
   with api.step.nest('install'):
-    pkg_dir = api.path.mkdtemp('dart-sdk')
+    pkg_dir = api.path['cleanup'].join('dart-sdk')
     api.file.copytree('install dart-sdk',
                       out_dir(host_cpu).join('dart-sdk'),
                       pkg_dir,
@@ -214,7 +214,7 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
   pkg_def.add_dir(pkg_dir)
   pkg_def.add_version_file('.versions/dart-sdk.cipd_version')
 
-  cipd_pkg_file = api.path['tmp_base'].join('dart-sdk.cipd')
+  cipd_pkg_file = api.path['cleanup'].join('dart-sdk.cipd')
 
   api.cipd.build_from_pkg(
       pkg_def=pkg_def,

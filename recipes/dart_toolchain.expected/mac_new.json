@@ -481,7 +481,7 @@
       "copytree",
       "--symlinks",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/dart-sdk",
-      "[TMP_BASE]/dart-sdk_tmp_1"
+      "[CLEANUP]/dart-sdk"
     ],
     "infra_step": true,
     "name": "install.install dart-sdk",
@@ -498,7 +498,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot",
-      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.mac-x64"
+      "[CLEANUP]/dart-sdk/bin/gen_snapshot.mac-x64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot.mac-x64",
@@ -515,7 +515,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot_product",
-      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.mac-x64"
+      "[CLEANUP]/dart-sdk/bin/gen_snapshot_product.mac-x64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot_product.mac-x64",
@@ -532,7 +532,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64/exe.stripped/gen_snapshot_fuchsia",
-      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.fuchsia-arm64"
+      "[CLEANUP]/dart-sdk/bin/gen_snapshot.fuchsia-arm64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot.fuchsia-arm64",
@@ -549,7 +549,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseARM64/exe.stripped/gen_snapshot_product_fuchsia",
-      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.fuchsia-arm64"
+      "[CLEANUP]/dart-sdk/bin/gen_snapshot_product.fuchsia-arm64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot_product.fuchsia-arm64",
@@ -566,7 +566,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot_fuchsia",
-      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot.fuchsia-x64"
+      "[CLEANUP]/dart-sdk/bin/gen_snapshot.fuchsia-x64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot.fuchsia-x64",
@@ -583,7 +583,7 @@
       "/path/to/tmp/json",
       "copy",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64/exe.stripped/gen_snapshot_product_fuchsia",
-      "[TMP_BASE]/dart-sdk_tmp_1/bin/gen_snapshot_product.fuchsia-x64"
+      "[CLEANUP]/dart-sdk/bin/gen_snapshot_product.fuchsia-x64"
     ],
     "infra_step": true,
     "name": "install.install gen_snapshot_product.fuchsia-x64",
@@ -599,7 +599,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/dart-sdk_tmp_1/version",
+      "[CLEANUP]/dart-sdk/version",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -610,9 +610,9 @@
       "cipd",
       "pkg-build",
       "-pkg-def",
-      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/dart-sdk.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/dart-sdk/mac-amd64\", \"root\": \"[TMP_BASE]/dart-sdk_tmp_1\"}",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/dart-sdk.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/dart-sdk/mac-amd64\", \"root\": \"[CLEANUP]/dart-sdk\"}",
       "-out",
-      "[TMP_BASE]/dart-sdk.cipd",
+      "[CLEANUP]/dart-sdk.cipd",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -631,7 +631,7 @@
     "cmd": [
       "cipd",
       "pkg-register",
-      "[TMP_BASE]/dart-sdk.cipd",
+      "[CLEANUP]/dart-sdk.cipd",
       "-json-output",
       "/path/to/tmp/json",
       "-ref",
