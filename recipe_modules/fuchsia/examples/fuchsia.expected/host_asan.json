@@ -187,9 +187,9 @@
   {
     "cmd": [
       "[START_DIR]/scripts/build-zircon.sh",
-      "-H",
       "-t",
-      "x64"
+      "x64",
+      "-H"
     ],
     "name": "build.zircon",
     "~followup_annotations": [

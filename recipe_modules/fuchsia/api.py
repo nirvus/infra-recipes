@@ -46,6 +46,13 @@ RUNCMDS_PACKAGE = '''
 }
 '''
 
+# (variant_name, switch) mapping Fuchsia GN variant names (as used in the
+# variant property) to build-zircon.sh switches.
+VARIANTS_ZIRCON = [
+  ('host_asan', '-H'),
+  ('asan', '-A'),
+]
+
 
 # TODO(mknyszek): Figure out whether its safe to derive this from target.
 def _board_name(target):
@@ -197,13 +204,17 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
     return str(runcmds_package_path)
 
-  def _build_zircon(self, target):
+  def _build_zircon(self, target, variants):
     """Builds zircon for the specified target."""
-    self.m.step('zircon', [
-      self.m.path['start_dir'].join('scripts', 'build-zircon.sh'),
-      '-H',
-      '-t', target,
-    ])
+    cmd = [
+        self.m.path['start_dir'].join('scripts', 'build-zircon.sh'),
+        '-t',
+        target,
+    ]
+    for variant, switch in VARIANTS_ZIRCON:
+      if variant in variants:
+        cmd.append(switch)
+    self.m.step('zircon', cmd)
 
   def _setup_goma(self):
     """Sets up goma directory and returns an environment for goma."""
@@ -300,7 +311,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         has_tests=bool(test_cmds),
     )
     with self.m.step.nest('build'):
-      self._build_zircon(target)
+      self._build_zircon(target, variants)
       self._build_fuchsia(build=build, build_type=build_type, packages=packages,
                           variants=variants, gn_args=gn_args,
                           ninja_targets=ninja_targets)
