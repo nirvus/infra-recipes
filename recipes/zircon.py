@@ -683,13 +683,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
       # Run core tests with userboot.
       RunTests(api, 'run core tests', build_dir, TARGET_TO_ARCH[target], image_path,
-          kvm=use_kvm, initrd=bootfs_path, cmdline='userboot=bin/core-tests',
+          kvm=use_kvm, initrd=bootfs_path, cmdline=' '.join(
+              ['userboot=bin/core-tests'] + TARGET_CMDLINE[target]),
           shutdown_pattern=CORE_TESTS_MATCH, timeout=300, step_test_data=lambda:
               api.raw_io.test_api.stream_output('CASES: 1 SUCCESS: 1 FAILED: 0'))
 
       # Boot and run tests.
       RunTests(api, 'run booted tests', build_dir, TARGET_TO_ARCH[target], image_path,
-          kvm=use_kvm, initrd=bootfs_path, cmdline='zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH,
+          kvm=use_kvm, initrd=bootfs_path, cmdline=' '.join(
+              ['zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH] + TARGET_CMDLINE[target]),
           shutdown_pattern=BOOTED_TESTS_MATCH, timeout=1200, step_test_data=lambda:
               api.raw_io.test_api.stream_output('SUMMARY: Ran 2 tests: 1 failed'))
 

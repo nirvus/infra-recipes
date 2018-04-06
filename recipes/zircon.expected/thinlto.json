@@ -240,7 +240,7 @@
       "--initrd",
       "[START_DIR]/zircon/build-x64-thinlto/bootdata.bin",
       "--cmdline",
-      "userboot=bin/core-tests",
+      "userboot=bin/core-tests kernel.serial=legacy",
       "--shutdown_pattern",
       "CASES: +(\\d+) +SUCCESS: +(\\d+) +FAILED: +(?P<failed>\\d+)",
       "[START_DIR]/zircon/build-x64-thinlto/zircon.bin"
@@ -268,7 +268,7 @@
       "--initrd",
       "[START_DIR]/zircon/build-x64-thinlto/bootdata.bin",
       "--cmdline",
-      "zircon.autorun.boot=/boot/infra/runcmds",
+      "zircon.autorun.boot=/boot/infra/runcmds kernel.serial=legacy",
       "--shutdown_pattern",
       "SUMMARY: Ran (\\d+) tests: (?P<failed>\\d+) failed",
       "[START_DIR]/zircon/build-x64-thinlto/zircon.bin"
