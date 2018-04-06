@@ -55,6 +55,12 @@ ARCHS = ('x86_64', 'aarch64')
 # Supported device types for testing.
 DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK']
 
+# Per-target kernel command line.
+TARGET_CMDLINE = dict(zip(
+    TARGETS,
+    [['kernel.serial=legacy'], []]
+))
+
 # toolchain: (['make', 'args'], 'builddir-suffix')
 TOOLCHAINS = {
   'gcc': ([], ''),
@@ -392,7 +398,8 @@ def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
     '-serial', 'stdio',
     '-monitor', 'none',
     '-initrd', TARGET_TO_BOOT_IMAGE[target],
-    '-append', ' '.join(['TERM=dumb', 'kernel.halt-on-panic=true'] + cmdline),
+    '-append', ' '.join(['TERM=dumb', 'kernel.halt-on-panic=true'] +
+                        TARGET_CMDLINE[target] + cmdline),
   ]
 
   if arch == 'aarch64':

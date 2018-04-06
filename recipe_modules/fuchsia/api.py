@@ -19,6 +19,12 @@ TARGET_TO_KERNEL_IMAGE = dict(zip(
     ['zircon.bin', 'qemu-zircon.bin'],
 ))
 
+# Per-target kernel command line.
+TARGET_CMDLINE = dict(zip(
+    TARGETS,
+    [['kernel.serial=legacy'], []]
+))
+
 # List of available build types.
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
@@ -412,7 +418,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     cmdline = [
       'zircon.autorun.system=/system/data/infra/runcmds',
       'kernel.halt-on-panic=true',
-    ]
+    ] + TARGET_CMDLINE[build.target]
 
     # As part of running tests, we'll send a MinFS image over to another machine
     # which will be declared as a block device in QEMU, at which point
