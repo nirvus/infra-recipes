@@ -42,17 +42,11 @@ PROPERTIES = {
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
-    'upload_snapshot':
-        Property(
-            kind=bool,
-            help='Whether to upload jiri snapshot'
-            ' (always False if tryjob is True)',
-            default=True),
 }
 
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, project, manifest, remote, upload_snapshot):
+             patch_repository_url, project, manifest, remote):
   api.go.ensure_go()
 
   api.fuchsia.checkout(
@@ -62,7 +56,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project,
-      upload_snapshot=upload_snapshot and not api.properties.get('tryjob'))
+      upload_snapshot=False)
 
   with api.context(infra_steps=True):
     # api.fuchsia.checkout() will have ensured that jiri exists.
@@ -117,10 +111,23 @@ def PackageArchive(api, sdk):
 
 def UploadArchive(api, sdk, digest):
   api.gsutil.upload(
-      'fuchsia',
-      sdk,
-      'sdk/linux-amd64/%s' % digest,
+      bucket='fuchsia',
+      src=sdk,
+      dst='sdk/linux-amd64/%s' % digest,
       name='upload fuchsia-sdk %s' % digest,
+      unauthenticated_url=True)
+  # Note that this will upload the snapshot to a location different from the
+  # path that api.fuchsia copied it to. This uses a path based on the hash of
+  # the SDK artifact, not based on the hash of the snapshot itself. Clients can
+  # use this to find the snapshot used to build a specific SDK artifact.
+  snapshot_file = api.path['cleanup'].join('jiri.snapshot')
+  api.jiri.snapshot(snapshot_file)
+  api.gsutil.upload(
+      bucket='fuchsia-snapshots',
+      src=snapshot_file,
+      dst=digest,
+      link_name='jiri.snapshot',
+      name='upload jiri.snapshot',
       unauthenticated_url=True)
 
 

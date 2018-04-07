@@ -1063,15 +1063,15 @@ Recipe for building Rust toolchain.
 
 Recipe for building Fuchsia SDKs.
 
-&mdash; **def [MakeSdk](/recipes/sdk.py#108)(api, outdir, sdk):**
+&mdash; **def [MakeSdk](/recipes/sdk.py#102)(api, outdir, sdk):**
 
-&mdash; **def [PackageArchive](/recipes/sdk.py#113)(api, sdk):**
+&mdash; **def [PackageArchive](/recipes/sdk.py#107)(api, sdk):**
 
-&mdash; **def [RunSteps](/recipes/sdk.py#54)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, upload_snapshot):**
+&mdash; **def [RunSteps](/recipes/sdk.py#48)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote):**
 
-&mdash; **def [UploadArchive](/recipes/sdk.py#118)(api, sdk, digest):**
+&mdash; **def [UploadArchive](/recipes/sdk.py#112)(api, sdk, digest):**
 
-&mdash; **def [UploadPackage](/recipes/sdk.py#127)(api, outdir, digest):**
+&mdash; **def [UploadPackage](/recipes/sdk.py#134)(api, outdir, digest):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)
