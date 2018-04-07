@@ -244,7 +244,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       with self.m.goma.build_with_goma(env=goma_env):
         args = [
           'target_cpu="%s"' % build.target,
-          'fuchsia_packages="%s"' % ','.join(packages),
+          'fuchsia_packages=[%s]' % ','.join('"%s"' % pkg for pkg in packages),
           'use_goma=true',
           'goma_dir="%s"' % self.m.goma.goma_dir,
           'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
