@@ -128,25 +128,59 @@ class JiriApi(recipe_api.RecipeApi):
     return self(*cmd, **kwargs)
 
   def edit_manifest(self, manifest, projects=None, imports=None, test_data=None):
+    """Creates a step to edit a Jiri manifest.
+
+    Args:
+      manifest (str): Path to the manifest to edit relative to the project root.
+        e.g. "manifest/zircon"
+      projects (List): A heterogeneous list whose entries are either:
+        * A string representing the name of a project to edit.
+        * A (name, revision) tuple representing a project to edit.
+      imports (List): The same as projects, except each list entry represents an
+        import to edit.
+
+    Returns:
+      A step to edit the manifest.
+    """
+
     cmd = [
       'edit',
       '-json-output', self.m.json.output(),
     ]
+    # Test data consisting of (name, revision) tuples of imports to edit in the
+    # given manifest.
+    test_imports = []
+
     if imports:
       for i in imports:
         if type(i) is str:
           cmd.extend(['-import', i])
+          test_imports.append((i, "HEAD"))
         elif type(i) is tuple:
           cmd.extend(['-import', '%s=%s' % i])
+          test_imports.append(i)
+
+    # Test data consisting of (name, revision) tuples of projects to edit in the
+    # given manifest.
+    test_projects = []
+
     if projects:
       for p in projects:
         if type(p) is str:
           cmd.extend(['-project', p])
+          test_projects.append((p, "HEAD"))
         elif type(p) is tuple:
           cmd.extend(['-project', '%s=%s' % p])
+          test_projects.append(p)
     cmd.extend([manifest])
+
+    # Generate test data
     if test_data is None:
-      test_data = self.test_api.example_edit
+      test_data = self.test_api.example_edit(
+          imports=test_imports,
+          projects=test_projects,
+      )
+
     step = self(*cmd,
                 step_test_data=lambda: self.m.json.test_api.output(test_data))
     return step.json.output

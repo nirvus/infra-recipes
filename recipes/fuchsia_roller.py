@@ -6,9 +6,13 @@
 
 import time
 
-from recipe_engine.config import Single
+from recipe_engine.config import Enum, Single
 from recipe_engine.recipe_api import Property
 
+# ROLL_TYPES lists the types of rolls we can perform on the target manifest.
+# * 'import': An <import> tag will be updated.
+# * 'project': A <project> tag will be updated.
+ROLL_TYPES = ['import', 'project']
 
 DEPS = [
   'infra/gerrit',
@@ -29,6 +33,10 @@ PROPERTIES = {
   'project': Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
+  'roll_type': Property(kind=Enum(*ROLL_TYPES),
+      help='The type of roll to perform', default='import'),
+  # TODO(kjharland): Change wording: 'import*' -> 'roll*' now that 'import' is
+  # misleading.
   'import_in': Property(kind=str, help='Name of the manifest to import in'),
   'import_from': Property(kind=str, help='Name of the manifest to import from'),
   'revision': Property(kind=str, help='Revision'),
@@ -73,7 +81,7 @@ COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 # The purpose of dry-run mode is to test the auto-roller end-to-end. This is
 # useful because now we can have an auto-roller in staging, and we can block
 # updates behind 'dry_run' as a sort of feature gate.
-def RunSteps(api, category, project, manifest, remote, import_in, import_from, revision,
+def RunSteps(api, category, project, manifest, remote, roll_type, import_in, import_from, revision,
              dry_run, poll_timeout_secs, poll_interval_secs):
   api.jiri.ensure_jiri()
   api.gerrit.ensure_gerrit()
@@ -86,12 +94,23 @@ def RunSteps(api, category, project, manifest, remote, import_in, import_from, r
 
     project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):
-      changes = api.jiri.edit_manifest(import_in, imports=[(import_from, revision)])
-      if len(changes['imports']) == 0:
+      # Determine whether to update manifest imports or projects.
+      if roll_type is 'import':
+        updated_section = 'imports'
+        imports = [(import_from, revision)]
+        projects = None
+      elif roll_type is 'project':
+        updated_section = 'projects'
+        imports = None
+        projects = [(import_from, revision)]
+
+      changes = api.jiri.edit_manifest(import_in, projects=projects, imports=imports)
+
+      if len(changes[updated_section]) == 0:
         api.step.active_result.presentation.step_text = 'manifest up-to-date, nothing to roll'
         return
-      old_rev = changes['imports'][0]['old_revision']
-      new_rev = changes['imports'][0]['new_revision']
+      old_rev = changes[updated_section][0]['old_revision']
+      new_rev = changes[updated_section][0]['new_revision']
       url = FUCHSIA_URL + import_from
       log = api.gitiles.log(url, '%s..%s' % (old_rev, new_rev), step_name='log')
       message = COMMIT_MESSAGE.format(
@@ -237,6 +256,19 @@ def GenTests(api):
     'status': 'MERGED',
     'labels': {'Commit-Queue': {'approved':{}}}
   }))
+
+  # Test rolling a project instead of an import.
+  yield (api.test('cobalt_project') +
+        api.properties(project='garnet',
+                       manifest='manifest/minimal',
+                       remote='https://fuchsia.googlesource.com/garnet',
+                       import_in='manifest/third_party',
+                       roll_type='project',
+                       import_from='cobalt',
+                       revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
+                       poll_interval_secs=0.001,
+                       poll_timeout_secs=0.1) +
+         api.gitiles.log('log', 'A') + new_change_data + success_step_data)
 
   # Test a successful roll of zircon into garnet.
   yield (api.test('zircon') +

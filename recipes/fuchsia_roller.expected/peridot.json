@@ -150,10 +150,13 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"imports\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"new_revision\": \"B\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"old_revision\": \"A\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"peridot\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"new_revision\": \"fc4dc762688d2263b254208f444f5c0a4b91bc07\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"old_revision\": \"[OLD_REVISION]\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"remote\": \"http://example.com\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  ], @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"projects\": []@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -165,7 +168,7 @@
       "-json-output",
       "/path/to/tmp/json",
       "https://fuchsia.googlesource.com/peridot",
-      "A..B"
+      "[OLD_REVISION]..fc4dc762688d2263b254208f444f5c0a4b91bc07"
     ],
     "cwd": "[START_DIR]/topaz",
     "infra_step": true,
@@ -267,7 +270,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"topaz\", \"subject\": \"[roll] Roll peridot A..B (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"topaz\", \"subject\": \"[roll] Roll peridot [OLD_RE..fc4dc76 (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -288,7 +291,7 @@
       "git",
       "commit",
       "-m",
-      "[roll] Roll peridot A..B (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
+      "[roll] Roll peridot [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
       "manifest/topaz"
     ],
     "cwd": "[START_DIR]/topaz",

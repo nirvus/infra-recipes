@@ -139,24 +139,25 @@
       "-time",
       "-json-output",
       "/path/to/tmp/json",
-      "-import",
-      "zircon=fc4dc762688d2263b254208f444f5c0a4b91bc07",
-      "manifest/garnet"
+      "-project",
+      "cobalt=fc4dc762688d2263b254208f444f5c0a4b91bc07",
+      "manifest/third_party"
     ],
     "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "jiri edit",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"imports\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"imports\": [], @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"projects\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"name\": \"zircon\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"cobalt\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"new_revision\": \"fc4dc762688d2263b254208f444f5c0a4b91bc07\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"old_revision\": \"[OLD_REVISION]\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"path\": \"/path/to/cobalt\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"remote\": \"http://example.com\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ], @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"projects\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -167,7 +168,7 @@
       "log",
       "-json-output",
       "/path/to/tmp/json",
-      "https://fuchsia.googlesource.com/zircon",
+      "https://fuchsia.googlesource.com/cobalt",
       "[OLD_REVISION]..fc4dc762688d2263b254208f444f5c0a4b91bc07"
     ],
     "cwd": "[START_DIR]/garnet",
@@ -270,7 +271,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"[roll] Roll zircon [OLD_RE..fc4dc76 (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"[roll] Roll cobalt [OLD_RE..fc4dc76 (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -291,8 +292,8 @@
       "git",
       "commit",
       "-m",
-      "[roll] Roll zircon [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
-      "manifest/garnet"
+      "[roll] Roll cobalt [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
+      "manifest/third_party"
     ],
     "cwd": "[START_DIR]/garnet",
     "infra_step": true,
@@ -343,35 +344,18 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"labels\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {}@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"approved\": {}@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"status\": \"NEW\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"status\": \"MERGED\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
-    "cmd": [
-      "[START_DIR]/cipd/gerrit/gerrit",
-      "change-abandon",
-      "-host",
-      "https://fuchsia-review.googlesource.com",
-      "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\"}",
-      "-output",
-      "/path/to/tmp/json"
-    ],
-    "name": "abandon roll: CQ failed",
-    "~followup_annotations": [
-      "@@@STEP_LOG_END@json.output (invalid)@@@",
-      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
-      "@@@STEP_LOG_END@json.output (exception)@@@"
-    ]
-  },
-  {
     "name": "$result",
-    "reason": "Failed to roll changes: CQ failure.",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

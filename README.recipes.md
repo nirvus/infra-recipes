@@ -638,11 +638,25 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#191)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#225)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#111)(self, all=False, \*\*kwargs):**
 
 &mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#130)(self, manifest, projects=None, imports=None, test_data=None):**
+
+Creates a step to edit a Jiri manifest.
+
+Args:
+  manifest (str): Path to the manifest to edit relative to the project root.
+    e.g. "manifest/zircon"
+  projects (List): A heterogeneous list whose entries are either:
+    * A string representing the name of a project to edit.
+    * A (name, revision) tuple representing a project to edit.
+  imports (List): The same as projects, except each list entry represents an
+    import to edit.
+
+Returns:
+  A step to edit the manifest.
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#32)(self, version=None):**
 
@@ -652,15 +666,15 @@ Return a jiri command step.
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#45)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#154)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#188)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects, test_data=None):**
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#102)(self, local_manifest=False, attempts=3):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#171)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#205)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#181)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#215)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#82)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
@@ -919,11 +933,11 @@ Args:
 &mdash; **def [RunSteps](/recipes/fuchsia_perf.py#72)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
-[DEPS](/recipes/fuchsia_roller.py#13): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+[DEPS](/recipes/fuchsia_roller.py#17): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
 
 Recipe for rolling Fuchsia layers into upper layers.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#76)(api, category, project, manifest, remote, import_in, import_from, revision, dry_run, poll_timeout_secs, poll_interval_secs):**
+&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#84)(api, category, project, manifest, remote, roll_type, import_in, import_from, revision, dry_run, poll_timeout_secs, poll_interval_secs):**
 ### *recipes* / [gcc\_toolchain](/recipes/gcc_toolchain.py)
 
 [DEPS](/recipes/gcc_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]
