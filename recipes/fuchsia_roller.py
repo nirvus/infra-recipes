@@ -53,19 +53,22 @@ COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 
 
 # This recipe has two 'modes' of operation: production and dry-run. Which mode
-# of execution should be used is dictated by the 'dry_run' property. The
-# differences between the two are as follows:
+# of execution should be used is dictated by the 'dry_run' property. A list of
+# steps executed by this recipe, in addition to where dry-run diverges from
+# production, is listed below:
 #
-# Production Mode:
-# * Create a patch locally
-# * Push to Gerrit with Code-Review+2 and Commit-Queue+2.
-# TODO(mknyszek): Wait for CQ to land the change in production.
-#
-# Dry-run Mode:
-# * Create a patch locally
-# * Push to Gerrit with Commit-Queue+1.
-# * Wait for CQ to finish tryjobs.
-# * Abandon the change to clean up.
+# * Query gitiles for a list of changes
+# * Create a patch in Gerrit and grab Change ID
+# * Create a patch locally with Change ID
+# * Push local patch to Gerrit
+# * Production mode:
+#   * Set labels Code-Review+2 and Commit-Queue+2 on Gerrit patch
+#   * Wait for CQ to finish tryjobs and either merge the change or
+#     remove the label Commit-Queue+2 (failed tryjobs)
+# * Dry-run Mode:
+#   * Set label Commit-Queue+1 on Gerrit patch
+#   * Wait for CQ to finish tryjobs and remove label Commit-Queue+1
+#   * Abandon the change to clean up
 #
 # The purpose of dry-run mode is to test the auto-roller end-to-end. This is
 # useful because now we can have an auto-roller in staging, and we can block
