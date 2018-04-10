@@ -95,11 +95,11 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in, imp
     project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):
       # Determine whether to update manifest imports or projects.
-      if roll_type is 'import':
+      if roll_type == 'import':
         updated_section = 'imports'
         imports = [(import_from, revision)]
         projects = None
-      elif roll_type is 'project':
+      elif roll_type == 'project':
         updated_section = 'projects'
         imports = None
         projects = [(import_from, revision)]
