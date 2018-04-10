@@ -35,10 +35,21 @@ PROPERTIES = {
   'remote': Property(kind=str, help='Remote manifest repository'),
   'roll_type': Property(kind=Enum(*ROLL_TYPES),
       help='The type of roll to perform', default='import'),
-  # TODO(kjharland): Change wording: 'import*' -> 'roll*' now that 'import' is
-  # misleading.
-  'import_in': Property(kind=str, help='Name of the manifest to import in'),
-  'import_from': Property(kind=str, help='Name of the manifest to import from'),
+  # TODO(kjharland): Rename to 'manifest_to_edit' since "import" is misleading
+  # if we are not actually rolling an <import> tag in the manifest.
+  'import_in': Property(kind=str,
+      help='Path to the manifest to edit relative to $project'),
+  # TODO(kjharland): Rename to 'element_name' because "import" is misleading.
+  'import_from': Property(kind=str,
+      help='Name of the <project> or <import> to edit in $import_in'),
+  # TODO(kjharland): This defaults to fuchsia.googlesource.com/$import_from
+  # below to support existing rollers. Do not rely on this behavior as it is
+  # going away and explicitly specify the target URL. Delete this property
+  # altogether when https://fuchsia.atlassian.net/browse/IN-321 is resolved.
+  'roll_from_repo': Property(
+    kind=str,
+    help='The repo to roll from. Must match the value of the remote= attribute of the $import_from element',
+    default=None),
   'revision': Property(kind=str, help='Revision'),
   'dry_run': Property(kind=bool,
                       default=False,
@@ -81,8 +92,8 @@ COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 # The purpose of dry-run mode is to test the auto-roller end-to-end. This is
 # useful because now we can have an auto-roller in staging, and we can block
 # updates behind 'dry_run' as a sort of feature gate.
-def RunSteps(api, category, project, manifest, remote, roll_type, import_in, import_from, revision,
-             dry_run, poll_timeout_secs, poll_interval_secs):
+def RunSteps(api, category, project, manifest, remote, roll_type, import_in, import_from,
+             roll_from_repo, revision, dry_run, poll_timeout_secs, poll_interval_secs):
   api.jiri.ensure_jiri()
   api.gerrit.ensure_gerrit()
   api.gitiles.ensure_gitiles()
@@ -111,8 +122,14 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in, imp
         return
       old_rev = changes[updated_section][0]['old_revision']
       new_rev = changes[updated_section][0]['new_revision']
-      url = FUCHSIA_URL + import_from
-      log = api.gitiles.log(url, '%s..%s' % (old_rev, new_rev), step_name='log')
+
+      # If repository URL was not given for the rolled dependency, assume it
+      # lives at fuchsia.googlesource.com.
+      # TODO(kjharland): Delete this after making roll_from_repo a required property.
+      if not roll_from_repo:
+        roll_from_repo = FUCHSIA_URL + import_from
+
+      log = api.gitiles.log(roll_from_repo, '%s..%s' % (old_rev, new_rev), step_name='log')
       message = COMMIT_MESSAGE.format(
           project=import_from,
           old=old_rev[:7],
@@ -265,6 +282,7 @@ def GenTests(api):
                        import_in='manifest/third_party',
                        roll_type='project',
                        import_from='cobalt',
+                       roll_from_repo='https://cobalt-analytics.googlesource.com/config',
                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
                        poll_interval_secs=0.001,
                        poll_timeout_secs=0.1) +

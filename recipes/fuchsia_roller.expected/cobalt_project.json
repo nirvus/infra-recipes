@@ -168,7 +168,7 @@
       "log",
       "-json-output",
       "/path/to/tmp/json",
-      "https://fuchsia.googlesource.com/cobalt",
+      "https://cobalt-analytics.googlesource.com/config",
       "[OLD_REVISION]..fc4dc762688d2263b254208f444f5c0a4b91bc07"
     ],
     "cwd": "[START_DIR]/garnet",
