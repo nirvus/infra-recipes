@@ -110,10 +110,13 @@ def PackageArchive(api, sdk):
 
 
 def UploadArchive(api, sdk, digest):
+  archive_base_location = 'sdk/linux-amd64'
+  archive_bucket = 'fuchsia'
   api.gsutil.upload(
-      bucket='fuchsia',
+      bucket=archive_bucket,
       src=sdk,
-      dst='sdk/linux-amd64/%s' % digest,
+      dst='%s/%s' % (archive_base_location, digest),
+      link_name='archive',
       name='upload fuchsia-sdk %s' % digest,
       unauthenticated_url=True)
   # Note that this will upload the snapshot to a location different from the
@@ -128,6 +131,16 @@ def UploadArchive(api, sdk, digest):
       dst=digest,
       link_name='jiri.snapshot',
       name='upload jiri.snapshot',
+      unauthenticated_url=True)
+  # Record the digest of the most recently uploaded archive for downstream autorollers.
+  digest_path = api.path['cleanup'].join('digest')
+  api.file.write_text('write digest', digest_path, digest)
+  api.gsutil.upload(
+      bucket=archive_bucket,
+      src=digest_path,
+      dst='%s/LATEST_ARCHIVE' % archive_base_location,
+      link_name='LATEST_ARCHIVE',
+      name='upload latest digest',
       unauthenticated_url=True)
 
 

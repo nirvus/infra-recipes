@@ -1085,7 +1085,7 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [UploadArchive](/recipes/sdk.py#112)(api, sdk, digest):**
 
-&mdash; **def [UploadPackage](/recipes/sdk.py#134)(api, outdir, digest):**
+&mdash; **def [UploadPackage](/recipes/sdk.py#147)(api, outdir, digest):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)

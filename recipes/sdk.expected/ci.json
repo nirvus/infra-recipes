@@ -970,7 +970,7 @@
     "name": "upload sdk.upload fuchsia-sdk 27a0c185de8bb5dba483993ff1e362bc9e2c7643",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
+      "@@@STEP_LINK@archive@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
     ]
   },
   {
@@ -1004,6 +1004,43 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "27a0c185de8bb5dba483993ff1e362bc9e2c7643",
+      "[CLEANUP]/digest"
+    ],
+    "infra_step": true,
+    "name": "upload sdk.write digest",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/digest",
+      "gs://fuchsia/sdk/linux-amd64/LATEST_ARCHIVE"
+    ],
+    "infra_step": true,
+    "name": "upload sdk.upload latest digest",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@LATEST_ARCHIVE@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/LATEST_ARCHIVE@@@"
     ]
   },
   {
