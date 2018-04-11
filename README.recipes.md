@@ -731,15 +731,13 @@ Returns:
 The path to the minfs command.
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
 
-[DEPS](/recipe_modules/qemu/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/qemu/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [QemuApi](/recipe_modules/qemu/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 QemuApi provides support for QEMU.
 
-&emsp; **@contextmanager**<br>&mdash; **def [background\_run](/recipe_modules/qemu/api.py#61)(self, \*args, \*\*kwargs):**
-
-&mdash; **def [create\_image](/recipe_modules/qemu/api.py#70)(self, image, backing_file, fmt='qcow2'):**
+&mdash; **def [create\_image](/recipe_modules/qemu/api.py#31)(self, image, backing_file, fmt='qcow2'):**
 
 Creates a QEMU image from a backing file.
 
@@ -748,13 +746,9 @@ Args:
   backing_file (Path): The backing file to use for the image.
   fmt (str): The format of the image.
 
-&mdash; **def [ensure\_qemu](/recipe_modules/qemu/api.py#44)(self, version=None):**
+&mdash; **def [ensure\_qemu](/recipe_modules/qemu/api.py#17)(self, version=None):**
 
-&mdash; **def [qemu\_executable](/recipe_modules/qemu/api.py#54)(self, arch):**
-
-&emsp; **@property**<br>&mdash; **def [qemu\_img](/recipe_modules/qemu/api.py#57)(self):**
-
-&mdash; **def [run](/recipe_modules/qemu/api.py#94)(self, step_name, \*args, \*\*kwargs):**
+&emsp; **@property**<br>&mdash; **def [qemu\_img](/recipe_modules/qemu/api.py#27)(self):**
 ### *recipe_modules* / [service\_account](/recipe_modules/service_account)
 
 [DEPS](/recipe_modules/service_account/__init__.py#1): [recipe\_engine/path][recipe_engine/recipe_modules/path]
@@ -1054,9 +1048,9 @@ Recipe for building QEMU.
 &mdash; **def [RunSteps](/recipes/qemu.py#43)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, manifest, remote, platform):**
 ### *recipes* / [qemu:examples/full](/recipe_modules/qemu/examples/full.py)
 
-[DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
-&mdash; **def [RunSteps](/recipe_modules/qemu/examples/full.py#22)(api, arch, kvm):**
+&mdash; **def [RunSteps](/recipe_modules/qemu/examples/full.py#17)(api):**
 ### *recipes* / [recipes](/recipes/recipes.py)
 
 [DEPS](/recipes/recipes.py#10): [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
