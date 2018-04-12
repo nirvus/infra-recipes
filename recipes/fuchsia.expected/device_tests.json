@@ -830,11 +830,13 @@
       "-z",
       "-C",
       "[START_DIR]/out/build-zircon/build-x64",
+      "tools/bootserver",
       "zircon.bin",
       "-C",
       "[START_DIR]/out/debug-x64",
       "images",
-      "path/to/out/bootdata-blob-pc.bin"
+      "path/to/out/bootdata-blob-pc.bin",
+      "args.gn"
     ],
     "name": "tar fuchsia"
   },

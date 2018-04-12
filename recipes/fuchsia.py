@@ -137,6 +137,14 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     for p in bootdata_paths:
       package.add(p, build.fuchsia_build_dir)
 
+    # Add args.gn, a file containing the arguments passed to GN, to the package.
+    package.add(build.fuchsia_build_dir.join('args.gn'), build.fuchsia_build_dir)
+
+    # Add the bootserver tool from zircon to the package. Note that since the
+    # CWD is set to the zircon build dir, it will be placed in tools/bootserver
+    # in the archive.
+    package.add(build.zircon_build_dir.join('tools', 'bootserver'), build.zircon_build_dir)
+
     # Add the zircon kernel binary to the package.
     package.add(build.zircon_build_dir.join(build.zircon_kernel_image), build.zircon_build_dir)
 
