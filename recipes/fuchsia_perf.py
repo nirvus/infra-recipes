@@ -22,6 +22,8 @@ DEFAULT_CATAPULT_URL = 'https://chromeperf.appspot.com'
 
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
+DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK']
+
 DEPS = [
     'infra/catapult',
     'infra/fuchsia',
@@ -66,11 +68,16 @@ PROPERTIES = {
             kind=str,
             help='Catapult dashboard URL',
             default=DEFAULT_CATAPULT_URL),
+    'device_type':
+        Property(
+            kind=Enum(*DEVICES),
+            help='The type of device to execute tests on',
+            default='QEMU'),
 }
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
-             variant, gn_args, catapult_url):
+             variant, gn_args, catapult_url, device_type):
   api.catapult.ensure_catapult()
   api.fuchsia.checkout(
       manifest=manifest,
@@ -90,6 +97,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       )
   ]
 
+  test_in_qemu = (device_type == 'QEMU')
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
@@ -97,9 +105,14 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       variants=variant,
       gn_args=gn_args,
       test_cmds=test_cmds,
+      test_in_qemu=test_in_qemu,
   )
 
-  test_results = api.fuchsia.test(build)
+  if test_in_qemu:
+    test_results = api.fuchsia.test(build)
+  else:
+    test_results = api.fuchsia.test_on_device(device_type=device_type,
+                                              build=build)
 
   # Skip analysis steps if our test output is missing. This avoids masking a system
   # failure with an obscure and unrelated error later on.
@@ -191,6 +204,19 @@ def GenTests(api):
           api.raw_io.output_dir({
               'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
           }))
+
+  yield api.test('device_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      device_type='Intel NUC Kit NUC6i3SYK',
+  ) + api.fuchsia.task_step_data(device=True) + api.step_data(
+          'extract results',
+          api.raw_io.output_dir({
+              'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+          }))
+
   yield api.test('missing test results') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
