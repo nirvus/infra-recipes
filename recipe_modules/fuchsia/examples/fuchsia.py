@@ -52,7 +52,7 @@ PROPERTIES = {
                             default=''),
   'device_type': Property(kind=str,
                           help='The type of device to run tests on',
-                          default='qemu'),
+                          default='QEMU'),
   'upload_snapshot': Property(kind=bool,
                           help='Whether to upload jiri snapshot (always False if tryjob is true)',
                           default=True),
@@ -72,7 +72,6 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       patch_project=patch_project,
       upload_snapshot=upload_snapshot,
   )
-  test_in_qemu = (device_type == 'qemu')
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
@@ -81,13 +80,10 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       gn_args=gn_args,
       ninja_targets=ninja_targets,
       test_cmds=['runtests' + runtests_args] if run_tests else None,
-      test_in_qemu=test_in_qemu,
+      test_device_type=device_type,
   )
   if run_tests:
-    if test_in_qemu:
-      test_results = api.fuchsia.test(build)
-    else:
-      test_results = api.fuchsia.test_on_device(device_type, build)
+    test_results = api.fuchsia.test(build)
     api.fuchsia.analyze_test_results('test results', test_results)
 
 def GenTests(api):

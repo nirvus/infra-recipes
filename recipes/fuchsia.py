@@ -57,7 +57,9 @@ PROPERTIES = {
                             help='Arguments to pass to the executable running tests',
                             default=''),
   'device_type': Property(kind=Enum(*DEVICES),
-                          help='The type of device to execute tests on',
+                          help='The type of device to execute tests on, if the value is'
+                               ' not QEMU it will be passed to Swarming as the device_type'
+                               ' dimension',
                           default='QEMU'),
   'test_timeout_secs': Property(kind=int,
                                 help='How long to wait until timing out on tests',
@@ -87,7 +89,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       upload_snapshot=upload_snapshot and not api.properties.get('tryjob'),
   )
   test_cmds = None
-  test_in_qemu = (device_type == 'QEMU')
   if run_tests:
     test_cmds = ['runtests -o %s %s' % (
       api.fuchsia.target_test_dir(),
@@ -100,17 +101,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       variants=variant,
       gn_args=gn_args,
       test_cmds=test_cmds,
-      test_in_qemu=test_in_qemu,
+      test_device_type=device_type,
   )
   if run_tests:
-    if test_in_qemu:
-      test_results = api.fuchsia.test(build, timeout_secs=test_timeout_secs)
-    else:
-      test_results = api.fuchsia.test_on_device(
-          device_type=device_type,
-          build=build,
-          timeout_secs=test_timeout_secs,
-      )
+    test_results = api.fuchsia.test(build, test_timeout_secs)
     api.fuchsia.analyze_test_results('test results', test_results)
 
   # Upload an archive containing build artifacts if the properties say to do so.

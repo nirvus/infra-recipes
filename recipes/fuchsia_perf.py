@@ -69,10 +69,11 @@ PROPERTIES = {
             help='Catapult dashboard URL',
             default=DEFAULT_CATAPULT_URL),
     'device_type':
-        Property(
-            kind=Enum(*DEVICES),
-            help='The type of device to execute tests on',
-            default='QEMU'),
+        Property(kind=Enum(*DEVICES),
+                 help='The type of device to execute tests on, if the value is'
+                      ' not QEMU it will be passed to Swarming as the device_type'
+                      ' dimension',
+                 default='QEMU'),
 }
 
 
@@ -97,7 +98,6 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       )
   ]
 
-  test_in_qemu = (device_type == 'QEMU')
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
@@ -105,14 +105,9 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       variants=variant,
       gn_args=gn_args,
       test_cmds=test_cmds,
-      test_in_qemu=test_in_qemu,
+      test_device_type=device_type,
   )
-
-  if test_in_qemu:
-    test_results = api.fuchsia.test(build)
-  else:
-    test_results = api.fuchsia.test_on_device(device_type=device_type,
-                                              build=build)
+  test_results = api.fuchsia.test(build)
 
   # Skip analysis steps if our test output is missing. This avoids masking a system
   # failure with an obscure and unrelated error later on.

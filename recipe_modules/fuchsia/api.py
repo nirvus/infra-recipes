@@ -72,12 +72,14 @@ def _board_name(target):
 
 class FuchsiaBuildResults(object):
   """Represents a completed build of Fuchsia."""
-  def __init__(self, target, zircon_build_dir, fuchsia_build_dir, has_tests):
+  def __init__(self, target, zircon_build_dir, fuchsia_build_dir, has_tests,
+               test_device_type):
     assert target in TARGETS
     self._zircon_build_dir = zircon_build_dir
     self._fuchsia_build_dir = fuchsia_build_dir
     self._target = target
     self._has_tests = has_tests
+    self._test_device_type = test_device_type
 
   @property
   def target(self):
@@ -103,6 +105,15 @@ class FuchsiaBuildResults(object):
   def has_tests(self):
     """Whether or not this build has the necessary additions to be tested."""
     return self._has_tests
+
+  @property
+  def test_device_type(self):
+    """The type of device that this build is created to run tests on.
+
+    This will be passed to Swarming as the device_type dimension in testing
+    if its value is not 'QEMU'.
+    """
+    return self._test_device_type
 
 
 class FuchsiaApi(recipe_api.RecipeApi):
@@ -284,7 +295,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
 
   def build(self, target, build_type, packages, variants=(), gn_args=(),
-            ninja_targets=(), test_cmds=(), test_in_qemu=True):
+            ninja_targets=(), test_cmds=(), test_device_type='QEMU'):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -299,7 +310,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       ninja_targets (sequence[str]): Additional target args to pass to ninja
       test_cmds (sequence[str]): A sequence of commands to run on the device
         during testing. If empty, no test package will be added to the build.
-      test_in_qemu (bool): Whether or not the tests will be run in QEMU.
+      test_device_type (str): The type of device that tests will be executed
+        on.
 
     Returns:
       A FuchsiaBuildResults, representing the recently completed build.
@@ -308,7 +320,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build_type in BUILD_TYPES
 
     if test_cmds:
-      packages.append(self._create_runcmds_package(test_cmds, test_in_qemu))
+      packages.append(self._create_runcmds_package(
+          test_cmds=test_cmds,
+          test_in_qemu=(test_device_type == 'QEMU')))
 
     if build_type == 'debug':
       build_dir = 'debug'
@@ -320,6 +334,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         zircon_build_dir=out_dir.join('build-zircon', 'build-%s' % target),
         fuchsia_build_dir=out_dir.join('%s-%s' % (build_dir, target)),
         has_tests=bool(test_cmds),
+        test_device_type=test_device_type,
     )
     with self.m.step.nest('build'):
       self._build_zircon(target, variants)
@@ -394,7 +409,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """Returns the location of the mounted test directory on the target."""
     return '/tmp/infra-test-output'
 
-  def test(self, build, timeout_secs=40*60):
+  def _test_in_qemu(self, build, timeout_secs):
     """Tests a Fuchsia build inside of QEMU.
 
     Expects the build and artifacts to be at the same place they were at
@@ -408,7 +423,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       A FuchsiaTestResults representing the completed test.
     """
-    assert build.has_tests
     self.m.swarming.ensure_swarming(version='latest')
 
     kernel_name = build.zircon_kernel_image
@@ -543,15 +557,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
         outputs=test_results_map,
     )
 
-  def test_on_device(self, device_type, build, timeout_secs=40*60):
+  def _test_on_device(self, build, timeout_secs):
     """Tests a Fuchsia on a specific device.
 
     Expects the build and artifacts to be at the same place they were at
     the end of the build.
 
     Args:
-      device_type (str): The type of device to run tests on. This will be
-        passed to swarming as the device_type dimension.
       build (FuchsiaBuildResults): The Fuchsia build to test.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
@@ -559,7 +571,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       A FuchsiaTestResults representing the completed test.
     """
-    assert build.has_tests
     self.m.swarming.ensure_swarming(version='latest')
 
     # Construct the botanist command.
@@ -592,7 +603,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           isolated=isolated_hash,
           dimensions={
             'pool': 'fuchsia.tests',
-            'device_type': device_type,
+            'device_type': build.test_device_type,
           },
           io_timeout=TEST_IO_TIMEOUT_SECS,
           hard_timeout=timeout_secs,
@@ -619,6 +630,26 @@ class FuchsiaApi(recipe_api.RecipeApi):
         output=result.output,
         outputs=test_results_map,
     )
+
+  def test(self, build, timeout_secs=40*60):
+    """Tests a Fuchsia build on the specified device.
+
+    Expects the build and artifacts to be at the same place they were at
+    the end of the build.
+
+    Args:
+      build (FuchsiaBuildResults): The Fuchsia build to test.
+      timeout_secs (int): The amount of seconds to wait for the tests to
+        execute before giving up.
+
+    Returns:
+      A FuchsiaTestResults representing the completed test.
+    """
+    assert build.has_tests
+    if build.test_device_type == 'QEMU':
+      return self._test_in_qemu(build, timeout_secs)
+    else:
+      return self._test_on_device(build, timeout_secs)
 
   def analyze_collect_result(self, step_name, result, zircon_build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.

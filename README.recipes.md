@@ -88,7 +88,7 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 
 API for writing auto-roller recipes.
 
-&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#190)(self, gerrit_project, repo_dir, commit_message, dry_run=False):**
+&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#192)(self, gerrit_project, repo_dir, commit_message, dry_run=False):**
 
 Attempts to submit local edits via the CQ.
 
@@ -123,13 +123,13 @@ Args:
     multiline string (embedded newlines are allowed).
   dry_run (bool): Whether to execute this method in dry_run mode.
 
-&emsp; **@property**<br>&mdash; **def [poll\_interval\_secs](/recipe_modules/auto_roller/api.py#32)(self):**
+&emsp; **@property**<br>&mdash; **def [poll\_interval\_secs](/recipe_modules/auto_roller/api.py#34)(self):**
 
 Returns how many seconds roll() will wait in between each poll.
 
 Defined by the input property with the same name.
 
-&emsp; **@property**<br>&mdash; **def [poll\_timeout\_secs](/recipe_modules/auto_roller/api.py#40)(self):**
+&emsp; **@property**<br>&mdash; **def [poll\_timeout\_secs](/recipe_modules/auto_roller/api.py#42)(self):**
 
 Returns how many seconds roll() will poll for.
 
@@ -288,11 +288,11 @@ parameters will be used.
 
 [DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#108)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#119)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#623)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#654)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -306,7 +306,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#662)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#693)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -317,7 +317,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#286)(self, target, build_type, packages, variants=(), gn_args=(), ninja_targets=(), test_cmds=(), test_in_qemu=True):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#297)(self, target, build_type, packages, variants=(), gn_args=(), ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -333,12 +333,13 @@ Args:
   ninja_targets (sequence[str]): Additional target args to pass to ninja
   test_cmds (sequence[str]): A sequence of commands to run on the device
     during testing. If empty, no test package will be added to the build.
-  test_in_qemu (bool): Whether or not the tests will be run in QEMU.
+  test_device_type (str): The type of device that tests will be executed
+    on.
 
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#137)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#148)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, upload_snapshot=False, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -356,35 +357,18 @@ Args:
   timeout_secs (int): How long to wait for the checkout to complete
       before failing
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#393)(self):**
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#408)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#397)(self, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#634)(self, build, timeout_secs=(40 \* 60)):**
 
-Tests a Fuchsia build inside of QEMU.
-
-Expects the build and artifacts to be at the same place they were at
-the end of the build.
-
-Args:
-  build (FuchsiaBuildResults): The Fuchsia build to test.
-  timeout_secs (int): The amount of seconds to wait for the tests to
-    execute before giving up.
-
-Returns:
-  A FuchsiaTestResults representing the completed test.
-
-&mdash; **def [test\_on\_device](/recipe_modules/fuchsia/api.py#546)(self, device_type, build, timeout_secs=(40 \* 60)):**
-
-Tests a Fuchsia on a specific device.
+Tests a Fuchsia build on the specified device.
 
 Expects the build and artifacts to be at the same place they were at
 the end of the build.
 
 Args:
-  device_type (str): The type of device to run tests on. This will be
-    passed to swarming as the device_type dimension.
   build (FuchsiaBuildResults): The Fuchsia build to test.
   timeout_secs (int): The amount of seconds to wait for the tests to
     execute before giving up.
@@ -969,7 +953,7 @@ Recipe for building Dart toolchain.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#76)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, upload_snapshot, upload_archive):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#78)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, upload_snapshot, upload_archive):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
@@ -988,7 +972,7 @@ This differs from the fuchsia recipe in the following ways:
 * Tests are always run (this recipe is not used to verify builds).
 * Test results are uploaded to the catapult dashboard after execution.
 
-&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#157)(api, step_name, bucket, builder, test_suite, test_results, catapult_url):**
+&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#152)(api, step_name, bucket, builder, test_suite, test_results, catapult_url):**
 
 Processes test results and uploads them to the Catapult dashboard.
 
@@ -998,7 +982,7 @@ Args:
   test_suite (str): The name of the test suite that was run.
   test_results (str): The raw test results output.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#79)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url, device_type):**
+&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#80)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url, device_type):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#16): [auto\_roller](#recipe_modules-auto_roller), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
