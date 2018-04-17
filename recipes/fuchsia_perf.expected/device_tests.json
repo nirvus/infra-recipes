@@ -703,10 +703,11 @@
       "1337000001500",
       "-logdog-stream-name",
       "zircon_benchmarks",
+      "-output",
+      "/path/to/tmp/json",
       "I am a benchmark, ha ha!"
     ],
     "name": "analyze_zircon_benchmarks.catapult make_histogram",
-    "stdout": "[START_DIR]/histogram_set.json",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_END@json.output (invalid)@@@",
@@ -720,7 +721,7 @@
       "upload",
       "-url",
       "https://chromeperf.appspot.com",
-      "[START_DIR]/histogram_set.json"
+      "null"
     ],
     "name": "analyze_zircon_benchmarks.catapult upload",
     "~followup_annotations": [

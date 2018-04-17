@@ -4,43 +4,48 @@
 
 DEPS = [
     'catapult',
+    'recipe_engine/file',
     'recipe_engine/raw_io',
+    'recipe_engine/json',
 ]
 
 
 def RunSteps(api):
-  # First, ensure we have catapult.
   api.catapult.ensure_catapult()
+
+  # Show help.
   api.catapult('help')
 
-  histogram_set_data = api.catapult.make_histogram(
-      'example_input_file',
+  # Generate a histogram set from some input file.
+  api.catapult.make_histogram(
+      input_file=api.json.input({}),
       test_suite='example.suite',
       masters_name='dashboard_masters_name',
       bots_name='dashboard_bots_name',
       datetime=123456789,
-      # Verify kwargs are passed to the generated step
-      stdout=api.raw_io.output('out'),
-      step_test_data=(
-          lambda: api.raw_io.test_api.stream_output('{HISTOGRAM_SET}')),
-  ).stdout
+      output_file=api.json.output(name='histogram_set'),
+  )
+
+  histogram_set_data = api.file.read_text(
+      name='read_histogam',
+      source=api.json.input({}),
+      test_data='{HISTOGRAM_SET}',
+  )
   assert histogram_set_data == '{HISTOGRAM_SET}'
 
+  # Upload a histogram set to the Catapult dashboard.
   result = api.catapult.upload(
-      'example_input_file',
+      input_file=api.json.input({}),
       url='https://example.com',
       timeout='30s',
       # Verify kwargs are passed to the generated step
-      stdout=api.raw_io.output('out'),
+      stdout=api.raw_io.output(),
       step_test_data=(lambda: api.raw_io.test_api.stream_output('success!')),
   ).stdout
   assert result == 'success!'
 
-  # Upload without timeout.
-  api.catapult.upload(
-      'example_input_file',
-      url='http://example.com',
-  )
+  # Upload a histogram set without timeout.
+  api.catapult.upload(input_file=api.json.input({}), url='http://example.com')
 
 
 def GenTests(api):

@@ -50,10 +50,30 @@
       "123456789",
       "-logdog-stream-name",
       "example.suite",
-      "example_input_file"
+      "-output",
+      "/path/to/tmp/json",
+      "{}"
     ],
     "name": "catapult make_histogram",
-    "stdout": "/path/to/tmp/out"
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output[histogram_set] (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output[histogram_set] (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output[histogram_set] (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "{}",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read_histogam"
   },
   {
     "cmd": [
@@ -63,10 +83,10 @@
       "https://example.com",
       "-timeout",
       "30s",
-      "example_input_file"
+      "{}"
     ],
     "name": "catapult upload",
-    "stdout": "/path/to/tmp/out"
+    "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [
@@ -74,7 +94,7 @@
       "upload",
       "-url",
       "http://example.com",
-      "example_input_file"
+      "{}"
     ],
     "name": "catapult upload (2)"
   },

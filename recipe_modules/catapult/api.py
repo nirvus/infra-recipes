@@ -35,7 +35,8 @@ class CatapultApi(recipe_api.RecipeApi):
 
         return self._catapult
 
-  def make_histogram(self, input_file, test_suite, masters_name, bots_name, datetime, **kwargs):
+  def make_histogram(self, input_file, test_suite, masters_name, bots_name, datetime,
+                     output_file, **kwargs):
     """
     Generates a HistogramSet from performance test output.
 
@@ -44,11 +45,12 @@ class CatapultApi(recipe_api.RecipeApi):
       masters_name (str): The masters name to use in the perf dashboard.
       bots_name (str): The bots name to use in the perf dashboard.
       datetime (uint): Ms since epoch when tests were executed.
-      input_file (string): Full path to the input file containing test results.
-      kwargs: Keyword argments passed to the returned step.
+      input_file (Path): Full path to the input file containing test results.
+      output_file (Path): Full path to the file to write results to.
+      kwargs: Keyword argments passed to the executed step.
 
     Returns:
-      A step to execute the make_histogram subcommand.
+      The step result of executing the make_histogram subcommand.
     """
     return self(
         'make_histogram',
@@ -62,6 +64,8 @@ class CatapultApi(recipe_api.RecipeApi):
         datetime,
         '-logdog-stream-name',
         test_suite,
+        '-output',
+        output_file,
         input_file,
         **kwargs)
 

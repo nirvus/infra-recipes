@@ -150,7 +150,7 @@ Return a catapult command step.
 
 &mdash; **def [ensure\_catapult](/recipe_modules/catapult/api.py#26)(self, version=None):**
 
-&mdash; **def [make\_histogram](/recipe_modules/catapult/api.py#38)(self, input_file, test_suite, masters_name, bots_name, datetime, \*\*kwargs):**
+&mdash; **def [make\_histogram](/recipe_modules/catapult/api.py#38)(self, input_file, test_suite, masters_name, bots_name, datetime, output_file, \*\*kwargs):**
 
 Generates a HistogramSet from performance test output.
 
@@ -159,13 +159,14 @@ Args:
   masters_name (str): The masters name to use in the perf dashboard.
   bots_name (str): The bots name to use in the perf dashboard.
   datetime (uint): Ms since epoch when tests were executed.
-  input_file (string): Full path to the input file containing test results.
-  kwargs: Keyword argments passed to the returned step.
+  input_file (Path): Full path to the input file containing test results.
+  output_file (Path): Full path to the file to write results to.
+  kwargs: Keyword argments passed to the executed step.
 
 Returns:
-  A step to execute the make_histogram subcommand.
+  The step result of executing the make_histogram subcommand.
 
-&mdash; **def [upload](/recipe_modules/catapult/api.py#68)(self, input_file, url, timeout=None, \*\*kwargs):**
+&mdash; **def [upload](/recipe_modules/catapult/api.py#72)(self, input_file, url, timeout=None, \*\*kwargs):**
 
 Uploads performance JSON data to a dashboard.
 
@@ -908,9 +909,9 @@ Example recipe for auto-rolling.
 &mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#27)(api, project, remote, dry_run):**
 ### *recipes* / [catapult:examples/full](/recipe_modules/catapult/examples/full.py)
 
-[DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
+[DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
-&mdash; **def [RunSteps](/recipe_modules/catapult/examples/full.py#11)(api):**
+&mdash; **def [RunSteps](/recipe_modules/catapult/examples/full.py#13)(api):**
 ### *recipes* / [cipd:examples/full](/recipe_modules/cipd/examples/full.py)
 
 [DEPS](/recipe_modules/cipd/examples/full.py#8): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

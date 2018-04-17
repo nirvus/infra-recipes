@@ -167,30 +167,18 @@ def ProcessTestResults(api, step_name, dashboard_masters_name,
     catapult_url (str): The URL of the catapult dashboard.
   """
   with api.step.nest(step_name):
-    hs_filepath = api.path['start_dir'].join('histogram_set.json')
-
-    # Create a Placeholder for histogram set data.  The
-    # placeholder is backed by a file which is referenced as
-    # placeholder.backing_file.
-    hs_placeholder = api.json.output(leak_to=hs_filepath)
-
     # Generate the histogram set.
-    api.catapult.make_histogram(
+    histogram_output = api.catapult.make_histogram(
         input_file=api.raw_io.input_text(test_results),
         test_suite=test_suite,
         masters_name=dashboard_masters_name,
         bots_name=dashboard_bots_name,
         datetime=api.time.ms_since_epoch(),
-        stdout=hs_placeholder,
-    )
+        output_file=api.json.output(),
+    ).json.output
 
     # Upload the file to Catapult using the current build's credentials.
-    # Use the path to the backing file for testing, since the placeholder's
-    # backing file property is `None` in a test.
-    api.catapult.upload(
-        input_file=hs_placeholder.backing_file or hs_filepath,
-        url=catapult_url,
-    )
+    api.catapult.upload(input_file=api.json.input(histogram_output), url=catapult_url)
 
 
 def GenTests(api):
