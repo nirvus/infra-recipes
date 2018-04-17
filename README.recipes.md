@@ -4,6 +4,7 @@
 
 **[Recipe Modules](#Recipe-Modules)**
   * [authutil](#recipe_modules-authutil)
+  * [auto_roller](#recipe_modules-auto_roller)
   * [catapult](#recipe_modules-catapult)
   * [cipd](#recipe_modules-cipd)
   * [fuchsia](#recipe_modules-fuchsia)
@@ -24,6 +25,7 @@
 
 **[Recipes](#Recipes)**
   * [authutil:examples/full](#recipes-authutil_examples_full)
+  * [auto_roller:examples/full](#recipes-auto_roller_examples_full) &mdash; Example recipe for auto-rolling.
   * [catapult:examples/full](#recipes-catapult_examples_full)
   * [cipd:examples/full](#recipes-cipd_examples_full)
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
@@ -78,6 +80,60 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 &mdash; **def [ensure\_authutil](/recipe_modules/authutil/api.py#19)(self, version=None):**
 
 &mdash; **def [get\_token](/recipe_modules/authutil/api.py#32)(self, account, scopes=None, lifetime_sec=None):**
+### *recipe_modules* / [auto\_roller](/recipe_modules/auto_roller)
+
+[DEPS](/recipe_modules/auto_roller/__init__.py#1): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+
+#### **class [AutoRollerApi](/recipe_modules/auto_roller/api.py#24)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+API for writing auto-roller recipes.
+
+&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#185)(self, gerrit_project, repo_dir, commit_message, dry_run=False):**
+
+Attempts to submit local edits via the CQ.
+
+It additionally has two modes of operation, dry-run mode and production mode.
+The precise steps it performs are as follows:
+
+ * Create a patch in Gerrit and grab Change ID
+ * Create a patch locally with Change ID
+ * Push local patch to Gerrit
+ * Production mode:
+   * Set labels Code-Review+2 and Commit-Queue+2 on Gerrit patch
+   * Wait for CQ to finish tryjobs and either merge the change or
+     remove the label Commit-Queue+2 (failed tryjobs)
+   * Abandon the change if the tryjobs failed
+ * Dry-run Mode:
+   * Set label Commit-Queue+1 on Gerrit patch
+   * Wait for CQ to finish tryjobs and remove label Commit-Queue+1
+   * Abandon the change to clean up
+
+It assumes that repo_dir contains unstaged changes to only tracked files.
+TODO(mknyszek): Support committing untracked files if there's a use-case.
+
+Args:
+  gerrit_project (str): The name of the project to roll to in Gerrit, which
+    is local to current Gerrit host as defined by api.gerrit.host(). For
+    example, "garnet" would be a valid gerrit_project for
+    fuchsia-review.googlesource.com.
+  repo_dir (Path): The path to the directory containing a local copy of the
+    git repo with changes that will be rolled.
+  commit_message (str): The commit message for the roll. Note that this method will
+    automatically append a Gerrit Change ID to the change. Also, it may be a
+    multiline string (embedded newlines are allowed).
+  dry_run (bool): Whether to execute this method in dry_run mode.
+
+&emsp; **@property**<br>&mdash; **def [poll\_interval\_secs](/recipe_modules/auto_roller/api.py#27)(self):**
+
+Returns how many seconds roll() will wait in between each poll.
+
+Defined by the input property with the same name.
+
+&emsp; **@property**<br>&mdash; **def [poll\_timeout\_secs](/recipe_modules/auto_roller/api.py#35)(self):**
+
+Returns how many seconds roll() will poll for.
+
+Defined by the input property with the same name.
 ### *recipe_modules* / [catapult](/recipe_modules/catapult)
 
 [DEPS](/recipe_modules/catapult/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -857,6 +913,13 @@ Args:
 [DEPS](/recipe_modules/authutil/examples/full.py#8): [authutil](#recipe_modules-authutil), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
 &mdash; **def [RunSteps](/recipe_modules/authutil/examples/full.py#30)(api, scopes, lifetime_sec):**
+### *recipes* / [auto\_roller:examples/full](/recipe_modules/auto_roller/examples/full.py)
+
+[DEPS](/recipe_modules/auto_roller/examples/full.py#10): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+
+Example recipe for auto-rolling.
+
+&mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#27)(api, project, remote, dry_run):**
 ### *recipes* / [catapult:examples/full](/recipe_modules/catapult/examples/full.py)
 
 [DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
@@ -938,11 +1001,11 @@ Args:
 &mdash; **def [RunSteps](/recipes/fuchsia_perf.py#79)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url, device_type):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
-[DEPS](/recipes/fuchsia_roller.py#17): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+[DEPS](/recipes/fuchsia_roller.py#16): [auto\_roller](#recipe_modules-auto_roller), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for rolling Fuchsia layers into upper layers.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#95)(api, category, project, manifest, remote, roll_type, import_in, import_from, roll_from_repo, revision, dry_run, poll_timeout_secs, poll_interval_secs):**
+&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#72)(api, category, project, manifest, remote, roll_type, import_in, import_from, roll_from_repo, revision, dry_run):**
 ### *recipes* / [gcc\_toolchain](/recipes/gcc_toolchain.py)
 
 [DEPS](/recipes/gcc_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]
