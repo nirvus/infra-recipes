@@ -111,9 +111,9 @@
       "-v",
       "-time",
       "-name",
-      "topaz",
+      "garnet",
       "manifest/minimal",
-      "https://fuchsia.googlesource.com/topaz"
+      "https://fuchsia.googlesource.com/garnet"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -140,17 +140,17 @@
       "-json-output",
       "/path/to/tmp/json",
       "-import",
-      "peridot=fc4dc762688d2263b254208f444f5c0a4b91bc07",
-      "manifest/topaz"
+      "zircon=fc4dc762688d2263b254208f444f5c0a4b91bc07",
+      "manifest/garnet"
     ],
-    "cwd": "[START_DIR]/topaz",
+    "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "jiri edit",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"imports\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"name\": \"peridot\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"zircon\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"new_revision\": \"fc4dc762688d2263b254208f444f5c0a4b91bc07\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"old_revision\": \"[OLD_REVISION]\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"remote\": \"http://example.com\"@@@",
@@ -167,10 +167,10 @@
       "log",
       "-json-output",
       "/path/to/tmp/json",
-      "https://fuchsia.googlesource.com/peridot",
+      "https://fuchsia.googlesource.com/zircon",
       "[OLD_REVISION]..fc4dc762688d2263b254208f444f5c0a4b91bc07"
     ],
-    "cwd": "[START_DIR]/topaz",
+    "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "log",
     "~followup_annotations": [
@@ -270,11 +270,11 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"topaz\", \"subject\": \"[roll] Roll peridot [OLD_RE..fc4dc76 (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"[roll] Roll zircon [OLD_RE..fc4dc76 (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]/topaz",
+    "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "create new change",
     "~followup_annotations": [
@@ -291,10 +291,10 @@
       "git",
       "commit",
       "-m",
-      "[roll] Roll peridot [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
-      "manifest/topaz"
+      "[roll] Roll zircon [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nChange-Id: abc123\n",
+      "manifest/garnet"
     ],
-    "cwd": "[START_DIR]/topaz",
+    "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "git commit"
   },
@@ -305,7 +305,7 @@
       "origin",
       "HEAD:refs/for/master"
     ],
-    "cwd": "[START_DIR]/topaz",
+    "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "git push"
   },
@@ -316,7 +316,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
+      "{\"change_id\": \"beep/boop~master~abc123\", \"input\": {\"labels\": {\"Commit-Queue\": 1}}, \"revision_id\": \"current\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -344,17 +344,36 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"labels\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"approved\": {}@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"recommended\": {}@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"status\": \"MERGED\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"status\": \"NEW\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-abandon",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"beep/boop~master~abc123\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "abandon roll: auto-roller timeout",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
     "name": "$result",
+    "reason": "Failed to roll changes: roller timed out.",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]
