@@ -343,7 +343,7 @@ Returns:
 
 Module for querying a Gerrit host through the Gerrit API.
 
-&mdash; **def [abandon](/recipe_modules/gerrit/api.py#52)(self, name, change_id, message=None):**
+&mdash; **def [abandon](/recipe_modules/gerrit/api.py#60)(self, name, change_id, message=None, test_data=None):**
 
 Abandons a change.
 
@@ -353,16 +353,18 @@ Args:
   name (str): The name of the step.
   change_id (str): A change ID that uniquely defines a change on the host.
   message (str): A message explaining the reason for abandoning the change.
+  test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
 
-&mdash; **def [change\_details](/recipe_modules/gerrit/api.py#122)(self, name, change_id):**
+&mdash; **def [change\_details](/recipe_modules/gerrit/api.py#149)(self, name, change_id, test_data=None):**
 
 Returns a JSON dict of details regarding a specific change.
 
 Args:
   name (str): The name of the step.
   change_id (str): A change ID that uniquely defines a change on the host.
+  test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
 
-&mdash; **def [create\_change](/recipe_modules/gerrit/api.py#67)(self, name, project, subject, branch, topic=None):**
+&mdash; **def [create\_change](/recipe_modules/gerrit/api.py#81)(self, name, project, subject, branch, topic=None, test_data=None):**
 
 Creates a new change for a given project on the gerrit host.
 
@@ -375,12 +377,13 @@ Args:
   branch (str): The branch onto which the change will be made.
   topic (str): A gerrit topic that can be used to atomically land the change with
     other changes in the same topic.
+  test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
 
-&mdash; **def [ensure\_gerrit](/recipe_modules/gerrit/api.py#31)(self, version=None):**
+&mdash; **def [ensure\_gerrit](/recipe_modules/gerrit/api.py#39)(self, version=None):**
 
-&emsp; **@host.setter**<br>&mdash; **def [host](/recipe_modules/gerrit/api.py#48)(self, host):**
+&emsp; **@host.setter**<br>&mdash; **def [host](/recipe_modules/gerrit/api.py#56)(self, host):**
 
-&mdash; **def [set\_review](/recipe_modules/gerrit/api.py#89)(self, name, change_id, labels=None, reviewers=None, ccs=None, revision='current'):**
+&mdash; **def [set\_review](/recipe_modules/gerrit/api.py#110)(self, name, change_id, labels=None, reviewers=None, ccs=None, revision='current', test_data=None):**
 
 Sets a change at a revision for review. Can optionally set labels,
 reviewers, and CCs.
@@ -397,6 +400,7 @@ Args:
   ccs (list): A list of strings containing reviewer IDs (e.g. email addresses).
   revision (str): A revision ID that identifies a revision for the change
     (default is 'current').
+  test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
 ### *recipe_modules* / [git](/recipe_modules/git)
 
 [DEPS](/recipe_modules/git/__init__.py#1): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

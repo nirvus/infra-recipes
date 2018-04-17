@@ -21,6 +21,7 @@ def RunSteps(api):
       'hello',
       'master',
       topic='some-topic',
+      test_data=api.json.test_api.output({'id': 'some id'}),
   )
   change_id = change['id']
 
@@ -41,7 +42,4 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  yield (
-      api.test('basic')
-      + api.step_data('create change', api.json.output({'id': 'some id'}))
-  )
+  yield api.test('basic')

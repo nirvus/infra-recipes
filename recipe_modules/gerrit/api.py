@@ -13,7 +13,7 @@ class GerritApi(recipe_api.RecipeApi):
     self._gerrit_host = gerrit_host
     self._gerrit_path = None
 
-  def __call__(self, name, subcmd, input_json):
+  def __call__(self, name, subcmd, input_json, test_data=None):
     assert self._gerrit_path
     assert self._gerrit_host
     cmd = [
@@ -23,9 +23,17 @@ class GerritApi(recipe_api.RecipeApi):
       '-input', self.m.json.input(input_json),
       '-output', self.m.json.output(),
     ]
+
+    # If there's test data, create a factory for it.
+    step_test_data = None
+    if test_data is not None:
+      step_test_data = lambda: test_data
+
+    # Run the gerrit client command.
     return self.m.step(
         name,
         cmd,
+        step_test_data=step_test_data,
     ).json.output
 
   def ensure_gerrit(self, version=None):
@@ -49,7 +57,7 @@ class GerritApi(recipe_api.RecipeApi):
   def host(self, host):
     self._gerrit_host = host
 
-  def abandon(self, name, change_id, message=None):
+  def abandon(self, name, change_id, message=None, test_data=None):
     """Abandons a change.
 
     Returns the details of the change, after attempting to abandon.
@@ -58,13 +66,20 @@ class GerritApi(recipe_api.RecipeApi):
       name (str): The name of the step.
       change_id (str): A change ID that uniquely defines a change on the host.
       message (str): A message explaining the reason for abandoning the change.
+      test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
     """
     input_json = {'change_id': change_id}
     if message:
       input_json['input'] = {'message': message}
-    return self(name, 'change-abandon', input_json)
+    return self(
+        name=name,
+        subcmd='change-abandon',
+        input_json=input_json,
+        test_data=test_data,
+    )
 
-  def create_change(self, name, project, subject, branch, topic=None):
+  def create_change(self, name, project, subject, branch, topic=None,
+                    test_data=None):
     """Creates a new change for a given project on the gerrit host.
 
     Returns the details of the newly-created change.
@@ -76,6 +91,7 @@ class GerritApi(recipe_api.RecipeApi):
       branch (str): The branch onto which the change will be made.
       topic (str): A gerrit topic that can be used to atomically land the change with
         other changes in the same topic.
+      test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
     """
     input_json = {'input': {
       'project': project,
@@ -84,10 +100,15 @@ class GerritApi(recipe_api.RecipeApi):
     }}
     if topic:
       input_json['input']['topic'] = topic
-    return self(name, 'change-create', input_json)
+    return self(
+        name=name,
+        subcmd='change-create',
+        input_json=input_json,
+        test_data=test_data,
+    )
 
-  def set_review(self, name, change_id, labels=None,
-                 reviewers=None, ccs=None, revision='current'):
+  def set_review(self, name, change_id, labels=None, reviewers=None,
+                 ccs=None, revision='current', test_data=None):
     """Sets a change at a revision for review. Can optionally set labels,
     reviewers, and CCs.
 
@@ -103,6 +124,7 @@ class GerritApi(recipe_api.RecipeApi):
       ccs (list): A list of strings containing reviewer IDs (e.g. email addresses).
       revision (str): A revision ID that identifies a revision for the change
         (default is 'current').
+      test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
     """
     input_json = {
       'change_id': change_id,
@@ -117,14 +139,25 @@ class GerritApi(recipe_api.RecipeApi):
       input_json['input']['reviewers'] += [{'reviewer': i} for i in reviewers]
     if ccs:
       input_json['input']['reviewers'] += [{'reviewer': i, 'state': 'CC'} for i in ccs]
-    return self(name, 'set-review', input_json)
+    return self(
+        name=name,
+        subcmd='set-review',
+        input_json=input_json,
+        test_data=test_data,
+    )
 
-  def change_details(self, name, change_id):
+  def change_details(self, name, change_id, test_data=None):
     """Returns a JSON dict of details regarding a specific change.
 
     Args:
       name (str): The name of the step.
       change_id (str): A change ID that uniquely defines a change on the host.
+      test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
     """
-    return self(name, 'change-detail', {'change_id': change_id})
+    return self(
+        name=name,
+        subcmd='change-detail',
+        input_json={'change_id': change_id},
+        test_data=test_data,
+    )
 
