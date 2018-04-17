@@ -170,7 +170,7 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in, imp
 
       # Update message with a Change-Id line and push the roll.
       message += "\nChange-Id: %s\n" % change_id
-      api.git.commit(message, api.path.join(*import_in.split('/')))
+      api.git.commit(message, files=[api.path.join(*import_in.split('/'))])
       api.git.push('HEAD:refs/for/master')
 
   # Decide which labels must be set.

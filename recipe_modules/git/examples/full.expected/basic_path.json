@@ -170,10 +170,32 @@
       "git",
       "commit",
       "-m",
-      "example change"
+      "example change 1"
     ],
     "cwd": "[START_DIR]/foo",
     "name": "git commit"
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-m",
+      "example change 2",
+      "[START_DIR]/foo/time.txt"
+    ],
+    "cwd": "[START_DIR]/foo",
+    "name": "git commit (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-m",
+      "example change 3",
+      "-a"
+    ],
+    "cwd": "[START_DIR]/foo",
+    "name": "git commit (3)"
   },
   {
     "cmd": [

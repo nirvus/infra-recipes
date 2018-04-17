@@ -46,7 +46,13 @@ def RunSteps(api):
     api.git('add', root_dir.join('time.txt'))
 
     # Commit the change
-    api.git.commit('example change')
+    api.git.commit('example change 1')
+
+    # Commit the change with the file named explicitly
+    api.git.commit('example change 2', files=[root_dir.join('time.txt')])
+
+    # Commit the change with all tracked files
+    api.git.commit('example change 3', all_tracked=True)
 
     # Push it for review
     api.git.push('HEAD:refs/for/master')
