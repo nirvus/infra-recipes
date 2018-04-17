@@ -55,8 +55,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       project=project,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
-      upload_snapshot=False)
+      patch_project=patch_project)
 
   with api.context(infra_steps=True):
     # api.fuchsia.checkout() will have ensured that jiri exists.

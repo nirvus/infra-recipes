@@ -53,16 +53,18 @@ PROPERTIES = {
   'device_type': Property(kind=str,
                           help='The type of device to run tests on',
                           default='QEMU'),
-  'upload_snapshot': Property(kind=bool,
-                          help='Whether to upload jiri snapshot (always False if tryjob is true)',
-                          default=True),
+  'snapshot_gcs_bucket': Property(kind=str,
+                                  help='The GCS bucket to upload a jiri snapshot of the build'
+                                       ' to. Will not upload a snapshot if this property is'
+                                       ' blank or tryjob is True',
+                                  default='fuchsia-snapshots'),
 }
 
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
              remote, target, build_type, packages, variants, gn_args,
              ninja_targets, run_tests, runtests_args, device_type,
-             upload_snapshot):
+             snapshot_gcs_bucket):
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -70,7 +72,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project,
-      upload_snapshot=upload_snapshot,
+      snapshot_gcs_bucket=snapshot_gcs_bucket,
   )
   build = api.fuchsia.build(
       target=target,
@@ -233,6 +235,15 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       tryjob=True,
   )
+  yield api.test('ci_no_snapshot') + api.properties.tryserver(
+      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_ref='refs/changes/23/123/12',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      snapshot_gcs_bucket=None,
+  )
   yield api.test('cq_no_snapshot') + api.properties.tryserver(
       patch_gerrit_url='fuchsia-review.googlesource.com',
       patch_ref='refs/changes/23/123/12',
@@ -241,7 +252,7 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
       tryjob=True,
-      upload_snapshot=False,
+      snapshot_gcs_bucket=None,
   )
   yield api.test('gn_args') + api.properties.tryserver(
       patch_gerrit_url='fuchsia-review.googlesource.com',

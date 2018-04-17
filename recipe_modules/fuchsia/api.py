@@ -146,7 +146,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
 
   def checkout(self, manifest, remote, project=None, patch_ref=None,
-               patch_gerrit_url=None, patch_project=None, upload_snapshot=False,
+               patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None,
                timeout_secs=20*60):
     """Uses Jiri to check out a Fuchsia project.
 
@@ -160,7 +160,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       patch_ref (str): A reference ID to the patch in Gerrit to apply
       patch_gerrit_url (str): A URL of the patch in Gerrit to apply
       patch_project (str): The name of Gerrit project
-      upload_snapshot (bool): Whether to upload a Jiri snapshot to GCS
+      snapshot_gcs_bucket (str): The GCS bucket to upload a Jiri snapshot to
       timeout_secs (int): How long to wait for the checkout to complete
           before failing
     """
@@ -177,13 +177,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
       )
       if patch_ref:
         self.m.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
-      if upload_snapshot:
+      if snapshot_gcs_bucket:
         self.m.gsutil.ensure_gsutil()
         snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
         self.m.jiri.snapshot(snapshot_file)
         digest = self.m.hash.sha1('hash snapshot', snapshot_file,
                                   test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
-        self.m.gsutil.upload('fuchsia-snapshots', snapshot_file, digest,
+        self.m.gsutil.upload(snapshot_gcs_bucket, snapshot_file, digest,
           link_name='jiri.snapshot',
           name='upload jiri.snapshot',
           unauthenticated_url=True)
