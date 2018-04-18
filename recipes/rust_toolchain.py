@@ -142,6 +142,7 @@ def RunSteps(api, url, ref, revision):
   build_dir = staging_dir.join('build')
   api.file.ensure_directory('build', build_dir)
   pkg_dir = staging_dir.join('rust')
+  api.file.ensure_directory('create pkg_dir', pkg_dir)
 
   config_file = build_dir.join('config.toml')
   api.file.write_text('write config.toml',

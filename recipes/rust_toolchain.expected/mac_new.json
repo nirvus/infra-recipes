@@ -731,6 +731,21 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/rust_tmp_1/rust"
+    ],
+    "infra_step": true,
+    "name": "create pkg_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "copy",
       "\n[llvm]\noptimize = true\nstatic-libstdcpp = true\nninja = true\ntargets = \"X86;AArch64\"\n\n[build]\ntarget = [\"x86_64-unknown-fuchsia\", \"aarch64-unknown-fuchsia\"]\ndocs = false\nextended = true\nopenssl-static = true\n\n[install]\nprefix = \"[TMP_BASE]/rust_tmp_1/rust\"\nsysconfdir = \"etc\"\n\n[rust]\noptimize = true\n\n[target.x86_64-unknown-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[target.aarch64-unknown-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[dist]\n",
       "[TMP_BASE]/rust_tmp_1/build/config.toml"
