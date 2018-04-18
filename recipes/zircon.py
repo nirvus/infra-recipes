@@ -45,11 +45,6 @@ TARGET_TO_KERNEL_IMAGE = dict(zip(
     TARGETS,
     ['zircon.bin', 'qemu-zircon.bin'],
 ))
-# The boot filesystem image.
-TARGET_TO_BOOT_IMAGE = dict(zip(
-    TARGETS,
-    ['bootdata.bin', 'qemu-bootdata.bin'],
-))
 ARCHS = ('x86_64', 'aarch64')
 
 # Supported device types for testing.
@@ -132,7 +127,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     device_type (Enum(*DEVICES)): The type of device to run tests on.
   """
   kernel_name = TARGET_TO_KERNEL_IMAGE[target]
-  ramdisk_name = TARGET_TO_BOOT_IMAGE[target]
+  ramdisk_name = 'bootdata.bin'
   output_archive_name = 'out.tar'
   botanist_cmd = [
     './botanist/botanist',
@@ -284,7 +279,7 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
   # Isolate all necessary build artifacts as well as the MinFS image.
   isolated = api.isolated.isolated()
   isolated.add_file(build_dir.join(TARGET_TO_KERNEL_IMAGE[target]), wd=build_dir)
-  isolated.add_file(build_dir.join(TARGET_TO_BOOT_IMAGE[target]), wd=build_dir)
+  isolated.add_file(build_dir.join('bootdata.bin'), wd=build_dir)
   isolated.add_file(test_image, wd=api.path['start_dir'])
   isolated.add_file(qemu_runner_core, wd=api.path['start_dir'])
   isolated.add_file(qemu_runner, wd=api.path['start_dir'])
@@ -348,7 +343,7 @@ def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
     '-kernel', TARGET_TO_KERNEL_IMAGE[target],
     '-serial', 'stdio',
     '-monitor', 'none',
-    '-initrd', TARGET_TO_BOOT_IMAGE[target],
+    '-initrd', 'bootdata.bin',
     '-append', ' '.join(['TERM=dumb', 'kernel.halt-on-panic=true'] +
                         TARGET_CMDLINE[target] + cmdline),
   ]
