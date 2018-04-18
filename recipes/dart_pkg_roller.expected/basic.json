@@ -1,0 +1,245 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-v",
+      "-time",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
+      "-cache",
+      "[CACHE]/git",
+      "-shared"
+    ],
+    "infra_step": true,
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "-v",
+      "-time",
+      "-name",
+      "topaz",
+      "manifest/topaz",
+      "https://fuchsia.googlesource.com/topaz"
+    ],
+    "infra_step": true,
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "run-hooks",
+      "-v",
+      "-time",
+      "-attempts=3"
+    ],
+    "infra_step": true,
+    "name": "jiri run-hooks"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "source-manifest",
+      "-v",
+      "-time",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "jiri source-manifest",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
+      "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/dart/update_3p_packages.py",
+      "--changelog",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "update dart 3p packages"
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "ensure_gerrit"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gerrit",
+      "-ensure-file",
+      "infra/tools/luci/gerrit/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gerrit.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gerrit/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-create",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"third_party/dart-pkg\", \"subject\": \"[roll] Update 3p packages\\n\\n\\n\"}}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "create new change",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"change_id\": \"abc123\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"id\": \"beep%2Fboop~master~abc123\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/abc123@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-m",
+      "[roll] Update 3p packages\n\n\n\nChange-Id: abc123\n",
+      "-a"
+    ],
+    "cwd": "[START_DIR]/third_party/dart-pkg/pub",
+    "infra_step": true,
+    "name": "git commit"
+  },
+  {
+    "cmd": [
+      "git",
+      "push",
+      "origin",
+      "HEAD:refs/for/master"
+    ],
+    "cwd": "[START_DIR]/third_party/dart-pkg/pub",
+    "infra_step": true,
+    "name": "git push"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "set-review",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"beep/boop~master~abc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "submit to commit queue",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-detail",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"beep/boop~master~abc123\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "check if done (0)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"labels\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"approved\": {}@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"status\": \"MERGED\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
