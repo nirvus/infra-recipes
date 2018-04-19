@@ -654,6 +654,20 @@
   {
     "cmd": [
       "make",
+      "-j2",
+      "check-gcc"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "test aarch64 gcc"
+  },
+  {
+    "cmd": [
+      "make",
       "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-gcc",
       "install-strip-target-libgcc"
@@ -795,6 +809,20 @@
       ]
     },
     "name": "build x86_64 gcc"
+  },
+  {
+    "cmd": [
+      "make",
+      "-j2",
+      "check-gcc"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "test x86_64 gcc"
   },
   {
     "cmd": [

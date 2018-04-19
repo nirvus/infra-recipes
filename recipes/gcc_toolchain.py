@@ -186,7 +186,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
         ] + common_args)
         binutils_make_step('build', 'all', api.goma.recommended_goma_jobs)
         try:
-          binutils_make_step('test', 'check', api.platform.cpu_count,['-k'])
+          binutils_make_step('test', 'check', api.platform.cpu_count, ['-k'])
         except StepFailure as error:
           logs = {
             l[0]: api.file.read_text('binutils %s %s' % (target, '/'.join(l)),
@@ -224,6 +224,25 @@ def RunSteps(api, binutils_revision, gcc_revision):
           '-j%s' % api.platform.cpu_count,
           'all-gcc', 'all-target-libgcc',
         ])
+        try:
+          api.step('test %s gcc' % target, [
+            'make',
+            '-j%s' % api.platform.cpu_count,
+            'check-gcc',
+          ])
+        except StepFailure as error:
+          logs = {
+            l[-1]: api.file.read_text('gcc %s %s' % (target, '/'.join(l)),
+                                      gcc_build_dir.join(*l)).splitlines()
+            for l in [
+              ('gcc', 'testsuite', 'gcc.log'),
+              ('gcc', 'testsuite', 'g++.log'),
+            ]
+          }
+          step_result = api.step('gcc test failure', cmd=None)
+          for name, text in logs.iteritems():
+            step_result.presentation.logs[name] = text
+          raise error
         api.step('install %s gcc' % target, [
           'make',
           'DESTDIR=%s' % pkg_dir,
@@ -301,7 +320,7 @@ def GenTests(api):
            api.step_data('binutils version', api.file.read_text(
                'm4_define([BFD_VERSION], [2.27.0])')) +
            api.step_data('gcc version', api.file.read_text('7.1.2\n')))
-    yield (api.test(platform + '_error') +
+    yield (api.test(platform + '_binutils_test_fail') +
            api.platform.name(platform) +
            api.gitiles.refs('binutils refs',
                             (BINUTILS_REF, binutils_revision)) +
@@ -317,6 +336,22 @@ def GenTests(api):
                          api.raw_io.stream_output('gcc/DATESTAMP\nothers\n',
                                                   name='changed files')) +
            api.step_data('test x86_64 binutils', retcode=1))
+    yield (api.test(platform + '_gcc_test_fail') +
+           api.platform.name(platform) +
+           api.gitiles.refs('binutils refs',
+                            (BINUTILS_REF, binutils_revision)) +
+           api.gitiles.refs('gcc refs',
+                            (GCC_REF, gcc_revision)) +
+           api.step_data('cipd search fuchsia/gcc/' + platform + '-amd64 ' +
+                         'git_revision:' + cipd_revision,
+                         api.json.output({'result': []})) +
+           api.step_data('check for changes other than bfd/version.h',
+                         api.raw_io.stream_output('bfd/version.h\nothers\n',
+                                                  name='changed files')) +
+           api.step_data('check for changes other than gcc/DATESTAMP',
+                         api.raw_io.stream_output('gcc/DATESTAMP\nothers\n',
+                                                  name='changed files')) +
+           api.step_data('test aarch64 gcc', retcode=1))
     yield (api.test(platform + '_useless') +
            api.platform.name(platform) +
            api.gitiles.refs('binutils refs',

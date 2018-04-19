@@ -10,7 +10,7 @@
       "-root",
       "[START_DIR]/cipd/gitiles",
       "-ensure-file",
-      "infra/tools/luci/gitiles/linux-amd64 latest",
+      "infra/tools/luci/gitiles/mac-amd64 latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -22,7 +22,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -40,7 +40,7 @@
       "-root",
       "[START_DIR]/cipd/goma",
       "-ensure-file",
-      "infra_internal/goma/client/linux-amd64 release",
+      "infra_internal/goma/client/mac-amd64 release",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -52,7 +52,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -127,13 +127,13 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/gcc/linux-amd64",
+      "fuchsia/gcc/mac-amd64",
       "-tag",
       "git_revision:4b5e15daff8b54440e3fda451c318ad31e532fab,3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/gcc/linux-amd64 git_revision:4b5e15daff8b54440e3fda451c318ad31e532fab,3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f",
+    "name": "cipd search fuchsia/gcc/mac-amd64 git_revision:4b5e15daff8b54440e3fda451c318ad31e532fab,3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -152,7 +152,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/clang/${platform} goma\nfuchsia/sysroot/${platform} latest",
+      "fuchsia/clang/${platform} goma",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -165,10 +165,6 @@
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -177,21 +173,33 @@
   },
   {
     "cmd": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "name": "xcrun",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@raw_io.output[sdk-path]@/some/xcode/path@@@",
+      "@@@STEP_LOG_END@raw_io.output[sdk-path]@@@"
+    ]
+  },
+  {
+    "cmd": [
       "cipd",
       "describe",
-      "fuchsia/gcc/linux-amd64",
+      "fuchsia/gcc/mac-amd64",
       "-version",
       "latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd describe fuchsia/gcc/linux-amd64",
+    "name": "cipd describe fuchsia/gcc/mac-amd64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"pin\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/gcc/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/gcc/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }, @@@",
       "@@@STEP_LOG_LINE@json.output@    \"refs\": [@@@",
       "@@@STEP_LOG_LINE@json.output@      {@@@",
@@ -473,7 +481,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/gcc_tmp_1/gcc-linux"
+      "[TMP_BASE]/gcc_tmp_1/gcc-darwin"
     ],
     "infra_step": true,
     "name": "create pkg dir"
@@ -514,9 +522,9 @@
       "--enable-deterministic-archives",
       "--enable-targets=arm-eabi",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -fbracket-depth=1024 -flto",
+      "CFLAGS=-O3 --sysroot=/some/xcode/path -fbracket-depth=1024",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -fbracket-depth=1024 -flto -static-libstdc++",
+      "CXXFLAGS=-O3 --sysroot=/some/xcode/path -fbracket-depth=1024 -static-libstdc++",
       "--prefix=",
       "--target=aarch64-elf",
       "--enable-initfini-array",
@@ -585,7 +593,7 @@
     "cmd": [
       "make",
       "-j1",
-      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
+      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-darwin",
       "install-strip-binutils",
       "install-strip-gas",
       "install-strip-ld",
@@ -617,9 +625,9 @@
       "--disable-libssp",
       "--disable-libquadmath",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -fbracket-depth=1024 -flto",
+      "CFLAGS=-O3 --sysroot=/some/xcode/path -fbracket-depth=1024",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -fbracket-depth=1024 -flto -static-libstdc++",
+      "CXXFLAGS=-O3 --sysroot=/some/xcode/path -fbracket-depth=1024 -static-libstdc++",
       "--prefix=",
       "--target=aarch64-elf",
       "--enable-initfini-array",
@@ -631,7 +639,7 @@
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
     "env_prefixes": {
       "PATH": [
-        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+        "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
     "name": "configure aarch64 gcc"
@@ -646,7 +654,7 @@
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
     "env_prefixes": {
       "PATH": [
-        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+        "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
     "name": "build aarch64 gcc"
@@ -654,77 +662,16 @@
   {
     "cmd": [
       "make",
-      "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
-      "install-strip-gcc",
-      "install-strip-target-libgcc"
+      "-j2",
+      "check-gcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
     "env_prefixes": {
       "PATH": [
-        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+        "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
-    "name": "install aarch64 gcc"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir"
-    ],
-    "infra_step": true,
-    "name": "create binutils x86_64 build dir"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/binutils-gdb/configure",
-      "--enable-deterministic-archives",
-      "--enable-targets=x86_64-pep",
-      "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -fbracket-depth=1024 -flto",
-      "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -fbracket-depth=1024 -flto -static-libstdc++",
-      "--prefix=",
-      "--target=x86_64-elf",
-      "--enable-initfini-array",
-      "--enable-gold",
-      "--disable-werror",
-      "--disable-nls",
-      "--with-included-gettext"
-    ],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "name": "configure x86_64 binutils"
-  },
-  {
-    "cmd": [
-      "make",
-      "-j50",
-      "all-binutils",
-      "all-gas",
-      "all-ld",
-      "all-gold"
-    ],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "name": "build x86_64 binutils"
-  },
-  {
-    "cmd": [
-      "make",
-      "-j2",
-      "-k",
-      "check-binutils",
-      "check-gas",
-      "check-ld",
-      "check-gold"
-    ],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "name": "test x86_64 binutils",
+    "name": "test aarch64 gcc",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
@@ -738,12 +685,17 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir/gas/testsuite/gas.log",
+      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir/gcc/testsuite/gcc.log",
       "/path/to/tmp/"
     ],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
+      ]
+    },
     "infra_step": true,
-    "name": "binutils x86_64 gas/testsuite/gas.log"
+    "name": "gcc aarch64 gcc/testsuite/gcc.log"
   },
   {
     "cmd": [
@@ -753,52 +705,30 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir/binutils/binutils.log",
+      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir/gcc/testsuite/g++.log",
       "/path/to/tmp/"
     ],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
+      ]
+    },
     "infra_step": true,
-    "name": "binutils x86_64 binutils/binutils.log"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir/ld/ld.log",
-      "/path/to/tmp/"
-    ],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "infra_step": true,
-    "name": "binutils x86_64 ld/ld.log"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir/gold/testsuite/test-suite.log",
-      "/path/to/tmp/"
-    ],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "infra_step": true,
-    "name": "binutils x86_64 gold/testsuite/test-suite.log"
+    "name": "gcc aarch64 gcc/testsuite/g++.log"
   },
   {
     "cmd": [],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_x86_64_build_dir",
-    "name": "binutils test failure",
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
+      ]
+    },
+    "name": "gcc test failure",
     "~followup_annotations": [
-      "@@@STEP_LOG_END@ld@@@",
-      "@@@STEP_LOG_END@gas@@@",
-      "@@@STEP_LOG_END@gold@@@",
-      "@@@STEP_LOG_END@binutils@@@"
+      "@@@STEP_LOG_END@gcc.log@@@",
+      "@@@STEP_LOG_END@g++.log@@@"
     ]
   },
   {
@@ -846,7 +776,7 @@
   },
   {
     "name": "$result",
-    "reason": "Step('test x86_64 binutils') failed with return_code 1",
+    "reason": "Step('test aarch64 gcc') failed with return_code 1",
     "recipe_result": null,
     "status_code": 1
   }
