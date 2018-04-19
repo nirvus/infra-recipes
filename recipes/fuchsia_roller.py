@@ -47,7 +47,7 @@ PROPERTIES = {
             kind=str,
             help='Name of the <project> or <import> to edit in $import_in'),
     'revision':
-        Property(kind=str, help='Revision'),
+        Property(kind=str, help='Revision', default=None),
     'dry_run':
         Property(
             kind=bool,
@@ -77,6 +77,16 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in,
   api.gitiles.ensure_gitiles()
 
   with api.context(infra_steps=True):
+    # Read the remote URL of the repo we're rolling from.
+    roll_from_repo = api.jiri.read_manifest_element(
+        manifest=import_in,
+        element_type=roll_type,
+        element_name=import_from,
+    ).get('remote')
+
+    if not revision:
+      revision = api.gitiles.refs(roll_from_repo).get('refs/heads/master', None)
+
     api.jiri.init()
     api.jiri.import_manifest(manifest, remote, project)
     api.jiri.update(run_hooks=False)
@@ -101,13 +111,6 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in,
         return
       old_rev = changes[updated_section][0]['old_revision']
       new_rev = changes[updated_section][0]['new_revision']
-
-      # Read the remote URL of the repo we're rolling from.
-      roll_from_repo = api.jiri.read_manifest_element(
-          manifest=import_in,
-          element_type=roll_type,
-          element_name=import_from,
-      ).get('remote')
 
       # Fail if the remote URL is missing
       if not roll_from_repo:
@@ -143,6 +146,28 @@ def GenTests(api):
   # Mock step data intended to be substituted as the result of the first check
   # during polling. It indicates a success, and should end polling.
   success_step_data = api.step_data('check if done (0)', api.auto_roller.success())
+
+  # Test when the incoming revision is missing.
+  yield (api.test('missing_revision') +
+      # Set test input properties.
+      api.properties(project='garnet',
+                     manifest='manifest/minimal',
+                     remote='https://fuchsia.googlesource.com/garnet',
+                     import_in='manifest/third_party',
+                     import_from='zircon') +
+      api.jiri.read_manifest_element(api,
+          manifest='manifest/minimal',
+          element_name='zircon',
+          element_type='import',
+          test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}) +
+      api.gitiles.refs('refs', (
+          'refs/heads/master', 'fc4dc762688d2263b254208f444f5c0a4b91bc07')) +
+      api.gitiles.log('log', 'A') + success_step_data +
+      api.jiri.read_manifest_element(api,
+          manifest='manifest/minimal',
+          element_name='zircon',
+          element_type='import',
+          test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}))
 
   # Test when the project to roll from is missing a 'remote' manifest attribute.
   yield (api.test('missing_manifest_project_remote') +
@@ -217,6 +242,11 @@ def GenTests(api):
                      import_from='zircon',
                      remote='https://fuchsia.googlesource.com/garnet',
                      revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
+      api.jiri.read_manifest_element(api,
+          manifest='manifest/minimal',
+          element_name='zircon',
+          element_type='import',
+          test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}) +
       api.step_data('jiri edit', api.json.output({'imports': []})))
 
   # Test a successful roll of garnet into peridot.

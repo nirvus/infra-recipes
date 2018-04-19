@@ -60,6 +60,32 @@
     ]
   },
   {
+    "cmd": [],
+    "infra_step": true,
+    "name": "read_manifest_cobalt"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "manifest",
+      "-v",
+      "-time",
+      "-element",
+      "cobalt",
+      "-template",
+      "\n      {\n        \"gerrithost\": \"{{.GerritHost}}\",\n        \"githooks\": \"{{.GitHooks}}\",\n        \"historydepth\": \"{{.HistoryDepth}}\",\n        \"name\": \"{{.Name}}\",\n        \"path\": \"{{.Path}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"revision\": \"{{.Revision}}\"\n      }\n      ",
+      "manifest/third_party"
+    ],
+    "infra_step": true,
+    "name": "read_manifest_cobalt.jiri manifest",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
@@ -129,34 +155,6 @@
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "cwd": "[START_DIR]/garnet",
-    "infra_step": true,
-    "name": "read_manifest_cobalt"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "manifest",
-      "-v",
-      "-time",
-      "-element",
-      "cobalt",
-      "-template",
-      "\n      {\n        \"gerrithost\": \"{{.GerritHost}}\",\n        \"githooks\": \"{{.GitHooks}}\",\n        \"historydepth\": \"{{.HistoryDepth}}\",\n        \"name\": \"{{.Name}}\",\n        \"path\": \"{{.Path}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"revision\": \"{{.Revision}}\"\n      }\n      ",
-      "manifest/third_party"
-    ],
-    "cwd": "[START_DIR]/garnet",
-    "infra_step": true,
-    "name": "read_manifest_cobalt.jiri manifest",
-    "stdout": "/path/to/tmp/json",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },

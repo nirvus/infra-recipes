@@ -74,7 +74,7 @@
       "zircon",
       "-template",
       "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\"\n      }\n      ",
-      "manifest/garnet"
+      "manifest/third_party"
     ],
     "infra_step": true,
     "name": "read_manifest_zircon.jiri manifest",
@@ -83,6 +83,24 @@
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"remote\": \"https://fuchsia.googlesource.com/zircon\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
+      "-json-output",
+      "/path/to/tmp/json",
+      "https://fuchsia.googlesource.com/zircon",
+      "refs"
+    ],
+    "infra_step": true,
+    "name": "refs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/master\": \"fc4dc762688d2263b254208f444f5c0a4b91bc07\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -139,7 +157,7 @@
       "/path/to/tmp/json",
       "-import",
       "zircon=fc4dc762688d2263b254208f444f5c0a4b91bc07",
-      "manifest/garnet"
+      "manifest/third_party"
     ],
     "cwd": "[START_DIR]/garnet",
     "infra_step": true,
