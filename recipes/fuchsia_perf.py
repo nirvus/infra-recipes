@@ -69,11 +69,12 @@ PROPERTIES = {
             help='Catapult dashboard URL',
             default=DEFAULT_CATAPULT_URL),
     'device_type':
-        Property(kind=Enum(*DEVICES),
-                 help='The type of device to execute tests on, if the value is'
-                      ' not QEMU it will be passed to Swarming as the device_type'
-                      ' dimension',
-                 default='QEMU'),
+        Property(
+            kind=Enum(*DEVICES),
+            help='The type of device to execute tests on, if the value is'
+            ' not QEMU it will be passed to Swarming as the device_type'
+            ' dimension',
+            default='QEMU'),
 }
 
 
@@ -86,15 +87,16 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       project=project,
   )
 
-  zircon_test_output_filename = 'zircon_benchmarks.json'
-
-  # TODO(kjharland): Hardcoding perf-test suite binaries is fine for now. If the
-  # number of suites explodes then we should look for an approach that doesn't
-  # involve editing this recipe by hand each time.
+  # Each project should have a Fuchsia package named ${project}_benchmarks
+  # containing a single script called "benchamrks.sh" that runs all benchmarks
+  # in the project.  Its only argument should be the directory where output is
+  # written.
+  #
+  # TODO(IN-197): Add link to documentation explaining why and how this works.
   test_cmds = [
-      '/system/test/perf/run_zircon_benchmarks %s/%s' % (
+      '/pkgfs/packages/%s_benchmarks/0/bin/benchmarks.sh %s' % (
+          project,
           api.fuchsia.target_test_dir(),
-          zircon_test_output_filename,
       )
   ]
 
@@ -109,44 +111,47 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   )
   test_results = api.fuchsia.test(build)
 
-  # Skip analysis steps if our test output is missing. This avoids masking a system
-  # failure with an obscure and unrelated error later on.
-  if zircon_test_output_filename not in test_results.outputs:
-    raise api.step.StepFailure(
-        'Missing test output file %s. see kernel log for details. Found files %s'
-        % (
-            zircon_test_output_filename,
-            list(test_results.outputs.keys()),
-        ))
-
   # Get build information.
   #
-  # WARNING: DO NOT use '/' in any of these names. Catapult creates a database
-  # key from these names and each component of the key is separated by a '/'.
-  # Using '/' in the names breaks this scheme and causes information in the
-  # dashboard to render incorrectly.
-  #
-  # Default to example info when running locally.
+  # NOTE: It's important that these names do not contain '/'. That is a
+  # signficant character to the Catapult dashboard, which will fail to correctly
+  # index the data.
   builder_id = api.buildbucket.builder_id
-  # Use $project/$bucket as the bucket name because in Buildbucket v2 the bucket
-  # name does not contain the luci.{project} prefix. Names like luci.fuchsia.ci
-  # will be read here as 'ci'.  If the catapult dashboard UI changes, a name as
-  # non-descript as 'ci' might become clobbered with some other team's 'ci'
-  # bucket.
-  project = builder_id.project or 'fuchsia'
-  bucket = project + "." + (builder_id.bucket or 'example.bucket')
+  builder = builder_id.builder
+  project = builder_id.project
+  # The usual "luci.fuchsia.ci" bucket name no longer includes the prefix
+  # "luci.{project}" in BuildBucket API v2.  Prepend the project name to make
+  # the bucket name unique to Fuchsia in the perf dashboard. It shows up as
+  # "fuchsia.ci" or "fuchsia.try", etc... depending on the bucket name.
+  bucket = "%s.%s" % (project, builder_id.bucket)
 
-  builder = builder_id.builder or 'fuchsia.example.builder'
+  # On a local workstation, builder_id properties are not set. Use test values.
+  #
+  # Since we can't mock the case where builder_id properties *are* set (The code
+  # would never enter the block `if builder_id.bucket` and recipes complains
+  # about missing coverage for those lines) always read the real-values above
+  # first, then do this if-check.
+  #
+  # TODO(kjharland): Make BuildBucketTestApi.builder_id testable.
+  if not project:
+    project = 'fuchia'
+    builder = 'example.builder'
+    bucket = 'fuchsia.example.bucket'
 
-  ProcessTestResults(
-      api=api,
-      step_name="analyze_zircon_benchmarks",
-      bucket=bucket,
-      builder=builder,
-      test_suite="zircon_benchmarks",
-      test_results=test_results.outputs[zircon_test_output_filename],
-      catapult_url=catapult_url,
-  )
+  for filename in test_results.outputs:
+    # strip file suffix
+    test_results_contents = test_results.outputs[filename]
+    test_name = api.path.splitext(filename)[0]
+
+    ProcessTestResults(
+        step_name="analyze_%s" % test_name,
+        api=api,
+        bucket=bucket,
+        builder=builder,
+        test_suite=test_name,
+        test_results=test_results_contents,
+        catapult_url=catapult_url,
+    )
 
 
 def ProcessTestResults(api, step_name, bucket, builder, test_suite,
@@ -157,8 +162,11 @@ def ProcessTestResults(api, step_name, bucket, builder, test_suite,
   Args:
     step_name (str): The name of the step under which to test the processing
       steps.
+    bucket (str): The bucket name to use in the perf dashboard.
+    builder (str): The builder name to use in the perf dashboard.
     test_suite (str): The name of the test suite that was run.
     test_results (str): The raw test results output.
+    catapult_url (str): The URL of the catapult dashboard.
   """
   with api.step.nest(step_name):
     hs_filepath = api.path['start_dir'].join('histogram_set.json')
@@ -188,37 +196,50 @@ def ProcessTestResults(api, step_name, bucket, builder, test_suite,
 
 
 def GenTests(api):
+  yield api.test('run_all_tests') + api.properties(
+      project='garnet',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['garnet/packages/kitchen_sink'],
+  ) + api.fuchsia.task_step_data() + api.step_data(
+      'extract results',
+      api.raw_io.output_dir({
+          'zircon_benchmarks.json': '[ZIRCON_BENCHMARKS_RESULTS]',
+          'ledger_benchmark.json': '[LEDGER_BENCHMARKS_RESULTS]',
+      }))
+
   # Test cases for running Fuchsia performance tests as a swarming task.
-  yield api.test('successful run') + api.properties(
+  yield api.test('successful_run') + api.properties(
+      project='topaz',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
   ) + api.fuchsia.task_step_data() + api.step_data(
-          'extract results',
-          api.raw_io.output_dir({
-              'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
-          }))
+      'extract results',
+      api.raw_io.output_dir({
+          'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+      }))
 
   yield api.test('device_tests') + api.properties(
+      project='topaz',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
       device_type='Intel NUC Kit NUC6i3SYK',
   ) + api.fuchsia.task_step_data(device=True) + api.step_data(
-          'extract results',
-          api.raw_io.output_dir({
-              'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
-          }))
+      'extract results',
+      api.raw_io.output_dir({
+          'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+      }))
 
   yield api.test('missing test results') + api.properties(
+      project='topaz',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-  ) + api.fuchsia.task_step_data() + api.step_data(
-          'extract results',
-          api.raw_io.output_dir({
-              'something_else.txt': 'I am a benchmark, ha ha!',
-          }))
+  ) + api.fuchsia.task_step_data() + api.step_data('extract results',
+                                                   api.raw_io.output_dir({}))

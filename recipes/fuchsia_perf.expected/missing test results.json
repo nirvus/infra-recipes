@@ -81,6 +81,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "topaz",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -144,7 +146,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/system/test/perf/run_zircon_benchmarks /tmp/infra-test-output/zircon_benchmarks.json\numount /tmp/infra-test-output\ndm poweroff",
+      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output\numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/runcmds"
     ],
     "infra_step": true,
@@ -154,7 +156,7 @@
       "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@/system/test/perf/run_zircon_benchmarks /tmp/infra-test-output/zircon_benchmarks.json@@@",
+      "@@@STEP_LOG_LINE@runcmds@/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
@@ -682,8 +684,7 @@
   },
   {
     "name": "$result",
-    "reason": "Missing test output file zircon_benchmarks.json. see kernel log for details. Found files ['something_else.txt']",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

@@ -972,17 +972,20 @@ This differs from the fuchsia recipe in the following ways:
 * Tests are always run (this recipe is not used to verify builds).
 * Test results are uploaded to the catapult dashboard after execution.
 
-&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#152)(api, step_name, bucket, builder, test_suite, test_results, catapult_url):**
+&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#157)(api, step_name, bucket, builder, test_suite, test_results, catapult_url):**
 
 Processes test results and uploads them to the Catapult dashboard.
 
 Args:
   step_name (str): The name of the step under which to test the processing
     steps.
+  bucket (str): The bucket name to use in the perf dashboard.
+  builder (str): The builder name to use in the perf dashboard.
   test_suite (str): The name of the test suite that was run.
   test_results (str): The raw test results output.
+  catapult_url (str): The URL of the catapult dashboard.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#80)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url, device_type):**
+&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#81)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url, device_type):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#16): [auto\_roller](#recipe_modules-auto_roller), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

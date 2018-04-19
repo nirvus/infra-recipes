@@ -146,7 +146,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\n/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output",
+      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output\numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/runcmds"
     ],
     "infra_step": true,
@@ -154,7 +154,11 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
+      "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
     ]
   },
@@ -394,6 +398,34 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
+      "[START_DIR]/run-qemu.sh"
+    ],
+    "infra_step": true,
+    "name": "write qemu runner",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0@@@",
+      "@@@STEP_LOG_END@run-qemu.sh@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[START_DIR]/input.fs@16M",
+      "create"
+    ],
+    "name": "create test image"
+  },
+  {
     "cmd": [],
     "name": "ensure_isolated"
   },
@@ -483,7 +515,11 @@
       "-files",
       "[START_DIR]/out/build-zircon/build-x64:zircon.bin",
       "-files",
-      "[START_DIR]/out/debug-x64:netboot-pc.bin"
+      "[START_DIR]:input.fs",
+      "-files",
+      "[START_DIR]:run-qemu.sh",
+      "-files",
+      "[START_DIR]/out/debug-x64:bootdata-blob-pc.bin"
     ],
     "name": "archive"
   },
@@ -500,11 +536,15 @@
       "-namespace",
       "default-gzip",
       "-dump-json",
-      "/path/to/tmp/json",
+      "[CLEANUP]/qemu_test_results.json",
       "-isolated",
       "[dummy hash]",
       "-dimension",
-      "device_type=Intel NUC Kit NUC6i3SYK",
+      "cpu=x86-64",
+      "-dimension",
+      "kvm=1",
+      "-dimension",
+      "os=Debian",
       "-dimension",
       "pool=fuchsia.tests",
       "-io-timeout",
@@ -512,23 +552,13 @@
       "-hard-timeout",
       "2400",
       "-cipd-package",
-      "botanist:fuchsia/infra/botanist/linux-amd64=latest",
+      "qemu:fuchsia/qemu/linux-amd64=latest",
       "-output",
-      "out.tar",
+      "output.fs",
       "-raw-cmd",
       "--",
-      "./botanist/botanist",
-      "-config",
-      "/etc/botanist/config.json",
-      "-kernel",
-      "zircon.bin",
-      "-ramdisk",
-      "netboot-pc.bin",
-      "-test",
-      "/tmp/infra-test-output",
-      "-out",
-      "out.tar",
-      "zircon.autorun.system=/system/data/infra/runcmds"
+      "/bin/sh",
+      "run-qemu.sh"
     ],
     "infra_step": true,
     "name": "trigger all tests",
@@ -542,30 +572,28 @@
       "@@@STEP_LOG_LINE@json.output@      \"cipd_input\": {@@@",
       "@@@STEP_LOG_LINE@json.output@        \"packages\": [@@@",
       "@@@STEP_LOG_LINE@json.output@          {@@@",
-      "@@@STEP_LOG_LINE@json.output@            \"package_name\": \"fuchsia/infra/botanist/linux-amd64\", @@@",
-      "@@@STEP_LOG_LINE@json.output@            \"path\": \"botanist\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"package_name\": \"fuchsia/qemu/linux-amd64\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"path\": \"qemu\", @@@",
       "@@@STEP_LOG_LINE@json.output@            \"version\": \"latest\"@@@",
       "@@@STEP_LOG_LINE@json.output@          }@@@",
       "@@@STEP_LOG_LINE@json.output@        ]@@@",
       "@@@STEP_LOG_LINE@json.output@      }, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"command\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"./botanist/botanist\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-config\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"/etc/botanist/config.json\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-kernel\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"zircon.bin\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-ramdisk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"netboot-pc.bin\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-test\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"/tmp/infra-test-output\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"-out\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"out.tar\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"zircon.autorun.system=/system/data/infra/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"/bin/sh\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"run-qemu.sh\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
       "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
-      "@@@STEP_LOG_LINE@json.output@          \"key\": \"device_type\", @@@",
-      "@@@STEP_LOG_LINE@json.output@          \"value\": \"Intel NUC Kit NUC6i3SYK\"@@@",
+      "@@@STEP_LOG_LINE@json.output@          \"key\": \"cpu\", @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"value\": \"x86-64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        }, @@@",
+      "@@@STEP_LOG_LINE@json.output@        {@@@",
+      "@@@STEP_LOG_LINE@json.output@          \"key\": \"kvm\", @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"value\": \"1\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        }, @@@",
+      "@@@STEP_LOG_LINE@json.output@        {@@@",
+      "@@@STEP_LOG_LINE@json.output@          \"key\": \"os\", @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"value\": \"Debian\"@@@",
       "@@@STEP_LOG_LINE@json.output@        }, @@@",
       "@@@STEP_LOG_LINE@json.output@        {@@@",
       "@@@STEP_LOG_LINE@json.output@          \"key\": \"pool\", @@@",
@@ -597,7 +625,7 @@
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
-      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"-config\", \"/etc/botanist/config.json\", \"-kernel\", \"zircon.bin\", \"-ramdisk\", \"netboot-pc.bin\", \"-test\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/system/data/infra/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"Intel NUC Kit NUC6i3SYK\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
+      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"/bin/sh\", \"run-qemu.sh\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
     ],
     "infra_step": true,
     "name": "collect",
@@ -606,7 +634,7 @@
       "@@@STEP_LOG_LINE@json.output@  \"39927049b6ee7010\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"out.tar\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
@@ -644,42 +672,11 @@
     ]
   },
   {
-    "cmd": [],
-    "infra_step": true,
-    "name": "ensure bsdtar"
-  },
-  {
     "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "fuchsia/tools/bsdtar/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure bsdtar.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "-xvf",
-      "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/out.tar",
-      "-C",
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/output.fs",
+      "cp",
+      "::",
       "[START_DIR]/test_results"
     ],
     "infra_step": true,
