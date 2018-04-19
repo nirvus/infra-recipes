@@ -259,6 +259,7 @@
       "[START_DIR]/buildtools/gn",
       "gen",
       "[START_DIR]/out/release-arm64",
+      "--check",
       "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/bootfs\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false bootfs_packages=true"
     ],
     "name": "build arm64.bootfs.build.build fuchsia.gn gen",
@@ -464,6 +465,7 @@
       "[START_DIR]/buildtools/gn",
       "gen",
       "[START_DIR]/out/release-arm64",
+      "--check",
       "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/base\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build arm64.base.build.build fuchsia.gn gen",
@@ -628,6 +630,7 @@
       "[START_DIR]/buildtools/gn",
       "gen",
       "[START_DIR]/out/release-x64",
+      "--check",
       "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/bootfs\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false bootfs_packages=true"
     ],
     "name": "build x64.bootfs.build.build fuchsia.gn gen",
@@ -805,6 +808,7 @@
       "[START_DIR]/buildtools/gn",
       "gen",
       "[START_DIR]/out/release-x64",
+      "--check",
       "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/base\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build x64.base.build.build fuchsia.gn gen",

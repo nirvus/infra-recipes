@@ -284,6 +284,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           self.m.path['start_dir'].join('buildtools', 'gn'),
           'gen',
           build.fuchsia_build_dir,
+          '--check',
           '--args=%s' % ' '.join(args + list(gn_args)),
         ])
 

@@ -304,6 +304,7 @@
       "[START_DIR]/buildtools/gn",
       "gen",
       "[START_DIR]/out/debug-x64",
+      "--check",
       "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\",\"[CLEANUP]/runcmds_package\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true"
     ],
     "name": "build.build fuchsia.gn gen",

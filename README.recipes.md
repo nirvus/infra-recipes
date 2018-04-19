@@ -292,7 +292,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#654)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#655)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -306,7 +306,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#693)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#694)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -317,7 +317,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#297)(self, target, build_type, packages, variants=(), gn_args=(), ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#298)(self, target, build_type, packages, variants=(), gn_args=(), ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -357,11 +357,11 @@ Args:
   timeout_secs (int): How long to wait for the checkout to complete
       before failing
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#408)(self):**
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#409)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#634)(self, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#635)(self, build, timeout_secs=(40 \* 60)):**
 
 Tests a Fuchsia build on the specified device.
 
