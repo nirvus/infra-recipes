@@ -725,7 +725,7 @@
         "[TMP_BASE]/gcc_tmp_1/gcc-darwin/bin"
       ]
     },
-    "name": "gcc test failure",
+    "name": "test aarch64 gcc logs",
     "~followup_annotations": [
       "@@@STEP_LOG_END@gcc.log@@@",
       "@@@STEP_LOG_END@g++.log@@@"

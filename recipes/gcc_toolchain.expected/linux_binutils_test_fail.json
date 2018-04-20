@@ -667,6 +667,60 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir/gcc/testsuite/gcc.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "infra_step": true,
+    "name": "gcc aarch64 gcc/testsuite/gcc.log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir/gcc/testsuite/g++.log",
+      "/path/to/tmp/"
+    ],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "infra_step": true,
+    "name": "gcc aarch64 gcc/testsuite/g++.log"
+  },
+  {
+    "cmd": [],
+    "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
+    "env_prefixes": {
+      "PATH": [
+        "[TMP_BASE]/gcc_tmp_1/gcc-linux/bin"
+      ]
+    },
+    "name": "test aarch64 gcc logs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@gcc.log@@@",
+      "@@@STEP_LOG_END@g++.log@@@"
+    ]
+  },
+  {
+    "cmd": [
       "make",
       "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-linux",
       "install-strip-gcc",

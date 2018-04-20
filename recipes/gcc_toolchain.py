@@ -236,7 +236,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
             '-j%s' % api.platform.cpu_count,
             'check-gcc',
           ])
-        except StepFailure as error:
+        finally:
           logs = {
             l[-1]: api.file.read_text('gcc %s %s' % (target, '/'.join(l)),
                                       gcc_build_dir.join(*l)).splitlines()
@@ -245,10 +245,9 @@ def RunSteps(api, binutils_revision, gcc_revision):
               ('gcc', 'testsuite', 'g++.log'),
             ]
           }
-          step_result = api.step('gcc test failure', cmd=None)
+          step_result = api.step('test %s gcc logs' % target, cmd=None)
           for name, text in logs.iteritems():
             step_result.presentation.logs[name] = text
-          raise error
         api.step('install %s gcc' % target, [
           'make',
           'DESTDIR=%s' % pkg_dir,
