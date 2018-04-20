@@ -49,10 +49,16 @@ PROPERTIES = {
 def DoCheckout(api, url, checkout_dir, revision, last_revision, useless_file):
   api.git.checkout(url, checkout_dir, revision)
   with api.context(cwd=checkout_dir):
-    step = api.git('diff', '--name-only', '%s..%s' % (last_revision, revision),
-                   name='check for changes other than %s' % useless_file,
-                   stdout=api.raw_io.output(name='changed files',
-                                            add_output_log=True))
+    try:
+      step = api.git(
+          'diff', '--name-only', '%s..%s' % (last_revision, revision),
+          name='check for changes other than %s' % useless_file,
+          stdout=api.raw_io.output(name='changed files', add_output_log=True))
+    except StepFailure as error:
+      # If the old revision is no longer in the repo or something like that,
+      # git can fail.  But that shouldn't make the build fail, it should just
+      # not trigger the "useless change" short-circuit.
+      return False
   changed_files = set(step.stdout.splitlines()) - set([useless_file])
   return changed_files == set()
 
@@ -349,7 +355,7 @@ def GenTests(api):
                          api.raw_io.stream_output('bfd/version.h\nothers\n',
                                                   name='changed files')) +
            api.step_data('check for changes other than gcc/DATESTAMP',
-                         api.raw_io.stream_output('gcc/DATESTAMP\nothers\n',
+                         api.raw_io.stream_output('', retcode=1,
                                                   name='changed files')) +
            api.step_data('test aarch64 gcc', retcode=1))
     yield (api.test(platform + '_useless') +
