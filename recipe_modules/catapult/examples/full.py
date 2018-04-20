@@ -16,8 +16,8 @@ def RunSteps(api):
   histogram_set_data = api.catapult.make_histogram(
       'example_input_file',
       test_suite='example.suite',
-      builder='example.builder',
-      bucket='example.bucket',
+      masters_name='dashboard_masters_name',
+      bots_name='dashboard_bots_name',
       datetime=123456789,
       # Verify kwargs are passed to the generated step
       stdout=api.raw_io.output('out'),

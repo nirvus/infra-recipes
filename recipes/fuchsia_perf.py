@@ -75,11 +75,32 @@ PROPERTIES = {
             ' not QEMU it will be passed to Swarming as the device_type'
             ' dimension',
             default='QEMU'),
+
+    # Performance dashboard information.
+    #
+    # These values are the search terms that will be used when finding graphs in
+    # the Catapult dashboard. TODO(IN-336): Link to docs once they're public.
+    #
+    # Explicitly passing these values prevents BuildBucketApi changes, builder
+    # renames, or other unexpected changes from affecting the data in the
+    # dashboard.
+    'dashboard_masters_name':
+        Property(
+            kind=str,
+            help='The name of the "masters" field in the performance dashboard',
+            # TODO(kjharland): Update existing configs with this default and delete.
+            default='fuchsia.ci'),
+    'dashboard_bots_name':
+        Property(
+            kind=str,
+            help='The name of the "bots" field in the performance dashboard',
+            default=''),
 }
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
-             variant, gn_args, catapult_url, device_type):
+             variant, gn_args, catapult_url, device_type,
+             dashboard_masters_name, dashboard_bots_name):
   api.catapult.ensure_catapult()
   api.fuchsia.checkout(
       manifest=manifest,
@@ -111,32 +132,8 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   )
   test_results = api.fuchsia.test(build)
 
-  # Get build information.
-  #
-  # NOTE: It's important that these names do not contain '/'. That is a
-  # signficant character to the Catapult dashboard, which will fail to correctly
-  # index the data.
-  builder_id = api.buildbucket.builder_id
-  builder = builder_id.builder
-  project = builder_id.project
-  # The usual "luci.fuchsia.ci" bucket name no longer includes the prefix
-  # "luci.{project}" in BuildBucket API v2.  Prepend the project name to make
-  # the bucket name unique to Fuchsia in the perf dashboard. It shows up as
-  # "fuchsia.ci" or "fuchsia.try", etc... depending on the bucket name.
-  bucket = "%s.%s" % (project, builder_id.bucket)
-
-  # On a local workstation, builder_id properties are not set. Use test values.
-  #
-  # Since we can't mock the case where builder_id properties *are* set (The code
-  # would never enter the block `if builder_id.bucket` and recipes complains
-  # about missing coverage for those lines) always read the real-values above
-  # first, then do this if-check.
-  #
-  # TODO(kjharland): Make BuildBucketTestApi.builder_id testable.
-  if not project:
-    project = 'fuchia'
-    builder = 'example.builder'
-    bucket = 'fuchsia.example.bucket'
+  # TODO(kjharland): Update existing configs and remove this null-check.
+  dashboard_bots_name = dashboard_bots_name or api.buildbucket.builder_id.builder
 
   for filename in test_results.outputs:
     # strip file suffix
@@ -146,24 +143,25 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
     ProcessTestResults(
         step_name="analyze_%s" % test_name,
         api=api,
-        bucket=bucket,
-        builder=builder,
+        dashboard_masters_name=dashboard_masters_name,
+        dashboard_bots_name=dashboard_bots_name,
         test_suite=test_name,
         test_results=test_results_contents,
         catapult_url=catapult_url,
     )
 
 
-def ProcessTestResults(api, step_name, bucket, builder, test_suite,
-                       test_results, catapult_url):
+def ProcessTestResults(api, step_name, dashboard_masters_name,
+                       dashboard_bots_name, test_suite, test_results,
+                       catapult_url):
   """
   Processes test results and uploads them to the Catapult dashboard.
 
   Args:
     step_name (str): The name of the step under which to test the processing
       steps.
-    bucket (str): The bucket name to use in the perf dashboard.
-    builder (str): The builder name to use in the perf dashboard.
+    dashboard_masters_name (str): The masters name to use in the perf dashboard.
+    dashboard_bots_name (str): The bots name to use in the perf dashboard.
     test_suite (str): The name of the test suite that was run.
     test_results (str): The raw test results output.
     catapult_url (str): The URL of the catapult dashboard.
@@ -180,8 +178,8 @@ def ProcessTestResults(api, step_name, bucket, builder, test_suite,
     api.catapult.make_histogram(
         input_file=api.raw_io.input_text(test_results),
         test_suite=test_suite,
-        builder=builder,
-        bucket=bucket,
+        masters_name=dashboard_masters_name,
+        bots_name=dashboard_bots_name,
         datetime=api.time.ms_since_epoch(),
         stdout=hs_placeholder,
     )
@@ -196,19 +194,6 @@ def ProcessTestResults(api, step_name, bucket, builder, test_suite,
 
 
 def GenTests(api):
-  yield api.test('run_all_tests') + api.properties(
-      project='garnet',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['garnet/packages/kitchen_sink'],
-  ) + api.fuchsia.task_step_data() + api.step_data(
-      'extract results',
-      api.raw_io.output_dir({
-          'zircon_benchmarks.json': '[ZIRCON_BENCHMARKS_RESULTS]',
-          'ledger_benchmark.json': '[LEDGER_BENCHMARKS_RESULTS]',
-      }))
-
   # Test cases for running Fuchsia performance tests as a swarming task.
   yield api.test('successful_run') + api.properties(
       project='topaz',
@@ -216,6 +201,8 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results',
       api.raw_io.output_dir({
@@ -229,6 +216,8 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
       device_type='Intel NUC Kit NUC6i3SYK',
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
   ) + api.fuchsia.task_step_data(device=True) + api.step_data(
       'extract results',
       api.raw_io.output_dir({
@@ -241,5 +230,7 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
   ) + api.fuchsia.task_step_data() + api.step_data('extract results',
                                                    api.raw_io.output_dir({}))
