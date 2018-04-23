@@ -87,14 +87,11 @@ PROPERTIES = {
     'dashboard_masters_name':
         Property(
             kind=str,
-            help='The name of the "masters" field in the performance dashboard',
-            # TODO(kjharland): Update existing configs with this default and delete.
-            default='fuchsia.ci'),
+            help='The name of the "masters" field in the performance dashboard'),
     'dashboard_bots_name':
         Property(
             kind=str,
-            help='The name of the "bots" field in the performance dashboard',
-            default=''),
+            help='The name of the "bots" field in the performance dashboard'),
 }
 
 
@@ -131,9 +128,6 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       test_device_type=device_type,
   )
   test_results = api.fuchsia.test(build)
-
-  # TODO(kjharland): Update existing configs and remove this null-check.
-  dashboard_bots_name = dashboard_bots_name or api.buildbucket.builder_id.builder
 
   for filename in test_results.outputs:
     # strip file suffix
