@@ -80,6 +80,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.go.ensure_go()
 
   if not target:
+    # Compute the CIPD target for the host platform if not set.
     target = '%s-%s' % (api.platform.name.replace('win', 'windows'), {
         'intel': {
             32: '386',
@@ -115,7 +116,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.go('test', '-v', './...')
 
   staging_dir = api.path.mkdtemp('tools')
-  goos, goarch = target.split('-')
+
+  # Compute GOOS and GOARCH from the CIPD target.
+  cipd_os, cipd_cpu = target.split('-')
+  goos = cipd_os.replace('mac', 'darwin')
+  goarch = cipd_cpu.replace('armv6', 'arm')
 
   with api.context(
       cwd=staging_dir, env={'GOPATH': gopath,
