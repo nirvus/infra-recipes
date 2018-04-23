@@ -33,11 +33,6 @@ PROPERTIES = {
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
-  # TODO(mknyszek): Remove this property as it is unused.
-  'upload_snapshot': Property(kind=bool,
-                              help='Whether to upload jiri snapshot'
-                                   ' (always False if tryjob is True)',
-                              default=True),
   'snapshot_gcs_bucket': Property(kind=str,
                                   help='The GCS bucket to upload a jiri snapshot of the build'
                                        ' to. Will not upload a snapshot if this property is'
@@ -48,10 +43,8 @@ PROPERTIES = {
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url,
-             remote, manifest, project, target, upload_snapshot,
-             snapshot_gcs_bucket):
-  # TODO(mknyszek): Update this once nothing is using upload_snapshot.
-  if api.properties.get('tryjob') or not upload_snapshot:
+             remote, manifest, project, target, snapshot_gcs_bucket):
+  if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   api.fuchsia.checkout(
       manifest=manifest,
@@ -115,7 +108,6 @@ def GenTests(api):
       target='x64',
       tryjob=True,
       snapshot_gcs_bucket=None,
-      upload_snapshot=False,
   )
   yield api.test('ci_no_snapshot') + api.properties.tryserver(
       patch_project='fuchsia',
@@ -124,24 +116,4 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       snapshot_gcs_bucket=None,
-      upload_snapshot=False,
-  )
-  # TODO(mknyszek): Delete this test once nothing is using upload_snapshot.
-  yield api.test('ci_no_snapshot_deprecated') + api.properties.tryserver(
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      upload_snapshot=False,
-  )
-  # TODO(mknyszek): Delete this test once nothing is using upload_snapshot.
-  yield api.test('cq_no_snapshot_deprecated') + api.properties.tryserver(
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      tryjob=True,
-      upload_snapshot=False,
   )

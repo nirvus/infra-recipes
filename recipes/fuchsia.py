@@ -65,11 +65,6 @@ PROPERTIES = {
   'test_timeout_secs': Property(kind=int,
                                 help='How long to wait until timing out on tests',
                                 default=40*60),
-  # TODO(mknyszek): Remove this property as it is unused.
-  'upload_snapshot': Property(kind=bool,
-                          help='Whether to upload jiri snapshot'
-                               ' (always False if tryjob is True)',
-                          default=True),
   'snapshot_gcs_bucket': Property(kind=str,
                                   help='The GCS bucket to upload a jiri snapshot of the build'
                                        ' to. Will not upload a snapshot if this property is'
@@ -85,9 +80,8 @@ PROPERTIES = {
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, build_type, packages, variant, gn_args, run_tests, runtests_args,
-             device_type, test_timeout_secs, upload_snapshot, snapshot_gcs_bucket,
-             upload_archive):
-  if api.properties.get('tryjob') or not upload_snapshot:
+             device_type, test_timeout_secs, snapshot_gcs_bucket, upload_archive):
+  if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   api.fuchsia.checkout(
       manifest=manifest,
@@ -227,7 +221,6 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-      upload_snapshot=True,
       upload_archive=True,
       tryjob=True,
   )
@@ -254,7 +247,6 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-      upload_snapshot=False,
       snapshot_gcs_bucket=None,
       tryjob=True,
   )
@@ -265,27 +257,5 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-      upload_snapshot=False,
       snapshot_gcs_bucket=None,
-  )
-  # TODO(mknyszek): Delete this test once nothing uses upload_snapshot.
-  yield api.test('cq_no_snapshot_deprecated') + api.properties.tryserver(
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      tryjob=True,
-      upload_snapshot=False,
-  )
-  # TODO(mknyszek): Delete this test once nothing uses upload_snapshot.
-  yield api.test('ci_no_snapshot_deprecated') + api.properties.tryserver(
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      upload_snapshot=False,
   )
