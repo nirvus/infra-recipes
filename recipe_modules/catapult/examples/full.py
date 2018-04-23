@@ -22,7 +22,7 @@ def RunSteps(api):
       test_suite='example.suite',
       masters_name='dashboard_masters_name',
       bots_name='dashboard_bots_name',
-      datetime=123456789,
+      execution_timestamp_ms=123456789,
       output_file=api.json.output(name='histogram_set'),
   )
 

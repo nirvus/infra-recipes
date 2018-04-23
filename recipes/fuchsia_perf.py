@@ -196,7 +196,7 @@ def ProcessTestResults(api, step_name, dashboard_masters_name,
         test_suite=test_suite,
         masters_name=dashboard_masters_name,
         bots_name=dashboard_bots_name,
-        datetime=api.time.ms_since_epoch(),
+        execution_timestamp_ms=api.time.ms_since_epoch(),
         output_file=api.json.output(),
     ).json.output
 

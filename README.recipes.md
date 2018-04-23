@@ -151,7 +151,7 @@ Return a catapult command step.
 
 &mdash; **def [ensure\_catapult](/recipe_modules/catapult/api.py#26)(self, version=None):**
 
-&mdash; **def [make\_histogram](/recipe_modules/catapult/api.py#38)(self, input_file, test_suite, masters_name, bots_name, datetime, output_file, \*\*kwargs):**
+&mdash; **def [make\_histogram](/recipe_modules/catapult/api.py#38)(self, input_file, test_suite, masters_name, bots_name, execution_timestamp_ms, output_file, \*\*kwargs):**
 
 Generates a HistogramSet from performance test output.
 
@@ -159,15 +159,16 @@ Args:
   test_suite (string): The name of the test suite
   masters_name (str): The masters name to use in the perf dashboard.
   bots_name (str): The bots name to use in the perf dashboard.
-  datetime (uint): Ms since epoch when tests were executed.
+  execution_timestamp_ms (uint): Ms since epoch when tests were executed.
   input_file (Path): Full path to the input file containing test results.
   output_file (Path): Full path to the file to write results to.
-  kwargs: Keyword argments passed to the executed step.
+  input_file (string): Full path to the input file containing test results.
+  kwargs: Keyword argments passed to the returned step.
 
 Returns:
   The step result of executing the make_histogram subcommand.
 
-&mdash; **def [upload](/recipe_modules/catapult/api.py#72)(self, input_file, url, timeout=None, \*\*kwargs):**
+&mdash; **def [upload](/recipe_modules/catapult/api.py#73)(self, input_file, url, timeout=None, \*\*kwargs):**
 
 Uploads performance JSON data to a dashboard.
 
