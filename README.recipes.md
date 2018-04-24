@@ -26,6 +26,7 @@
 **[Recipes](#Recipes)**
   * [authutil:examples/full](#recipes-authutil_examples_full)
   * [auto_roller:examples/full](#recipes-auto_roller_examples_full) &mdash; Example recipe for auto-rolling.
+  * [breakpad_tools](#recipes-breakpad_tools) &mdash; Recipe for building some Breakpad tools.
   * [catapult:examples/full](#recipes-catapult_examples_full)
   * [cipd:examples/full](#recipes-cipd_examples_full)
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
@@ -912,6 +913,13 @@ Args:
 Example recipe for auto-rolling.
 
 &mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#27)(api, project, remote, dry_run):**
+### *recipes* / [breakpad\_tools](/recipes/breakpad_tools.py)
+
+[DEPS](/recipes/breakpad_tools.py#9): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe for building some Breakpad tools.
+
+&mdash; **def [RunSteps](/recipes/breakpad_tools.py#39)(api, url, ref, revision, cipd_target):**
 ### *recipes* / [catapult:examples/full](/recipe_modules/catapult/examples/full.py)
 
 [DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]

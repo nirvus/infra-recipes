@@ -1,0 +1,297 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_gitiles"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gitiles",
+      "-ensure-file",
+      "infra/tools/luci/gitiles/mac-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gitiles.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
+      "-json-output",
+      "/path/to/tmp/json",
+      "https://chromium.googlesource.com/breakpad/breakpad",
+      "refs"
+    ],
+    "name": "refs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/master\": \"9eac2058b70615519b2c4d8c6bdbfca1bd079e39\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/tools/breakpad/mac-amd64",
+      "-tag",
+      "git_revision:9eac2058b70615519b2c4d8c6bdbfca1bd079e39",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "cipd search fuchsia/tools/breakpad/mac-amd64 git_revision:9eac2058b70615519b2c4d8c6bdbfca1bd079e39",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/depot_tools"
+    ],
+    "infra_step": true,
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "master"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "submodule update"
+  },
+  {
+    "cmd": [
+      "gclient",
+      "config",
+      "--unmanaged",
+      "-v",
+      "https://chromium.googlesource.com/breakpad/breakpad"
+    ],
+    "cwd": "[START_DIR]/breakpad",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/depot_tools"
+      ]
+    },
+    "infra_step": true,
+    "name": "gclient config"
+  },
+  {
+    "cmd": [
+      "git",
+      "-C",
+      "src",
+      "checkout",
+      "9eac2058b70615519b2c4d8c6bdbfca1bd079e39"
+    ],
+    "cwd": "[START_DIR]/breakpad",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/depot_tools"
+      ]
+    },
+    "infra_step": true,
+    "name": "pin git"
+  },
+  {
+    "cmd": [
+      "gclient",
+      "sync",
+      "-v",
+      "--output-json",
+      "/path/to/tmp/json"
+    ],
+    "cwd": "[START_DIR]/breakpad",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/depot_tools"
+      ]
+    },
+    "infra_step": true,
+    "name": "gclient sync",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"9eac2058b70615519b2c4d8c6bdbfca1bd079e39\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "./configure"
+    ],
+    "cwd": "[START_DIR]/breakpad/src",
+    "name": "configure"
+  },
+  {
+    "cmd": [
+      "make",
+      "src/tools/mac/dump_syms/dump_syms",
+      "src/tools/mac/symupload/sym_upload"
+    ],
+    "cwd": "[START_DIR]/breakpad/src",
+    "name": "build"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-build",
+      "-pkg-def",
+      "{\"data\": [{\"file\": \"dump_syms/dump_syms\"}, {\"file\": \"symupload/sym_upload\"}, {\"version_file\": \".versions/breakpad-tools.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/tools/breakpad/mac-amd64\", \"root\": \"[START_DIR]/breakpad/src/src/tools/mac\"}",
+      "-out",
+      "[CLEANUP]/breakpad-tools.cipd",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "build fuchsia/tools/breakpad/mac-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/tools/breakpad/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "[CLEANUP]/breakpad-tools.cipd",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-ref",
+      "latest",
+      "-tag",
+      "git_repository:https://chromium.googlesource.com/breakpad/breakpad",
+      "-tag",
+      "git_revision:9eac2058b70615519b2c4d8c6bdbfca1bd079e39"
+    ],
+    "name": "register fuchsia/tools/breakpad/mac-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/tools/breakpad/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
