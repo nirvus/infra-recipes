@@ -9,7 +9,6 @@ import hashlib
 import pipes
 import re
 
-
 # List of available targets.
 TARGETS = ['x64', 'arm64']
 
@@ -17,13 +16,13 @@ TARGETS = ['x64', 'arm64']
 TARGET_TO_KERNEL_IMAGE = dict(zip(
     TARGETS,
     ['zircon.bin', 'qemu-zircon.bin'],
-))
+)) # yapf: disable
 
 # Per-target kernel command line.
 TARGET_CMDLINE = dict(zip(
     TARGETS,
     [['kernel.serial=legacy'], []]
-))
+)) # yapf: disable
 
 # List of available build types.
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
@@ -59,8 +58,8 @@ RUNCMDS_PACKAGE = '''
 # (variant_name, switch) mapping Fuchsia GN variant names (as used in the
 # variant property) to build-zircon.sh switches.
 VARIANTS_ZIRCON = [
-  ('host_asan', '-H'),
-  ('asan', '-A'),
+    ('host_asan', '-H'),
+    ('asan', '-A'),
 ]
 
 
@@ -72,6 +71,7 @@ def _board_name(target):
 
 class FuchsiaBuildResults(object):
   """Represents a completed build of Fuchsia."""
+
   def __init__(self, target, zircon_build_dir, fuchsia_build_dir, has_tests,
                test_device_type):
     assert target in TARGETS
@@ -121,6 +121,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
   class FuchsiaTestResults(object):
     """Represents the result of testing of a Fuchsia build."""
+
     def __init__(self, build_dir, output, outputs):
       self._build_dir = build_dir
       self._output = output
@@ -141,13 +142,18 @@ class FuchsiaApi(recipe_api.RecipeApi):
       """A mapping between relative paths for output files to their contents."""
       return self._outputs
 
-
   def __init__(self, *args, **kwargs):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
 
-  def checkout(self, manifest, remote, project=None, patch_ref=None,
-               patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None,
-               timeout_secs=20*60):
+  def checkout(self,
+               manifest,
+               remote,
+               project=None,
+               patch_ref=None,
+               patch_gerrit_url=None,
+               patch_project=None,
+               snapshot_gcs_bucket=None,
+               timeout_secs=20 * 60):
     """Uses Jiri to check out a Fuchsia project.
 
     The patch_* arguments must all be set, or none at all.
@@ -181,36 +187,40 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.gsutil.ensure_gsutil()
         snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
         self.m.jiri.snapshot(snapshot_file)
-        digest = self.m.hash.sha1('hash snapshot', snapshot_file,
-                                  test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
-        self.m.gsutil.upload(snapshot_gcs_bucket, snapshot_file, digest,
-          link_name='jiri.snapshot',
-          name='upload jiri.snapshot',
-          unauthenticated_url=True)
+        digest = self.m.hash.sha1(
+            'hash snapshot',
+            snapshot_file,
+            test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
+        self.m.gsutil.upload(
+            snapshot_gcs_bucket,
+            snapshot_file,
+            digest,
+            link_name='jiri.snapshot',
+            name='upload jiri.snapshot',
+            unauthenticated_url=True)
 
   def _create_runcmds_package(self, test_cmds, test_in_qemu=True):
     """Creates a Fuchsia package which contains a script for running tests automatically."""
     # The device topological path is the toplogical path to the block device
     # which will contain test output.
     device_topological_path = '/dev/sys/pci/00:%s/virtio-block/block' % (
-        TEST_FS_PCI_ADDR,
-    )
+        TEST_FS_PCI_ADDR)
 
     # Script that mounts the block device to contain test output and runs tests,
     # dropping test output into the block device.
     test_dir = self.target_test_dir()
     runcmds = [
-      '#!/boot/bin/sh',
-      'mkdir %s' % test_dir,
+        '#!/boot/bin/sh',
+        'mkdir %s' % test_dir,
     ]
     if test_in_qemu:
       runcmds.extend([
-        # Wait until the MinFS test image shows up (max <timeout> ms).
-        'waitfor class=block topo=%s timeout=60000' % device_topological_path,
-        'mount %s %s' % (device_topological_path, test_dir),
+          # Wait until the MinFS test image shows up (max <timeout> ms).
+          'waitfor class=block topo=%s timeout=60000' % device_topological_path,
+          'mount %s %s' % (device_topological_path, test_dir),
       ] + test_cmds + [
-        'umount %s' % test_dir,
-        'dm poweroff',
+          'umount %s' % test_dir,
+          'dm poweroff',
       ])
     else:
       runcmds.extend(test_cmds)
@@ -220,8 +230,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     runcmds_package_path = self.m.path['cleanup'].join('runcmds_package')
     runcmds_package = RUNCMDS_PACKAGE % runcmds_path
-    self.m.file.write_text('write runcmds package', runcmds_package_path, runcmds_package)
-    self.m.step.active_result.presentation.logs['runcmds_package'] = runcmds_package.splitlines()
+    self.m.file.write_text('write runcmds package', runcmds_package_path,
+                           runcmds_package)
+    self.m.step.active_result.presentation.logs[
+        'runcmds_package'] = runcmds_package.splitlines()
     return str(runcmds_package_path)
 
   def _build_zircon(self, target, variants):
@@ -246,57 +258,67 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     goma_env = {}
     if self.m.properties.get('goma_local_cache', False):
-      goma_env['GOMA_LOCAL_OUTPUT_CACHE_DIR'] = self.m.path['cache'].join('goma', 'localoutputcache')
+      goma_env['GOMA_LOCAL_OUTPUT_CACHE_DIR'] = self.m.path['cache'].join(
+          'goma', 'localoutputcache')
 
     return goma_env
 
-  def _build_fuchsia(self, build, build_type, packages, variants,
-                     gn_args, ninja_targets):
+  def _build_fuchsia(self, build, build_type, packages, variants, gn_args,
+                     ninja_targets):
     """Builds fuchsia given a FuchsiaBuildResults and other GN options."""
     goma_env = self._setup_goma()
     with self.m.step.nest('build fuchsia'):
       with self.m.goma.build_with_goma(env=goma_env):
         args = [
-          'target_cpu="%s"' % build.target,
-          'fuchsia_packages=[%s]' % ','.join('"%s"' % pkg for pkg in packages),
-          'use_goma=true',
-          'goma_dir="%s"' % self.m.goma.goma_dir,
-          'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
+            'target_cpu="%s"' % build.target,
+            'fuchsia_packages=[%s]' %
+            ','.join('"%s"' % pkg for pkg in packages),
+            'use_goma=true',
+            'goma_dir="%s"' % self.m.goma.goma_dir,
+            'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
         ]
 
         args += {
-          'lto': [
-            'use_lto=true',
-            'use_thinlto=false',
-          ],
-          'thinlto': [
-            'use_lto=true',
-            'use_thinlto=true',
-            'thinlto_cache_dir="%s"' % self.m.path['cache'].join('thinlto'),
-          ],
+            'lto': [
+                'use_lto=true',
+                'use_thinlto=false',
+            ],
+            'thinlto': [
+                'use_lto=true',
+                'use_thinlto=true',
+                'thinlto_cache_dir="%s"' % self.m.path['cache'].join('thinlto'),
+            ],
         }.get(build_type, [])
 
         if variants:
-          args.append('select_variant=[%s]' %
-                         ','.join(['"%s"' % v for v in variants]))
+          args.append(
+              'select_variant=[%s]' % ','.join(['"%s"' % v for v in variants]))
 
         self.m.step('gn gen', [
-          self.m.path['start_dir'].join('buildtools', 'gn'),
-          'gen',
-          build.fuchsia_build_dir,
-          '--check',
-          '--args=%s' % ' '.join(args + list(gn_args)),
+            self.m.path['start_dir'].join('buildtools', 'gn'),
+            'gen',
+            build.fuchsia_build_dir,
+            '--check',
+            '--args=%s' % ' '.join(args + list(gn_args)),
         ])
 
         self.m.step('ninja', [
-          self.m.path['start_dir'].join('buildtools', 'ninja'),
-          '-C', build.fuchsia_build_dir,
-          '-j', self.m.goma.recommended_goma_jobs,
+            self.m.path['start_dir'].join('buildtools', 'ninja'),
+            '-C',
+            build.fuchsia_build_dir,
+            '-j',
+            self.m.goma.recommended_goma_jobs,
         ] + list(ninja_targets))
 
-
-  def build(self, target, build_type, packages, variants=(), gn_args=(),
-            ninja_targets=(), test_cmds=(), test_device_type='QEMU'):
+  def build(self,
+            target,
+            build_type,
+            packages,
+            variants=(),
+            gn_args=(),
+            ninja_targets=(),
+            test_cmds=(),
+            test_device_type='QEMU'):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -321,9 +343,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build_type in BUILD_TYPES
 
     if test_cmds:
-      packages.append(self._create_runcmds_package(
-          test_cmds=test_cmds,
-          test_in_qemu=(test_device_type == 'QEMU')))
+      packages.append(
+          self._create_runcmds_package(
+              test_cmds=test_cmds, test_in_qemu=(test_device_type == 'QEMU')))
 
     if build_type == 'debug':
       build_dir = 'debug'
@@ -339,29 +361,42 @@ class FuchsiaApi(recipe_api.RecipeApi):
     )
     with self.m.step.nest('build'):
       self._build_zircon(target, variants)
-      self._build_fuchsia(build=build, build_type=build_type, packages=packages,
-                          variants=variants, gn_args=gn_args,
-                          ninja_targets=ninja_targets)
+      self._build_fuchsia(
+          build=build,
+          build_type=build_type,
+          packages=packages,
+          variants=variants,
+          gn_args=gn_args,
+          ninja_targets=ninja_targets)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
     return build
 
   def _symbolize(self, build_dir, data):
     """Invokes zircon's symbolization script to symbolize the given data."""
     symbolize_cmd = [
-      self.m.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
-      '--no-echo',
-      '--build-dir', build_dir,
+        self.m.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
+        '--no-echo',
+        '--build-dir',
+        build_dir,
     ]
-    symbolize_result = self.m.step('symbolize', symbolize_cmd,
+    symbolize_result = self.m.step(
+        'symbolize',
+        symbolize_cmd,
         stdin=self.m.raw_io.input(data=data),
         stdout=self.m.raw_io.output(),
         step_test_data=lambda: self.m.raw_io.test_api.stream_output(''))
     symbolized_lines = symbolize_result.stdout.splitlines()
     if symbolized_lines:
-      symbolize_result.presentation.logs['symbolized backtraces'] = symbolized_lines
+      symbolize_result.presentation.logs[
+          'symbolized backtraces'] = symbolized_lines
       symbolize_result.presentation.status = self.m.step.FAILURE
 
-  def _isolate_artifacts(self, kernel_name, ramdisk_name, zircon_build_dir, fuchsia_build_dir, extra_files=()):
+  def _isolate_artifacts(self,
+                         kernel_name,
+                         ramdisk_name,
+                         zircon_build_dir,
+                         fuchsia_build_dir,
+                         extra_files=()):
     """Isolates known Fuchia build artifacts necessary for testing.
 
     Args:
@@ -386,7 +421,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     isolated.add_file(zircon_build_dir.join(kernel_name), wd=zircon_build_dir)
 
     # Add ramdisk binary blob to isolated at the top-level.
-    isolated.add_file(fuchsia_build_dir.join(ramdisk_name), wd=fuchsia_build_dir)
+    isolated.add_file(
+        fuchsia_build_dir.join(ramdisk_name), wd=fuchsia_build_dir)
 
     # Create qcow2 image from FVM_BLOCK_NAME and add to isolated at the top-level.
     self.m.qemu.ensure_qemu(version='latest')
@@ -401,7 +437,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Add the extra files to isolated at the top-level.
     for path in extra_files:
-      isolated.add_file(path, wd=self.m.path.abs_to_path(self.m.path.dirname(path)))
+      isolated.add_file(
+          path, wd=self.m.path.abs_to_path(self.m.path.dirname(path)))
 
     # Archive the isolated.
     return isolated.archive('isolate artifacts')
@@ -429,13 +466,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
     kernel_name = build.zircon_kernel_image
     ramdisk_name = 'bootdata-blob-%s.bin' % _board_name(build.target)
     qemu_arch = {
-      'arm64': 'aarch64',
-      'x64': 'x86_64',
+        'arm64': 'aarch64',
+        'x64': 'x86_64',
     }[build.target]
 
     cmdline = [
-      'zircon.autorun.system=/system/data/infra/runcmds',
-      'kernel.halt-on-panic=true',
+        'zircon.autorun.system=/system/data/infra/runcmds',
+        'kernel.halt-on-panic=true',
     ] + TARGET_CMDLINE[build.target]
 
     # As part of running tests, we'll send a MinFS image over to another machine
@@ -465,7 +502,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       '-drive', 'file=%s,format=raw,if=none,id=testdisk' % output_image_name,
       '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
-    ]
+    ] # yapf: disable
 
     # Create a qemu runner script which trivially copies the blank MinFS image
     # to hold test results, in order to work around a bug in swarming where
@@ -475,9 +512,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # don't send a runner script to the bot anymore, since we don't need to do
     # this hack to cp the image.
     qemu_runner_script = [
-      '#!/bin/sh',
-      'cp %s %s' % (input_image_name, output_image_name),
-      ' '.join(map(pipes.quote, qemu_cmd)),
+        '#!/bin/sh',
+        'cp %s %s' % (input_image_name, output_image_name),
+        ' '.join(map(pipes.quote, qemu_cmd)),
     ]
 
     # Write the QEMU runner to disk so that we can isolate it.
@@ -488,7 +525,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         qemu_runner,
         '\n'.join(qemu_runner_script),
     )
-    self.m.step.active_result.presentation.logs[qemu_runner_name] = qemu_runner_script
+    self.m.step.active_result.presentation.logs[
+        qemu_runner_name] = qemu_runner_script
 
     # Create MinFS image (which will hold test output). We choose to make the
     # MinFS image 16M because our current test output takes up ~1.5 MB in an
@@ -505,19 +543,19 @@ class FuchsiaApi(recipe_api.RecipeApi):
         build.zircon_build_dir,
         build.fuchsia_build_dir,
         extra_files=[
-          test_image,
-          qemu_runner,
+            test_image,
+            qemu_runner,
         ],
     )
 
     qemu_cipd_arch = {
-      'arm64': 'arm64',
-      'x64': 'amd64',
+        'arm64': 'arm64',
+        'x64': 'amd64',
     }[build.target]
 
     dimension_cpu = {
-      'arm64': 'arm64',
-      'x64': 'x86-64',
+        'arm64': 'arm64',
+        'x64': 'x86-64',
     }[build.target]
 
     with self.m.context(infra_steps=True):
@@ -526,20 +564,23 @@ class FuchsiaApi(recipe_api.RecipeApi):
           'all tests',
           ['/bin/sh', qemu_runner_name],
           isolated=isolated_hash,
-          dump_json=self.m.path.join(self.m.path['cleanup'], 'qemu_test_results.json'),
+          dump_json=self.m.path.join(self.m.path['cleanup'],
+                                     'qemu_test_results.json'),
           dimensions={
-            'pool': 'fuchsia.tests',
-            'os':   'Debian',
-            'cpu':  dimension_cpu,
-            'kvm':  '1',
+              'pool': 'fuchsia.tests',
+              'os': 'Debian',
+              'cpu': dimension_cpu,
+              'kvm': '1',
           },
           io_timeout=TEST_IO_TIMEOUT_SECS,
           hard_timeout=timeout_secs,
           outputs=[output_image_name],
-          cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
+          cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch,
+                          'latest')],
       )
       # Collect results.
-      results = self.m.swarming.collect(requests_json=self.m.json.input(trigger_result.json.output))
+      results = self.m.swarming.collect(
+          requests_json=self.m.json.input(trigger_result.json.output))
       assert len(results) == 1
       result = results[0]
     self.analyze_collect_result('task results', result, build.zircon_build_dir)
@@ -579,14 +620,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
     ramdisk_name = 'netboot-%s.bin' % _board_name(build.target)
     output_archive_name = 'out.tar'
     botanist_cmd = [
-      './botanist/botanist',
-      '-config', '/etc/botanist/config.json',
-      '-kernel', kernel_name,
-      '-ramdisk', ramdisk_name,
-      '-test', self.target_test_dir(),
-      '-out', output_archive_name,
-      'zircon.autorun.system=/system/data/infra/runcmds',
-    ]
+        './botanist/botanist',
+        '-config', '/etc/botanist/config.json',
+        '-kernel', kernel_name,
+        '-ramdisk', ramdisk_name,
+        '-test', self.target_test_dir(),
+        '-out', output_archive_name,
+        'zircon.autorun.system=/system/data/infra/runcmds',
+    ] # yapf: disable
 
     # Isolate the Fuchsia build artifacts.
     isolated_hash = self._isolate_artifacts(
@@ -603,16 +644,18 @@ class FuchsiaApi(recipe_api.RecipeApi):
           botanist_cmd,
           isolated=isolated_hash,
           dimensions={
-            'pool': 'fuchsia.tests',
-            'device_type': build.test_device_type,
+              'pool': 'fuchsia.tests',
+              'device_type': build.test_device_type,
           },
           io_timeout=TEST_IO_TIMEOUT_SECS,
           hard_timeout=timeout_secs,
           outputs=[output_archive_name],
-          cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest')],
+          cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64',
+                          'latest')],
       )
       # Collect results.
-      results = self.m.swarming.collect(requests_json=self.m.json.input(trigger_result.json.output))
+      results = self.m.swarming.collect(
+          requests_json=self.m.json.input(trigger_result.json.output))
       assert len(results) == 1
       result = results[0]
     self.analyze_collect_result('task results', result, build.zircon_build_dir)
@@ -632,7 +675,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         outputs=test_results_map,
     )
 
-  def test(self, build, timeout_secs=40*60):
+  def test(self, build, timeout_secs=40 * 60):
     """Tests a Fuchsia build on the specified device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -678,18 +721,20 @@ class FuchsiaApi(recipe_api.RecipeApi):
         step_result.presentation.status = self.m.step.FAILURE
         self._symbolize(zircon_build_dir, result.output)
         failure_lines = [
-          'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
-          'Last 10 lines of kernel output:',
+            'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
+            'Last 10 lines of kernel output:',
         ] + kernel_output_lines[-10:]
         raise self.m.step.StepFailure('\n'.join(failure_lines))
       # At this point its likely an infra issue with QEMU.
       step_result.presentation.status = self.m.step.EXCEPTION
-      raise self.m.step.InfraFailure('Swarming task failed:\n%s' % result.output)
+      raise self.m.step.InfraFailure(
+          'Swarming task failed:\n%s' % result.output)
     elif 'KERNEL PANIC' in result.output:
       step_result.presentation.step_text = 'kernel panic'
       step_result.presentation.status = self.m.step.FAILURE
       self._symbolize(zircon_build_dir, result.output)
-      raise self.m.step.StepFailure('Found kernel panic. See symbolized output for details.')
+      raise self.m.step.StepFailure(
+          'Found kernel panic. See symbolized output for details.')
 
   def analyze_test_results(self, step_name, test_results):
     """Analyzes test results represented by a FuchsiaTestResults.
@@ -708,9 +753,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     with self.m.step.nest(step_name):
       # Read the tests summary.
       if 'summary.json' not in outputs:
-        raise self.m.step.StepFailure('Test summary JSON not found, see kernel log for details')
+        raise self.m.step.StepFailure(
+            'Test summary JSON not found, see kernel log for details')
       raw_summary = outputs['summary.json']
-      self.m.step.active_result.presentation.logs['summary.json'] = raw_summary.split('\n')
+      self.m.step.active_result.presentation.logs[
+          'summary.json'] = raw_summary.split('\n')
       test_summary = self.m.json.loads(raw_summary)
 
       # Report test results.
@@ -719,7 +766,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         name = test['name']
         step_result = self.m.step(name, None)
         output_name = test['output_file']
-        step_result.presentation.logs['stdio'] = outputs[output_name].split('\n')
+        step_result.presentation.logs['stdio'] = outputs[output_name].split(
+            '\n')
         if test['result'] != 'PASS':
           step_result.presentation.status = self.m.step.FAILURE
           failed_tests[name] = outputs[output_name]
@@ -727,4 +775,5 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Symbolize the kernel output if any tests failed.
     if failed_tests:
       self._symbolize(build_dir, output)
-      raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(failed_tests.keys()))
+      raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(
+          failed_tests.keys()))
