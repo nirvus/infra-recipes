@@ -718,7 +718,7 @@
       "[START_DIR]/cipd/catapult/catapult",
       "make_histogram",
       "-test-suite",
-      "zircon_benchmarks",
+      "fuchsia.zircon_benchmarks",
       "-builder",
       "topaz-builder",
       "-bucket",
@@ -726,7 +726,7 @@
       "-datetime",
       "1337000001500",
       "-logdog-stream-name",
-      "zircon_benchmarks",
+      "fuchsia.zircon_benchmarks",
       "-output",
       "/path/to/tmp/json",
       "I am a benchmark, ha ha!"

@@ -153,17 +153,21 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   # file.
   test_results.outputs.pop('summary.json', None)
 
-  for filename in test_results.outputs:
-    # strip file suffix
-    test_results_contents = test_results.outputs[filename]
-    test_name = api.path.splitext(filename)[0]
+  for filepath in test_results.outputs:
+    test_results_contents = test_results.outputs[filepath]
+    # Extract the name of the test suite, e.g. "baz_test" in
+    # "foo/bar/baz_test.json".
+    test_suite = api.path.splitext(api.path.basename(filepath))[0]
+    # Prepend "fuchsia." to make test results easier to find in the
+    # dashboard.
+    dashboard_test_suite = "fuchsia." + test_suite
 
     ProcessTestResults(
-        step_name="analyze_%s" % test_name,
+        step_name="analyze_%s" % test_suite,
         api=api,
         dashboard_masters_name=dashboard_masters_name,
         dashboard_bots_name=dashboard_bots_name,
-        test_suite=test_name,
+        test_suite=dashboard_test_suite,
         test_results=test_results_contents,
         catapult_url=catapult_url,
         upload_to_dashboard=upload_to_dashboard,
@@ -215,7 +219,7 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results',
       api.raw_io.output_dir({
-          'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+          '/path/to/zircon_benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 
   # Tests running this recipe with a pending Gerrit change. Note
