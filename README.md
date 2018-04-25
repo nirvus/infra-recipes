@@ -11,9 +11,26 @@ your local environment.
 
 ## Setting up your environment
 
-A recipe will not run without `vpython`. Please add `vpython` into your PATH by
-adding `$FUCHSIA/buildtools/linux-x64`, where `$FUCHSIA` is any Fuchsia
-checkout.
+A recipe will not run without `vpython` and `cipd`.
+
+### Option 1: use Fuchsia binaries
+
+Prebuilt versions of `vpython` and `cipd` are downloaded into the `//buildtools`
+subtree of a Fuchsia checkout, though they live in different directories. Where
+`$FUCHSIA` is the root of a Fuchsia checkout and `$OSTYPE` is `linux` or `mac`,
+add to your PATH:
+
+*   `$FUCHSIA/buildtools` (for `cipd`)
+*   `$FUCHSIA/buildtools/$OSTYPE-x64` (for `vpython`)
+
+### Option 2: use Chrome's `depot_tools`
+
+Chrome's `depot_tools` repository provides these binaries, along with other
+tools necessary for interacting with the Chrome source and infrastructure.
+
+See the [`depot_tools`
+Tutorial](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up)
+for installation instructions.
 
 ## Recipe concepts
 
