@@ -241,8 +241,8 @@ def RunSteps(api, binutils_revision, gcc_revision):
             l[-1]: api.file.read_text('gcc %s %s' % (target, '/'.join(l)),
                                       gcc_build_dir.join(*l)).splitlines()
             for l in [
-              ('gcc', 'testsuite', 'gcc.log'),
-              ('gcc', 'testsuite', 'g++.log'),
+              ('gcc', 'testsuite', 'gcc', 'gcc.log'),
+              ('gcc', 'testsuite', 'g++', 'g++.log'),
             ]
           }
           step_result = api.step('test %s gcc logs' % target, cmd=None)

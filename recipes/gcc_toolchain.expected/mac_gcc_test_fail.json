@@ -685,7 +685,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir/gcc/testsuite/gcc.log",
+      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir/gcc/testsuite/gcc/gcc.log",
       "/path/to/tmp/"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
@@ -695,7 +695,7 @@
       ]
     },
     "infra_step": true,
-    "name": "gcc aarch64 gcc/testsuite/gcc.log"
+    "name": "gcc aarch64 gcc/testsuite/gcc/gcc.log"
   },
   {
     "cmd": [
@@ -705,7 +705,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir/gcc/testsuite/g++.log",
+      "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir/gcc/testsuite/g++/g++.log",
       "/path/to/tmp/"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
@@ -715,7 +715,7 @@
       ]
     },
     "infra_step": true,
-    "name": "gcc aarch64 gcc/testsuite/g++.log"
+    "name": "gcc aarch64 gcc/testsuite/g++/g++.log"
   },
   {
     "cmd": [],
