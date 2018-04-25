@@ -41,6 +41,12 @@ DEPS = [
 ]
 
 PROPERTIES = {
+    'patch_gerrit_url':
+        Property(kind=str, help='Gerrit host', default=None),
+    'patch_project':
+        Property(kind=str, help='Gerrit project', default=None),
+    'patch_ref':
+        Property(kind=str, help='Gerrit patch ref', default=None),
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
@@ -87,22 +93,34 @@ PROPERTIES = {
     'dashboard_masters_name':
         Property(
             kind=str,
-            help='The name of the "masters" field in the performance dashboard'),
+            help='The name of the "masters" field in the performance dashboard'
+        ),
     'dashboard_bots_name':
         Property(
             kind=str,
             help='The name of the "bots" field in the performance dashboard'),
+    'upload_to_dashboard':
+        Property(
+            kind=bool,
+            help=
+            'Whether to upload benchmark results. Make sure you set this to false when testing',
+            default=True),
 }
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
              variant, gn_args, catapult_url, device_type,
-             dashboard_masters_name, dashboard_bots_name):
+             dashboard_masters_name, dashboard_bots_name, patch_ref,
+             patch_gerrit_url, patch_project, upload_to_dashboard):
+
   api.catapult.ensure_catapult()
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
       project=project,
+      patch_ref=patch_ref,
+      patch_gerrit_url=patch_gerrit_url,
+      patch_project=patch_project,
   )
 
   # Each project should have a Fuchsia package named ${project}_benchmarks
@@ -142,12 +160,13 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
         test_suite=test_name,
         test_results=test_results_contents,
         catapult_url=catapult_url,
+        upload_to_dashboard=upload_to_dashboard,
     )
 
 
 def ProcessTestResults(api, step_name, dashboard_masters_name,
                        dashboard_bots_name, test_suite, test_results,
-                       catapult_url):
+                       catapult_url, upload_to_dashboard):
   """
   Processes test results and uploads them to the Catapult dashboard.
 
@@ -172,7 +191,9 @@ def ProcessTestResults(api, step_name, dashboard_masters_name,
     ).json.output
 
     # Upload the file to Catapult using the current build's credentials.
-    api.catapult.upload(input_file=api.json.input(histogram_output), url=catapult_url)
+    if upload_to_dashboard and not api.properties.get('tryjob'):
+      api.catapult.upload(
+          input_file=api.json.input(histogram_output), url=catapult_url)
 
 
 def GenTests(api):
@@ -185,6 +206,47 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
+  ) + api.fuchsia.task_step_data() + api.step_data(
+      'extract results',
+      api.raw_io.output_dir({
+          'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+      }))
+
+  # Tests running this recipe with a pending Gerrit change. Note
+  # that upload_to_dashboard is false. Be sure to set this when
+  # testing patches.
+  yield api.test('with_patch') + api.properties(
+      patch_project='garnet',
+      patch_ref='refs/changes/96/147496/10',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
+      project='topaz',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
+      upload_to_dashboard=False,
+  ) + api.fuchsia.task_step_data() + api.step_data(
+      'extract results',
+      api.raw_io.output_dir({
+          'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+      }))
+
+  # CQ runs should disable certain things like dashboard uploads.
+  yield api.test('cq') + api.properties(
+      patch_project='garnet',
+      patch_ref='refs/changes/96/147496/10',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
+      project='topaz',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
+      upload_to_dashboard=True,
+      tryjob=True,
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results',
       api.raw_io.output_dir({
