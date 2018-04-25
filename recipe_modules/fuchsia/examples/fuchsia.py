@@ -65,7 +65,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
              remote, target, build_type, packages, variants, gn_args,
              ninja_targets, run_tests, runtests_args, device_type,
              snapshot_gcs_bucket):
-  api.fuchsia.checkout(
+  checkout = api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
       project=project,
@@ -74,6 +74,10 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       patch_project=patch_project,
       snapshot_gcs_bucket=snapshot_gcs_bucket,
   )
+  assert checkout.root_dir
+  assert checkout.snapshot_file
+  assert checkout.snapshot_file_sha1
+
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,

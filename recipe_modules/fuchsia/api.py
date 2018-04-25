@@ -69,6 +69,30 @@ def _board_name(target):
   return {'arm64': 'qemu', 'x64': 'pc'}[target]
 
 
+class FuchsiaCheckoutResults(object):
+  """Represents a Fuchsia source checkout."""
+
+  def __init__(self, root_dir, snapshot_file, snapshot_file_sha1):
+    self._root_dir = root_dir
+    self._snapshot_file = snapshot_file
+    self._snapshot_file_sha1 = snapshot_file_sha1
+
+  @property
+  def root_dir(self):
+    """The path to the root directory of the jiri checkout."""
+    return self._root_dir
+
+  @property
+  def snapshot_file(self):
+    """The path to the jiri snapshot file."""
+    return self._snapshot_file
+
+  @property
+  def snapshot_file_sha1(self):
+    """The SHA-1 hash of the contents of snapshot_file."""
+    return self._snapshot_file_sha1
+
+
 class FuchsiaBuildResults(object):
   """Represents a completed build of Fuchsia."""
 
@@ -157,7 +181,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """Uses Jiri to check out a Fuchsia project.
 
     The patch_* arguments must all be set, or none at all.
-    The checkout is made into api.path['start_dir'].
+    The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
     Args:
       manifest (str): A path to the manifest in the remote (e.g. manifest/minimal)
@@ -169,6 +193,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
       snapshot_gcs_bucket (str): The GCS bucket to upload a Jiri snapshot to
       timeout_secs (int): How long to wait for the checkout to complete
           before failing
+
+    Returns:
+      A FuchsiaCheckoutResults containing details of the checkout.
     """
     with self.m.context(infra_steps=True):
       self.m.jiri.ensure_jiri()
@@ -183,21 +210,30 @@ class FuchsiaApi(recipe_api.RecipeApi):
       )
       if patch_ref:
         self.m.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
+
+      snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
+      self.m.jiri.snapshot(snapshot_file)
+      digest = self.m.hash.sha1(
+          'hash snapshot',
+          snapshot_file,
+          test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
+
       if snapshot_gcs_bucket:
         self.m.gsutil.ensure_gsutil()
-        snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
-        self.m.jiri.snapshot(snapshot_file)
-        digest = self.m.hash.sha1(
-            'hash snapshot',
-            snapshot_file,
-            test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
         self.m.gsutil.upload(
-            snapshot_gcs_bucket,
-            snapshot_file,
-            digest,
+            bucket=snapshot_gcs_bucket,
+            src=snapshot_file,
+            dst=digest,
             link_name='jiri.snapshot',
             name='upload jiri.snapshot',
             unauthenticated_url=True)
+
+      # TODO(dbort): Add some or all of the jiri.checkout() params if they
+      # become useful.
+      return FuchsiaCheckoutResults(
+          root_dir=self.m.path['start_dir'],
+          snapshot_file=snapshot_file,
+          snapshot_file_sha1=digest)
 
   def _create_runcmds_package(self, test_cmds, test_in_qemu=True):
     """Creates a Fuchsia package which contains a script for running tests automatically."""
