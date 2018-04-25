@@ -224,7 +224,7 @@ of what that file might look like, for the `fuchsia.py` recipe:
   "run_tests": true,
   "runtests_args": "/system/test",
   "goma_dir": "/usr/local/google/home/mknyszek/goma",
-  "upload_snapshots": false,
+  "snapshot_gcs_bucket": "",
   "tryjob": true,
   "$recipe_engine/source_manifest": {"debug_dir": null}
 }
@@ -261,6 +261,20 @@ git diff --name-only HEAD^ | grep -E '.py$' | xargs yapf -i
 * `HEAD^` specifies only files that have changed in the latest commit.
 * `-E` enables regular expressions for grep.
 * `-i` instructs yapf to format files in-place instead of writing to stdout.
+
+## Naming steps
+
+Occasionally you'll be confronted with the task of naming a step. It's important
+that this name is informative as it will appear within the UI. Other than that,
+there are only two rules:
+
+1. Do not use the "." character in step names. Currently that is used for
+   indicating step nesting in the UI, but should hopefully change in the future.
+1. Step names must be unique within a single execution of a recipe. The reason
+   for this is because recipe engine relies on unique step names for mocking out
+   step data when testing. For this reason, step names will then be extended
+   with a number such as "(3)" which generally isn't very useful to a reader.
+   This is also subject to change in the future.
 
 ## Existing Fuchsia recipes
 
