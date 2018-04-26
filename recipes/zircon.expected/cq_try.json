@@ -260,16 +260,14 @@
     "cmd": [
       "make",
       "x64",
-      "HOST_USE_ASAN=true",
-      "USE_CLANG=true",
       "GOMACC=[START_DIR]/cipd/goma/gomacc",
       "-j",
-      "50"
+      "50",
+      "HOST_USE_ASAN=true",
+      "USE_CLANG=true",
+      "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"
     ],
     "cwd": "[START_DIR]/zircon",
-    "env": {
-      "EXTRA_USER_MANIFEST_LINES": "infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"
-    },
     "name": "build.build",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"

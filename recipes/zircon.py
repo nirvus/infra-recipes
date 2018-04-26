@@ -112,11 +112,6 @@ PROPERTIES = {
 }
 
 
-@contextlib.contextmanager
-def no_goma():
-    yield
-
-
 def RunTestsOnDevice(api, target, build_dir, device_type):
   """Executes Zircon tests on a hardware device.
 
@@ -543,21 +538,10 @@ def Build(api, target, toolchain, src_dir, needs_blkdev):
     build_args = [
       'make',
       target,
+      'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
+      '-j', api.goma.recommended_goma_jobs,
       'HOST_USE_ASAN=true',
     ] + tc_args
-
-    # Set up goma.
-    if toolchain in ['clang', 'asan']:
-      build_args.extend([
-        'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
-        '-j', api.goma.recommended_goma_jobs,
-      ])
-      goma_context = api.goma.build_with_goma
-    else:
-      build_args.extend([
-        '-j', api.platform.cpu_count,
-      ])
-      goma_context = no_goma
 
     # If thinlto build, it needs a cache. Pass it a directory in the cache
     # directory.
@@ -571,15 +555,12 @@ def Build(api, target, toolchain, src_dir, needs_blkdev):
     # The bootfs manifest is a list of mappings between bootfs paths and local
     # file paths. The syntax is roughly:
     # install/path/under/boot=path/to/file/or/dir.
-    runcmds_manifest = '%s=%s' % (RUNCMDS_BOOTFS_PATH, runcmds_path)
+    build_args.append('EXTRA_USER_MANIFEST_LINES=%s=%s' %
+                      (RUNCMDS_BOOTFS_PATH, runcmds_path))
 
     # Build zircon.
-    with goma_context():
-      # Set EXTRA_USER_MANIFEST_LINES, which adds runcmds_manifest to the bootfs
-      # manifest, ultimately propagating runcmds into the image.
-      env = {'EXTRA_USER_MANIFEST_LINES': runcmds_manifest}
-      with api.context(cwd=src_dir, env=env):
-        api.step('build', build_args)
+    with api.goma.build_with_goma(), api.context(cwd=src_dir):
+      api.step('build', build_args)
 
   # Return the location of the build artifacts.
   return src_dir.join('build-%s' % target + tc_suffix)
@@ -588,7 +569,7 @@ def Build(api, target, toolchain, src_dir, needs_blkdev):
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, toolchain, goma_dir, use_kvm, run_tests, device_type):
-  if goma_dir:
+  if goma_dir: # pragma: no cover
     api.goma.set_goma_dir(goma_dir)
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
@@ -755,13 +736,3 @@ def GenTests(api):
          target='x64',
          toolchain='clang',
          run_tests=False))
-  yield (api.test('goma_dir') +
-      api.properties(project='zircon',
-                     manifest='manifest',
-                     remote='https://fuchsia.googlesource.com/zircon',
-                     target='x64',
-                     toolchain='gcc',
-                     goma_dir='/path/to/goma') +
-      core_tests_trigger_data +
-      booted_tests_trigger_data +
-      collect_data)

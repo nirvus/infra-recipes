@@ -282,6 +282,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     for variant, switch in VARIANTS_ZIRCON:
       if variant in variants:
         cmd.append(switch)
+    cmd += [
+        '-j',
+        self.m.goma.recommended_goma_jobs,
+        'GOMACC=%s' % self.m.goma.goma_dir.join('gomacc'),
+    ]
     self.m.step('zircon', cmd)
 
   def _setup_goma(self):
@@ -302,49 +307,47 @@ class FuchsiaApi(recipe_api.RecipeApi):
   def _build_fuchsia(self, build, build_type, packages, variants, gn_args,
                      ninja_targets):
     """Builds fuchsia given a FuchsiaBuildResults and other GN options."""
-    goma_env = self._setup_goma()
     with self.m.step.nest('build fuchsia'):
-      with self.m.goma.build_with_goma(env=goma_env):
-        args = [
-            'target_cpu="%s"' % build.target,
-            'fuchsia_packages=[%s]' %
-            ','.join('"%s"' % pkg for pkg in packages),
-            'use_goma=true',
-            'goma_dir="%s"' % self.m.goma.goma_dir,
-            'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
-        ]
+      args = [
+          'target_cpu="%s"' % build.target,
+          'fuchsia_packages=[%s]' %
+          ','.join('"%s"' % pkg for pkg in packages),
+          'use_goma=true',
+          'goma_dir="%s"' % self.m.goma.goma_dir,
+          'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
+      ]
 
-        args += {
-            'lto': [
-                'use_lto=true',
-                'use_thinlto=false',
-            ],
-            'thinlto': [
-                'use_lto=true',
-                'use_thinlto=true',
-                'thinlto_cache_dir="%s"' % self.m.path['cache'].join('thinlto'),
-            ],
-        }.get(build_type, [])
+      args += {
+          'lto': [
+              'use_lto=true',
+              'use_thinlto=false',
+          ],
+          'thinlto': [
+              'use_lto=true',
+              'use_thinlto=true',
+              'thinlto_cache_dir="%s"' % self.m.path['cache'].join('thinlto'),
+          ],
+      }.get(build_type, [])
 
-        if variants:
-          args.append(
-              'select_variant=[%s]' % ','.join(['"%s"' % v for v in variants]))
+      if variants:
+        args.append(
+            'select_variant=[%s]' % ','.join(['"%s"' % v for v in variants]))
 
-        self.m.step('gn gen', [
-            self.m.path['start_dir'].join('buildtools', 'gn'),
-            'gen',
-            build.fuchsia_build_dir,
-            '--check',
-            '--args=%s' % ' '.join(args + list(gn_args)),
-        ])
+      self.m.step('gn gen', [
+          self.m.path['start_dir'].join('buildtools', 'gn'),
+          'gen',
+          build.fuchsia_build_dir,
+          '--check',
+          '--args=%s' % ' '.join(args + list(gn_args)),
+      ])
 
-        self.m.step('ninja', [
-            self.m.path['start_dir'].join('buildtools', 'ninja'),
-            '-C',
-            build.fuchsia_build_dir,
-            '-j',
-            self.m.goma.recommended_goma_jobs,
-        ] + list(ninja_targets))
+      self.m.step('ninja', [
+          self.m.path['start_dir'].join('buildtools', 'ninja'),
+          '-C',
+          build.fuchsia_build_dir,
+          '-j',
+          self.m.goma.recommended_goma_jobs,
+      ] + list(ninja_targets))
 
   def build(self,
             target,
@@ -396,14 +399,15 @@ class FuchsiaApi(recipe_api.RecipeApi):
         test_device_type=test_device_type,
     )
     with self.m.step.nest('build'):
-      self._build_zircon(target, variants)
-      self._build_fuchsia(
-          build=build,
-          build_type=build_type,
-          packages=packages,
-          variants=variants,
-          gn_args=gn_args,
-          ninja_targets=ninja_targets)
+      with self.m.goma.build_with_goma(env=self._setup_goma()):
+        self._build_zircon(target, variants)
+        self._build_fuchsia(
+            build=build,
+            build_type=build_type,
+            packages=packages,
+            variants=variants,
+            gn_args=gn_args,
+            ninja_targets=ninja_targets)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
     return build
 

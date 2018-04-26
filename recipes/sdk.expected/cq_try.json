@@ -239,17 +239,6 @@
     ]
   },
   {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "arm64"
-    ],
-    "name": "build arm64.bootfs.build.zircon",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@3@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "build arm64.bootfs.build.ensure_goma",
     "~followup_annotations": [
@@ -283,13 +272,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "build arm64.bootfs.build.build fuchsia",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@3@@@"
-    ]
-  },
-  {
     "cmd": [
       "python",
       "-u",
@@ -302,22 +284,9 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build arm64.bootfs.build.build fuchsia.start_goma",
+    "name": "build arm64.bootfs.build.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/buildtools/gn",
-      "gen",
-      "[START_DIR]/out/release-arm64",
-      "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/bootfs\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false bootfs_packages=true"
-    ],
-    "name": "build arm64.bootfs.build.build fuchsia.gn gen",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -326,10 +295,10 @@
       "-u",
       "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
     ],
-    "name": "build arm64.bootfs.build.build fuchsia.calculate the number of recommended jobs",
+    "name": "build arm64.bootfs.build.calculate the number of recommended jobs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@",
+      "@@@STEP_NEST_LEVEL@3@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
@@ -346,6 +315,40 @@
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
       "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-t",
+      "arm64",
+      "-j",
+      "50",
+      "GOMACC=[START_DIR]/cipd/goma/gomacc"
+    ],
+    "name": "build arm64.bootfs.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.bootfs.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/gn",
+      "gen",
+      "[START_DIR]/out/release-arm64",
+      "--check",
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/bootfs\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false bootfs_packages=true"
+    ],
+    "name": "build arm64.bootfs.build.build fuchsia.gn gen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@4@@@"
     ]
   },
   {
@@ -374,9 +377,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build arm64.bootfs.build.build fuchsia.goma_jsonstatus",
+    "name": "build arm64.bootfs.build.goma_jsonstatus",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -391,9 +394,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build arm64.bootfs.build.build fuchsia.goma_stat",
+    "name": "build arm64.bootfs.build.goma_stat",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -408,9 +411,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build arm64.bootfs.build.build fuchsia.stop_goma",
+    "name": "build arm64.bootfs.build.stop_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -442,17 +445,6 @@
     "name": "build arm64.base.build",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "arm64"
-    ],
-    "name": "build arm64.base.build.zircon",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -489,13 +481,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "build arm64.base.build.build fuchsia",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@3@@@"
-    ]
-  },
-  {
     "cmd": [
       "python",
       "-u",
@@ -508,9 +493,30 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build arm64.base.build.build fuchsia.start_goma",
+    "name": "build arm64.base.build.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-t",
+      "arm64",
+      "-j",
+      "50",
+      "GOMACC=[START_DIR]/cipd/goma/gomacc"
+    ],
+    "name": "build arm64.base.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.base.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -552,9 +558,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build arm64.base.build.build fuchsia.goma_jsonstatus",
+    "name": "build arm64.base.build.goma_jsonstatus",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -569,9 +575,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build arm64.base.build.build fuchsia.goma_stat",
+    "name": "build arm64.base.build.goma_stat",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -586,9 +592,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build arm64.base.build.build fuchsia.stop_goma",
+    "name": "build arm64.base.build.stop_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -607,17 +613,6 @@
     "name": "build x64.bootfs.build",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "x64"
-    ],
-    "name": "build x64.bootfs.build.zircon",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -654,13 +649,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "build x64.bootfs.build.build fuchsia",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@3@@@"
-    ]
-  },
-  {
     "cmd": [
       "python",
       "-u",
@@ -673,9 +661,30 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build x64.bootfs.build.build fuchsia.start_goma",
+    "name": "build x64.bootfs.build.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-t",
+      "x64",
+      "-j",
+      "50",
+      "GOMACC=[START_DIR]/cipd/goma/gomacc"
+    ],
+    "name": "build x64.bootfs.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.bootfs.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -717,9 +726,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build x64.bootfs.build.build fuchsia.goma_jsonstatus",
+    "name": "build x64.bootfs.build.goma_jsonstatus",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -734,9 +743,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build x64.bootfs.build.build fuchsia.goma_stat",
+    "name": "build x64.bootfs.build.goma_stat",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -751,9 +760,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build x64.bootfs.build.build fuchsia.stop_goma",
+    "name": "build x64.bootfs.build.stop_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -785,17 +794,6 @@
     "name": "build x64.base.build",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "x64"
-    ],
-    "name": "build x64.base.build.zircon",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -832,13 +830,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "build x64.base.build.build fuchsia",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@3@@@"
-    ]
-  },
-  {
     "cmd": [
       "python",
       "-u",
@@ -851,9 +842,30 @@
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
     "infra_step": true,
-    "name": "build x64.base.build.build fuchsia.start_goma",
+    "name": "build x64.base.build.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-t",
+      "x64",
+      "-j",
+      "50",
+      "GOMACC=[START_DIR]/cipd/goma/gomacc"
+    ],
+    "name": "build x64.base.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.base.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -895,9 +907,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build x64.base.build.build fuchsia.goma_jsonstatus",
+    "name": "build x64.base.build.goma_jsonstatus",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -912,9 +924,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build x64.base.build.build fuchsia.goma_stat",
+    "name": "build x64.base.build.goma_stat",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -929,9 +941,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
     },
-    "name": "build x64.base.build.build fuchsia.stop_goma",
+    "name": "build x64.base.build.stop_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@4@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
