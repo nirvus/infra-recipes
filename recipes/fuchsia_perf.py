@@ -147,6 +147,12 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   )
   test_results = api.fuchsia.test(build)
 
+  # Skip summary.json, which is a sort of manifest of tests results, and is
+  # required by botanist to decide which files should be copied off the
+  # Fuchsia device after testing.  Today, fuchsia_perf does not need this
+  # file.
+  test_results.outputs.pop('summary.json', None)
+
   for filename in test_results.outputs:
     # strip file suffix
     test_results_contents = test_results.outputs[filename]
@@ -230,6 +236,7 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results',
       api.raw_io.output_dir({
+          'summary.json': 'I summarize test results!',
           'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 
@@ -265,6 +272,7 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data(device=True) + api.step_data(
       'extract results',
       api.raw_io.output_dir({
+          'summary.json': 'I summarize test results!',
           'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 
