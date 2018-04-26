@@ -255,6 +255,8 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
       qemu_runner_core,
       '\n'.join(qemu_runner_core_script),
   )
+  api.step.active_result.presentation.logs[
+      qemu_runner_core_name] = qemu_runner_core_script
 
   # Create a qemu runner script which trivially copies the blank MinFS image
   # to hold test results, in order to work around a bug in swarming where
@@ -275,6 +277,8 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
       qemu_runner,
       '\n'.join(qemu_runner_script),
   )
+  api.step.active_result.presentation.logs[
+      qemu_runner_name] = qemu_runner_script
 
   # Isolate all necessary build artifacts as well as the MinFS image.
   isolated = api.isolated.isolated()
