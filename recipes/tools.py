@@ -14,6 +14,7 @@ DEPS = [
     'infra/jiri',
     'infra/git',
     'infra/go',
+    'infra/gsutil',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -61,16 +62,33 @@ def UploadPackage(api, name, target, staging_dir, revision, remote):
 
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
-      package_root=staging_dir,)
+      package_root=staging_dir,
+      install_mode='copy',
+  )
   pkg_def.add_file(staging_dir.join(name))
 
-  api.cipd.create_from_pkg(
-      pkg_def,
+  cipd_pkg_file = api.path['cleanup'].join('%s.cipd' % name)
+  api.cipd.build_from_pkg(
+      pkg_def=pkg_def,
+      output_package=cipd_pkg_file,
+  )
+  step_result = api.cipd.register(
+      package_name=cipd_pkg_name,
+      package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
           'git_repository': remote,
           'git_revision': revision,
-      },)
+      },
+  )
+
+  api.gsutil.upload(
+      'fuchsia',
+      cipd_pkg_file,
+      api.gsutil.join('tools', name, api.cipd.platform_suffix(),
+                      step_result.json.output['result']['instance_id']),
+      unauthenticated_url=True
+  )
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
@@ -78,6 +96,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              revision, target, packages):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
+  api.gsutil.ensure_gsutil()
 
   if not target:
     # Compute the CIPD target for the host platform if not set.

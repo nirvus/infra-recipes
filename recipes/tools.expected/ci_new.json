@@ -60,6 +60,36 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
@@ -286,9 +316,36 @@
   {
     "cmd": [
       "cipd",
-      "create",
+      "pkg-build",
       "-pkg-def",
-      "{\"data\": [{\"file\": \"symbolizer\"}], \"install_mode\": \"\", \"package\": \"fuchsia/tools/symbolizer/linux-amd64\", \"root\": \"[TMP_BASE]/tools_tmp_1\"}",
+      "{\"data\": [{\"file\": \"symbolizer\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/tools/symbolizer/linux-amd64\", \"root\": \"[TMP_BASE]/tools_tmp_1\"}",
+      "-out",
+      "[CLEANUP]/symbolizer.cipd",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "build fuchsia/tools/symbolizer/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/tools/symbolizer/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "[CLEANUP]/symbolizer.cipd",
       "-json-output",
       "/path/to/tmp/json",
       "-ref",
@@ -304,9 +361,8 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
-    "name": "create fuchsia/tools/symbolizer/linux-amd64",
+    "name": "register fuchsia/tools/symbolizer/linux-amd64",
     "~followup_annotations": [
-      "@@@STEP_TEXT@</br>pkg: fuchsia/tools/symbolizer/linux-amd64</br>id: 40-chars-fake-of-the-package-instance_id@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
@@ -314,6 +370,31 @@
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/symbolizer.cipd",
+      "gs://fuchsia/tools/symbolizer/linux-amd64/40-chars-fake-of-the-package-instance_id"
+    ],
+    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "infra_step": true,
+    "name": "gsutil cp",
+    "~followup_annotations": [
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/tools/symbolizer/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
     ]
   },
   {
