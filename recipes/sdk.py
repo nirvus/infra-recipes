@@ -64,26 +64,10 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
   for target in TARGETS:
     with api.step.nest('build ' + target):
-      # For each target, build both bootfs and non-bootfs versions of the
-      # system, putting the artifacts from both builds under the same out/.
-      # TODO(IN-306): Remove the bootfs path when clients no longer need it.
-      with api.step.nest('bootfs'):
-        bootfs_build = api.fuchsia.build(
-            target=target,
-            build_type=BUILD_TYPE,
-            packages=['garnet/packages/sdk/bootfs'],
-            gn_args=['bootfs_packages=true'])
-        # //scripts/makesdk.go expects the bootfs build to live in a directory
-        # like "out/release-x64-bootfs".
-        bootfs_path = str(bootfs_build.fuchsia_build_dir) + '-bootfs'
-        api.file.move('move out dir', bootfs_build.fuchsia_build_dir,
-                      bootfs_path)
-      with api.step.nest('base'):
-        # Build the normal (non-bootfs) system under the same out/.
-        bootfs = api.fuchsia.build(
-            target=target,
-            build_type=BUILD_TYPE,
-            packages=['garnet/packages/sdk/base'])
+      api.fuchsia.build(
+          target=target,
+          build_type=BUILD_TYPE,
+          packages=['garnet/packages/sdk/base'])
 
   with api.step.nest('make sdk'):
     outdir = api.path.mkdtemp('sdk')
