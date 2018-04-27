@@ -10,19 +10,15 @@ from recipe_engine import recipe_api
 class GomaApi(recipe_api.RecipeApi):
   """GomaApi contains helper functions for using goma."""
 
-  def __init__(self, **kwargs):
-    super(GomaApi, self).__init__(**kwargs)
+  def __init__(self, luci_context, *args, **kwargs):
+    super(GomaApi, self).__init__(*args, **kwargs)
 
-    # Flag to represent local goma module running.
-    self._is_local = False
+    self._luci_context = luci_context
+    self._goma_context = None
 
     self._goma_dir = None
     self._goma_started = False
     self._goma_jobs = None
-
-  @property
-  def service_account_json_path(self):
-    return self.m.service_account.get_json_path('goma-client')
 
   @property
   def json_path(self):
@@ -75,15 +71,7 @@ print jobs
     assert self._goma_dir
     return self._goma_dir
 
-  def set_goma_dir(self, goma_dir): # pragma: no cover
-    """ This function is for local recipe test only."""
-    self._goma_dir = goma_dir
-    self._is_local = True
-
   def ensure_goma(self, canary=False):
-    if self._is_local: # pragma: no cover
-      return self._goma_dir
-
     with self.m.step.nest('ensure_goma'):
       with self.m.context(infra_steps=True):
         goma_package = ('infra_internal/goma/client/%s' %
@@ -103,8 +91,20 @@ print jobs
       env['GOMA_DEPS_CACHE_FILE'] = 'goma_deps_cache'
     if 'GOMA_CACHE_DIR' not in env:
       env['GOMA_CACHE_DIR'] = self.m.path['cache'].join('goma')
-    if not self._is_local:
-      env['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = self.service_account_json_path
+    if self._luci_context:
+      if not self._goma_context:
+        step_result = self.m.json.read(
+            'read context', self._luci_context, add_json_log=False,
+            step_test_data=lambda: self.m.json.test_api.output({
+              'accounts': [{'id': 'test', 'email': 'some@example.com'}],
+              'default_account_id': 'test',
+            })
+        )
+        step_result.json.output['default_account_id'] = 'system'
+        self._goma_context = self.m.path.mkstemp('luci_context.')
+        self.m.file.write_text('write context', self._goma_context,
+                               self.m.json.dumps(step_result.json.output))
+      env['LUCI_CONTEXT'] = self._goma_context
     with self.m.context(env=env):
       yield
 

@@ -232,7 +232,6 @@ of what that file might look like, for the `fuchsia.py` recipe:
   "build_type": "debug",
   "run_tests": true,
   "runtests_args": "/system/test",
-  "goma_dir": "<REPLACE ME>",
   "snapshot_gcs_bucket": "",
   "tryjob": true,
   "$recipe_engine/source_manifest": {"debug_dir": null}
@@ -241,17 +240,6 @@ of what that file might look like, for the `fuchsia.py` recipe:
 
 The last line helps prevent an error during local execution. It explicitly
 nullifies a debug directory set by the environment on actual bots.
-
-Setting `goma_dir` is currently necessary for testing any recipe that
-builds some portion of Fuchsia end-to-end. Goma is enabled by default, and so
-`goma_dir` is the mechanism which allows you to use a local instance of goma. You
-should replace the text `<REPLACE ME>` with your local goma dir (most likely
-the output of `echo $HOME/goma`).
-
-
-For instructions on using goma (Googlers only), see [the Fuchsia
-docs](https://fuchsia.googlesource.com/docs/+/master/getting_started.md#googlers-only_goma)
-.
 
 If something strange is happening between re-runs, consider deleting the local
 work directory as is done on bots (`rm -rf .recipe_deps`).

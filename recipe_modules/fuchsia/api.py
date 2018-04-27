@@ -285,16 +285,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
     cmd += [
         '-j',
         self.m.goma.recommended_goma_jobs,
-        'GOMACC=%s' % self.m.path.join(self.m.goma.goma_dir, 'gomacc'),
+        'GOMACC=%s' % self.m.goma.goma_dir.join('gomacc'),
     ]
     self.m.step('zircon', cmd)
 
   def _setup_goma(self):
     """Sets up goma directory and returns an environment for goma."""
-    goma_dir = self.m.properties.get('goma_dir', None)
-    if goma_dir:
-      self.m.goma.set_goma_dir(goma_dir)
-
     self.m.goma.ensure_goma()
 
     goma_env = {}

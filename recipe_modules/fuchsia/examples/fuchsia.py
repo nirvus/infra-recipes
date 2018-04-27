@@ -181,13 +181,6 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
   )
-  yield api.test('no_goma') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      goma_dir='/path/to/goma',
-  )
   yield api.test('goma_local_cache') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',

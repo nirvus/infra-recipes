@@ -428,8 +428,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "infra_step": true,
     "name": "build.start_goma",
@@ -522,8 +521,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "build.goma_jsonstatus",
     "~followup_annotations": [
@@ -539,8 +537,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "build.goma_stat",
     "~followup_annotations": [
@@ -556,8 +553,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "build.stop_goma",
     "~followup_annotations": [
@@ -610,8 +606,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "infra_step": true,
     "name": "build.start_goma (2)",
@@ -676,8 +671,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "build.goma_jsonstatus (2)",
     "~followup_annotations": [
@@ -693,8 +687,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "build.goma_stat (2)",
     "~followup_annotations": [
@@ -710,8 +703,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "build.stop_goma (2)",
     "~followup_annotations": [

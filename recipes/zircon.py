@@ -102,7 +102,6 @@ PROPERTIES = {
   'toolchain': Property(kind=Enum(*(TOOLCHAINS.keys())),
                         help='Toolchain to use'),
   'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True),
-  'goma_dir': Property(kind=str, help='Path to goma', default=None),
   'use_kvm': Property(kind=bool,
                       help='Whether to use KVM when running tests in QEMU',
                       default=True),
@@ -538,7 +537,7 @@ def Build(api, target, toolchain, src_dir, needs_blkdev):
     build_args = [
       'make',
       target,
-      'GOMACC=%s' % api.path.join(api.goma.goma_dir, 'gomacc'),
+      'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
       '-j', api.goma.recommended_goma_jobs,
       'HOST_USE_ASAN=true',
     ] + tc_args
@@ -568,9 +567,7 @@ def Build(api, target, toolchain, src_dir, needs_blkdev):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, toolchain, goma_dir, use_kvm, run_tests, device_type):
-  if goma_dir: # pragma: no cover
-    api.goma.set_goma_dir(goma_dir)
+             target, toolchain, use_kvm, run_tests, device_type):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 

@@ -72,13 +72,37 @@
     "cmd": [
       "python",
       "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "/b/s/w/itOi5hUE/luci_context.475597099",
+      "/path/to/tmp/json"
+    ],
+    "name": "read context"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "{\"accounts\": [{\"email\": \"some@example.com\", \"id\": \"test\"}], \"default_account_id\": \"system\"}",
+      "[TMP_BASE]/luci_context._tmp_1"
+    ],
+    "infra_step": true,
+    "name": "write context"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[START_DIR]/cipd/goma/goma_ctl.py",
       "restart"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "infra_step": true,
     "name": "start_goma"
@@ -135,7 +159,7 @@
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "goma_jsonstatus"
   },
@@ -149,7 +173,7 @@
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "goma_stat"
   },
@@ -163,7 +187,7 @@
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "/creds/service_accounts/service-account-goma-client.json"
+      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "stop_goma"
   },

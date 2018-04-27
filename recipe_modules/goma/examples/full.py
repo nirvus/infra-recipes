@@ -29,6 +29,7 @@ def GenTests(api):
     properties = {
         'buildername': 'test_builder',
         'path_config': 'swarmbucket',
+        'luci_context': '/b/s/w/itOi5hUE/luci_context.475597099',
     }
 
     yield (api.test(platform) + api.platform.name(platform) +
