@@ -203,9 +203,18 @@ recipe would have run depending on how the `word` property is set.
 
 Unit tests should be the first thing you try to verify that your code runs. But
 when writing a new recipe or making major changes, you'll also want to make sure
-the recipe works when you actually run it. There's a similar command for that:
+the recipe works when you actually run it.
 
+To run the recipe locally, you need to be authorized to access LUCI services.
+If you've never logged in to any LUCI service (cipd, isolated, etc), login with:
+
+```sh
+cipd auth-login
 ```
+
+Now you can run the recipe with:
+
+```sh
 python recipes.py run --properties-file test.json [recipe_name]
 ```
 
@@ -213,7 +222,7 @@ For this command to work, you need to create a temporary file called `test.json`
 specifying what properties you want to run the recipe with. Here's an example
 of what that file might look like, for the `fuchsia.py` recipe:
 
-```
+```json
 {
   "project": "garnet",
   "manifest": "manifest/garnet",
@@ -223,7 +232,7 @@ of what that file might look like, for the `fuchsia.py` recipe:
   "build_type": "debug",
   "run_tests": true,
   "runtests_args": "/system/test",
-  "goma_dir": "/usr/local/google/home/mknyszek/goma",
+  "goma_dir": "<REPLACE ME>",
   "snapshot_gcs_bucket": "",
   "tryjob": true,
   "$recipe_engine/source_manifest": {"debug_dir": null}
@@ -233,9 +242,12 @@ of what that file might look like, for the `fuchsia.py` recipe:
 The last line helps prevent an error during local execution. It explicitly
 nullifies a debug directory set by the environment on actual bots.
 
-Setting `goma_dir` to false is currently necessary for testing any recipe that
+Setting `goma_dir` is currently necessary for testing any recipe that
 builds some portion of Fuchsia end-to-end. Goma is enabled by default, and so
-`goma_dir` is the mechanism which allows you to use a local instance of goma.
+`goma_dir` is the mechanism which allows you to use a local instance of goma. You
+should replace the text `<REPLACE ME>` with your local goma dir (most likely
+the output of `echo $HOME/goma`).
+
 
 For instructions on using goma (Googlers only), see [the Fuchsia
 docs](https://fuchsia.googlesource.com/docs/+/master/getting_started.md#googlers-only_goma)
