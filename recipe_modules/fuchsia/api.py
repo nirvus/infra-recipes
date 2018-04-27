@@ -285,7 +285,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     cmd += [
         '-j',
         self.m.goma.recommended_goma_jobs,
-        'GOMACC=%s' % self.m.goma.goma_dir.join('gomacc'),
+        'GOMACC=%s' % self.m.path.join(self.m.goma.goma_dir, 'gomacc'),
     ]
     self.m.step('zircon', cmd)
 

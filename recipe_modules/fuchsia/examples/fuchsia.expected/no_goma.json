@@ -236,7 +236,7 @@
       "x64",
       "-j",
       "50",
-      "GOMACC=g/path/to/gomao/path/to/gomam/path/to/gomaa/path/to/gomac/path/to/gomac"
+      "GOMACC=/path/to/goma/gomacc"
     ],
     "name": "build.zircon",
     "~followup_annotations": [

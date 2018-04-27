@@ -538,7 +538,7 @@ def Build(api, target, toolchain, src_dir, needs_blkdev):
     build_args = [
       'make',
       target,
-      'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
+      'GOMACC=%s' % api.path.join(api.goma.goma_dir, 'gomacc'),
       '-j', api.goma.recommended_goma_jobs,
       'HOST_USE_ASAN=true',
     ] + tc_args
