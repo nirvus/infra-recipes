@@ -154,7 +154,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
       'CC': host_clang,
       'CXX': '%s++' % host_clang,
       'CFLAGS': host_cflags,
-      'CXXFLAGS': '%s -static-libstdc++' % host_cflags,
+      'CXXFLAGS': host_cflags,
   }
 
   host_compiler_args = sorted('%s=%s' % item
@@ -169,8 +169,13 @@ def RunSteps(api, binutils_revision, gcc_revision):
           '--target=%s-elf' % target,
           '--enable-initfini-array', # Fuchsia uses .init/.fini arrays
           '--enable-gold', # Zircon uses gold for userspace build
+          # Enable plugins and threading for Gold.
+          # This also happens to make it explicitly link in -lpthread and -dl,
+          # which are required by host_clang's static libc++.
+          '--enable-plugins',
+          '--enable-threads',
           '--disable-werror', # ignore warnings reported by Clang
-          '--disable-nls', # no need for locatization
+          '--disable-nls', # no need for localization
           '--with-included-gettext', # use include gettext library
       ]
 
