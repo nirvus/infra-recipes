@@ -8,7 +8,7 @@ import contextlib
 import pipes
 import re
 
-from recipe_engine.config import Enum
+from recipe_engine.config import Enum, List
 from recipe_engine.recipe_api import Property, StepFailure
 
 
@@ -101,6 +101,9 @@ PROPERTIES = {
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
   'toolchain': Property(kind=Enum(*(TOOLCHAINS.keys())),
                         help='Toolchain to use'),
+  'make_args': Property(kind=List(basestring),
+                        help='Extra args to pass to Make',
+                        default=[]),
   'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True),
   'use_kvm': Property(kind=bool,
                       help='Whether to use KVM when running tests in QEMU',
@@ -484,7 +487,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   ))
 
 
-def Build(api, target, toolchain, src_dir, needs_blkdev):
+def Build(api, target, toolchain, make_args, src_dir, needs_blkdev):
   """Builds zircon and returns a path to the build output directory."""
   # Generate runcmds script to drive tests.
   tmp_dir = api.path['cleanup'].join('zircon_tmp')
@@ -540,7 +543,7 @@ def Build(api, target, toolchain, src_dir, needs_blkdev):
       'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
       '-j', api.goma.recommended_goma_jobs,
       'HOST_USE_ASAN=true',
-    ] + tc_args
+    ] + make_args + tc_args
 
     # If thinlto build, it needs a cache. Pass it a directory in the cache
     # directory.
@@ -567,7 +570,7 @@ def Build(api, target, toolchain, src_dir, needs_blkdev):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, toolchain, use_kvm, run_tests, device_type):
+             target, toolchain, make_args, use_kvm, run_tests, device_type):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
@@ -582,6 +585,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       api=api,
       target=target,
       toolchain=toolchain,
+      make_args=make_args,
       src_dir=src_dir,
       needs_blkdev=(device_type == 'QEMU'),
   )
@@ -732,4 +736,13 @@ def GenTests(api):
          remote='https://fuchsia.googlesource.com/zircon',
          target='x64',
          toolchain='clang',
+         run_tests=False))
+  yield (api.test('debug_buildonly') +
+     api.properties.tryserver(
+         project='zircon',
+         manifest='manifest',
+         remote='https://fuchsia.googlesource.com/zircon',
+         target='x64',
+         toolchain='clang',
+         make_args=['DEBUG_HARD=1'],
          run_tests=False))

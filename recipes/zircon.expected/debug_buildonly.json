@@ -1,0 +1,328 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_goma"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-v",
+      "-time",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
+      "-cache",
+      "[CACHE]/git",
+      "-shared"
+    ],
+    "infra_step": true,
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "-v",
+      "-time",
+      "manifest",
+      "https://fuchsia.googlesource.com/zircon"
+    ],
+    "infra_step": true,
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-v",
+      "-time",
+      "-host",
+      "https://chromium-review.googlesource.com",
+      "-project",
+      "zircon",
+      "-rebase=true",
+      "refs/changes/89/456789/12"
+    ],
+    "infra_step": true,
+    "name": "jiri patch"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "run-hooks",
+      "-v",
+      "-time",
+      "-attempts=3"
+    ],
+    "infra_step": true,
+    "name": "jiri run-hooks"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "source-manifest",
+      "-v",
+      "-time",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "jiri source-manifest",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
+      "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-gc=true",
+      "-rebase-tracked",
+      "-local-manifest=true"
+    ],
+    "infra_step": true,
+    "name": "jiri update (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CLEANUP]/zircon_tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output\numount /tmp/infra-test-output\ndm poweroff",
+      "[CLEANUP]/zircon_tmp/runcmds"
+    ],
+    "infra_step": true,
+    "name": "write runcmds",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@runcmds.sh@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@mkdir /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@runtests -o /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@umount /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@dm poweroff@@@",
+      "@@@STEP_LOG_END@runcmds.sh@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
+    ],
+    "name": "build.calculate the number of recommended jobs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
+      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
+      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "restart"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "infra_step": true,
+    "name": "build.start_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "x64",
+      "GOMACC=[START_DIR]/cipd/goma/gomacc",
+      "-j",
+      "50",
+      "HOST_USE_ASAN=true",
+      "DEBUG_HARD=1",
+      "USE_CLANG=true",
+      "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"
+    ],
+    "cwd": "[START_DIR]/zircon",
+    "name": "build.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "jsonstatus",
+      "[START_DIR]/cipd/goma/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stop"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
