@@ -558,7 +558,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/base\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/toolchain\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -712,7 +712,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/base\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/toolchain\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build.build fuchsia.gn gen (2)",
     "~followup_annotations": [
@@ -830,8 +830,8 @@
       "-DBOOTSTRAP_SWIG_EXECUTABLE=[START_DIR]/cipd/bin/swig",
       "-DLLVM_ENABLE_PROJECTS=clang;lld",
       "-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind",
-      "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/out/release-arm64/sdks/zircon_sysroot/sysroot",
-      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/out/release-x64/sdks/zircon_sysroot/sysroot",
+      "-DFUCHSIA_aarch64_SYSROOT=[START_DIR]/out/release-arm64/sdks/zircon_sysroot_for_toolchain/sysroot",
+      "-DFUCHSIA_x86_64_SYSROOT=[START_DIR]/out/release-x64/sdks/zircon_sysroot_for_toolchain/sysroot",
       "-C",
       "[START_DIR]/llvm-project/clang/cmake/caches/Fuchsia.cmake",
       "[START_DIR]/llvm-project/llvm"

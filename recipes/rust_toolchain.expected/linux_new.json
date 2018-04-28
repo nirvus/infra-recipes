@@ -515,7 +515,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/base\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/toolchain\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -669,7 +669,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/base\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/toolchain\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build.build fuchsia.gn gen (2)",
     "~followup_annotations": [
@@ -808,7 +808,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n[target.x86_64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=x86_64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot/sysroot\"]\n\n[target.aarch64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=aarch64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/out/release-arm64/sdks/zircon_sysroot/sysroot\"]\n",
+      "\n[target.x86_64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=x86_64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot_for_toolchain/sysroot\"]\n\n[target.aarch64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\"-C\", \"link-arg=--target=aarch64-unknown-fuchsia\", \"-C\", \"link-arg=--sysroot=[START_DIR]/out/release-arm64/sdks/zircon_sysroot_for_toolchain/sysroot\"]\n",
       "[TMP_BASE]/rust_tmp_1/.cargo/config"
     ],
     "infra_step": true,
@@ -826,10 +826,10 @@
     "cwd": "[TMP_BASE]/rust_tmp_1/build",
     "env": {
       "CARGO_HOME": "[TMP_BASE]/rust_tmp_1/.cargo",
-      "CFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/out/release-arm64/sdks/zircon_sysroot/sysroot",
-      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot/sysroot",
-      "LDFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/out/release-arm64/sdks/zircon_sysroot/sysroot",
-      "LDFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot/sysroot"
+      "CFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/out/release-arm64/sdks/zircon_sysroot_for_toolchain/sysroot",
+      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot_for_toolchain/sysroot",
+      "LDFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/out/release-arm64/sdks/zircon_sysroot_for_toolchain/sysroot",
+      "LDFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/out/release-x64/sdks/zircon_sysroot_for_toolchain/sysroot"
     },
     "env_prefixes": {
       "PATH": [

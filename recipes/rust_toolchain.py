@@ -131,11 +131,11 @@ def RunSteps(api, url, ref, revision):
     build = api.fuchsia.build(
         target=gn_arch,
         build_type='release',
-        packages=['garnet/packages/sdk/base'],
+        packages=['garnet/packages/sdk/toolchain'],
     )
     # TODO(TO-688): This is an implementation detail of the GN build and we
     # shouldn't rely on it outside of that build and instead use SDK.
-    sysroot[tc_arch] = build.fuchsia_build_dir.join('sdks', 'zircon_sysroot', 'sysroot')
+    sysroot[tc_arch] = build.fuchsia_build_dir.join('sdks', 'zircon_sysroot_for_toolchain', 'sysroot')
 
   # build rust
   staging_dir = api.path.mkdtemp('rust')
