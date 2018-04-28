@@ -145,8 +145,6 @@ def RunSteps(api, binutils_revision, gcc_revision):
   host_cflags = '-O3 --sysroot=%s' % host_sysroot
   # Needed to work around problem with clang compiler and some generated
   # code in gcc.
-  # TODO(mcgrathr): Remove this after updating gcc.
-  host_cflags += ' -fbracket-depth=1024'
   if api.platform.name != 'mac':
     # LTO works for binutils on Linux but fails on macOS.
     host_cflags += ' -flto'
@@ -223,6 +221,14 @@ def RunSteps(api, binutils_revision, gcc_revision):
 
       with api.context(cwd=gcc_build_dir,
                        env_prefixes={'PATH': [pkg_dir.join('bin')]}):
+        gcc_goals = ['gcc', 'target-libgcc']
+        def gcc_make_step(name, jobs, args):
+          cmd = [
+              'make',
+              '-j%s' % jobs,
+              'USE_GCC_STDINT=provide',
+          ]
+          return api.step('%s %s gcc' % (name, target), cmd + args)
         api.step('configure %s gcc' % target, [
           gcc_dir.join('configure'),
           '--enable-languages=c,c++',
@@ -230,17 +236,10 @@ def RunSteps(api, binutils_revision, gcc_revision):
           '--disable-libssp', # we don't need libssp either
           '--disable-libquadmath', # and nor do we need libquadmath
         ] + common_args)
-        api.step('build %s gcc' % target, [
-          'make',
-          '-j%s' % api.platform.cpu_count,
-          'all-gcc', 'all-target-libgcc',
-        ])
+        gcc_make_step('build', api.goma.recommended_goma_jobs,
+                      ['all-%s' % goal for goal in gcc_goals])
         try:
-          api.step('test %s gcc' % target, [
-            'make',
-            '-j%s' % api.platform.cpu_count,
-            'check-gcc',
-          ])
+          gcc_make_step('test', api.platform.cpu_count, ['check-gcc'])
         finally:
           logs = {
             l[-1]: api.file.read_text('gcc %s %s' % (target, '/'.join(l)),
@@ -253,12 +252,9 @@ def RunSteps(api, binutils_revision, gcc_revision):
           step_result = api.step('test %s gcc logs' % target, cmd=None)
           for name, text in logs.iteritems():
             step_result.presentation.logs[name] = text
-        api.step('install %s gcc' % target, [
-          'make',
-          'DESTDIR=%s' % pkg_dir,
-          'install-strip-gcc',
-          'install-strip-target-libgcc',
-        ])
+        gcc_make_step('install', 1,
+                      ['DESTDIR=%s' % pkg_dir] +
+                      ['install-strip-%s' % goal for goal in gcc_goals])
 
   binutils_version = api.file.read_text('binutils version',
                                         binutils_dir.join('bfd', 'version.m4'))

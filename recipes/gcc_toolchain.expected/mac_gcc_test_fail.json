@@ -522,9 +522,9 @@
       "--enable-deterministic-archives",
       "--enable-targets=arm-eabi",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-O3 --sysroot=/some/xcode/path -fbracket-depth=1024",
+      "CFLAGS=-O3 --sysroot=/some/xcode/path",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 --sysroot=/some/xcode/path -fbracket-depth=1024",
+      "CXXFLAGS=-O3 --sysroot=/some/xcode/path",
       "--prefix=",
       "--target=aarch64-elf",
       "--enable-initfini-array",
@@ -627,9 +627,9 @@
       "--disable-libssp",
       "--disable-libquadmath",
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS=-O3 --sysroot=/some/xcode/path -fbracket-depth=1024",
+      "CFLAGS=-O3 --sysroot=/some/xcode/path",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 --sysroot=/some/xcode/path -fbracket-depth=1024",
+      "CXXFLAGS=-O3 --sysroot=/some/xcode/path",
       "--prefix=",
       "--target=aarch64-elf",
       "--enable-initfini-array",
@@ -651,7 +651,8 @@
   {
     "cmd": [
       "make",
-      "-j2",
+      "-j50",
+      "USE_GCC_STDINT=provide",
       "all-gcc",
       "all-target-libgcc"
     ],
@@ -667,6 +668,7 @@
     "cmd": [
       "make",
       "-j2",
+      "USE_GCC_STDINT=provide",
       "check-gcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
