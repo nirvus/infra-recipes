@@ -630,7 +630,8 @@
       "--enable-threads",
       "--disable-werror",
       "--disable-nls",
-      "--with-included-gettext"
+      "--with-included-gettext",
+      "--with-stage1-libs=-lc++ -lpthread -ldl -static-libgcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
     "env_prefixes": {
