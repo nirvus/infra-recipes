@@ -105,15 +105,25 @@ PROPERTIES = {
             help=
             'Whether to upload benchmark results. Make sure you set this to false when testing',
             default=True),
+    'snapshot_gcs_bucket':
+        Property(
+            kind=str,
+            help='The GCS bucket to upload a jiri snapshot of the build'
+            ' to. Will not upload a snapshot if this property is'
+            ' blank or tryjob is True',
+            default='fuchsia-snapshots'),
 }
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
              variant, gn_args, catapult_url, device_type,
              dashboard_masters_name, dashboard_bots_name, patch_ref,
-             patch_gerrit_url, patch_project, upload_to_dashboard):
-
+             patch_gerrit_url, patch_project, snapshot_gcs_bucket,
+             upload_to_dashboard):
   api.catapult.ensure_catapult()
+
+  if api.properties.get('tryjob'):
+    snapshot_gcs_bucket = None
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -121,6 +131,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project,
+      snapshot_gcs_bucket=snapshot_gcs_bucket,
   )
 
   # Each project should have a Fuchsia package named ${project}_benchmarks
@@ -254,7 +265,7 @@ def GenTests(api):
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-      dashboard_masters_name='fuchsia.ci',
+      dashboard_masters_name='fuchsia.try',
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=True,
       tryjob=True,
