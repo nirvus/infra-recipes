@@ -86,7 +86,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\"accounts\": [{\"email\": \"some@example.com\", \"id\": \"test\"}], \"default_account_id\": \"system\"}",
+      "{\"local_auth\": {\"accounts\": [{\"email\": \"some@example.com\", \"id\": \"test\"}], \"default_account_id\": \"system\"}}",
       "[TMP_BASE]/luci_context._tmp_1"
     ],
     "infra_step": true,

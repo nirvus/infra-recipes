@@ -96,14 +96,19 @@ print jobs
         step_result = self.m.json.read(
             'read context', self._luci_context, add_json_log=False,
             step_test_data=lambda: self.m.json.test_api.output({
-              'accounts': [{'id': 'test', 'email': 'some@example.com'}],
-              'default_account_id': 'test',
+              'local_auth': {
+                'accounts': [{'id': 'test', 'email': 'some@example.com'}],
+                'default_account_id': 'test',
+              }
             })
         )
-        step_result.json.output['default_account_id'] = 'system'
+        ctx = step_result.json.output.copy()
+        if 'local_auth' not in ctx: # pragma: no cover
+          raise self.m.step.InfraFailure('local_auth missing in LUCI_CONTEXT')
+        ctx['local_auth']['default_account_id'] = 'system'
         self._goma_context = self.m.path.mkstemp('luci_context.')
         self.m.file.write_text('write context', self._goma_context,
-                               self.m.json.dumps(step_result.json.output))
+                               self.m.json.dumps(ctx))
       env['LUCI_CONTEXT'] = self._goma_context
     with self.m.context(env=env):
       yield
