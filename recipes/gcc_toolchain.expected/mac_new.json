@@ -651,7 +651,7 @@
     "cmd": [
       "make",
       "-j50",
-      "USE_GCC_STDINT=provide",
+      "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "all-gcc",
       "all-target-libgcc"
     ],
@@ -667,7 +667,7 @@
     "cmd": [
       "make",
       "-j2",
-      "USE_GCC_STDINT=provide",
+      "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "check-gcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
@@ -736,7 +736,7 @@
     "cmd": [
       "make",
       "-j1",
-      "USE_GCC_STDINT=provide",
+      "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-darwin",
       "install-strip-gcc",
       "install-strip-target-libgcc"
@@ -872,7 +872,7 @@
     "cmd": [
       "make",
       "-j50",
-      "USE_GCC_STDINT=provide",
+      "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "all-gcc",
       "all-target-libgcc"
     ],
@@ -888,7 +888,7 @@
     "cmd": [
       "make",
       "-j2",
-      "USE_GCC_STDINT=provide",
+      "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "check-gcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_x86_64_build_dir",
@@ -957,7 +957,7 @@
     "cmd": [
       "make",
       "-j1",
-      "USE_GCC_STDINT=provide",
+      "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "DESTDIR=[TMP_BASE]/gcc_tmp_1/gcc-darwin",
       "install-strip-gcc",
       "install-strip-target-libgcc"

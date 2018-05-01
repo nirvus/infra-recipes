@@ -235,7 +235,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
           cmd = [
               'make',
               '-j%s' % jobs,
-              'USE_GCC_STDINT=provide',
+              'MAKEOVERRIDES=USE_GCC_STDINT=provide',
           ]
           return api.step('%s %s gcc' % (name, target), cmd + args)
         api.step('configure %s gcc' % target, [

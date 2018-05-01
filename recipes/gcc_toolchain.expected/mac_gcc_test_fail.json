@@ -651,7 +651,7 @@
     "cmd": [
       "make",
       "-j50",
-      "USE_GCC_STDINT=provide",
+      "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "all-gcc",
       "all-target-libgcc"
     ],
@@ -667,7 +667,7 @@
     "cmd": [
       "make",
       "-j2",
-      "USE_GCC_STDINT=provide",
+      "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "check-gcc"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
