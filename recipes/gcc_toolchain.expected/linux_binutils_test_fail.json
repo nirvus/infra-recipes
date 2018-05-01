@@ -516,7 +516,7 @@
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
       "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
+      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto -lpthread -ldl",
       "--prefix=",
       "--target=aarch64-elf",
       "--enable-initfini-array",
@@ -621,7 +621,7 @@
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
       "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
+      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto -lpthread -ldl",
       "--prefix=",
       "--target=aarch64-elf",
       "--enable-initfini-array",
@@ -630,8 +630,7 @@
       "--enable-threads",
       "--disable-werror",
       "--disable-nls",
-      "--with-included-gettext",
-      "--with-stage1-libs=-lc++ -lpthread -ldl -static-libgcc"
+      "--with-included-gettext"
     ],
     "cwd": "[TMP_BASE]/gcc_tmp_1/gcc_aarch64_build_dir",
     "env_prefixes": {
@@ -766,7 +765,7 @@
       "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
       "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
       "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
-      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
+      "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto -lpthread -ldl",
       "--prefix=",
       "--target=x86_64-elf",
       "--enable-initfini-array",

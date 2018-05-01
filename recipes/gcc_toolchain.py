@@ -155,22 +155,12 @@ def RunSteps(api, binutils_revision, gcc_revision):
       'CXXFLAGS': host_cflags,
   }
 
-  gcc_host_args = []
   if api.platform.name != 'mac':
     # TODO(mcgrathr): Our host toolchain is currently broken on non-Mac
     # where we provide only static libc++.a that depends on other libraries
     # but we require linking to them explicitly on the command line to
-    # satisfy libc++.a's implicit dependencies.  We work around this
-    # problem in the binutils build just by luck that Gold's links (the
-    # only C++ links in binutils) all explicitly request -lpthread due to
-    # --enable-threads and -ldl due to --enable-plugins.  GCC's configure
-    # has the --with-stage1-libs switch that is conveniently just about
-    # what we need here, but it also makes it switch from using ${CXX} to
-    # ${CC} for its C++ link steps, which means we have to list -lc++
-    # manually too.  Likewise, it usually uses -static-libgcc but omits it
-    # when using --with-stage1-libs, so we add it back.
-    gcc_host_args.append(
-        '--with-stage1-libs=-lc++ -lpthread -ldl -static-libgcc')
+    # satisfy libc++.a's implicit dependencies.
+    host_compiler_args['CXXFLAGS'] += ' -lpthread -ldl'
 
   host_compiler_args = sorted('%s=%s' % item
                               for item in host_compiler_args.iteritems())
@@ -252,7 +242,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
           '--disable-libstdcxx', # we don't need libstdc++
           '--disable-libssp', # we don't need libssp either
           '--disable-libquadmath', # and nor do we need libquadmath
-        ] + common_args + gcc_host_args)
+        ] + common_args)
         gcc_make_step('build', api.goma.recommended_goma_jobs,
                       ['all-%s' % goal for goal in gcc_goals])
         try:
