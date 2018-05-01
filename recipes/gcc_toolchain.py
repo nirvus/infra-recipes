@@ -145,6 +145,8 @@ def RunSteps(api, binutils_revision, gcc_revision):
   host_cflags = '-O3 --sysroot=%s' % host_sysroot
   # Needed to work around problem with clang compiler and some generated
   # code in gcc.
+  # TODO(mcgrathr): Remove this after updating gcc.
+  host_cflags += ' -fbracket-depth=1024'
   if api.platform.name != 'mac':
     # LTO works for binutils on Linux but fails on macOS.
     host_cflags += ' -flto'
