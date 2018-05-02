@@ -71,39 +71,63 @@ def RunSteps(api, url, ref, revision, cipd_target):
     api.git.checkout(DEPOT_TOOLS_GIT, depot_tools_path)
 
   # Use gclient to fetch the DEPS.
-  breakpad_dir = api.path['start_dir'].join('breakpad')
-  api.file.ensure_directory('makedirs breakpad', breakpad_dir)
+  tree_root_dir = api.path['start_dir'].join('breakpad')
+
+  api.file.ensure_directory('makedirs breakpad', tree_root_dir)
+
   with api.context(
       infra_steps=True,
-      cwd=breakpad_dir,
+      cwd=tree_root_dir,
       env_prefixes={
           'PATH': [depot_tools_path]
       }):
+
+    # The gclient root is breakpad/.
     api.step('gclient config', [
         'gclient',
         'config',
+        '--name=src',
         '--unmanaged',
         '-v',
         url,
     ])
-    api.step('pin git', ['git', '-C', 'src', 'checkout', revision])
+
+    # This first sync seems redundant, but is necessary on a clean tree,
+    # otherwise the root git repo won't yet have been pulled, so there won't be
+    # anything for git to pin.
     api.step('gclient sync', [
         'gclient',
         'sync',
-        '-v',
-        '--output-json',
-        api.json.output(),
     ])
-    api.step.active_result.presentation.properties['got_revision'] = revision
 
-  with api.context(cwd=breakpad_dir.join('src')):
+    # The code is pulled by gclient sync inside breakpad/src, which is then
+    # pinned to the specified revision.
+    src_dir = tree_root_dir.join('src')
+    with api.context(cwd=src_dir):
+      api.step('pin git', ['git', 'checkout', revision])
+
+      # This sync updates the dependencies to those matching |revision| as
+      # specified by DEPS in the root git repo.
+      api.step('gclient sync', [
+          'gclient',
+          'sync',
+          '-v',
+          '--output-json',
+          api.json.output(),
+      ])
+      api.step.active_result.presentation.properties['got_revision'] = revision
+
+  # Build the two required tools, dump_syms and sym_upload using configure and
+  # make.
+  with api.context(cwd=src_dir):
     api.step('configure', ['./configure'])
     api.step('build', [
         'make', 'src/tools/' + cipd_os + '/dump_syms/dump_syms',
         'src/tools/' + cipd_os + '/symupload/sym_upload'
     ])
 
-  build_dir = breakpad_dir.join('src', 'src', 'tools', cipd_os)
+  # Create a cipd package definition and then register the package.
+  build_dir = src_dir.join('src', 'tools', cipd_os)
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name, package_root=build_dir, install_mode='copy')
   pkg_def.add_file(build_dir.join('dump_syms', 'dump_syms'))

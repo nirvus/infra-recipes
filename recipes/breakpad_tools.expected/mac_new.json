@@ -188,6 +188,7 @@
     "cmd": [
       "gclient",
       "config",
+      "--name=src",
       "--unmanaged",
       "-v",
       "https://chromium.googlesource.com/breakpad/breakpad"
@@ -203,13 +204,25 @@
   },
   {
     "cmd": [
+      "gclient",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/breakpad",
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/depot_tools"
+      ]
+    },
+    "infra_step": true,
+    "name": "gclient sync"
+  },
+  {
+    "cmd": [
       "git",
-      "-C",
-      "src",
       "checkout",
       "9eac2058b70615519b2c4d8c6bdbfca1bd079e39"
     ],
-    "cwd": "[START_DIR]/breakpad",
+    "cwd": "[START_DIR]/breakpad/src",
     "env_prefixes": {
       "PATH": [
         "[START_DIR]/depot_tools"
@@ -226,14 +239,14 @@
       "--output-json",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]/breakpad",
+    "cwd": "[START_DIR]/breakpad/src",
     "env_prefixes": {
       "PATH": [
         "[START_DIR]/depot_tools"
       ]
     },
     "infra_step": true,
-    "name": "gclient sync",
+    "name": "gclient sync (2)",
     "~followup_annotations": [
       "@@@STEP_LOG_END@json.output (invalid)@@@",
       "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
