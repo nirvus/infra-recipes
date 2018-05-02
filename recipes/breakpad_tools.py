@@ -11,6 +11,7 @@ DEPS = [
     'infra/git',
     'infra/gitiles',
     'recipe_engine/context',
+    'recipe_engine/file',
     'recipe_engine/json',
     'recipe_engine/path',
     'recipe_engine/platform',
@@ -71,6 +72,7 @@ def RunSteps(api, url, ref, revision, cipd_target):
 
   # Use gclient to fetch the DEPS.
   breakpad_dir = api.path['start_dir'].join('breakpad')
+  api.file.ensure_directory('makedirs breakpad', breakpad_dir)
   with api.context(
       infra_steps=True,
       cwd=breakpad_dir,
