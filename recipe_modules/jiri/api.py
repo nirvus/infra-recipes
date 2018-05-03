@@ -235,3 +235,88 @@ class JiriApi(recipe_api.RecipeApi):
 
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
+
+  def read_manifest_project(self, manifest, project_name):
+    """Reads information about a <project> from a manifest file.
+
+    Args:
+      manifest (str|Path): Path to the manifest file.
+      project_name (str): The name of the project.
+
+    Returns:
+      A dict containing the project fields. Any missing values are left empty.
+      Fields are accessed using their manifest attribute-names.  For example:
+
+          print(project['remote']) # https://fuchsia.googlesource.com/my_project
+    """
+
+    # This is a Go template matching the schema in pkg/text/template. See docs
+    # for `manifest` for more details.  We format the template as JSON to make
+    # it easy to parse into a dict.  Add fields to this template as-needed.
+    template='''
+    {
+      "gerrithost": "{{.GerritHost}}",
+      "githooks": "{{.GitHooks}}",
+      "historydepth": "{{.HistoryDepth}}",
+      "name": "{{.Name}}",
+      "path": "{{.Path}}",
+      "remote": "{{.Remote}}",
+      "remotebranch": "{{.RemoteBranch}}",
+      "revision": "{{.Revision}}",
+    }
+    '''
+    result = self.__manifest(
+        manifest=manifest,
+        element_name=project_name,
+        template=template,
+        step_test_data=lambda: self.m.json.test_api.output_stream(
+            self.m.json.dumps(self.test_api.example_json_project)),
+        stdout=self.m.json.output(),
+    ).stdout
+    return self.m.json.loads(result)
+
+
+  def __manifest(self, manifest, element_name, template, **kwargs):
+    """Reads information about a <project> or <import> from a manifest file.
+
+    The template argument is a Go template string matching the schema defined in
+    pkg/text/template: https://golang.org/pkg/text/template/#hdr-Examples.
+
+    Any of a project's or import's fields may be specified in the template. See
+    https://fuchsia.googlesource.com/jiri/+/master/project/project.go for a list
+    of all project fields.  For a list of all import fields, see:
+    https://fuchsia.googlesource.com/jiri/+/master/project/manifest.go.
+
+    Example Usage:
+
+      # Read the remote= attribute of some <project>.
+      #
+      # Example output: https://code.com/my_project.git
+      __manifest(manifest='manifest', element_name='my_project',
+          template='{{.Remote}}')
+
+      # Read the remote= and path= attributes from some <import>, and
+      # format the output as "$remote is cloned to $path".
+      #
+      # Example output: https://code.com/my_import.git is cloned to /my_import.
+      __manifest(manifest='manifest', element_name='my_import',
+          template='{{.Remote}}) is cloned to {{.Path}}')
+
+    Args:
+      manifest (str|Path): Path to the manifest file.
+      element_name (str): The name of the <project> or <import> to read from.
+      template (str): A Go template string matching pkg/text/template.
+
+    Returns:
+      The filled-in template string.  If the <project> or <import> did not have
+      a value for some field in the template, the empty string is filled-in for
+      that field.
+    """
+    return self(
+      'manifest',
+      '-element', element_name,
+      '-template', template,
+      manifest,
+      **kwargs
+    )
+

@@ -8,6 +8,18 @@ from recipe_engine import recipe_test_api
 class JiriTestApi(recipe_test_api.RecipeTestApi):
 
   @property
+  def example_json_project(self):
+      return {
+          'gerrithost': 'project_gerrit_host',
+          'githooks': 'project_githooks',
+          'historydepth': 'project_historydepth',
+          'name': 'project_name',
+          'path': 'project_path',
+          'remote': 'project_remote',
+          'revision': 'project_revision',
+      }
+
+  @property
   def example_revision(self):  # pragma: no cover
     return 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127'
 

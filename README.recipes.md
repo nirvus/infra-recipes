@@ -724,6 +724,20 @@ Returns:
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects, test_data=None):**
 
+&mdash; **def [read\_manifest\_project](/recipe_modules/jiri/api.py#239)(self, manifest, project_name):**
+
+Reads information about a <project> from a manifest file.
+
+Args:
+  manifest (str|Path): Path to the manifest file.
+  project_name (str): The name of the project.
+
+Returns:
+  A dict containing the project fields. Any missing values are left empty.
+  Fields are accessed using their manifest attribute-names.  For example:
+
+      print(project['remote']) # https://fuchsia.googlesource.com/my_project
+
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#102)(self, local_manifest=False, attempts=3):**
 
 &mdash; **def [snapshot](/recipe_modules/jiri/api.py#205)(self, file=None, test_data=None, \*\*kwargs):**
