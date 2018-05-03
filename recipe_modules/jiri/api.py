@@ -235,3 +235,42 @@ class JiriApi(recipe_api.RecipeApi):
 
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
+
+  def manifest(self, manifest, element_name, template, **kwargs):
+    """
+    Reads information about a <project> or <import> from a manifest file.  The
+    template argument is a Go template string matching the schema defined in
+    pkg/text/template: https://golang.org/pkg/text/template/#hdr-Examples.
+
+    Example Usage:
+
+      # Read the remote= attribute of some <project>.
+      #
+      # Example output: https://code.com/my_project.git
+      api.jiri.manifest(manifest='manifest', element_name='my_project',
+          template='{{.Remote}}')
+
+      # Read the remote= and path= attributes from some <import>, and
+      # format the output as "$remote is cloned to $path".
+      #
+      # Example output: https://code.com/my_import.git is cloned to /my_import.
+      api.jiri.manifest(manifest='manifest', element_name='my_import',
+          template='{{.Remote}}) is cloned to {{.Path}}')
+      
+    Args:
+      manifest (str|Path): Path to the manifest file.
+      element_name (str): The name of the <project> or <import> to read from.
+      template (str): A Go template string matching pkg/text/template.
+
+    Returns:
+      The filled-in template string.  If the <project> or <import> did not have
+      a value for some field in the template, the empty string is filled-in for
+      that field.
+    """
+    return self(
+      'manifest',
+      '-element-name', element_name,
+      '-template', template,
+      manifest,
+      **kwargs,
+    )

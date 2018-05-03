@@ -42,6 +42,13 @@ def RunSteps(api):
       imports=['c', ('d', 'fc4dc762688d2263b254208f444f5c0a4b91bc07')]
   )
 
+  # Read from manifest.
+  api.jiri.manifest(
+    'minimal',
+    element_name="manifest",
+    template="{{.Remote}} is cloned to {{.Path}}",
+  )
+
   # Run hooks separately.
   api.jiri.update(rebase_tracked=True, run_hooks=False)
   api.jiri.run_hooks(local_manifest=True)

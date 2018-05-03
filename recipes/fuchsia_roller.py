@@ -99,6 +99,11 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in, imp
       old_rev = changes[updated_section][0]['old_revision']
       new_rev = changes[updated_section][0]['new_revision']
 
+      roll_from_repo = api.jiri.manifest(
+        element=import_from,
+        template="{{.Remote}}",
+      )
+      
       # If repository URL was not given for the rolled dependency, assume it
       # lives at fuchsia.googlesource.com.
       # TODO(kjharland): Delete this after making roll_from_repo a required property.
