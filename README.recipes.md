@@ -54,6 +54,7 @@
   * [isolated:examples/full](#recipes-isolated_examples_full)
   * [jiri](#recipes-jiri) &mdash; Recipe for building Jiri.
   * [jiri:examples/full](#recipes-jiri_examples_full)
+  * [llvm](#recipes-llvm) &mdash; Recipe for building LLVM.
   * [minfs:examples/full](#recipes-minfs_examples_full)
   * [modules](#recipes-modules) &mdash; Recipe for building and running pre-submit checks for the modules repo.
   * [qemu](#recipes-qemu) &mdash; Recipe for building QEMU.
@@ -1207,6 +1208,13 @@ Recipe for building Jiri.
 [DEPS](/recipe_modules/jiri/examples/full.py#7): [jiri](#recipe_modules-jiri), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 &mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#24)(api, checkout_from_snapshot):**
+### *recipes* / [llvm](/recipes/llvm.py)
+
+[DEPS](/recipes/llvm.py#13): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+
+Recipe for building LLVM.
+
+&mdash; **def [RunSteps](/recipes/llvm.py#49)(api, url, ref, revision):**
 ### *recipes* / [minfs:examples/full](/recipe_modules/minfs/examples/full.py)
 
 [DEPS](/recipe_modules/minfs/examples/full.py#5): [minfs](#recipe_modules-minfs), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
