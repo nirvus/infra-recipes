@@ -35,6 +35,7 @@
   * [dart](#recipes-dart) &mdash; Builds the Fuchsia Dart test image and runs the Dart tests.
   * [dart_pkg_roller](#recipes-dart_pkg_roller) &mdash; Recipe for automatically updating Dart 3p packages.
   * [dart_toolchain](#recipes-dart_toolchain) &mdash; Recipe for building Dart toolchain.
+  * [docs_roller](#recipes-docs_roller) &mdash; Recipe for generating docs.
   * [ffmpeg](#recipes-ffmpeg) &mdash; Recipe for building libffmpeg.
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia:examples/fuchsia](#recipes-fuchsia_examples_fuchsia) &mdash; Recipe for building Fuchsia and running tests.
@@ -984,6 +985,13 @@ Recipe for automatically updating Dart 3p packages.
 Recipe for building Dart toolchain.
 
 &mdash; **def [RunSteps](/recipes/dart_toolchain.py#52)(api, url, ref, revision, host_cpu, host_os):**
+### *recipes* / [docs\_roller](/recipes/docs_roller.py)
+
+[DEPS](/recipes/docs_roller.py#15): [auto\_roller](#recipe_modules-auto_roller), [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe for generating docs.
+
+&mdash; **def [RunSteps](/recipes/docs_roller.py#52)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, packages):**
 ### *recipes* / [ffmpeg](/recipes/ffmpeg.py)
 
 [DEPS](/recipes/ffmpeg.py#11): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
