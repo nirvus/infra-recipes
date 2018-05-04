@@ -953,11 +953,11 @@ Recipe for building some Breakpad tools.
 &mdash; **def [RunSteps](/recipe_modules/cipd/examples/platform_suffix.py#24)(api, arch_override, bits_override, expect_error):**
 ### *recipes* / [clang\_toolchain](/recipes/clang_toolchain.py)
 
-[DEPS](/recipes/clang_toolchain.py#13): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/clang_toolchain.py#13): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Clang toolchain.
 
-&mdash; **def [RunSteps](/recipes/clang_toolchain.py#47)(api, url, ref, revision):**
+&mdash; **def [RunSteps](/recipes/clang_toolchain.py#48)(api, url, ref, revision):**
 ### *recipes* / [cobalt](/recipes/cobalt.py)
 
 [DEPS](/recipes/cobalt.py#10): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

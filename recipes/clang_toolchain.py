@@ -25,6 +25,7 @@ DEPS = [
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
+  'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
   'recipe_engine/tempfile',
@@ -64,7 +65,6 @@ def RunSteps(api, url, ref, revision):
       packages = {
         'infra/cmake/${platform}': 'version:3.9.2',
         'infra/ninja/${platform}': 'version:1.8.2',
-        'infra/swig/${platform}': 'version:3.0.12',
         'fuchsia/clang/${platform}': 'goma',
       }
       if api.platform.name == 'linux':
@@ -74,7 +74,7 @@ def RunSteps(api, url, ref, revision):
       api.cipd.ensure(cipd_dir, packages)
 
   staging_dir = api.path.mkdtemp('clang')
-  pkg_name = 'clang+llvm-x86_64-%s' % api.platform.name.replace('mac', 'darwin')
+  pkg_name = 'clang-%s' % api.platform.name.replace('mac', 'darwin')
   pkg_dir = staging_dir.join(pkg_name)
   api.file.ensure_directory('create pkg dir', pkg_dir)
 
@@ -88,18 +88,28 @@ def RunSteps(api, url, ref, revision):
     llvm_dir = api.path['start_dir'].join('llvm-project')
     api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
 
+  sdk_dir = staging_dir.join('sdk')
+  api.file.ensure_directory('create sdk dir', sdk_dir)
+
   # Build Zircon sysroot.
   # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
-  sysroot = {}
+  overlay = False
   for tc_arch, gn_arch in TARGETS:
     build = api.fuchsia.build(
         target=gn_arch,
         build_type='release',
-        packages=['garnet/packages/sdk/toolchain'],
+        packages=['garnet/packages/sdk/garnet'],
     )
-    # TODO(TO-688): This is an implementation detail of the GN build and we
-    # shouldn't rely on it outside of that build and instead use SDK.
-    sysroot[tc_arch] = build.fuchsia_build_dir.join('sdks', 'zircon_sysroot_for_toolchain', 'sysroot')
+    api.python('create %s sdk' % gn_arch,
+        api.path['start_dir'].join('scripts', 'sdk', 'create_layout.py'),
+        args=[
+          '--manifest',
+          build.fuchsia_build_dir.join('gen', 'garnet', 'public', 'sdk', 'garnet_molecule.sdk'),
+          '--output',
+          sdk_dir,
+        ] + (['--overlay'] if overlay else []),
+    )
+    overlay = True
 
   # build clang+llvm
   build_dir = staging_dir.join('llvm_build_dir')
@@ -114,8 +124,14 @@ def RunSteps(api, url, ref, revision):
     'mac': [],
   }[api.platform.name]
 
-  extra_options += ['-DFUCHSIA_%s_SYSROOT=%s' % (arch, sysroot)
-                    for arch, sysroot in sorted(sysroot.iteritems())]
+  extra_options = []
+  for tc_arch, gn_arch in TARGETS:
+    extra_options.extend([
+      '-DSTAGE2_FUCHSIA_%s_SYSROOT=-I%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'sysroot')),
+      '-DSTAGE2_FUCHSIA_%s_C_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'launchpad', 'include')),
+      '-DSTAGE2_FUCHSIA_%s_CXX_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'launchpad', 'include')),
+      '-DSTAGE2_FUCHSIA_%s_LINKER_FLAGS=-L%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'lib')),
+    ])
 
   with api.goma.build_with_goma(), api.context(cwd=build_dir):
     api.step('configure clang', [
@@ -129,8 +145,6 @@ def RunSteps(api, url, ref, revision):
       '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
       '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
       '-DCMAKE_INSTALL_PREFIX=',
-      '-DSWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
-      '-DBOOTSTRAP_SWIG_EXECUTABLE=%s' % cipd_dir.join('bin', 'swig'),
       '-DLLVM_ENABLE_PROJECTS=clang;lld',
       '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
     ] + extra_options + [
