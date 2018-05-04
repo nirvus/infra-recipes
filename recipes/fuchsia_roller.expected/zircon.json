@@ -133,11 +133,32 @@
   },
   {
     "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "manifest",
+      "-v",
+      "-time",
+      "-element",
+      "zircon",
+      "-template",
+      "\n    {\n      \"gerrithost\": \"{{.GerritHost}}\",\n      \"githooks\": \"{{.GitHooks}}\",\n      \"historydepth\": \"{{.HistoryDepth}}\",\n      \"name\": \"{{.Name}}\",\n      \"path\": \"{{.Path}}\",\n      \"remote\": \"{{.Remote}}\",\n      \"remotebranch\": \"{{.RemoteBranch}}\",\n      \"revision\": \"{{.Revision}}\"\n    }\n    ",
+      "manifest/garnet"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "jiri manifest",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@\"{\\\"gerrithost\\\": \\\"project_gerrit_host\\\", \\\"githooks\\\": \\\"project_githooks\\\", \\\"historydepth\\\": \\\"project_historydepth\\\", \\\"name\\\": \\\"project_name\\\", \\\"path\\\": \\\"project_path\\\", \\\"remote\\\": \\\"project_remote\\\", \\\"revision\\\": \\\"project_revision\\\"}\"@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/gitiles/gitiles",
       "log",
       "-json-output",
       "/path/to/tmp/json",
-      "https://fuchsia.googlesource.com/zircon",
+      "project_remote",
       "[OLD_REVISION]..fc4dc762688d2263b254208f444f5c0a4b91bc07"
     ],
     "cwd": "[START_DIR]/garnet",
