@@ -733,10 +733,15 @@ Args:
   project_name (str): The name of the project.
 
 Returns:
-  A dict containing the project fields. Any missing values are left empty.
-  Fields are accessed using their manifest attribute-names.  For example:
+  A dict containing the project fields. Any fields that are missing, or have
+  empty values are omitted from the dict.  Examples:
 
+      # Read remote attribute of the returned project
       print(project['remote']) # https://fuchsia.googlesource.com/my_project
+
+      # Check whether remote attribute was present and non-empty.
+      if 'remote' in project:
+          ...
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#102)(self, local_manifest=False, attempts=3):**
 

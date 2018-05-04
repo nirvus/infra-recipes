@@ -225,7 +225,7 @@
     "name": "jiri manifest",
     "stdout": "/path/to/tmp/json",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@\"{\\\"gerrithost\\\": \\\"project_gerrit_host\\\", \\\"githooks\\\": \\\"project_githooks\\\", \\\"historydepth\\\": \\\"project_historydepth\\\", \\\"name\\\": \\\"project_name\\\", \\\"path\\\": \\\"project_path\\\", \\\"remote\\\": \\\"project_remote\\\", \\\"revision\\\": \\\"project_revision\\\"}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@\"{}\"@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },

@@ -6,9 +6,10 @@ from recipe_engine import recipe_test_api
 
 
 class JiriTestApi(recipe_test_api.RecipeTestApi):
-
+  # Mock step data to simulate reading a <project> from a manifest.
   @property
-  def example_json_project(self):
+  def read_manifest_project_output(self):
+      """A dict simulating output of reading a <project> from a manifest."""
       return {
           'gerrithost': 'project_gerrit_host',
           'githooks': 'project_githooks',

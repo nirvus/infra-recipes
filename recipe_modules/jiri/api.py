@@ -244,10 +244,15 @@ class JiriApi(recipe_api.RecipeApi):
       project_name (str): The name of the project.
 
     Returns:
-      A dict containing the project fields. Any missing values are left empty.
-      Fields are accessed using their manifest attribute-names.  For example:
+      A dict containing the project fields. Any fields that are missing, or have
+      empty values are omitted from the dict.  Examples:
 
+          # Read remote attribute of the returned project
           print(project['remote']) # https://fuchsia.googlesource.com/my_project
+
+          # Check whether remote attribute was present and non-empty.
+          if 'remote' in project:
+              ...
     """
 
     # This is a Go template matching the schema in pkg/text/template. See docs
@@ -262,19 +267,19 @@ class JiriApi(recipe_api.RecipeApi):
       "path": "{{.Path}}",
       "remote": "{{.Remote}}",
       "remotebranch": "{{.RemoteBranch}}",
-      "revision": "{{.Revision}}",
+      "revision": "{{.Revision}}"
     }
     '''
-    result = self.__manifest(
+    # Parse the result as JSON
+    project_json = self.m.json.loads(self.__manifest(
         manifest=manifest,
         element_name=project_name,
         template=template,
-        step_test_data=lambda: self.m.json.test_api.output_stream(
-            self.m.json.dumps(self.test_api.example_json_project)),
         stdout=self.m.json.output(),
-    ).stdout
-    return self.m.json.loads(result)
+    ).stdout)
 
+    # Strip whitespace from any attribute values.  Discard empty values.
+    return {k:v.strip() for k,v in project_json.iteritems() if v.strip()}
 
   def __manifest(self, manifest, element_name, template, **kwargs):
     """Reads information about a <project> or <import> from a manifest file.
