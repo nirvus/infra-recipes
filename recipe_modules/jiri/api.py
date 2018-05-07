@@ -236,44 +236,52 @@ class JiriApi(recipe_api.RecipeApi):
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
 
-  def read_manifest_project(self, manifest, project_name):
-    """Reads information about a <project> from a manifest file.
+  def read_manifest_element(self, manifest, element_name):
+    """Reads information about an <import> or <project> from a manifest file.
 
     Args:
       manifest (str|Path): Path to the manifest file.
-      project_name (str): The name of the project.
+      element_name (str): The name of the element.
 
     Returns:
-      A dict containing the project fields. Any fields that are missing, or have
+      A dict containing the element fields.  Any fields that are missing or have
       empty values are omitted from the dict.  Examples:
 
           # Read remote attribute of the returned project
-          print(project['remote']) # https://fuchsia.googlesource.com/my_project
+          print(element['remote']) # https://fuchsia.googlesource.com/my_project
+
+          # Read the manifest attribute if the value is an <import>
+          print(my_import['manifest']) # manifest/foo
 
           # Check whether remote attribute was present and non-empty.
           if 'remote' in project:
               ...
     """
 
-    # This is a Go template matching the schema in pkg/text/template. See docs
-    # for `manifest` for more details.  We format the template as JSON to make
-    # it easy to parse into a dict.  Add fields to this template as-needed.
+    # This is a Go template containing the union of the fields in a Jiri Project
+    # or Import.  The field names match the schema in //jiri/project/project.go.
+    # The template syntax is defined in Go's pkg/text/template. See docs for
+    # __manifest for more details.  We format the template as JSON to make it
+    # easy to parse into a dict.  Any fields not found on the matched element
+    # are removed from the results.  Add fields to this template as-needed.
     template='''
     {
       "gerrithost": "{{.GerritHost}}",
       "githooks": "{{.GitHooks}}",
       "historydepth": "{{.HistoryDepth}}",
+      "manifest": "{{.Manifest}}",
       "name": "{{.Name}}",
       "path": "{{.Path}}",
       "remote": "{{.Remote}}",
       "remotebranch": "{{.RemoteBranch}}",
-      "revision": "{{.Revision}}"
+      "revision": "{{.Revision}}",
+      "root": "{{.Root}}"
     }
     '''
     # Parse the result as JSON
     project_json = self.m.json.loads(self.__manifest(
         manifest=manifest,
-        element_name=project_name,
+        element_name=element_name,
         template=template,
         stdout=self.m.json.output(),
     ).stdout)

@@ -44,15 +44,14 @@ def RunSteps(api):
       imports=['c', ('d', 'fc4dc762688d2263b254208f444f5c0a4b91bc07')])
 
   # Read a project from the manifest
-  project_dict = api.jiri.read_manifest_project(
+  project_dict = api.jiri.read_manifest_element(
       manifest='minimal',
-      project_name="manifest",
+      element_name="third_party/go",
   )
-
   # For the sake of testing, assert all values are filled in if the project was
   # found.
   if project_dict.get('name'):
-      assert project_dict == {
+    assert project_dict == {
         'gerrithost': 'project_gerrit_host',
         'githooks': 'project_githooks',
         'historydepth': 'project_historydepth',
@@ -60,10 +59,10 @@ def RunSteps(api):
         'path': 'project_path',
         'remote': 'project_remote',
         'revision': 'project_revision',
-      }
+    }
   else:
-     # Otherwise just assert no info was found and the dict is empty.
-     assert project_dict == {}
+    # Otherwise just assert no info was found and the dict is empty.
+    assert project_dict == {}
 
   # Run hooks separately.
   api.jiri.update(rebase_tracked=True, run_hooks=False)
@@ -91,10 +90,9 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  yield (api.test('basic') +
-         api.step_data('jiri manifest',
-             stdout=api.json.output(api.json.dumps(api.jiri.read_manifest_project_output))))
-  yield (api.test('missing_manifest_project_data') +
-         api.step_data('jiri manifest',
-             stdout=api.json.output(api.json.dumps({}))))
-
+  yield (api.test('basic') + api.step_data(
+      'jiri manifest',
+      stdout=api.json.output(
+          api.json.dumps(api.jiri.read_manifest_project_output))))
+  yield (api.test('missing_manifest_data') + api.step_data(
+      'jiri manifest', stdout=api.json.output(api.json.dumps({}))))
