@@ -1,7 +1,6 @@
 # Copyright 2017 The Fuchsia Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 """Recipe for building Fuchsia and running tests."""
 
 from contextlib import contextmanager
@@ -11,7 +10,6 @@ from recipe_engine.recipe_api import Property
 
 import re
 
-
 TARGETS = ['arm64', 'x64']
 
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
@@ -19,68 +17,91 @@ BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK']
 
 DEPS = [
-  'infra/fuchsia',
-  'infra/gsutil',
-  'infra/hash',
-  'infra/tar',
-  'recipe_engine/file',
-  'recipe_engine/path',
-  'recipe_engine/properties',
-  'recipe_engine/python',
+    'infra/fuchsia',
+    'infra/gsutil',
+    'infra/hash',
+    'infra/tar',
+    'recipe_engine/file',
+    'recipe_engine/path',
+    'recipe_engine/properties',
+    'recipe_engine/python',
 ]
 
 PROPERTIES = {
-  'category': Property(kind=str, help='Build category', default=None),
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'patch_storage': Property(kind=str, help='Patch location', default=None),
-  'patch_repository_url': Property(kind=str, help='URL to a Git repository',
-                                   default=None),
-  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
-  'manifest': Property(kind=str, help='Jiri manifest to use'),
-  'remote': Property(kind=str, help='Remote manifest repository'),
-  'target': Property(kind=Enum(*TARGETS), help='Target to build'),
-  'build_type': Property(kind=Enum(*BUILD_TYPES),
-                         help='The build type', default='debug'),
-  'packages': Property(kind=List(basestring), help='Packages to build',
-                       default=[]),
-  # TODO(mknyszek): Rename to 'variants' since this property is a list.
-  'variant': Property(kind=List(basestring),
-                      help='--variant arguments to GN in `select_variant`',
-                      default=[]),
-  'gn_args': Property(kind=List(basestring), help='Extra args to pass to GN',
-                      default=[]),
-  'run_tests': Property(kind=bool,
-                        help='Whether to run tests or not',
-                        default=False),
-  'runtests_args': Property(kind=str,
-                            help='Arguments to pass to the executable running tests',
-                            default=''),
-  'device_type': Property(kind=Enum(*DEVICES),
-                          help='The type of device to execute tests on, if the value is'
-                               ' not QEMU it will be passed to Swarming as the device_type'
-                               ' dimension',
-                          default='QEMU'),
-  'test_timeout_secs': Property(kind=int,
-                                help='How long to wait until timing out on tests',
-                                default=40*60),
-  'snapshot_gcs_bucket': Property(kind=str,
-                                  help='The GCS bucket to upload a jiri snapshot of the build'
-                                       ' to. Will not upload a snapshot if this property is'
-                                       ' blank or tryjob is True',
-                                  default='fuchsia-snapshots'),
-  'upload_archive': Property(kind=bool,
-                          help='Whether to upload archive of the build artifacts'
-                               ' (always False if tryjob is True)',
-                          default=True),
+    'category':
+        Property(kind=str, help='Build category', default=None),
+    'patch_gerrit_url':
+        Property(kind=str, help='Gerrit host', default=None),
+    'patch_project':
+        Property(kind=str, help='Gerrit project', default=None),
+    'patch_ref':
+        Property(kind=str, help='Gerrit patch ref', default=None),
+    'patch_storage':
+        Property(kind=str, help='Patch location', default=None),
+    'patch_repository_url':
+        Property(kind=str, help='URL to a Git repository', default=None),
+    'project':
+        Property(kind=str, help='Jiri remote manifest project', default=None),
+    'manifest':
+        Property(kind=str, help='Jiri manifest to use'),
+    'remote':
+        Property(kind=str, help='Remote manifest repository'),
+    'target':
+        Property(kind=Enum(*TARGETS), help='Target to build'),
+    'build_type':
+        Property(
+            kind=Enum(*BUILD_TYPES), help='The build type', default='debug'),
+    'packages':
+        Property(kind=List(basestring), help='Packages to build', default=[]),
+    # TODO(mknyszek): Rename to 'variants' since this property is a list.
+    'variant':
+        Property(
+            kind=List(basestring),
+            help='--variant arguments to GN in `select_variant`',
+            default=[]),
+    'gn_args':
+        Property(
+            kind=List(basestring), help='Extra args to pass to GN', default=[]),
+    'run_tests':
+        Property(kind=bool, help='Whether to run tests or not', default=False),
+    'runtests_args':
+        Property(
+            kind=str,
+            help='Arguments to pass to the executable running tests',
+            default=''),
+    'device_type':
+        Property(
+            kind=Enum(*DEVICES),
+            help='The type of device to execute tests on, if the value is'
+            ' not QEMU it will be passed to Swarming as the device_type'
+            ' dimension',
+            default='QEMU'),
+    'test_timeout_secs':
+        Property(
+            kind=int,
+            help='How long to wait until timing out on tests',
+            default=40 * 60),
+    'snapshot_gcs_bucket':
+        Property(
+            kind=str,
+            help='The GCS bucket to upload a jiri snapshot of the build'
+            ' to. Will not upload a snapshot if this property is'
+            ' blank or tryjob is True',
+            default='fuchsia-snapshots'),
+    'upload_archive':
+        Property(
+            kind=bool,
+            help='Whether to upload archive of the build artifacts'
+            ' (always False if tryjob is True)',
+            default=True),
 }
 
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, build_type, packages, variant, gn_args, run_tests, runtests_args,
-             device_type, test_timeout_secs, snapshot_gcs_bucket, upload_archive):
+             target, build_type, packages, variant, gn_args, run_tests,
+             runtests_args, device_type, test_timeout_secs, snapshot_gcs_bucket,
+             upload_archive):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   api.fuchsia.checkout(
@@ -94,12 +115,15 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   )
   test_cmds = None
   if run_tests:
-    test_cmds = ['runtests -o %s %s' % (
-      api.fuchsia.target_test_dir(),
-      runtests_args,
-    )]
-  verify_build_packages = project and (project in ['garnet', 'peridot', 'topaz']
-                                       or project.startswith('vendor/'))
+    test_cmds = [
+        'runtests -o %s %s' % (
+            api.fuchsia.target_test_dir(),
+            runtests_args,
+        )
+    ]
+  verify_build_packages = project and (
+      project in ['garnet', 'peridot', 'topaz'] or
+      project.startswith('vendor/'))
   if verify_build_packages:
     # Add the tool required to validate build packages.
     packages.append('build/packages/json_validator')
@@ -116,22 +140,21 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     validator = build.fuchsia_build_dir.join('tools', 'json_validator')
     if project.startswith('vendor/'):
       layer_args = [
-        '--vendor-layer',
-        project[7:],
+          '--vendor-layer',
+          project[7:],
       ]
     else:
       layer_args = [
-        '--layer',
-        project,
+          '--layer',
+          project,
       ]
     api.python(
-      'verify build packages',
-      api.path['start_dir'].join('scripts', 'packages', 'verify_layer.py'),
-      args = layer_args + [
-        '--json-validator',
-        validator,
-      ]
-    )
+        'verify build packages',
+        api.path['start_dir'].join('scripts', 'packages', 'verify_layer.py'),
+        args=layer_args + [
+            '--json-validator',
+            validator,
+        ])
 
   if run_tests:
     test_results = api.fuchsia.test(build, test_timeout_secs)
@@ -162,25 +185,36 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       package.add(p, build.fuchsia_build_dir)
 
     # Add args.gn, a file containing the arguments passed to GN, to the package.
-    package.add(build.fuchsia_build_dir.join('args.gn'), build.fuchsia_build_dir)
+    package.add(
+        build.fuchsia_build_dir.join('args.gn'), build.fuchsia_build_dir)
 
     # Add the bootserver tool from zircon to the package. Note that since the
     # CWD is set to the zircon build dir, it will be placed in tools/bootserver
     # in the archive.
-    package.add(build.zircon_build_dir.join('tools', 'bootserver'), build.zircon_build_dir)
+    package.add(
+        build.zircon_build_dir.join('tools', 'bootserver'),
+        build.zircon_build_dir)
 
     # Add the zircon kernel binary to the package.
-    package.add(build.zircon_build_dir.join(build.zircon_kernel_image), build.zircon_build_dir)
+    package.add(
+        build.zircon_build_dir.join(build.zircon_kernel_image),
+        build.zircon_build_dir)
 
     # Finalize the package and upload it.
     package.tar('tar fuchsia')
-    digest = api.hash.sha1('hash archive', package.archive,
-                           test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
-    api.gsutil.upload('fuchsia-archive', package.archive, digest,
-                      link_name='fuchsia.tar.gz',
-                      name='upload fuchsia.tar.gz')
+    digest = api.hash.sha1(
+        'hash archive',
+        package.archive,
+        test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
+    api.gsutil.upload(
+        bucket='fuchsia-archive',
+        src=package.archive,
+        dst=digest,
+        link_name='fuchsia.tar.gz',
+        name='upload fuchsia.tar.gz')
 
 
+# yapf: disable
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.
   yield api.test('isolated_tests') + api.properties(
@@ -259,3 +293,4 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       snapshot_gcs_bucket=None,
   )
+# yapf: enable
