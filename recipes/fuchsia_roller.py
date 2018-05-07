@@ -6,7 +6,7 @@
 
 
 from recipe_engine.config import Enum, Single
-from recipe_engine.recipe_api import Property, StepFailure
+from recipe_engine.recipe_api import Property
 
 # ROLL_TYPES lists the types of rolls we can perform on the target manifest.
 # * 'import': An <import> tag will be updated.
@@ -39,6 +39,14 @@ PROPERTIES = {
   # TODO(kjharland): Rename to 'element_name' because "import" is misleading.
   'import_from': Property(kind=str,
       help='Name of the <project> or <import> to edit in $import_in'),
+  # TODO(kjharland): This defaults to fuchsia.googlesource.com/$import_from
+  # below to support existing rollers. Do not rely on this behavior as it is
+  # going away and explicitly specify the target URL. Delete this property
+  # altogether when https://fuchsia.atlassian.net/browse/IN-321 is resolved.
+  'roll_from_repo': Property(
+    kind=str,
+    help='The repo to roll from. Must match the value of the remote= attribute of the $import_from element',
+    default=None),
   'revision': Property(kind=str, help='Revision'),
   'dry_run': Property(kind=bool,
                       default=False,
@@ -62,7 +70,7 @@ COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 # updates behind 'dry_run' as a sort of feature gate. It is passed to
 # api.auto_roller.attempt_roll() which handles committing changes.
 def RunSteps(api, category, project, manifest, remote, roll_type, import_in, import_from,
-             revision, dry_run):
+             roll_from_repo, revision, dry_run):
   api.jiri.ensure_jiri()
   api.gitiles.ensure_gitiles()
 
@@ -91,15 +99,11 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in, imp
       old_rev = changes[updated_section][0]['old_revision']
       new_rev = changes[updated_section][0]['new_revision']
 
-      # Read the remote URL of the repo we're rolling from.
-      roll_from_repo = api.jiri.read_manifest_project(
-          manifest=import_in,
-          project_name=import_from,
-      ).get('remote')
-
-      # Fail if the remote URL is missing
+      # If repository URL was not given for the rolled dependency, assume it
+      # lives at fuchsia.googlesource.com.
+      # TODO(kjharland): Delete this after making roll_from_repo a required property.
       if not roll_from_repo:
-          raise api.step.StepFailure(import_from + ' is missing remote= attribute')
+        roll_from_repo = FUCHSIA_URL + import_from
 
       # Get the commit history and generate a commit message.
       log = api.gitiles.log(roll_from_repo, '%s..%s' % (old_rev, new_rev), step_name='log')
@@ -130,26 +134,6 @@ def GenTests(api):
   # during polling. It indicates a success, and should end polling.
   success_step_data = api.step_data('check if done (0)', api.auto_roller.success())
 
-  # Mock step data to simulate reading a <project> from a manifest.
-  jiri_manifest_step_data = api.step_data('jiri manifest',
-      stdout=api.json.output(api.json.dumps(api.jiri.read_manifest_project_output)))
-
-  # Mock step data data to simulate reading a <project> with missing values from
-  # a manifest.
-  jiri_manifest_empty_step_data = api.step_data('jiri manifest',
-      stdout=api.json.output(api.json.dumps({})))
-
-  # Test when the project to roll from is missing a 'remote' manifest attribute.
-  yield (api.test('missing_manifest_remote') +
-        api.properties(project='garnet',
-                       manifest='manifest/minimal',
-                       remote='https://fuchsia.googlesource.com/garnet',
-                       import_in='manifest/third_party',
-                       roll_type='project',
-                       import_from='cobalt',
-                       revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-                       jiri_manifest_empty_step_data)
-
   # Test rolling a project instead of an import.
   yield (api.test('cobalt_project') +
         api.properties(project='garnet',
@@ -158,8 +142,9 @@ def GenTests(api):
                        import_in='manifest/third_party',
                        roll_type='project',
                        import_from='cobalt',
+                       roll_from_repo='https://cobalt-analytics.googlesource.com/config',
                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-         api.gitiles.log('log', 'A') + success_step_data + jiri_manifest_step_data)
+         api.gitiles.log('log', 'A') + success_step_data)
 
   # Test a successful roll of zircon into garnet.
   yield (api.test('zircon') +
@@ -169,7 +154,7 @@ def GenTests(api):
                         import_from='zircon',
                         remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-         api.gitiles.log('log', 'A') + success_step_data + jiri_manifest_step_data)
+         api.gitiles.log('log', 'A') + success_step_data)
 
   # Test a no-op roll of zircon into garnet.
   yield (api.test('zircon-noop') +
@@ -189,7 +174,7 @@ def GenTests(api):
                         import_from='garnet',
                         remote='https://fuchsia.googlesource.com/peridot',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-         api.gitiles.log('log', 'A') + success_step_data + jiri_manifest_step_data)
+         api.gitiles.log('log', 'A') + success_step_data)
 
   # Test a successful roll of peridot into topaz.
   yield (api.test('peridot') +
@@ -199,7 +184,7 @@ def GenTests(api):
                         import_from='peridot',
                         remote='https://fuchsia.googlesource.com/topaz',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-         api.gitiles.log('log', 'A') + success_step_data + jiri_manifest_step_data)
+         api.gitiles.log('log', 'A') + success_step_data)
 
   # Test a dry-run of the auto-roller for rolling zircon into garnet. We
   # substitute in mock data for the first check that the CQ dry-run completed by
@@ -213,4 +198,4 @@ def GenTests(api):
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07',
                         dry_run=True) +
          api.gitiles.log('log', 'A') +
-         api.step_data('check if done (0)', api.auto_roller.dry_run()) + jiri_manifest_step_data)
+         api.step_data('check if done (0)', api.auto_roller.dry_run()))
