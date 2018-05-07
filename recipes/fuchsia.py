@@ -184,6 +184,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     for p in bootdata_paths:
       package.add(p, build.fuchsia_build_dir)
 
+    # Add SSH keys to the package, making it easier for users to SSH into
+    # devices that are paved with buildbot-generated images.
+    package.add(
+        build.fuchsia_build_dir.join('ssh-keys'), build.fuchsia_build_dir)
+
     # Add args.gn, a file containing the arguments passed to GN, to the package.
     package.add(
         build.fuchsia_build_dir.join('args.gn'), build.fuchsia_build_dir)

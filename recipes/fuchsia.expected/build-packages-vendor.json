@@ -465,6 +465,7 @@
       "[START_DIR]/out/debug-x64",
       "images",
       "path/to/out/bootdata-blob-pc.bin",
+      "ssh-keys",
       "args.gn"
     ],
     "name": "tar fuchsia"
