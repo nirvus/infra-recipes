@@ -211,21 +211,50 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "read_manifest_test/project"
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "manifest",
       "-v",
       "-time",
       "-element",
-      "manifest",
+      "test/project",
       "-template",
-      "\n    {\n      \"gerrithost\": \"{{.GerritHost}}\",\n      \"githooks\": \"{{.GitHooks}}\",\n      \"historydepth\": \"{{.HistoryDepth}}\",\n      \"name\": \"{{.Name}}\",\n      \"path\": \"{{.Path}}\",\n      \"remote\": \"{{.Remote}}\",\n      \"remotebranch\": \"{{.RemoteBranch}}\",\n      \"revision\": \"{{.Revision}}\"\n    }\n    ",
+      "\n      {\n        \"gerrithost\": \"{{.GerritHost}}\",\n        \"githooks\": \"{{.GitHooks}}\",\n        \"historydepth\": \"{{.HistoryDepth}}\",\n        \"name\": \"{{.Name}}\",\n        \"path\": \"{{.Path}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"revision\": \"{{.Revision}}\"\n      }\n      ",
       "minimal"
     ],
-    "name": "jiri manifest",
+    "name": "read_manifest_test/project.jiri manifest",
     "stdout": "/path/to/tmp/json",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@\"{}\"@@@",
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "read_manifest_test/import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "manifest",
+      "-v",
+      "-time",
+      "-element",
+      "test/import",
+      "-template",
+      "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\"\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\",\n      }\n      ",
+      "minimal"
+    ],
+    "name": "read_manifest_test/import.jiri manifest",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },

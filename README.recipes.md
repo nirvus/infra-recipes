@@ -724,16 +724,17 @@ Returns:
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects, test_data=None):**
 
-&mdash; **def [read\_manifest\_project](/recipe_modules/jiri/api.py#239)(self, manifest, project_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#240)(self, manifest, element_type, element_name):**
 
-Reads information about a <project> from a manifest file.
+Reads information about a <project> or <import> from a manifest file.
 
 Args:
   manifest (str|Path): Path to the manifest file.
-  project_name (str): The name of the project.
+  element_type (str): One of 'import' or 'project'.
+  element_name (str): The name of the element.
 
 Returns:
-  A dict containing the project fields. Any fields that are missing, or have
+  A dict containing the project fields.  Any fields that are missing or have
   empty values are omitted from the dict.  Examples:
 
       # Read remote attribute of the returned project

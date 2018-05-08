@@ -236,15 +236,17 @@ class JiriApi(recipe_api.RecipeApi):
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
 
-  def read_manifest_project(self, manifest, project_name):
-    """Reads information about a <project> from a manifest file.
+
+  def read_manifest_element(self, manifest, element_type, element_name):
+    """Reads information about a <project> or <import> from a manifest file.
 
     Args:
       manifest (str|Path): Path to the manifest file.
-      project_name (str): The name of the project.
+      element_type (str): One of 'import' or 'project'.
+      element_name (str): The name of the element.
 
     Returns:
-      A dict containing the project fields. Any fields that are missing, or have
+      A dict containing the project fields.  Any fields that are missing or have
       empty values are omitted from the dict.  Examples:
 
           # Read remote attribute of the returned project
@@ -254,32 +256,49 @@ class JiriApi(recipe_api.RecipeApi):
           if 'remote' in project:
               ...
     """
-
-    # This is a Go template matching the schema in pkg/text/template. See docs
-    # for `manifest` for more details.  We format the template as JSON to make
-    # it easy to parse into a dict.  Add fields to this template as-needed.
-    template='''
-    {
-      "gerrithost": "{{.GerritHost}}",
-      "githooks": "{{.GitHooks}}",
-      "historydepth": "{{.HistoryDepth}}",
-      "name": "{{.Name}}",
-      "path": "{{.Path}}",
-      "remote": "{{.Remote}}",
-      "remotebranch": "{{.RemoteBranch}}",
-      "revision": "{{.Revision}}"
-    }
-    '''
+    if element_type == 'project':
+      # This is a Go template matching the schema in pkg/text/template. See docs
+      # for `__manifest` for more details.  We format the template as JSON to
+      # make it easy to parse into a dict.  The template contains the fields in
+      # a manifest <project>.  See //jiri/project/manifest.go for the original
+      # definition.  Add fields to this template as-needed.
+      template='''
+      {
+        "gerrithost": "{{.GerritHost}}",
+        "githooks": "{{.GitHooks}}",
+        "historydepth": "{{.HistoryDepth}}",
+        "name": "{{.Name}}",
+        "path": "{{.Path}}",
+        "remote": "{{.Remote}}",
+        "remotebranch": "{{.RemoteBranch}}",
+        "revision": "{{.Revision}}"
+      }
+      '''
+    else:
+      assert element_type == 'import'
+      # This template contains the fields in a manifest <import>. See
+      # //jiri/project/manifest.go for the original definition.
+      template='''
+      {
+        "manifest": "{{.Manifest}}",
+        "name": "{{.Name}}",
+        "remote": "{{.Remote}}",
+        "revision": "{{.Revision}}"
+        "remotebranch": "{{.RemoteBranch}}",
+        "root": "{{.Root}}",
+      }
+      '''
     # Parse the result as JSON
-    project_json = self.m.json.loads(self.__manifest(
-        manifest=manifest,
-        element_name=project_name,
-        template=template,
-        stdout=self.m.json.output(),
-    ).stdout)
+    with self.m.step.nest('read_manifest_'+element_name):
+      element_json = self.__manifest(
+          manifest=manifest,
+          element_name=element_name,
+          template=template,
+          stdout=self.m.json.output(),
+      ).stdout
 
     # Strip whitespace from any attribute values.  Discard empty values.
-    return {k:v.strip() for k,v in project_json.iteritems() if v.strip()}
+    return {k:v.strip() for k,v in element_json.iteritems() if v.strip()}
 
   def __manifest(self, manifest, element_name, template, **kwargs):
     """Reads information about a <project> or <import> from a manifest file.

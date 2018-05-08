@@ -211,21 +211,66 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "read_manifest_test/project"
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "manifest",
       "-v",
       "-time",
       "-element",
-      "manifest",
+      "test/project",
       "-template",
-      "\n    {\n      \"gerrithost\": \"{{.GerritHost}}\",\n      \"githooks\": \"{{.GitHooks}}\",\n      \"historydepth\": \"{{.HistoryDepth}}\",\n      \"name\": \"{{.Name}}\",\n      \"path\": \"{{.Path}}\",\n      \"remote\": \"{{.Remote}}\",\n      \"remotebranch\": \"{{.RemoteBranch}}\",\n      \"revision\": \"{{.Revision}}\"\n    }\n    ",
+      "\n      {\n        \"gerrithost\": \"{{.GerritHost}}\",\n        \"githooks\": \"{{.GitHooks}}\",\n        \"historydepth\": \"{{.HistoryDepth}}\",\n        \"name\": \"{{.Name}}\",\n        \"path\": \"{{.Path}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"revision\": \"{{.Revision}}\"\n      }\n      ",
       "minimal"
     ],
-    "name": "jiri manifest",
+    "name": "read_manifest_test/project.jiri manifest",
     "stdout": "/path/to/tmp/json",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@\"{\\\"gerrithost\\\": \\\"project_gerrit_host\\\", \\\"githooks\\\": \\\"project_githooks\\\", \\\"historydepth\\\": \\\"project_historydepth\\\", \\\"name\\\": \\\"project_name\\\", \\\"path\\\": \\\"project_path\\\", \\\"remote\\\": \\\"project_remote\\\", \\\"revision\\\": \\\"project_revision\\\"}\"@@@",
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"gerrithost\": \"project_gerrit_host\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"githooks\": \"project_githooks\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"historydepth\": \"project_historydepth\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"name\": \"project_name\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"path\": \"project_path\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"remote\": \"project_remote\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"revision\": \"project_revision\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "read_manifest_test/import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "manifest",
+      "-v",
+      "-time",
+      "-element",
+      "test/import",
+      "-template",
+      "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\"\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\",\n      }\n      ",
+      "minimal"
+    ],
+    "name": "read_manifest_test/import.jiri manifest",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"gerrithost\": \"project_gerrit_host\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"githooks\": \"project_githooks\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"historydepth\": \"project_historydepth\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"name\": \"project_name\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"path\": \"project_path\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"remote\": \"project_remote\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"revision\": \"project_revision\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },
