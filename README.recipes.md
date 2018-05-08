@@ -724,23 +724,20 @@ Returns:
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects, test_data=None):**
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#239)(self, manifest, element_name):**
+&mdash; **def [read\_manifest\_project](/recipe_modules/jiri/api.py#239)(self, manifest, project_name):**
 
-Reads information about an <import> or <project> from a manifest file.
+Reads information about a <project> from a manifest file.
 
 Args:
   manifest (str|Path): Path to the manifest file.
-  element_name (str): The name of the element.
+  project_name (str): The name of the project.
 
 Returns:
-  A dict containing the element fields.  Any fields that are missing or have
+  A dict containing the project fields. Any fields that are missing, or have
   empty values are omitted from the dict.  Examples:
 
       # Read remote attribute of the returned project
-      print(element['remote']) # https://fuchsia.googlesource.com/my_project
-
-      # Read the manifest attribute if the value is an <import>
-      print(my_import['manifest']) # manifest/foo
+      print(project['remote']) # https://fuchsia.googlesource.com/my_project
 
       # Check whether remote attribute was present and non-empty.
       if 'remote' in project:

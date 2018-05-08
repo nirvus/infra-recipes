@@ -217,9 +217,9 @@
       "-v",
       "-time",
       "-element",
-      "third_party/go",
+      "manifest",
       "-template",
-      "\n    {\n      \"gerrithost\": \"{{.GerritHost}}\",\n      \"githooks\": \"{{.GitHooks}}\",\n      \"historydepth\": \"{{.HistoryDepth}}\",\n      \"manifest\": \"{{.Manifest}}\",\n      \"name\": \"{{.Name}}\",\n      \"path\": \"{{.Path}}\",\n      \"remote\": \"{{.Remote}}\",\n      \"remotebranch\": \"{{.RemoteBranch}}\",\n      \"revision\": \"{{.Revision}}\",\n      \"root\": \"{{.Root}}\"\n    }\n    ",
+      "\n    {\n      \"gerrithost\": \"{{.GerritHost}}\",\n      \"githooks\": \"{{.GitHooks}}\",\n      \"historydepth\": \"{{.HistoryDepth}}\",\n      \"name\": \"{{.Name}}\",\n      \"path\": \"{{.Path}}\",\n      \"remote\": \"{{.Remote}}\",\n      \"remotebranch\": \"{{.RemoteBranch}}\",\n      \"revision\": \"{{.Revision}}\"\n    }\n    ",
       "minimal"
     ],
     "name": "jiri manifest",
