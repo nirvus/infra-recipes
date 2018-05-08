@@ -106,12 +106,25 @@ def RunSteps(api):
 # yapf: disable
 def GenTests(api):
   yield (api.test('basic') +
-      api.step_data('read_manifest_test/project.jiri manifest',
-          stdout=api.json.output(api.jiri.read_manifest_project_output)) +
-      api.step_data('read_manifest_test/import.jiri manifest',
-          stdout=api.json.output(api.jiri.read_manifest_project_output)))
+      api.jiri.read_manifest_element(api,
+          manifest='minimal',
+          element_type='import',
+          element_name='test/import',
+          test_output=api.jiri.read_manifest_project_output) +
+      api.jiri.read_manifest_element(api,
+          manifest='minimal',
+          element_type='project',
+          element_name='test/project',
+          test_output=api.jiri.read_manifest_project_output))
+
   yield (api.test('missing_manifest_project_data') +
-      api.step_data('read_manifest_test/project.jiri manifest',
-          stdout=api.json.output({})) +
-      api.step_data('read_manifest_test/import.jiri manifest',
-          stdout=api.json.output({})))
+      api.jiri.read_manifest_element(api,
+          manifest='minimal',
+          element_type='import',
+          element_name='test/import',
+          test_output={}) +
+      api.jiri.read_manifest_element(api,
+          manifest='minimal',
+          element_type='project',
+          element_name='test/project',
+          test_output={}))

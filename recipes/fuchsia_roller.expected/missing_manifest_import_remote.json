@@ -1,0 +1,168 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_gitiles"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gitiles",
+      "-ensure-file",
+      "infra/tools/luci/gitiles/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gitiles.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-v",
+      "-time",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
+      "-cache",
+      "[CACHE]/git",
+      "-shared"
+    ],
+    "infra_step": true,
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "-v",
+      "-time",
+      "-name",
+      "garnet",
+      "manifest/minimal",
+      "https://fuchsia.googlesource.com/garnet"
+    ],
+    "infra_step": true,
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "edit",
+      "-v",
+      "-time",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-import",
+      "zircon=fc4dc762688d2263b254208f444f5c0a4b91bc07",
+      "manifest/garnet"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "jiri edit",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"imports\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"zircon\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"new_revision\": \"fc4dc762688d2263b254208f444f5c0a4b91bc07\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"old_revision\": \"[OLD_REVISION]\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"remote\": \"http://example.com\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ], @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"projects\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "read_manifest_zircon"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "manifest",
+      "-v",
+      "-time",
+      "-element",
+      "zircon",
+      "-template",
+      "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\"\n      }\n      ",
+      "manifest/garnet"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "read_manifest_zircon.jiri manifest",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "reason": "zircon missing remote= attribute",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]

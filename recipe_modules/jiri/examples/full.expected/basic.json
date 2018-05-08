@@ -255,7 +255,7 @@
       "-element",
       "test/import",
       "-template",
-      "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\"\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\",\n      }\n      ",
+      "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\"\n      }\n      ",
       "minimal"
     ],
     "name": "read_manifest_test/import.jiri manifest",

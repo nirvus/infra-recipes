@@ -283,9 +283,9 @@ class JiriApi(recipe_api.RecipeApi):
         "manifest": "{{.Manifest}}",
         "name": "{{.Name}}",
         "remote": "{{.Remote}}",
-        "revision": "{{.Revision}}"
+        "revision": "{{.Revision}}",
         "remotebranch": "{{.RemoteBranch}}",
-        "root": "{{.Root}}",
+        "root": "{{.Root}}"
       }
       '''
     # Parse the result as JSON

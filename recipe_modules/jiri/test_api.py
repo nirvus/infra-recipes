@@ -4,8 +4,35 @@
 
 from recipe_engine import recipe_test_api
 
-
 class JiriTestApi(recipe_test_api.RecipeTestApi):
+  @staticmethod
+  def read_manifest_element(api, manifest, element_type, element_name, test_output):
+    """Simulates a call to JiriApi.read_manifest_element.
+
+    Use this in-favor of creating testing step data directly in a test case.  It
+    prevents the need for a test_data= parameter JiriApi.read_manfiest_element,
+    the need to put test code inline with production code, and the need to
+    understand how the returned step provides output (via step_result.sdout,
+    step_result.json.output, etc).  Calling this is like "injecting a step" into
+    the execution pipeline.
+
+    Args:
+      api (RecipeTestApi): The test api.
+      test_output (Dict): The data to use as JSON in the step's stdout response.
+
+      (See JiriApi for docs on remaining args)
+
+    Returns:
+      recipe_test_api.TestData simulating a step to read data from a manifest.
+    """
+    # `manifest` and `element_type` are not used by this method.  Including them
+    # as parameters is intentionally done for parity between this method's and
+    # JiriApi.read_manifest_element's signatures.
+
+    step_name = 'read_manifest_%s.jiri manifest' % element_name
+    step_output = api.json.output(test_output)
+    return api.step_data(step_name, stdout=step_output)
+
   @property
   def read_manifest_project_output(self):
       """A dict simulating output of reading a <project> from a manifest."""
