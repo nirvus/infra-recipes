@@ -1,9 +1,7 @@
 # Copyright 2017 The Fuchsia Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 """Recipe for rolling Fuchsia layers into upper layers."""
-
 
 from recipe_engine.config import Enum, Single
 from recipe_engine.recipe_api import Property
@@ -14,45 +12,59 @@ from recipe_engine.recipe_api import Property
 ROLL_TYPES = ['import', 'project']
 
 DEPS = [
-  'infra/auto_roller',
-  'infra/gitiles',
-  'infra/jiri',
-  'recipe_engine/context',
-  'recipe_engine/json',
-  'recipe_engine/path',
-  'recipe_engine/properties',
-  'recipe_engine/step',
+    'infra/auto_roller',
+    'infra/gitiles',
+    'infra/jiri',
+    'recipe_engine/context',
+    'recipe_engine/json',
+    'recipe_engine/path',
+    'recipe_engine/properties',
+    'recipe_engine/step',
 ]
 
-
 PROPERTIES = {
-  'category': Property(kind=str, help='Build category', default=None),
-  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
-  'manifest': Property(kind=str, help='Jiri manifest to use'),
-  'remote': Property(kind=str, help='Remote manifest repository'),
-  'roll_type': Property(kind=Enum(*ROLL_TYPES),
-      help='The type of roll to perform', default='import'),
-  # TODO(kjharland): Rename to 'manifest_to_edit' since "import" is misleading
-  # if we are not actually rolling an <import> tag in the manifest.
-  'import_in': Property(kind=str,
-      help='Path to the manifest to edit relative to $project'),
-  # TODO(kjharland): Rename to 'element_name' because "import" is misleading.
-  'import_from': Property(kind=str,
-      help='Name of the <project> or <import> to edit in $import_in'),
-  # TODO(kjharland): This defaults to fuchsia.googlesource.com/$import_from
-  # below to support existing rollers. Do not rely on this behavior as it is
-  # going away and explicitly specify the target URL. Delete this property
-  # altogether when https://fuchsia.atlassian.net/browse/IN-321 is resolved.
-  'roll_from_repo': Property(
-    kind=str,
-    help='The repo to roll from. Must match the value of the remote= attribute of the $import_from element',
-    default=None),
-  'revision': Property(kind=str, help='Revision'),
-  'dry_run': Property(kind=bool,
-                      default=False,
-                      help='Whether to dry-run the auto-roller (CQ+1 and abandon the change)'),
+    'category':
+        Property(kind=str, help='Build category', default=None),
+    'project':
+        Property(kind=str, help='Jiri remote manifest project', default=None),
+    'manifest':
+        Property(kind=str, help='Jiri manifest to use'),
+    'remote':
+        Property(kind=str, help='Remote manifest repository'),
+    'roll_type':
+        Property(
+            kind=Enum(*ROLL_TYPES),
+            help='The type of roll to perform',
+            default='import'),
+    # TODO(kjharland): Rename to 'manifest_to_edit' since "import" is misleading
+    # if we are not actually rolling an <import> tag in the manifest.
+    'import_in':
+        Property(
+            kind=str, help='Path to the manifest to edit relative to $project'),
+    # TODO(kjharland): Rename to 'element_name' because "import" is misleading.
+    'import_from':
+        Property(
+            kind=str,
+            help='Name of the <project> or <import> to edit in $import_in'),
+    # TODO(kjharland): This defaults to fuchsia.googlesource.com/$import_from
+    # below to support existing rollers. Do not rely on this behavior as it is
+    # going away and explicitly specify the target URL. Delete this property
+    # altogether when https://fuchsia.atlassian.net/browse/IN-321 is resolved.
+    'roll_from_repo':
+        Property(
+            kind=str,
+            help='The repo to roll from. Must match the value of the remote= '
+            'attribute of the $import_from element',
+            default=None),
+    'revision':
+        Property(kind=str, help='Revision'),
+    'dry_run':
+        Property(
+            kind=bool,
+            default=False,
+            help=
+            'Whether to dry-run the auto-roller (CQ+1 and abandon the change)'),
 }
-
 
 FUCHSIA_URL = 'https://fuchsia.googlesource.com/'
 
@@ -69,8 +81,8 @@ COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 # useful because now we can have an auto-roller in staging, and we can block
 # updates behind 'dry_run' as a sort of feature gate. It is passed to
 # api.auto_roller.attempt_roll() which handles committing changes.
-def RunSteps(api, category, project, manifest, remote, roll_type, import_in, import_from,
-             roll_from_repo, revision, dry_run):
+def RunSteps(api, category, project, manifest, remote, roll_type, import_in,
+             import_from, roll_from_repo, revision, dry_run):
   api.jiri.ensure_jiri()
   api.gitiles.ensure_gitiles()
 
@@ -91,7 +103,8 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in, imp
         imports = None
         projects = [(import_from, revision)]
 
-      changes = api.jiri.edit_manifest(import_in, projects=projects, imports=imports)
+      changes = api.jiri.edit_manifest(
+          import_in, projects=projects, imports=imports)
 
       if len(changes[updated_section]) == 0:
         api.step.active_result.presentation.step_text = 'manifest up-to-date, nothing to roll'
@@ -106,17 +119,18 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in, imp
         roll_from_repo = FUCHSIA_URL + import_from
 
       # Get the commit history and generate a commit message.
-      log = api.gitiles.log(roll_from_repo, '%s..%s' % (old_rev, new_rev), step_name='log')
+      log = api.gitiles.log(
+          roll_from_repo, '%s..%s' % (old_rev, new_rev), step_name='log')
       message = COMMIT_MESSAGE.format(
           project=import_from,
           old=old_rev[:7],
           new=new_rev[:7],
           count=len(log),
           commits='\n'.join([
-            '{commit} {subject}'.format(
-                commit=commit['id'][:7],
-                subject=commit['message'].splitlines()[0],
-            ) for commit in log
+              '{commit} {subject}'.format(
+                  commit=commit['id'][:7],
+                  subject=commit['message'].splitlines()[0],
+              ) for commit in log
           ]),
       )
 
@@ -129,6 +143,7 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in, imp
     )
 
 
+# yapf: disable
 def GenTests(api):
   # Mock step data intended to be substituted as the result of the first check
   # during polling. It indicates a success, and should end polling.
@@ -164,7 +179,7 @@ def GenTests(api):
                         import_from='zircon',
                         remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
-         api.step_data('jiri edit', api.json.output({'imports':[]})))
+         api.step_data('jiri edit', api.json.output({'imports': []})))
 
   # Test a successful roll of garnet into peridot.
   yield (api.test('garnet') +
