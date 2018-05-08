@@ -127,7 +127,7 @@ def RunSteps(api, url, ref, revision):
   extra_options = []
   for tc_arch, gn_arch in TARGETS:
     extra_options.extend([
-      '-DSTAGE2_FUCHSIA_%s_SYSROOT=-I%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'sysroot')),
+      '-DSTAGE2_FUCHSIA_%s_SYSROOT=%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'sysroot')),
       '-DSTAGE2_FUCHSIA_%s_C_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'launchpad', 'include')),
       '-DSTAGE2_FUCHSIA_%s_CXX_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'launchpad', 'include')),
       '-DSTAGE2_FUCHSIA_%s_LINKER_FLAGS=-L%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'lib')),
