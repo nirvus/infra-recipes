@@ -174,7 +174,8 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
     dashboard_test_suite = "fuchsia." + test_suite
 
     ProcessTestResults(
-        step_name="analyze_%s" % test_suite,
+        # Prevent corrupting the step name with extra dots.
+        step_name="analyze_%s" % test_suite.replace('.','_'),
         api=api,
         dashboard_masters_name=dashboard_masters_name,
         dashboard_bots_name=dashboard_bots_name,
@@ -230,7 +231,7 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results',
       api.raw_io.output_dir({
-          '/path/to/zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+          '/path/to/zircon.benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 
   # Tests running this recipe with a pending Gerrit change. Note
@@ -252,7 +253,7 @@ def GenTests(api):
       'extract results',
       api.raw_io.output_dir({
           'summary.json': 'I summarize test results!',
-          'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+          'zircon.benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 
   # CQ runs should disable certain things like dashboard uploads.
@@ -272,7 +273,7 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results',
       api.raw_io.output_dir({
-          'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+          'zircon.benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 
   yield api.test('device_tests') + api.properties(
@@ -288,7 +289,7 @@ def GenTests(api):
       'extract results',
       api.raw_io.output_dir({
           'summary.json': 'I summarize test results!',
-          'zircon_benchmarks.json': 'I am a benchmark, ha ha!',
+          'zircon.benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 
   yield api.test('missing test results') + api.properties(
