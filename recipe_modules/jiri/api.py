@@ -59,7 +59,7 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def project(self, projects, test_data=None):
+  def project(self, projects=[], test_data=None):
     cmd = [
       'project',
       '-json-output', self.m.json.output(),
