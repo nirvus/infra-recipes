@@ -117,7 +117,15 @@
       "[CLEANUP]/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "jiri snapshot"
+    "name": "jiri snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@snapshot_contents@<manifest>@@@",
+      "@@@STEP_LOG_LINE@snapshot_contents@  <projects>@@@",
+      "@@@STEP_LOG_LINE@snapshot_contents@    <project name=\"manifest\" path=\"manifest\" remote=\"https://fuchsia.googlesource.com/manifest\" revision=\"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"/>@@@",
+      "@@@STEP_LOG_LINE@snapshot_contents@  </projects>@@@",
+      "@@@STEP_LOG_LINE@snapshot_contents@</manifest>@@@",
+      "@@@STEP_LOG_END@snapshot_contents@@@"
+    ]
   },
   {
     "cmd": [

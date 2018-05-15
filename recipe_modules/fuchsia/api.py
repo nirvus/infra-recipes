@@ -212,7 +212,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
 
       snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
-      self.m.jiri.snapshot(snapshot_file)
+      snapshot_contents = self.m.jiri.snapshot(snapshot_file)
+      # Always log snapshot contents (even if uploading to GCS) to help debug
+      # things like tryjob failures during roller-commits.
+      snapshot_step_logs = self.m.step.active_result.presentation.logs
+      snapshot_step_logs['snapshot_contents'] = snapshot_contents.split('\n')
+
       digest = self.m.hash.sha1(
           'hash snapshot',
           snapshot_file,
