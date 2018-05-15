@@ -759,6 +759,21 @@
     ]
   },
   {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize-filter",
+      "[START_DIR]/out/debug-x64/ids.txt"
+    ],
+    "name": "symbolize logs",
+    "stdin": "hello world!",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_END@symbolized logs@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
     "name": "$result",
     "reason": "Test failure(s): /hello",
     "recipe_result": null,

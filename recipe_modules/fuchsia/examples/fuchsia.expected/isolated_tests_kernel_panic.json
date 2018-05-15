@@ -726,6 +726,21 @@
     "stdout": "/path/to/tmp/"
   },
   {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize-filter",
+      "[START_DIR]/out/build-zircon/build-x64/ids.txt"
+    ],
+    "name": "symbolize logs",
+    "stdin": "KERNEL PANIC",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_END@symbolized logs@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
     "name": "$result",
     "reason": "Found kernel panic. See symbolized output for details.",
     "recipe_result": null,

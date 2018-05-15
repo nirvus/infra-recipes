@@ -298,7 +298,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#734)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#758)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -312,7 +312,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#775)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#799)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -366,11 +366,11 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#482)(self):**
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#506)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#714)(self, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#738)(self, build, timeout_secs=(40 \* 60)):**
 
 Tests a Fuchsia build on the specified device.
 

@@ -407,7 +407,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
     return build
 
-  def _symbolize(self, build_dir, data):
+  def _symbolize_compat(self, build_dir, data):
     """Invokes zircon's symbolization script to symbolize the given data."""
     symbolize_cmd = [
         self.m.path['start_dir'].join('zircon', 'scripts', 'symbolize'),
@@ -426,6 +426,30 @@ class FuchsiaApi(recipe_api.RecipeApi):
       symbolize_result.presentation.logs[
           'symbolized backtraces'] = symbolized_lines
       symbolize_result.presentation.status = self.m.step.FAILURE
+
+  def _symbolize_filter(self, build_dir, data):
+    """Invokes zircon's symbolization script to symbolize the given data."""
+    symbolize_cmd = [
+        self.m.path['start_dir'].join('zircon', 'scripts', 'symbolize-filter'),
+        build_dir.join('ids.txt'),
+    ]
+    symbolize_result = self.m.step(
+        'symbolize logs',
+        symbolize_cmd,
+        stdin=self.m.raw_io.input(data=data),
+        stdout=self.m.raw_io.output(),
+        step_test_data=lambda: self.m.raw_io.test_api.stream_output(
+            'blah\nblah\n'))
+    symbolized_lines = symbolize_result.stdout.splitlines()
+    if symbolized_lines:
+      symbolize_result.presentation.logs[
+          'symbolized logs'] = symbolized_lines
+      symbolize_result.presentation.status = self.m.step.FAILURE
+
+  # Do both old and new symbolization styles for now.
+  def _symbolize(self, build_dir, data):
+    self._symbolize_compat(build_dir, data)
+    self._symbolize_filter(build_dir, data)
 
   def _isolate_artifacts(self,
                          kernel_name,
