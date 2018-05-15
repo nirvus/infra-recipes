@@ -71,6 +71,7 @@
   * [tar:examples/full](#recipes-tar_examples_full)
   * [third_party_rust_crates](#recipes-third_party_rust_crates) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [tools](#recipes-tools) &mdash; Recipe for building and publishing tools.
+  * [tricium/clang-format](#recipes-tricium_clang-format) &mdash; Recipe for running Tricium clang-format analyzer.
   * [web_view](#recipes-web_view) &mdash; Recipe for building libwebkit.
   * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
 ## Recipe Modules
@@ -1441,6 +1442,13 @@ Recipe for building and publishing tools.
 &mdash; **def [RunSteps](/recipes/tools.py#94)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, packages):**
 
 &mdash; **def [UploadPackage](/recipes/tools.py#56)(api, name, target, staging_dir, revision, remote):**
+### *recipes* / [tricium/clang-format](/recipes/tricium/clang-format.py)
+
+[DEPS](/recipes/tricium/clang-format.py#10): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
+
+Recipe for running Tricium clang-format analyzer.
+
+&mdash; **def [RunSteps](/recipes/tricium/clang-format.py#37)(api, repository, ref, manifest):**
 ### *recipes* / [web\_view](/recipes/web_view.py)
 
 [DEPS](/recipes/web_view.py#11): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1547,6 +1555,7 @@ Returns:
 [recipe_engine/recipe_modules/step]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/10f67fe223a7973a95bc5fff219d1a7a3d95a326/README.recipes.md#recipe_modules-step
 [recipe_engine/recipe_modules/tempfile]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/10f67fe223a7973a95bc5fff219d1a7a3d95a326/README.recipes.md#recipe_modules-tempfile
 [recipe_engine/recipe_modules/time]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/10f67fe223a7973a95bc5fff219d1a7a3d95a326/README.recipes.md#recipe_modules-time
+[recipe_engine/recipe_modules/tricium]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/10f67fe223a7973a95bc5fff219d1a7a3d95a326/README.recipes.md#recipe_modules-tricium
 [recipe_engine/recipe_modules/url]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/10f67fe223a7973a95bc5fff219d1a7a3d95a326/README.recipes.md#recipe_modules-url
 [recipe_engine/wkt/RecipeApi]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/10f67fe223a7973a95bc5fff219d1a7a3d95a326/recipe_engine/recipe_api.py#1006
 [recipe_engine/wkt/non_step]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/10f67fe223a7973a95bc5fff219d1a7a3d95a326/recipe_engine/recipe_api.py#716
