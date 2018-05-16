@@ -16,8 +16,10 @@ DEPS = [
     'infra/jiri',
     'recipe_engine/context',
     'recipe_engine/file',
+    'recipe_engine/json',
     'recipe_engine/path',
     'recipe_engine/properties',
+    'recipe_engine/python',
     'recipe_engine/step',
 ]
 
@@ -42,11 +44,13 @@ PROPERTIES = {
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
+    'revision':
+        Property(kind=str, help='Revision', default=None),
 }
 
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, project, manifest, remote):
+             patch_repository_url, project, manifest, remote, revision):
   api.go.ensure_go()
 
   api.fuchsia.checkout(
@@ -62,38 +66,45 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
     revision = api.jiri.project(['garnet']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
+  sdk_dir = api.path['cleanup'].join('sdk')
+
+  overlay = False
   for target in TARGETS:
     with api.step.nest('build ' + target):
-      api.fuchsia.build(
+      build = api.fuchsia.build(
           target=target,
           build_type=BUILD_TYPE,
           packages=['garnet/packages/sdk/base'])
 
+      api.python('create sdk',
+          api.path['start_dir'].join('scripts', 'sdk', 'create_layout.py'),
+          args=[
+            '--manifest',
+            build.fuchsia_build_dir.join('gen', 'garnet', 'public', 'sdk', 'garnet_molecule.sdk'),
+            '--output',
+            sdk_dir,
+          ] + (['--overlay'] if overlay else []),
+      )
+      overlay = True
+
   with api.step.nest('make sdk'):
-    outdir = api.path.mkdtemp('sdk')
+    out_dir = api.path['cleanup'].join('fuchsia-sdk')
     sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
-    MakeSdk(api, outdir, sdk)
+    api.go('run', api.path['start_dir'].join('scripts', 'makesdk.go'),
+           '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
 
   if not api.properties.get('tryjob'):
     with api.step.nest('upload sdk'):
       api.gsutil.ensure_gsutil()
-      digest = PackageArchive(api, sdk)
+      digest = api.hash.sha1('hash archive', sdk)
+      # Upload the Chrome style SDK to GCS.
       UploadArchive(api, sdk, digest)
-      UploadPackage(api, outdir, digest)
-
-
-def MakeSdk(api, outdir, sdk):
-  api.go('run', api.path['start_dir'].join('scripts', 'makesdk.go'), '-out-dir',
-         outdir, '-output', sdk, api.path['start_dir'])
-
-
-def PackageArchive(api, sdk):
-  return api.hash.sha1(
-      'hash archive', sdk, test_data='27a0c185de8bb5dba483993ff1e362bc9e2c7643')
+      # Upload the Fuchsia SDK to CIPD and GCS.
+      UploadPackage(api, sdk_dir, revision, digest)
 
 
 def UploadArchive(api, sdk, digest):
-  archive_base_location = 'sdk/linux-amd64'
+  archive_base_location = 'sdk/' + api.cipd.platform_suffix()
   archive_bucket = 'fuchsia'
   api.gsutil.upload(
       bucket=archive_bucket,
@@ -127,30 +138,44 @@ def UploadArchive(api, sdk, digest):
       unauthenticated_url=True)
 
 
-def UploadPackage(api, outdir, digest):
+def UploadPackage(api, sdk_dir, digest, revision):
   cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
+  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if step.json.output['result']:
+    api.step('Package is up-to-date', cmd=None)
+    return
+
+  pkg_def = api.cipd.PackageDefinition(
+      package_name=cipd_pkg_name,
+      package_root=sdk_dir,
+      install_mode='copy')
+  pkg_def.add_dir(sdk_dir)
+  pkg_def.add_version_file('.versions/sdk.cipd_version')
+
   cipd_pkg_file = api.path['cleanup'].join('sdk.cipd')
 
-  api.cipd.build(
-      input_dir=outdir,
-      package_name=cipd_pkg_name,
+  api.cipd.build_from_pkg(
+      pkg_def=pkg_def,
       output_package=cipd_pkg_file,
-      install_mode='copy')
+  )
   step_result = api.cipd.register(
       package_name=cipd_pkg_name,
       package_path=cipd_pkg_file,
       refs=['latest'],
-      tags={'jiri_snapshot': digest})
+      tags={
+        'git_repository': 'https://fuchsia.googlesource.com/garnet',
+        'git_revision': revision,
+        'jiri_snapshot': digest,
+      }
+  )
 
+  instance_id = step_result.json.output['result']['instance_id']
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      '/'.join([
-          'sdk',
-          api.cipd.platform_suffix(),
-          step_result.json.output['result']['instance_id']
-      ]),
-      unauthenticated_url=True)
+      api.gsutil.join('sdk', api.cipd.platform_suffix(), instance_id),
+      unauthenticated_url=True
+  )
 
 
 # yapf: disable
@@ -159,7 +184,19 @@ def GenTests(api):
       api.properties(
           project='garnet',
           manifest='manifest/garnet',
-          remote='https://fuchsia.googlesource.com/garnet'))
+          remote='https://fuchsia.googlesource.com/garnet') +
+      api.step_data('upload sdk.hash archive',
+                    api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
+  yield (api.test('ci_new') +
+      api.properties(
+          project='garnet',
+          manifest='manifest/garnet',
+          remote='https://fuchsia.googlesource.com/garnet') +
+      api.step_data('upload sdk.hash archive',
+                    api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')) +
+      api.step_data('upload sdk.cipd search fuchsia/sdk/linux-amd64 ' +
+                    'git_revision:27a0c185de8bb5dba483993ff1e362bc9e2c7643',
+                     api.json.output({'result': []})))
   yield (api.test('cq_try') +
       api.properties.tryserver(
           project='garnet',
