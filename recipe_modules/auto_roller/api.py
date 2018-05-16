@@ -28,6 +28,10 @@ class AutoRollerApi(recipe_api.RecipeApi):
     # poll_interval_secs and poll_timeout_secs are input properties which come
     # from __init__.PROPERTIES in this directory.
     super(AutoRollerApi, self).__init__(*args, **kwargs)
+    # The name of the link to the Gerrit change created for a roll.  This is
+    # displayed in the CQ failure error message to help others understand where
+    # to look when debugging failed rolls.
+    self._gerrit_link_name = 'gerrit link'
     self._poll_interval_secs = poll_interval_secs
     self._poll_timeout_secs = poll_timeout_secs
 
@@ -94,8 +98,8 @@ class AutoRollerApi(recipe_api.RecipeApi):
     # it's the only commit with that change ID (highly likely) then it will
     # open it automatically. Unfortunately the unique change ID doesn't
     # exhibit this same behavior, so we avoid using it.
-    self.m.step.active_result.presentation.links['gerrit link'] = self.m.url.join(
-        self.m.gerrit.host, 'q', change_id)
+    self.m.step.active_result.presentation.links[self._gerrit_link_name] = self._gerrit_link(
+      change_id)
 
     with self.m.context(cwd=repo_dir):
       # Update message with a Change-Id line and push the roll.
@@ -243,10 +247,23 @@ class AutoRollerApi(recipe_api.RecipeApi):
       # Only abandon the roll on success if it was a dry-run.
       self.m.gerrit.abandon('abandon roll: dry run complete', change_id)
     elif result == CQResult.FAILURE:
-      # On failure, abandon the roll and report a CQ failure (non-infra).
-      self.m.gerrit.abandon('abandon roll: CQ failed', change_id)
-      raise self.m.step.StepFailure('Failed to roll changes: CQ failure.')
+      self._abandon_change_and_fail(reason='CQ failed', change_id=change_id)
     elif result == CQResult.TIMEOUT:
-      # On timeout, abandon the roll and report an infra failure.
-      self.m.gerrit.abandon('abandon roll: auto-roller timeout', change_id)
-      raise self.m.step.InfraFailure('Failed to roll changes: roller timed out.')
+      self._abandon_change_and_fail(reason='auto-roller timeout', change_id=change_id)
+
+  def _abandon_change_and_fail(self, reason, change_id):
+    self.m.gerrit.abandon('abandon roll: ' + reason, change_id)
+    gerrit_link = self._gerrit_link(change_id)
+    self.m.step.active_result.presentation.links[self._gerrit_link_name] = self._gerrit_link(
+      change_id)
+
+    raise self.m.step.StepFailure(
+      'Failed to roll changes: {reason}.\n\n'
+      'See the link titled "{link}" in the build console to access the Gerrit '
+      'change, and the failed tryjobs.'.format(
+          reason=reason, link=self._gerrit_link_name,
+      ))
+
+
+  def _gerrit_link(self, change_id):
+    return self.m.url.join(self.m.gerrit.host, 'q', change_id)

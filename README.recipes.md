@@ -92,7 +92,7 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 
 API for writing auto-roller recipes.
 
-&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#192)(self, gerrit_project, repo_dir, commit_message, dry_run=False):**
+&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#196)(self, gerrit_project, repo_dir, commit_message, dry_run=False):**
 
 Attempts to submit local edits via the CQ.
 
@@ -127,13 +127,13 @@ Args:
     multiline string (embedded newlines are allowed).
   dry_run (bool): Whether to execute this method in dry_run mode.
 
-&emsp; **@property**<br>&mdash; **def [poll\_interval\_secs](/recipe_modules/auto_roller/api.py#34)(self):**
+&emsp; **@property**<br>&mdash; **def [poll\_interval\_secs](/recipe_modules/auto_roller/api.py#38)(self):**
 
 Returns how many seconds roll() will wait in between each poll.
 
 Defined by the input property with the same name.
 
-&emsp; **@property**<br>&mdash; **def [poll\_timeout\_secs](/recipe_modules/auto_roller/api.py#42)(self):**
+&emsp; **@property**<br>&mdash; **def [poll\_timeout\_secs](/recipe_modules/auto_roller/api.py#46)(self):**
 
 Returns how many seconds roll() will poll for.
 
