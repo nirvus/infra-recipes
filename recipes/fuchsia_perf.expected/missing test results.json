@@ -267,7 +267,19 @@
       "@@@STEP_LOG_LINE@runcmds_package@        }@@@",
       "@@@STEP_LOG_LINE@runcmds_package@    ]@@@",
       "@@@STEP_LOG_LINE@runcmds_package@}@@@",
-      "@@@STEP_LOG_END@runcmds_package@@@"
+      "@@@STEP_LOG_END@runcmds_package@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@{@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@  name = \"infra_runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@  deprecated_system_image = true@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@  resources = [@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@    {@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@      path = \"[CLEANUP]/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@      dest = \"infra/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@    },@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@  ]@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@}@@@",
+      "@@@STEP_LOG_END@runcmds_package_spec@@@"
     ]
   },
   {
@@ -379,7 +391,7 @@
       "gen",
       "[START_DIR]/out/debug-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\",\"[CLEANUP]/runcmds_package\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\",\"[CLEANUP]/runcmds_package\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true synthesize_packages = [ \n{\n  name = \"infra_runcmds\"\n  deprecated_system_image = true\n  resources = [\n    {\n      path = \"[CLEANUP]/runcmds\"\n      dest = \"infra/runcmds\"\n    },\n  ]\n}\n ]"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
