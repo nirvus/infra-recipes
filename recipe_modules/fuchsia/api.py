@@ -44,6 +44,7 @@ TEST_FS_PCI_ADDR = '06.0'
 # no output being produced.
 TEST_IO_TIMEOUT_SECS = 60
 
+# TODO(BLD-19): Remove this later.
 RUNCMDS_PACKAGE = '''
 {
     "resources": [
@@ -52,6 +53,20 @@ RUNCMDS_PACKAGE = '''
             "file": "%s"
         }
     ]
+}
+'''
+
+# This is a GN scope; see //build/gn/packages.gni about `synthesize_packages`.
+RUNCMDS_PACKAGE_SPEC = '''
+{
+  name = "infra_runcmds"
+  deprecated_system_image = true
+  resources = [
+    {
+      path = "%s"
+      dest = "infra/runcmds"
+    },
+  ]
 }
 '''
 
@@ -269,13 +284,21 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
     self.m.step.active_result.presentation.logs['runcmds'] = runcmds
 
+    # TODO(BLD-19): Temporarily doing both ways.  When
+    # https://fuchsia-review.googlesource.com/c/build/+/143920 has landed
+    # and stuck, we'll stop doing the old way.
     runcmds_package_path = self.m.path['cleanup'].join('runcmds_package')
     runcmds_package = RUNCMDS_PACKAGE % runcmds_path
     self.m.file.write_text('write runcmds package', runcmds_package_path,
                            runcmds_package)
     self.m.step.active_result.presentation.logs[
         'runcmds_package'] = runcmds_package.splitlines()
-    return str(runcmds_package_path)
+
+    runcmds_package_spec = RUNCMDS_PACKAGE_SPEC % runcmds_path
+    self.m.step.active_result.presentation.logs['runcmds_package_spec'] = (
+        runcmds_package_spec.splitlines())
+
+    return str(runcmds_package_path), runcmds_package_spec
 
   def _build_zircon(self, target, variants):
     """Builds zircon for the specified target."""
@@ -355,7 +378,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             build_type,
             packages,
             variants=(),
-            gn_args=(),
+            gn_args=[],
             ninja_targets=(),
             test_cmds=(),
             test_device_type='QEMU'):
@@ -383,9 +406,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     assert build_type in BUILD_TYPES
 
     if test_cmds:
-      packages.append(
-          self._create_runcmds_package(
-              test_cmds=test_cmds, test_in_qemu=(test_device_type == 'QEMU')))
+      # TODO(BLD-19): Drop old_runcmds_path later.
+      old_runcmds_pkg_path, runcmds_spec = self._create_runcmds_package(
+          test_cmds=test_cmds, test_in_qemu=(test_device_type == 'QEMU'))
+      packages.append(old_runcmds_pkg_path)
+      gn_args.append('synthesize_packages = [ %s ]' % runcmds_spec)
 
     if build_type == 'debug':
       build_dir = 'debug'
