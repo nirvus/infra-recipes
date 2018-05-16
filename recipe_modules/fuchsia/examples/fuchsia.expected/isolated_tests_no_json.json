@@ -728,6 +728,36 @@
     "name": "test results"
   },
   {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize",
+      "--no-echo",
+      "--build-dir",
+      "[START_DIR]/out/debug-x64"
+    ],
+    "name": "test results.symbolize",
+    "stdin": "hello world!",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize-filter",
+      "[START_DIR]/out/debug-x64/ids.txt"
+    ],
+    "name": "test results.symbolize logs",
+    "stdin": "hello world!",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_END@symbolized logs@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
     "name": "$result",
     "reason": "Test summary JSON not found, see kernel log for details",
     "recipe_result": null,

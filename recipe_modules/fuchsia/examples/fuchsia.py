@@ -131,7 +131,7 @@ def GenTests(api):
       run_tests=True,
   ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data(
       failure=True,
-  ) + api.step_data('symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
+  ) + api.step_data('test results.symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
   yield api.test('isolated_tests_task_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',

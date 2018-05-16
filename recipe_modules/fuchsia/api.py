@@ -813,6 +813,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     with self.m.step.nest(step_name):
       # Read the tests summary.
       if 'summary.json' not in outputs:
+        # Symbolize the kernel output.
+        self._symbolize(build_dir, output)
         raise self.m.step.StepFailure(
             'Test summary JSON not found, see kernel log for details')
       raw_summary = outputs['summary.json']
@@ -832,8 +834,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
           step_result.presentation.status = self.m.step.FAILURE
           failed_tests[name] = outputs[output_name]
 
-    # Symbolize the kernel output if any tests failed.
-    if failed_tests:
-      self._symbolize(build_dir, output)
-      raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(
-          failed_tests.keys()))
+      if failed_tests:
+        # Symbolize the kernel output if any tests failed.
+        self._symbolize(build_dir, output)
+        raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(
+            failed_tests.keys()))
