@@ -543,6 +543,7 @@ def Build(api, target, toolchain, make_args, src_dir, needs_blkdev):
       'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
       '-j', api.goma.recommended_goma_jobs,
       'HOST_USE_ASAN=true',
+      'BUILDROOT=%s' % src_dir,
     ] + make_args + tc_args
 
     # If thinlto build, it needs a cache. Pass it a directory in the cache

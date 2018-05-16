@@ -1277,7 +1277,7 @@ Returns:
   A list[str] representing QEMU command which invokes QEMU from the default
   CIPD installation directory.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#571)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, device_type):**
+&mdash; **def [RunSteps](/recipes/zircon.py#572)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, device_type):**
 
 &mdash; **def [RunTestsInQEMU](/recipes/zircon.py#187)(api, target, build_dir, use_kvm):**
 

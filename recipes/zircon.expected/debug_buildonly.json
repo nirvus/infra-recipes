@@ -261,6 +261,7 @@
       "-j",
       "50",
       "HOST_USE_ASAN=true",
+      "BUILDROOT=[START_DIR]/zircon",
       "DEBUG_HARD=1",
       "USE_CLANG=true",
       "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"

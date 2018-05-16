@@ -232,6 +232,7 @@
       "-j",
       "50",
       "HOST_USE_ASAN=true",
+      "BUILDROOT=[START_DIR]/zircon",
       "USE_LTO=true",
       "USE_THINLTO=true",
       "THINLTO_CACHE_DIR=[CACHE]/thinlto",
