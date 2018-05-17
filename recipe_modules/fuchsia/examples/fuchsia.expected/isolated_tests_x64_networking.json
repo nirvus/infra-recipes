@@ -1,36 +1,6 @@
 [
   {
     "cmd": [],
-    "name": "ensure_catapult"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/catapult",
-      "-ensure-file",
-      "fuchsia/infra/catapult/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_catapult.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/infra/catapult/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
     "infra_step": true,
     "name": "ensure_jiri"
   },
@@ -81,8 +51,6 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "topaz",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -102,22 +70,6 @@
     "infra_step": true,
     "name": "jiri update",
     "timeout": 1200
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-v",
-      "-time",
-      "-host",
-      "https://fuchsia-review.googlesource.com",
-      "-project",
-      "garnet",
-      "-rebase=true",
-      "refs/changes/96/147496/10"
-    ],
-    "infra_step": true,
-    "name": "jiri patch"
   },
   {
     "cmd": [
@@ -153,21 +105,6 @@
       "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
       "@@@STEP_LOG_END@json.output[source manifest]@@@"
     ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-gc=true",
-      "-rebase-tracked",
-      "-local-manifest=true"
-    ],
-    "infra_step": true,
-    "name": "jiri update (2)"
   },
   {
     "cmd": [
@@ -259,7 +196,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output\numount /tmp/infra-test-output\ndm poweroff",
+      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests\numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/runcmds"
     ],
     "infra_step": true,
@@ -269,7 +206,7 @@
       "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
       "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@",
@@ -503,7 +440,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none",
+      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
       "[START_DIR]/run-qemu.sh"
     ],
     "infra_step": true,
@@ -511,7 +448,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
       "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0@@@",
       "@@@STEP_LOG_END@run-qemu.sh@@@"
     ]
   },
@@ -782,32 +719,19 @@
   },
   {
     "cmd": [],
-    "name": "analyze_zircon_benchmarks"
+    "name": "test results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@summary.json@{\"tests\":[{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}]}@@@",
+      "@@@STEP_LOG_END@summary.json@@@"
+    ]
   },
   {
-    "cmd": [
-      "[START_DIR]/cipd/catapult/catapult",
-      "make_histogram",
-      "-test-suite",
-      "fuchsia.zircon.benchmarks",
-      "-bots",
-      "topaz-builder",
-      "-masters",
-      "fuchsia.ci",
-      "-execution-timestamp-ms",
-      "1337000001500",
-      "-logdog-stream-name",
-      "fuchsia.zircon.benchmarks",
-      "-output",
-      "/path/to/tmp/json",
-      "I am a benchmark, ha ha!"
-    ],
-    "name": "analyze_zircon_benchmarks.catapult make_histogram",
+    "cmd": [],
+    "name": "test results./hello",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_END@json.output (invalid)@@@",
-      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
-      "@@@STEP_LOG_END@json.output (exception)@@@"
+      "@@@STEP_LOG_LINE@stdio@hello@@@",
+      "@@@STEP_LOG_END@stdio@@@"
     ]
   },
   {

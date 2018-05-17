@@ -561,7 +561,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """Returns the location of the mounted test directory on the target."""
     return '/tmp/infra-test-output'
 
-  def _test_in_qemu(self, build, timeout_secs):
+  def _test_in_qemu(self, build, timeout_secs, external_network):
     """Tests a Fuchsia build inside of QEMU.
 
     Expects the build and artifacts to be at the same place they were at
@@ -571,6 +571,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       build (FuchsiaBuildResults): The Fuchsia build to test.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
+      external_network (bool): Whether to give Fuchsia inside QEMU access
+        to the external network.
 
     Returns:
       A FuchsiaTestResults representing the completed test.
@@ -617,6 +619,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '-drive', 'file=%s,format=raw,if=none,id=testdisk' % output_image_name,
       '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
     ] # yapf: disable
+
+    # If we don't need the network, explicitly disable it.
+    if not external_network:
+      qemu_cmd.extend(['-net', 'none'])
 
     # Create a qemu runner script which trivially copies the blank MinFS image
     # to hold test results, in order to work around a bug in swarming where
@@ -791,7 +797,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
-  def test(self, build, timeout_secs=40 * 60):
+  def test(self, build, timeout_secs=40 * 60, external_network=False):
     """Tests a Fuchsia build on the specified device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -801,13 +807,20 @@ class FuchsiaApi(recipe_api.RecipeApi):
       build (FuchsiaBuildResults): The Fuchsia build to test.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
+      external_network (bool): Whether to enable access to the external
+        network when executing tests. Ignored if
+        build.test_device_type != 'QEMU'.
 
     Returns:
       A FuchsiaTestResults representing the completed test.
     """
     assert build.has_tests
     if build.test_device_type == 'QEMU':
-      return self._test_in_qemu(build, timeout_secs)
+      return self._test_in_qemu(
+          build=build,
+          timeout_secs=timeout_secs,
+          external_network=external_network,
+      )
     else:
       return self._test_on_device(build, timeout_secs)
 

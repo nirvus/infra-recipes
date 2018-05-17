@@ -299,7 +299,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#814)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#827)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -313,7 +313,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#855)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#868)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -367,7 +367,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#876)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#889)(self, test_results):**
 
 Logs individual test results in separate steps.
 
@@ -378,7 +378,7 @@ Args:
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#794)(self, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#800)(self, build, timeout_secs=(40 \* 60), external_network=False):**
 
 Tests a Fuchsia build on the specified device.
 
@@ -389,6 +389,9 @@ Args:
   build (FuchsiaBuildResults): The Fuchsia build to test.
   timeout_secs (int): The amount of seconds to wait for the tests to
     execute before giving up.
+  external_network (bool): Whether to enable access to the external
+    network when executing tests. Ignored if
+    build.test_device_type != 'QEMU'.
 
 Returns:
   A FuchsiaTestResults representing the completed test.
@@ -1008,18 +1011,18 @@ Recipe for building libffmpeg.so.
 &mdash; **def [RunSteps](/recipes/ffmpeg.py#44)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, remote, manifest, project, target, snapshot_gcs_bucket):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
-[DEPS](/recipes/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python]
+[DEPS](/recipes/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#100)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, snapshot_gcs_bucket, upload_archive):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#108)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, snapshot_gcs_bucket, upload_archive, networking_for_tests):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#64)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, snapshot_gcs_bucket):**
+&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#69)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, snapshot_gcs_bucket, networking_for_tests):**
 ### *recipes* / [fuchsia\_perf](/recipes/fuchsia_perf.py)
 
 [DEPS](/recipes/fuchsia_perf.py#27): [catapult](#recipe_modules-catapult), [fuchsia](#recipe_modules-fuchsia), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]

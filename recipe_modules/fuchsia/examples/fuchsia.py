@@ -58,13 +58,18 @@ PROPERTIES = {
                                        ' to. Will not upload a snapshot if this property is'
                                        ' blank or tryjob is True',
                                   default='fuchsia-snapshots'),
+  'networking_for_tests': Property(kind=bool,
+                                   help='Whether tests should have access to the network'
+                                        ' (always False if tryjob is True or if device_type'
+                                        ' != QEMU)',
+                                   default=False),
 }
 
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
              remote, target, build_type, packages, variants, gn_args,
              ninja_targets, run_tests, runtests_args, device_type,
-             snapshot_gcs_bucket):
+             snapshot_gcs_bucket, networking_for_tests):
   checkout = api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -89,7 +94,8 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
       test_device_type=device_type,
   )
   if run_tests:
-    test_results = api.fuchsia.test(build)
+    test_results = api.fuchsia.test(
+        build=build, external_network=networking_for_tests)
     # Ensure failed_tests gets filled out when tests fail.
     if test_results.summary and test_results.failed_tests:
         assert test_results.failed_tests['/hello']
@@ -106,6 +112,14 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
       run_tests=True,
+  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
+  yield api.test('isolated_tests_x64_networking') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+      networking_for_tests=True,
   ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
   yield api.test('isolated_tests_arm64') + api.properties(
       manifest='fuchsia',

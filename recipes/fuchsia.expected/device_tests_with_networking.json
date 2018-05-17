@@ -1,0 +1,8 @@
+[
+  {
+    "name": "$result",
+    "reason": "networking for tests is not yet implemented for non-QEMU tests",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]

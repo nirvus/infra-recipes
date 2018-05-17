@@ -25,6 +25,7 @@ DEPS = [
     'recipe_engine/path',
     'recipe_engine/properties',
     'recipe_engine/python',
+    'recipe_engine/step',
 ]
 
 PROPERTIES = {
@@ -94,6 +95,13 @@ PROPERTIES = {
             help='Whether to upload archive of the build artifacts'
             ' (always False if tryjob is True)',
             default=True),
+    'networking_for_tests':
+        Property(
+            kind=bool,
+            help='Whether tests should have access to the network'
+            ' (if True, will cause a failure if tryjob is True or'
+            ' if device_type != QEMU)',
+            default=False),
 }
 
 
@@ -101,9 +109,24 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
              target, build_type, packages, variant, gn_args, run_tests,
              runtests_args, device_type, test_timeout_secs, snapshot_gcs_bucket,
-             upload_archive):
+             upload_archive, networking_for_tests):
+  # Don't upload snapshots for tryjobs.
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
+
+  # Handle illegal setting of networking_for_tests.
+  if networking_for_tests:
+    if device_type != 'QEMU':
+      raise api.step.InfraFailure(
+          'networking for tests is not yet implemented for non-QEMU tests')
+    elif api.properties.get('tryjob'):
+      # We must make absolutely sure that networking_for_tests is never set in a
+      # tryjob, because a tryjob may be execute unvetted code. Letting that code
+      # access the internet can lead to abuse of the CQ system for botnets, among
+      # other things.
+      raise api.step.InfraFailure(
+          'networking for tests is not available for tryjobs')
+
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -157,7 +180,11 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         ])
 
   if run_tests:
-    test_results = api.fuchsia.test(build, test_timeout_secs)
+    test_results = api.fuchsia.test(
+        build=build,
+        timeout_secs=test_timeout_secs,
+        external_network=networking_for_tests,
+    )
     api.fuchsia.analyze_test_results('test results', test_results)
 
   # Upload an archive containing build artifacts if the properties say to do so.
@@ -238,6 +265,34 @@ def GenTests(api):
       device_type='Intel NUC Kit NUC6i3SYK',
   ) + api.fuchsia.task_step_data(device=True) + api.fuchsia.test_step_data()
 
+  # Test cases for tests with networking.
+  yield api.test('isolated_tests_with_networking') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+      networking_for_tests=True,
+  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
+  yield api.test('device_tests_with_networking') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+      networking_for_tests=True,
+      device_type='Intel NUC Kit NUC6i3SYK',
+  )
+  yield api.test('cq_with_networking') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+      networking_for_tests=True,
+      tryjob=True,
+  )
+
   # Test cases for skipping Fuchsia tests.
   yield api.test('default') + api.properties(
       manifest='fuchsia',
@@ -279,6 +334,8 @@ def GenTests(api):
       target='x64',
       packages=['vendor/foobar/packages/default'],
   )
+
+  # Test cases for uploading snapshots.
   yield api.test('cq_no_snapshot') + api.properties.tryserver(
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
