@@ -90,6 +90,12 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
   )
   if run_tests:
     test_results = api.fuchsia.test(build)
+    # Ensure failed_tests gets filled out when tests fail.
+    if test_results.summary and test_results.failed_tests:
+        assert test_results.failed_tests['/hello']
+    # Ensure passed_tests gets filled out when tests pass.
+    if test_results.summary and test_results.passed_tests:
+        assert test_results.passed_tests['/hello']
     api.fuchsia.analyze_test_results('test results', test_results)
 
 def GenTests(api):

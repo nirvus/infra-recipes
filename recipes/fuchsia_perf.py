@@ -252,7 +252,7 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results',
       api.raw_io.output_dir({
-          'summary.json': 'I summarize test results!',
+          'summary.json': '{"tests": [{"name": "zircon.benchmarks"}]}',
           'zircon.benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 
@@ -288,7 +288,7 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data(device=True) + api.step_data(
       'extract results',
       api.raw_io.output_dir({
-          'summary.json': 'I summarize test results!',
+          'summary.json': '{"tests": [{"name": "zircon.benchmarks"}]}',
           'zircon.benchmarks.json': 'I am a benchmark, ha ha!',
       }))
 

@@ -142,17 +142,27 @@ class FuchsiaBuildResults(object):
     """
     return self._test_device_type
 
-
 class FuchsiaApi(recipe_api.RecipeApi):
   """APIs for checking out, building, and testing Fuchsia."""
 
   class FuchsiaTestResults(object):
     """Represents the result of testing of a Fuchsia build."""
 
-    def __init__(self, build_dir, output, outputs):
+    def __init__(self, build_dir, output, outputs, json_api):
       self._build_dir = build_dir
       self._output = output
       self._outputs = outputs
+
+      # Default to empty values if the summary file is missing.
+      if 'summary.json' not in outputs:
+        self._raw_summary = ''
+        self._summary = {}
+      else:
+        # Cache the summary file if present.
+        self._raw_summary = outputs['summary.json']
+        # TODO(kjharland): Raise explicit step failure when parsing fails so
+        # that it's clear that the summary file is malformed.
+        self._summary = json_api.loads(outputs['summary.json'])
 
     @property
     def build_dir(self):
@@ -168,6 +178,43 @@ class FuchsiaApi(recipe_api.RecipeApi):
     def outputs(self):
       """A mapping between relative paths for output files to their contents."""
       return self._outputs
+
+    @property
+    def raw_summary(self):
+      """The raw contents of the JSON summary file or "" if missing."""
+      return self._raw_summary
+
+    @property
+    def summary(self):
+      """The parsed summary file as a Dict or {} if missing."""
+      return self._summary
+
+    @property
+    def passed_tests(self):
+      return self._filter_by_result(passing=True)
+
+    @property
+    def failed_tests(self):
+      return self._filter_by_result(passing=False)
+
+    def _filter_by_result(self, passing):
+      """Returns all test results that are either passing or failing.
+
+      Args:
+        passing (bool): Whether to get only tests that are passing.
+
+      Returns:
+        An OrderedDict containing the matched test results. Each key is
+        a test name and each value is the test's output.
+      """
+      matches = collections.OrderedDict()
+
+      # TODO(kjharland): Sort test names first.
+      for test in self.summary['tests']:
+        if (test['result'] == 'PASS') == passing:
+          matches[test['name']] = self.outputs[test['output_file']]
+
+      return matches
 
   def __init__(self, *args, **kwargs):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
@@ -664,6 +711,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         build_dir=build.fuchsia_build_dir,
         output=result.output,
         outputs=test_results_map,
+        json_api=self.m.json,
     )
 
   def _test_on_device(self, build, timeout_secs):
@@ -740,6 +788,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         build_dir=build.fuchsia_build_dir,
         output=result.output,
         outputs=test_results_map,
+        json_api=self.m.json,
     )
 
   def test(self, build, timeout_secs=40 * 60):
@@ -813,36 +862,44 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Raises:
       A StepFailure if any of the discovered tests failed.
     """
-    build_dir = test_results.build_dir
-    output = test_results.output
-    outputs = test_results.outputs
-
     with self.m.step.nest(step_name):
-      # Read the tests summary.
-      if 'summary.json' not in outputs:
-        # Symbolize the kernel output.
-        self._symbolize(build_dir, output)
+      # Log the results of each test.
+      self.report_test_results(test_results)
+
+      if test_results.failed_tests:
+        # Symbolize test output to help debug failures.
+        self._symbolize(test_results.build_dir, test_results.output)
+        # Halt with a step failure.
         raise self.m.step.StepFailure(
-            'Test summary JSON not found, see kernel log for details')
-      raw_summary = outputs['summary.json']
-      self.m.step.active_result.presentation.logs[
-          'summary.json'] = raw_summary.split('\n')
-      test_summary = self.m.json.loads(raw_summary)
+          'Test failure(s): ' + ', '.join(test_results.failed_tests.keys()))
 
-      # Report test results.
-      failed_tests = collections.OrderedDict()
-      for test in test_summary['tests']:
-        name = test['name']
-        step_result = self.m.step(name, None)
-        output_name = test['output_file']
-        step_result.presentation.logs['stdio'] = outputs[output_name].split(
-            '\n')
-        if test['result'] != 'PASS':
-          step_result.presentation.status = self.m.step.FAILURE
-          failed_tests[name] = outputs[output_name]
+  def report_test_results(self, test_results):
+    """Logs individual test results in separate steps.
 
-      if failed_tests:
-        # Symbolize the kernel output if any tests failed.
-        self._symbolize(build_dir, output)
-        raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(
-            failed_tests.keys()))
+    Args:
+      test_results (FuchsiaTestResults): The test results.
+    """
+    if not test_results.summary:
+      self._symbolize(test_results.build_dir, test_results.output)
+      # Halt with step failure if summary file is missing.
+      raise self.m.step.StepFailure(
+          'Test summary JSON not found, see kernel log for details')
+
+    # Log the summary file's contents.
+    raw_summary_log = test_results.raw_summary.split('\n')
+    self.m.step.active_result.presentation.logs['summary.json'] = raw_summary_log
+
+    for test in test_results.summary['tests']:
+      test_name = test['name']
+      test_output = test_results.outputs[test['output_file']]
+      # Create individual step just for this test.
+      step_result = self.m.step(test_name, None)
+      # Always log the result regardless of test outcome.
+      step_result.presentation.logs['stdio'] = test_output.split('\n')
+      # Report step failure for this test if it did not pass.  This is a hack
+      # we must use because we don't yet have a system for test-indexing.
+      # TODO(kjharland): Log failing tests first to make it easier see them when
+      # scanning the build page (also consider sorting by name).
+      if test['result'] != 'PASS':
+        step_result.presentation.status = self.m.step.FAILURE
+

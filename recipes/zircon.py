@@ -181,6 +181,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
         build_dir=build_dir,
         output=result.output,
         outputs=test_results_map,
+        json_api=api.json,
     )
   )
 
@@ -484,6 +485,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
         build_dir=build_dir,
         output=booted_result.output,
         outputs=test_results_map,
+        json_api=api.json,
   ))
 
 

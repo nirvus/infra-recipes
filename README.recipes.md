@@ -295,11 +295,11 @@ parameters will be used.
 
 [DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#146)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#145)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#765)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#814)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -313,7 +313,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#806)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#855)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -324,7 +324,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#354)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#401)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -346,7 +346,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#175)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#222)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -367,11 +367,18 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#513)(self):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#876)(self, test_results):**
+
+Logs individual test results in separate steps.
+
+Args:
+  test_results (FuchsiaTestResults): The test results.
+
+&mdash; **def [target\_test\_dir](/recipe_modules/fuchsia/api.py#560)(self):**
 
 Returns the location of the mounted test directory on the target.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#745)(self, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#794)(self, build, timeout_secs=(40 \* 60)):**
 
 Tests a Fuchsia build on the specified device.
 
@@ -1186,9 +1193,9 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [RunSteps](/recipes/sdk.py#53)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 
-&mdash; **def [UploadArchive](/recipes/sdk.py#108)(api, sdk):**
+&mdash; **def [UploadArchive](/recipes/sdk.py#109)(api, sdk):**
 
-&mdash; **def [UploadPackage](/recipes/sdk.py#144)(api, sdk_dir, revision):**
+&mdash; **def [UploadPackage](/recipes/sdk.py#145)(api, sdk_dir, revision):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)
@@ -1240,11 +1247,11 @@ Recipe for building libwebkit.so.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#490)(api, target, toolchain, make_args, src_dir, needs_blkdev):**
+&mdash; **def [Build](/recipes/zircon.py#492)(api, target, toolchain, make_args, src_dir, needs_blkdev):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#441)(api, core_task, booted_task, booted_task_output_image, build_dir):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#442)(api, core_task, booted_task, booted_task_output_image, build_dir):**
 
 Waits on the tasks running core tests and booted tests, then analyzes the
 results.
@@ -1254,7 +1261,7 @@ Args:
   booted_task (str): The swarming task ID of the task running booted tests.
   build_dir (Path): A path to the directory containing build artifacts.
 
-&mdash; **def [GenerateQEMUCommand](/recipes/zircon.py#318)(target, cmdline, use_kvm, blkdev=''):**
+&mdash; **def [GenerateQEMUCommand](/recipes/zircon.py#319)(target, cmdline, use_kvm, blkdev=''):**
 
 GenerateQEMUCommand generates a QEMU command for executing Zircon tests.
 
@@ -1273,9 +1280,9 @@ Returns:
   A list[str] representing QEMU command which invokes QEMU from the default
   CIPD installation directory.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#572)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, device_type):**
+&mdash; **def [RunSteps](/recipes/zircon.py#574)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, device_type):**
 
-&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#187)(api, target, build_dir, use_kvm):**
+&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#188)(api, target, build_dir, use_kvm):**
 
 Executes Zircon tests in QEMU on a different machine.
 
@@ -1295,7 +1302,7 @@ Args:
   build_dir (Path): Path to the build directory.
   device_type (Enum(*DEVICES)): The type of device to run tests on.
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#379)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#380)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
 
 TriggerTestsTask triggers a task to execute a command on a remote machine.
 
