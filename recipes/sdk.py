@@ -18,6 +18,7 @@ DEPS = [
     'recipe_engine/file',
     'recipe_engine/json',
     'recipe_engine/path',
+    'recipe_engine/platform',
     'recipe_engine/properties',
     'recipe_engine/python',
     'recipe_engine/step',
@@ -87,23 +88,26 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       )
       overlay = True
 
-  with api.step.nest('make sdk'):
-    out_dir = api.path['cleanup'].join('fuchsia-sdk')
-    sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
-    api.go('run', api.path['start_dir'].join('scripts', 'makesdk.go'),
-           '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
+  # The makesdk.go script doesn't work on macOS, only use it on Linux.
+  if api.platform.name == 'linux':
+    with api.step.nest('make sdk'):
+      out_dir = api.path['cleanup'].join('fuchsia-sdk')
+      sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
+      api.go('run', api.path['start_dir'].join('scripts', 'makesdk.go'),
+             '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
 
   if not api.properties.get('tryjob'):
     with api.step.nest('upload sdk'):
       api.gsutil.ensure_gsutil()
-      digest = api.hash.sha1('hash archive', sdk)
-      # Upload the Chrome style SDK to GCS.
-      UploadArchive(api, sdk, digest)
+      if api.platform.name == 'linux':
+        # Upload the Chrome style SDK to GCS.
+        UploadArchive(api, sdk)
       # Upload the Fuchsia SDK to CIPD and GCS.
-      UploadPackage(api, sdk_dir, revision, digest)
+      UploadPackage(api, sdk_dir, revision)
 
 
-def UploadArchive(api, sdk, digest):
+def UploadArchive(api, sdk):
+  digest = api.hash.sha1('hash archive', sdk)
   archive_base_location = 'sdk/' + api.cipd.platform_suffix()
   archive_bucket = 'fuchsia'
   api.gsutil.upload(
@@ -138,7 +142,7 @@ def UploadArchive(api, sdk, digest):
       unauthenticated_url=True)
 
 
-def UploadPackage(api, sdk_dir, digest, revision):
+def UploadPackage(api, sdk_dir, revision):
   cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
@@ -165,7 +169,6 @@ def UploadPackage(api, sdk_dir, digest, revision):
       tags={
         'git_repository': 'https://fuchsia.googlesource.com/garnet',
         'git_revision': revision,
-        'jiri_snapshot': digest,
       }
   )
 
@@ -195,7 +198,7 @@ def GenTests(api):
       api.step_data('upload sdk.hash archive',
                     api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')) +
       api.step_data('upload sdk.cipd search fuchsia/sdk/linux-amd64 ' +
-                    'git_revision:27a0c185de8bb5dba483993ff1e362bc9e2c7643',
+                    'git_revision:' + api.jiri.example_revision,
                      api.json.output({'result': []})))
   yield (api.test('cq_try') +
       api.properties.tryserver(

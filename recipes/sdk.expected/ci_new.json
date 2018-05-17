@@ -744,11 +744,11 @@
       "search",
       "fuchsia/sdk/linux-amd64",
       "-tag",
-      "git_revision:27a0c185de8bb5dba483993ff1e362bc9e2c7643",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "upload sdk.cipd search fuchsia/sdk/linux-amd64 git_revision:27a0c185de8bb5dba483993ff1e362bc9e2c7643",
+    "name": "upload sdk.cipd search fuchsia/sdk/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -792,9 +792,7 @@
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/garnet",
       "-tag",
-      "git_revision:27a0c185de8bb5dba483993ff1e362bc9e2c7643",
-      "-tag",
-      "jiri_snapshot:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "name": "upload sdk.register fuchsia/sdk/linux-amd64",
     "~followup_annotations": [
