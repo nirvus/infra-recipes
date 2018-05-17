@@ -222,33 +222,7 @@
       "@@@STEP_LOG_LINE@runcmds@/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
-      "@@@STEP_LOG_END@runcmds@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "\n{\n    \"resources\": [\n        {\n            \"bootfs_path\": \"data/infra/runcmds\",\n            \"file\": \"[CLEANUP]/runcmds\"\n        }\n    ]\n}\n",
-      "[CLEANUP]/runcmds_package"
-    ],
-    "infra_step": true,
-    "name": "write runcmds package",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@runcmds_package@@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@{@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@    \"resources\": [@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@        {@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@            \"bootfs_path\": \"data/infra/runcmds\",@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@            \"file\": \"[CLEANUP]/runcmds\"@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@        }@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@    ]@@@",
-      "@@@STEP_LOG_LINE@runcmds_package@}@@@",
-      "@@@STEP_LOG_END@runcmds_package@@@",
+      "@@@STEP_LOG_END@runcmds@@@",
       "@@@STEP_LOG_LINE@runcmds_package_spec@@@@",
       "@@@STEP_LOG_LINE@runcmds_package_spec@{@@@",
       "@@@STEP_LOG_LINE@runcmds_package_spec@  name = \"infra_runcmds\"@@@",
@@ -372,7 +346,7 @@
       "gen",
       "[START_DIR]/out/debug-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\",\"[CLEANUP]/runcmds_package\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true synthesize_packages = [ \n{\n  name = \"infra_runcmds\"\n  deprecated_system_image = true\n  resources = [\n    {\n      path = \"[CLEANUP]/runcmds\"\n      dest = \"infra/runcmds\"\n    },\n  ]\n}\n ]"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true synthesize_packages = [ \n{\n  name = \"infra_runcmds\"\n  deprecated_system_image = true\n  resources = [\n    {\n      path = \"[CLEANUP]/runcmds\"\n      dest = \"infra/runcmds\"\n    },\n  ]\n}\n ]"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
