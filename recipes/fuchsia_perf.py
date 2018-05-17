@@ -158,33 +158,29 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   )
   test_results = api.fuchsia.test(build)
 
-  # Skip summary.json, which is a sort of manifest of tests results, and is
-  # required by botanist to decide which files should be copied off the
-  # Fuchsia device after testing.  Today, fuchsia_perf does not need this
-  # file.
-  test_results.outputs.pop('summary.json', None)
+  # Log the results of each benchmark.
+  api.fuchsia.report_test_results(test_results)
 
-  for filepath in test_results.outputs:
-    test_results_contents = test_results.outputs[filepath]
+  # Analyze all of the benchmarks that ran successfully
+  for test_filepath, test_results in test_results.passed_tests.iteritems():
     # Extract the name of the test suite, e.g. "baz_test" in
     # "foo/bar/baz_test.json".
-    test_suite = api.path.splitext(api.path.basename(filepath))[0]
+    test_suite = api.path.splitext(api.path.basename(test_filepath))[0]
     # Prepend "fuchsia." to make test results easier to find in the
     # dashboard.
     dashboard_test_suite = "fuchsia." + test_suite
 
     ProcessTestResults(
         # Prevent corrupting the step name with extra dots.
-        step_name="analyze_%s" % test_suite.replace('.','_'),
+        step_name="analyze_%s" % test_suite.replace('.', '_'),
         api=api,
         dashboard_masters_name=dashboard_masters_name,
         dashboard_bots_name=dashboard_bots_name,
         test_suite=dashboard_test_suite,
-        test_results=test_results_contents,
+        test_results=test_results,
         catapult_url=catapult_url,
         upload_to_dashboard=upload_to_dashboard,
     )
-
 
 def ProcessTestResults(api, step_name, dashboard_masters_name,
                        dashboard_bots_name, test_suite, test_results,
@@ -219,6 +215,32 @@ def ProcessTestResults(api, step_name, dashboard_masters_name,
 
 
 def GenTests(api):
+  # Example JSON summary.
+  summary_json = api.json.dumps({
+      "tests": [
+          {
+              "name": "passed.json",
+              "output_file": "passed.json",
+              "result": "PASS",
+          },
+          {
+              # Include at least one benchmark that failed to make sure its
+              # results are not analyzed and uploaded to Catapult.
+              "name": "failed.json",
+              "output_file": "failed.json",
+              "result": "FAIL",
+          }
+      ]
+  })
+  # Dict representing the set of files and their contents that are downloaded from
+  # the target device when tests/benchmarks are finished.
+  extracted_results = {
+      'summary.json': summary_json,
+      'passed.json': '{"test_name": "a", "units": "b", "samples": [1, 2, 3]}',
+      # No output for failed benchmark.
+      'failed.json': '{}',
+  }
+
   # Test cases for running Fuchsia performance tests as a swarming task.
   yield api.test('successful_run') + api.properties(
       project='topaz',
@@ -229,10 +251,7 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
   ) + api.fuchsia.task_step_data() + api.step_data(
-      'extract results',
-      api.raw_io.output_dir({
-          '/path/to/zircon.benchmarks.json': 'I am a benchmark, ha ha!',
-      }))
+      'extract results', api.raw_io.output_dir(extracted_results))
 
   # Tests running this recipe with a pending Gerrit change. Note
   # that upload_to_dashboard is false. Be sure to set this when
@@ -250,11 +269,7 @@ def GenTests(api):
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=False,
   ) + api.fuchsia.task_step_data() + api.step_data(
-      'extract results',
-      api.raw_io.output_dir({
-          'summary.json': '{"tests": [{"name": "zircon.benchmarks"}]}',
-          'zircon.benchmarks.json': 'I am a benchmark, ha ha!',
-      }))
+      'extract results', api.raw_io.output_dir(extracted_results))
 
   # CQ runs should disable certain things like dashboard uploads.
   yield api.test('cq') + api.properties(
@@ -271,10 +286,7 @@ def GenTests(api):
       upload_to_dashboard=True,
       tryjob=True,
   ) + api.fuchsia.task_step_data() + api.step_data(
-      'extract results',
-      api.raw_io.output_dir({
-          'zircon.benchmarks.json': 'I am a benchmark, ha ha!',
-      }))
+      'extract results', api.raw_io.output_dir(extracted_results))
 
   yield api.test('device_tests') + api.properties(
       project='topaz',
@@ -286,11 +298,7 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
   ) + api.fuchsia.task_step_data(device=True) + api.step_data(
-      'extract results',
-      api.raw_io.output_dir({
-          'summary.json': '{"tests": [{"name": "zircon.benchmarks"}]}',
-          'zircon.benchmarks.json': 'I am a benchmark, ha ha!',
-      }))
+      'extract results', api.raw_io.output_dir(extracted_results))
 
   yield api.test('missing test results') + api.properties(
       project='topaz',

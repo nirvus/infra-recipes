@@ -747,18 +747,39 @@
       "[START_DIR]/test_results"
     ],
     "infra_step": true,
-    "name": "extract results"
+    "name": "extract results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@summary.json@{\"tests\": [{\"name\": \"passed.json\", \"output_file\": \"passed.json\", \"result\": \"PASS\"}, {\"name\": \"failed.json\", \"output_file\": \"failed.json\", \"result\": \"FAIL\"}]}@@@",
+      "@@@STEP_LOG_END@summary.json@@@"
+    ]
   },
   {
     "cmd": [],
-    "name": "analyze_zircon_benchmarks"
+    "name": "passed.json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@stdio@{\"test_name\": \"a\", \"units\": \"b\", \"samples\": [1, 2, 3]}@@@",
+      "@@@STEP_LOG_END@stdio@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "failed.json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@stdio@{}@@@",
+      "@@@STEP_LOG_END@stdio@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "analyze_passed"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/catapult/catapult",
       "make_histogram",
       "-test-suite",
-      "fuchsia.zircon.benchmarks",
+      "fuchsia.passed",
       "-bots",
       "topaz-builder",
       "-masters",
@@ -766,12 +787,12 @@
       "-execution-timestamp-ms",
       "1337000001500",
       "-logdog-stream-name",
-      "fuchsia.zircon.benchmarks",
+      "fuchsia.passed",
       "-output",
       "/path/to/tmp/json",
-      "I am a benchmark, ha ha!"
+      "{\"test_name\": \"a\", \"units\": \"b\", \"samples\": [1, 2, 3]}"
     ],
-    "name": "analyze_zircon_benchmarks.catapult make_histogram",
+    "name": "analyze_passed.catapult make_histogram",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_END@json.output (invalid)@@@",
@@ -787,7 +808,7 @@
       "https://chromeperf.appspot.com",
       "null"
     ],
-    "name": "analyze_zircon_benchmarks.catapult upload",
+    "name": "analyze_passed.catapult upload",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
