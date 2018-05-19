@@ -738,7 +738,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Construct the botanist command.
     kernel_name = build.zircon_kernel_image
-    ramdisk_name = 'netboot-%s.bin' % _board_name(build.target)
+    ramdisk_name = 'netboot.bin'
     output_archive_name = 'out.tar'
     botanist_cmd = [
         './botanist/botanist',
