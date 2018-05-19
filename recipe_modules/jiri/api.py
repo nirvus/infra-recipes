@@ -165,7 +165,8 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def edit_manifest(self, manifest, projects=None, imports=None, test_data=None):
+  def edit_manifest(self, manifest, projects=None, imports=None, test_data=None,
+                    **kwargs):
     """Creates a step to edit a Jiri manifest.
 
     Args:
@@ -220,7 +221,8 @@ class JiriApi(recipe_api.RecipeApi):
       )
 
     step = self(*cmd,
-                step_test_data=lambda: self.m.json.test_api.output(test_data))
+                step_test_data=lambda: self.m.json.test_api.output(test_data),
+                **kwargs)
     return step.json.output
 
   def patch(self, ref, host=None, project=None, delete=False, force=False,

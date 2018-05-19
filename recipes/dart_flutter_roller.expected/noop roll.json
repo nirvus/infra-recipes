@@ -1,0 +1,172 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_gitiles"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gitiles",
+      "-ensure-file",
+      "infra/tools/luci/gitiles/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gitiles.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-v",
+      "-time",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
+      "-cache",
+      "[CACHE]/git",
+      "-shared"
+    ],
+    "infra_step": true,
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "-v",
+      "-time",
+      "-name",
+      "topaz",
+      "manifest/minimal",
+      "https://fuchsia.googlesource.com/topaz"
+    ],
+    "infra_step": true,
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update"
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "read_manifest_external/github.com/flutter/flutter"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "manifest",
+      "-v",
+      "-time",
+      "-element",
+      "external/github.com/flutter/flutter",
+      "-template",
+      "\n      {\n        \"gerrithost\": \"{{.GerritHost}}\",\n        \"githooks\": \"{{.GitHooks}}\",\n        \"historydepth\": \"{{.HistoryDepth}}\",\n        \"name\": \"{{.Name}}\",\n        \"path\": \"{{.Path}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"revision\": \"{{.Revision}}\"\n      }\n      ",
+      "[START_DIR]/topaz/manifest/flutter"
+    ],
+    "infra_step": true,
+    "name": "read_manifest_external/github.com/flutter/flutter.jiri manifest",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"remote\": \"https://fuchsia.googlesource.com/third_party/flutter\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "edit",
+      "-v",
+      "-time",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-project",
+      "external/github.com/flutter/flutter=abc123",
+      "[START_DIR]/topaz/manifest/flutter"
+    ],
+    "infra_step": true,
+    "name": "jiri edit external/github.com/flutter/flutter",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@manifest up-to-date, nothing to roll@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"projects\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[TMP_BASE]/sandbox-flutter-dart_tmp_1"
+    ],
+    "infra_step": true,
+    "name": "rmtree [TMP_BASE]/sandbox-flutter-dart_tmp_1"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

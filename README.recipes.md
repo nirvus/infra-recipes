@@ -32,6 +32,7 @@
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
   * [cobalt](#recipes-cobalt) &mdash; Recipe for building and testing Cobalt.
+  * [dart_flutter_roller](#recipes-dart_flutter_roller) &mdash; Recipe for automatically updating Flutter, flutter/engine, and Dart.
   * [dart_pkg_roller](#recipes-dart_pkg_roller) &mdash; Recipe for automatically updating Dart 3p packages.
   * [dart_toolchain](#recipes-dart_toolchain) &mdash; Recipe for building Dart toolchain.
   * [docs_roller](#recipes-docs_roller) &mdash; Recipe for generating docs.
@@ -741,7 +742,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#263)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#265)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -757,7 +758,7 @@ Args:
   patch_project (str): The Gerrit project where the patch lives.
   timeout_secs (int): A timeout for jiri update in seconds.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#304)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#306)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -769,7 +770,7 @@ Args:
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#135)(self, all=False, \*\*kwargs):**
 
-&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#168)(self, manifest, projects=None, imports=None, test_data=None):**
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#168)(self, manifest, projects=None, imports=None, test_data=None, \*\*kwargs):**
 
 Creates a step to edit a Jiri manifest.
 
@@ -804,7 +805,7 @@ Returns:
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#45)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#226)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#228)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects=[], out=None, test_data=None):**
 
@@ -831,7 +832,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#321)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#323)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -853,9 +854,9 @@ Returns:
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#126)(self, local_manifest=False, attempts=3):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#243)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#245)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#253)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#255)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#106)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
@@ -1074,6 +1075,56 @@ Recipe for building Clang toolchain.
 Recipe for building and testing Cobalt.
 
 &mdash; **def [RunSteps](/recipes/cobalt.py#31)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, revision):**
+### *recipes* / [dart\_flutter\_roller](/recipes/dart_flutter_roller.py)
+
+[DEPS](/recipes/dart_flutter_roller.py#13): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+
+Recipe for automatically updating Flutter, flutter/engine, and Dart.
+
+&mdash; **def [ExtractDartVersionFromDEPS](/recipes/dart_flutter_roller.py#100)(api, deps_path):**
+
+Extracts the dart_version from a flutter/engine's DEPS file.
+
+Args:
+  api (RecipeApi): Recipe API object.
+  deps_path (Path): A path to the DEPS file for dart third party
+    dependencies.
+  manifest_path (Path): A path to the Jiri manifest to overwrite.
+
+&mdash; **def [RollChanges](/recipes/dart_flutter_roller.py#136)(api, path, updated_deps):**
+
+Rolls manifest changes in a git repository.
+
+Args:
+  path (Path): Path to the git repository containing the changes to roll.
+  updated_deps (dict[str]str): A map of dependencies that were updated to
+  a log string, summarizing the update.
+
+&mdash; **def [RunSteps](/recipes/dart_flutter_roller.py#157)(api, revision):**
+
+&mdash; **def [UpdateManifestProject](/recipes/dart_flutter_roller.py#52)(api, manifest, project_name, revision):**
+
+Updates the revision for a project in a manifest.
+
+Args:
+  api (RecipeApi): Recipe API object.
+  manifest (Path): Path to the Jiri manifest to update.
+  project_name (str): Name of the project in the Jiri manifest to update.
+  revision (str): SHA-1 hash representing the updated revision for
+    project_name in the manifest.
+
+Returns:
+  A formatted log string summarizing the updates as well as the project's
+  remote property.
+
+&mdash; **def [UpdatePkgManifest](/recipes/dart_flutter_roller.py#120)(api, dart_path, manifest_path):**
+
+Overwrites a dart third party package manifest.
+
+Args:
+  api (RecipeApi): Recipe API object.
+  dart_path (Path): A path to the dart/sdk repository.
+  manifest_path (Path): A path to the Jiri manifest to overwrite.
 ### *recipes* / [dart\_pkg\_roller](/recipes/dart_pkg_roller.py)
 
 [DEPS](/recipes/dart_pkg_roller.py#12): [auto\_roller](#recipe_modules-auto_roller), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
