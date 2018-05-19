@@ -59,18 +59,6 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "import",
-      "-v",
-      "-time",
-      "build",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "infra_step": true,
-    "name": "jiri import (2)"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-v",
       "-time",
