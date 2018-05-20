@@ -88,20 +88,17 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       )
       overlay = True
 
-  # The makesdk.go script doesn't work on macOS, only use it on Linux.
-  if api.platform.name == 'linux':
-    with api.step.nest('make sdk'):
-      out_dir = api.path['cleanup'].join('fuchsia-sdk')
-      sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
-      api.go('run', api.path['start_dir'].join('scripts', 'makesdk.go'),
-             '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
+  with api.step.nest('make sdk'):
+    out_dir = api.path['cleanup'].join('fuchsia-sdk')
+    sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
+    api.go('run', api.path['start_dir'].join('scripts', 'makesdk.go'),
+           '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
 
   if not api.properties.get('tryjob'):
     with api.step.nest('upload sdk'):
       api.gsutil.ensure_gsutil()
-      if api.platform.name == 'linux':
-        # Upload the Chrome style SDK to GCS.
-        UploadArchive(api, sdk)
+      # Upload the Chrome style SDK to GCS.
+      UploadArchive(api, sdk)
       # Upload the Fuchsia SDK to CIPD and GCS.
       UploadPackage(api, sdk_dir, revision)
 
