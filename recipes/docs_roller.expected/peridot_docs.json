@@ -81,6 +81,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "peridot",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -225,7 +227,7 @@
       "[START_DIR]/buildtools/gn",
       "gen",
       "[START_DIR]/out/arm64",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/default\"]"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"peridot/packages/default\"]"
     ],
     "name": "gn gen (arm64)"
   },
@@ -245,7 +247,7 @@
       "[START_DIR]/buildtools/gn",
       "gen",
       "[START_DIR]/out/x64",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"]"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"peridot/packages/default\"]"
     ],
     "name": "gn gen (x64)"
   },
@@ -266,7 +268,7 @@
       "-key",
       "target_cpu",
       "-out",
-      "[START_DIR]/docs/gen/build_arguments.md",
+      "[START_DIR]/peridot/docs/build_arguments.md",
       "-s",
       "[{\"name\": \"build\", \"path\": \"/path/to/build\", \"relativePath\": \"build\", \"remote\": \"https://fuchsia.googlesource.com/build\"}]",
       "-in",
@@ -313,7 +315,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"docs\", \"subject\": \"[gndoc] Update GN build arguments documentation\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"peridot\", \"subject\": \"[gndoc] Update GN build arguments documentation\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -335,7 +337,7 @@
       "[gndoc] Update GN build arguments documentation\nChange-Id: abc123\n",
       "-a"
     ],
-    "cwd": "[START_DIR]/docs",
+    "cwd": "[START_DIR]/peridot",
     "name": "git commit"
   },
   {
@@ -345,7 +347,7 @@
       "origin",
       "HEAD:refs/for/master"
     ],
-    "cwd": "[START_DIR]/docs",
+    "cwd": "[START_DIR]/peridot",
     "name": "git push"
   },
   {

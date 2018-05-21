@@ -70,11 +70,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
           'fuchsia/tools/gndoc/${platform}': 'latest',
       })
 
+  project_dir = api.path['start_dir'].join(*project.split('/'))
   # Get the project list for linkifiying (need all projects).
   project_result = api.jiri.project()
 
   # Gather args for running gndoc tool.
-  out_file = api.path['start_dir'].join('docs', 'gen', 'build_arguments.md')
+  out_file = project_dir.join('docs', 'build_arguments.md')
   gndoc_cmd = [
       cipd_dir.join('gndoc'),
       '-key',
@@ -115,32 +116,36 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   api.step("gndoc", gndoc_cmd)
 
-  api.auto_roller.attempt_roll('docs', api.path['start_dir'].join('docs'),
-                               COMMIT_MESSAGE)
+  api.auto_roller.attempt_roll(
+          gerrit_project=project,
+          repo_dir=project_dir,
+          commit_message=COMMIT_MESSAGE)
 
 
 def GenTests(api):
-  yield api.test('default') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      packages=['topaz/packages/default'],
-  ) + api.step_data(
-      'check if done (0)', api.auto_roller.success()) + api.step_data(
-          'jiri project',
-          api.json.output([{
-              "name": "build",
-              "path": "/path/to/build",
-              "relativePath": "build",
-              "remote": "https://fuchsia.googlesource.com/build",
-          }])) + api.step_data('gn args --list (x64)',
-                               api.json.output([{
-                                   "current": {
-                                       "file": "//topaz/out/x64/args.gn",
-                                       "line": 1,
-                                       "value": "\"x64\""
-                                   },
-                                   "default": {
-                                       "value": "\"\""
-                                   },
-                                   "name": "target_cpu"
-                               }]))
+  for project in ['garnet', 'peridot', 'topaz']:
+    yield api.test(project + '_docs') + api.properties(
+        manifest='fuchsia',
+        project=project,
+        remote='https://fuchsia.googlesource.com/manifest',
+        packages=[project + '/packages/default'],
+    ) + api.step_data(
+        'check if done (0)', api.auto_roller.success()) + api.step_data(
+            'jiri project',
+            api.json.output([{
+                "name": "build",
+                "path": "/path/to/build",
+                "relativePath": "build",
+                "remote": "https://fuchsia.googlesource.com/build",
+            }])) + api.step_data('gn args --list (x64)',
+                                 api.json.output([{
+                                     "current": {
+                                         "file": "//" + project + "/out/x64/args.gn",
+                                         "line": 1,
+                                         "value": "\"x64\""
+                                     },
+                                     "default": {
+                                         "value": "\"\""
+                                     },
+                                     "name": "target_cpu"
+                                 }]))
