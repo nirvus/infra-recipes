@@ -91,17 +91,25 @@ class GitApi(recipe_api.RecipeApi):
              name='submodule update', **kwargs)
       return sha
 
-  def commit(self, message, files=(), all_tracked=False, **kwargs):
+  def commit(self, message, files=(), all_tracked=False, all_files=False,
+             **kwargs):
     """Runs git commit in the current working directory.
     Args:
       message (str): The message to attach to the commit.
       files (seq[Path]): The set of files containing changes to commit.
       all_tracked (bool): Stage all tracked files before committing. If True,
-        files must be empty.
+        files must be empty and all_files must be False.
+      all_files (bool): Stage all files (even untracked) before committing. If
+        True, files must be empty and all_tracked must be False.
     """
     if all_tracked:
-      assert len(files) == 0
+      assert not all_files
+      assert not files
       return self('commit', '-m', message, '-a', **kwargs)
+    elif all_files:
+      assert not files
+      self('add', '-A')
+      return self('commit', '-m', message, **kwargs)
     return self('commit', '-m', message, *files, **kwargs)
 
   def push(self, ref, remote='origin', **kwargs):

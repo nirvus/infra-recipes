@@ -487,26 +487,28 @@ Args:
   remote (str): name of the remote to use
   file (str): optional path to a single file to checkout
 
-&mdash; **def [commit](/recipe_modules/git/api.py#94)(self, message, files=(), all_tracked=False, \*\*kwargs):**
+&mdash; **def [commit](/recipe_modules/git/api.py#94)(self, message, files=(), all_tracked=False, all_files=False, \*\*kwargs):**
 
 Runs git commit in the current working directory.
 Args:
   message (str): The message to attach to the commit.
   files (seq[Path]): The set of files containing changes to commit.
   all_tracked (bool): Stage all tracked files before committing. If True,
-    files must be empty.
+    files must be empty and all_files must be False.
+  all_files (bool): Stage all files (even untracked) before committing. If
+    True, files must be empty and all_tracked must be False.
 
-&mdash; **def [get\_hash](/recipe_modules/git/api.py#118)(self, commit='HEAD', \*\*kwargs):**
+&mdash; **def [get\_hash](/recipe_modules/git/api.py#126)(self, commit='HEAD', \*\*kwargs):**
 
 Find and return the hash of the given commit.
 
-&mdash; **def [get\_timestamp](/recipe_modules/git/api.py#125)(self, commit='HEAD', test_data=None, \*\*kwargs):**
+&mdash; **def [get\_timestamp](/recipe_modules/git/api.py#133)(self, commit='HEAD', test_data=None, \*\*kwargs):**
 
 Find and return the timestamp of the given commit.
 
-&mdash; **def [push](/recipe_modules/git/api.py#107)(self, ref, remote='origin', \*\*kwargs):**
+&mdash; **def [push](/recipe_modules/git/api.py#115)(self, ref, remote='origin', \*\*kwargs):**
 
-&mdash; **def [rebase](/recipe_modules/git/api.py#110)(self, branch='master', remote='origin', \*\*kwargs):**
+&mdash; **def [rebase](/recipe_modules/git/api.py#118)(self, branch='master', remote='origin', \*\*kwargs):**
 
 Run rebase HEAD onto branch
 ### *recipe_modules* / [gitiles](/recipe_modules/gitiles)

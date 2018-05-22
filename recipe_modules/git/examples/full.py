@@ -54,6 +54,9 @@ def RunSteps(api):
     # Commit the change with all tracked files
     api.git.commit('example change 3', all_tracked=True)
 
+    # Commit the change with all tracked and untracked files
+    api.git.commit('example change 4', all_files=True)
+
     # Push it for review
     api.git.push('HEAD:refs/for/master')
 

@@ -200,6 +200,25 @@
   {
     "cmd": [
       "git",
+      "add",
+      "-A"
+    ],
+    "cwd": "[START_DIR]/fuchsia",
+    "name": "git add (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-m",
+      "example change 4"
+    ],
+    "cwd": "[START_DIR]/fuchsia",
+    "name": "git commit (4)"
+  },
+  {
+    "cmd": [
+      "git",
       "push",
       "origin",
       "HEAD:refs/for/master"
