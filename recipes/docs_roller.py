@@ -75,7 +75,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   project_result = api.jiri.project()
 
   # Gather args for running gndoc tool.
-  out_file = project_dir.join('docs', 'build_arguments.md')
+  out_file = project_dir.join('docs', 'gen', 'build_arguments.md')
   gndoc_cmd = [
       cipd_dir.join('gndoc'),
       '-key',
@@ -117,9 +117,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.step("gndoc", gndoc_cmd)
 
   api.auto_roller.attempt_roll(
-          gerrit_project=project,
-          repo_dir=project_dir,
-          commit_message=COMMIT_MESSAGE)
+      gerrit_project=project,
+      repo_dir=project_dir,
+      commit_message=COMMIT_MESSAGE)
 
 
 def GenTests(api):
@@ -137,15 +137,16 @@ def GenTests(api):
                 "path": "/path/to/build",
                 "relativePath": "build",
                 "remote": "https://fuchsia.googlesource.com/build",
-            }])) + api.step_data('gn args --list (x64)',
-                                 api.json.output([{
-                                     "current": {
-                                         "file": "//" + project + "/out/x64/args.gn",
-                                         "line": 1,
-                                         "value": "\"x64\""
-                                     },
-                                     "default": {
-                                         "value": "\"\""
-                                     },
-                                     "name": "target_cpu"
-                                 }]))
+            }])) + api.step_data(
+                'gn args --list (x64)',
+                api.json.output([{
+                    "current": {
+                        "file": "//" + project + "/out/x64/args.gn",
+                        "line": 1,
+                        "value": "\"x64\""
+                    },
+                    "default": {
+                        "value": "\"\""
+                    },
+                    "name": "target_cpu"
+                }]))

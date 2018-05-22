@@ -268,7 +268,7 @@
       "-key",
       "target_cpu",
       "-out",
-      "[START_DIR]/peridot/docs/build_arguments.md",
+      "[START_DIR]/peridot/docs/gen/build_arguments.md",
       "-s",
       "[{\"name\": \"build\", \"path\": \"/path/to/build\", \"relativePath\": \"build\", \"remote\": \"https://fuchsia.googlesource.com/build\"}]",
       "-in",
