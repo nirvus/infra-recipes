@@ -703,11 +703,11 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#225)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#249)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
 
-&mdash; **def [clean](/recipe_modules/jiri/api.py#111)(self, all=False, \*\*kwargs):**
+&mdash; **def [clean](/recipe_modules/jiri/api.py#135)(self, all=False, \*\*kwargs):**
 
-&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#130)(self, manifest, projects=None, imports=None, test_data=None):**
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#154)(self, manifest, projects=None, imports=None, test_data=None):**
 
 Creates a step to edit a Jiri manifest.
 
@@ -725,17 +725,40 @@ Returns:
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#32)(self, version=None):**
 
-&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#120)(self, manifest, remote, name=None, overwrite=False, \*\*kwargs):**
+&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#144)(self, manifest, remote, name=None, overwrite=False, \*\*kwargs):**
 
 &mdash; **def [init](/recipe_modules/jiri/api.py#49)(self, dir=None, \*\*kwargs):**
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#45)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#188)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#212)(self, ref, host=None, project=None, delete=False, force=False, rebase=False):**
 
-&mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects=[], test_data=None):**
+&mdash; **def [project](/recipe_modules/jiri/api.py#62)(self, projects=[], out=None, test_data=None):**
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#240)(self, manifest, element_type, element_name):**
+Args:
+  projects (List): A heterogeneous list of strings representing the name of
+    projects to list info about (defaults to all).
+  out (str): Path to write json results to, with the following schema:
+    [
+      {
+        "name": "zircon",
+        "path": "local/path/to/zircon",
+        "relativePath": "zircon",
+        "remote": "https://fuchsia.googlesource.com/zircon",
+        "revision": "af8fd6138748bc11d31a5bde3303cdc19c7e04e9",
+        "current_branch": "master",
+        "branches": [
+          "master"
+        ]
+      }
+      ...
+    ]
+
+
+Returns:
+  A step to provide structured info on existing projects and branches.
+
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#264)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -755,13 +778,13 @@ Returns:
       if 'remote' in project:
           ...
 
-&mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#102)(self, local_manifest=False, attempts=3):**
+&mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#126)(self, local_manifest=False, attempts=3):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#205)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#229)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#215)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#239)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [update](/recipe_modules/jiri/api.py#82)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
+&mdash; **def [update](/recipe_modules/jiri/api.py#106)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
 
 [DEPS](/recipe_modules/minfs/__init__.py#1): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -59,10 +59,34 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def project(self, projects=[], test_data=None):
+  def project(self, projects=[], out=None, test_data=None):
+    """
+    Args:
+      projects (List): A heterogeneous list of strings representing the name of
+        projects to list info about (defaults to all).
+      out (str): Path to write json results to, with the following schema:
+        [
+          {
+            "name": "zircon",
+            "path": "local/path/to/zircon",
+            "relativePath": "zircon",
+            "remote": "https://fuchsia.googlesource.com/zircon",
+            "revision": "af8fd6138748bc11d31a5bde3303cdc19c7e04e9",
+            "current_branch": "master",
+            "branches": [
+              "master"
+            ]
+          }
+          ...
+        ]
+
+
+    Returns:
+      A step to provide structured info on existing projects and branches.
+    """
     cmd = [
       'project',
-      '-json-output', self.m.json.output(),
+      '-json-output', self.m.json.output(leak_to=out),
     ] + projects
 
     if test_data is None:
