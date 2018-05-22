@@ -159,7 +159,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output \numount /tmp/infra-test-output\ndm poweroff",
+      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output -L\numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/zircon_tmp/runcmds"
     ],
     "infra_step": true,
@@ -169,7 +169,7 @@
       "@@@STEP_LOG_LINE@runcmds.sh@mkdir /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds.sh@runtests -o /tmp/infra-test-output @@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@runtests -o /tmp/infra-test-output -L@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds.sh@@@"
@@ -233,8 +233,6 @@
       "50",
       "HOST_USE_ASAN=true",
       "BUILDROOT=[START_DIR]/zircon",
-      "USE_LTO=true",
-      "USE_THINLTO=false",
       "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"
     ],
     "cwd": "[START_DIR]/zircon",
@@ -384,7 +382,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/zircon/build-x64-lto/tools/minfs",
+      "[START_DIR]/zircon/build-x64/tools/minfs",
       "[START_DIR]/input.fs@16M",
       "create"
     ],
@@ -445,9 +443,9 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/zircon/build-x64-lto:zircon.bin",
+      "[START_DIR]/zircon/build-x64:zircon.bin",
       "-files",
-      "[START_DIR]/zircon/build-x64-lto:bootdata.bin",
+      "[START_DIR]/zircon/build-x64:bootdata.bin",
       "-files",
       "[START_DIR]:input.fs",
       "-files",
@@ -678,7 +676,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/zircon/build-x64-lto/tools/minfs",
+      "[START_DIR]/zircon/build-x64/tools/minfs",
       "[TMP_BASE]/swarming_tmp_1/11/output.fs",
       "cp",
       "::",
@@ -695,7 +693,7 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/zircon/build-x64-lto"
+      "[START_DIR]/zircon/build-x64"
     ],
     "name": "booted test results.symbolize",
     "stdin": "hello world!",
@@ -707,7 +705,7 @@
   {
     "cmd": [
       "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/zircon/build-x64-lto/ids.txt"
+      "[START_DIR]/zircon/build-x64/ids.txt"
     ],
     "name": "booted test results.symbolize logs",
     "stdin": "hello world!",

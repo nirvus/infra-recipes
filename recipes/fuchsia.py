@@ -68,7 +68,7 @@ PROPERTIES = {
     'runtests_args':
         Property(
             kind=str,
-            help='Arguments to pass to the executable running tests',
+            help='Shell-quoted string to add to the runtests commandline',
             default=''),
     'device_type':
         Property(

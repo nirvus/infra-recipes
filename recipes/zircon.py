@@ -105,6 +105,9 @@ PROPERTIES = {
                         help='Extra args to pass to Make',
                         default=[]),
   'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True),
+  'runtests_args': Property(kind=str,
+                            help='Shell-quoted string to add to the runtests commandline',
+                            default=''),
   'use_kvm': Property(kind=bool,
                       help='Whether to use KVM when running tests in QEMU',
                       default=True),
@@ -489,7 +492,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   ))
 
 
-def Build(api, target, toolchain, make_args, src_dir, needs_blkdev):
+def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
   """Builds zircon and returns a path to the build output directory."""
   # Generate runcmds script to drive tests.
   tmp_dir = api.path['cleanup'].join('zircon_tmp')
@@ -517,9 +520,8 @@ def Build(api, target, toolchain, make_args, src_dir, needs_blkdev):
       'waitfor class=block topo=%s timeout=60000' % device_topological_path,
       # 3. Mount the block device to the new test directory.
       'mount %s %s' % (device_topological_path, target_test_dir),
-      # 4. Execute runtests with -o (i.e. write test output to files with a
-      # JSON summary).
-      'runtests -o %s' % target_test_dir,
+      # 4. Execute the desired test command.
+      test_cmd,
       # 5. Unmount and poweroff.
       'umount %s' % target_test_dir,
       'dm poweroff',
@@ -528,11 +530,7 @@ def Build(api, target, toolchain, make_args, src_dir, needs_blkdev):
     # If we don't need a block device, just run the tests and wait for
     # something to copy the test results off. Note that in this case we do not
     # power off the device (via `dm poweroff`).
-    runcmds.extend([
-      # 2. Execute runtests with -o (i.e. write test output to files with a
-      # JSON summary).
-      'runtests -o %s' % target_test_dir,
-    ])
+    runcmds.extend([test_cmd])
   api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
   api.step.active_result.presentation.logs['runcmds.sh'] = runcmds
 
@@ -573,7 +571,8 @@ def Build(api, target, toolchain, make_args, src_dir, needs_blkdev):
 
 def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
-             target, toolchain, make_args, use_kvm, run_tests, device_type):
+             target, toolchain, make_args, use_kvm, run_tests, runtests_args,
+             device_type):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
@@ -590,6 +589,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       toolchain=toolchain,
       make_args=make_args,
       src_dir=src_dir,
+      test_cmd='runtests -o %s %s' % (
+          api.fuchsia.target_test_dir(),
+          runtests_args,
+      ),
       needs_blkdev=(device_type == 'QEMU'),
   )
 
@@ -656,6 +659,16 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
+                     toolchain='gcc') +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('ci_x86_with_args') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='x64',
+                     runtests_args='-L',
                      toolchain='gcc') +
       core_tests_trigger_data +
       booted_tests_trigger_data +
