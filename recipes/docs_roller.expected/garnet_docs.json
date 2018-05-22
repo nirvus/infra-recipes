@@ -207,7 +207,7 @@
       "-v",
       "-time",
       "-json-output",
-      "/path/to/tmp/json"
+      "[CLEANUP]/projects.json"
     ],
     "name": "jiri project",
     "~followup_annotations": [
@@ -270,7 +270,7 @@
       "-out",
       "[START_DIR]/garnet/docs/gen/build_arguments.md",
       "-s",
-      "[{\"name\": \"build\", \"path\": \"/path/to/build\", \"relativePath\": \"build\", \"remote\": \"https://fuchsia.googlesource.com/build\"}]",
+      "[CLEANUP]/projects.json",
       "-in",
       "[CLEANUP]/arm64.json",
       "-in",

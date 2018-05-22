@@ -71,8 +71,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       })
 
   project_dir = api.path['start_dir'].join(*project.split('/'))
+
   # Get the project list for linkifiying (need all projects).
-  project_result = api.jiri.project()
+  sources_path = api.path['cleanup'].join('projects.json')
+  project_result = api.jiri.project(out=sources_path)
 
   # Gather args for running gndoc tool.
   out_file = project_dir.join('docs', 'gen', 'build_arguments.md')
@@ -83,7 +85,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
       '-out',
       out_file,
       '-s',
-      api.json.input(project_result.json.output),
+      sources_path,
   ]
 
   # Generate a gn args json file for each build target.
