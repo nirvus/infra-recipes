@@ -93,7 +93,7 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 
 API for writing auto-roller recipes.
 
-&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#196)(self, gerrit_project, repo_dir, commit_message, dry_run=False):**
+&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#198)(self, gerrit_project, repo_dir, commit_message, commit_untracked=False, dry_run=False):**
 
 Attempts to submit local edits via the CQ.
 
@@ -126,6 +126,7 @@ Args:
   commit_message (str): The commit message for the roll. Note that this method will
     automatically append a Gerrit Change ID to the change. Also, it may be a
     multiline string (embedded newlines are allowed).
+  commit_untracked (bool): Whether to commit untracked files as well.
   dry_run (bool): Whether to execute this method in dry_run mode.
 
 &emsp; **@property**<br>&mdash; **def [poll\_interval\_secs](/recipe_modules/auto_roller/api.py#38)(self):**
@@ -962,7 +963,7 @@ Args:
 
 Example recipe for auto-rolling.
 
-&mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#27)(api, project, remote, dry_run):**
+&mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#30)(api, project, remote, commit_untracked_files, dry_run):**
 ### *recipes* / [breakpad\_tools](/recipes/breakpad_tools.py)
 
 [DEPS](/recipes/breakpad_tools.py#9): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -51,7 +51,8 @@ class AutoRollerApi(recipe_api.RecipeApi):
     """
     return self._poll_timeout_secs
 
-  def _create_and_push_change(self, gerrit_project, repo_dir, commit_message):
+  def _create_and_push_change(self, gerrit_project, repo_dir, commit_message,
+                              commit_untracked):
     """Creates a Gerrit change containing modified files under repo_dir.
 
     Returns the unique Gerrit change ID for the newly created change.
@@ -103,12 +104,13 @@ class AutoRollerApi(recipe_api.RecipeApi):
 
     with self.m.context(cwd=repo_dir):
       # Update message with a Change-Id line and push the roll.
-      # TODO(mknyszek): Support adding untracked files, or specific sets of
-      # files.
-      self.m.git.commit(
-          message=commit_message + ("\nChange-Id: %s\n" % change_id),
-          all_tracked=True,
-      )
+      updated_message = commit_message + ("\nChange-Id: %s\n" % change_id)
+      if commit_untracked:
+        self.m.git.commit(message=updated_message, all_files=True)
+      else:
+        self.m.git.commit(message=updated_message, all_tracked=True)
+      # TODO(mknyszek): Delete the change and report back if HEAD didn't change
+      # any files.
       self.m.git.push('HEAD:refs/for/%s' % UPSTREAM_REF)
 
     return full_change_id
@@ -193,7 +195,8 @@ class AutoRollerApi(recipe_api.RecipeApi):
 
     return CQResult.TIMEOUT
 
-  def attempt_roll(self, gerrit_project, repo_dir, commit_message, dry_run=False):
+  def attempt_roll(self, gerrit_project, repo_dir, commit_message, commit_untracked=False,
+                   dry_run=False):
     """Attempts to submit local edits via the CQ.
 
     It additionally has two modes of operation, dry-run mode and production mode.
@@ -213,7 +216,6 @@ class AutoRollerApi(recipe_api.RecipeApi):
        * Abandon the change to clean up
 
     It assumes that repo_dir contains unstaged changes to only tracked files.
-    TODO(mknyszek): Support committing untracked files if there's a use-case.
 
     Args:
       gerrit_project (str): The name of the project to roll to in Gerrit, which
@@ -225,6 +227,7 @@ class AutoRollerApi(recipe_api.RecipeApi):
       commit_message (str): The commit message for the roll. Note that this method will
         automatically append a Gerrit Change ID to the change. Also, it may be a
         multiline string (embedded newlines are allowed).
+      commit_untracked (bool): Whether to commit untracked files as well.
       dry_run (bool): Whether to execute this method in dry_run mode.
     """
     self.m.gerrit.ensure_gerrit()
@@ -234,6 +237,7 @@ class AutoRollerApi(recipe_api.RecipeApi):
         gerrit_project=gerrit_project,
         repo_dir=repo_dir,
         commit_message=commit_message,
+        commit_untracked=commit_untracked,
     )
 
     # Trigger CQ for the change ID.

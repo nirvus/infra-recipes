@@ -18,13 +18,16 @@ DEPS = [
 PROPERTIES = {
   'project': Property(kind=str, help='Gerrit project', default=None),
   'remote': Property(kind=str, help='Remote repository'),
+  'commit_untracked_files': Property(kind=bool,
+                                     default=False,
+                                     help='Whether to commit untracked files'),
   'dry_run': Property(kind=bool,
                       default=False,
                       help='Whether to dry-run the auto-roller (CQ+1 and abandon the change)'),
 }
 
 
-def RunSteps(api, project, remote, dry_run):
+def RunSteps(api, project, remote, commit_untracked_files, dry_run):
   # Check out the repo.
   api.git.checkout(remote)
 
@@ -36,6 +39,7 @@ def RunSteps(api, project, remote, dry_run):
       gerrit_project=project,
       repo_dir=api.path['start_dir'].join(project),
       commit_message='hello world!',
+      commit_untracked=commit_untracked_files,
       dry_run=dry_run,
   )
 
@@ -54,6 +58,14 @@ def GenTests(api):
   yield (api.test('zircon_default') +
          api.properties(project='garnet',
                         remote='https://fuchsia.googlesource.com/garnet') +
+         api.step_data('check if done (0)', api.auto_roller.success()))
+
+  # Test a successful roll of zircon into garnet with the default poll
+  # configuration, and include untracked files.
+  yield (api.test('zircon_untracked') +
+         api.properties(project='garnet',
+                        remote='https://fuchsia.googlesource.com/garnet',
+                        commit_untracked_files=True) +
          api.step_data('check if done (0)', api.auto_roller.success()))
 
   # Test a failure to roll zircon into garnet because CQ failed. The
