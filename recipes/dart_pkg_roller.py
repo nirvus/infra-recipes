@@ -60,6 +60,7 @@ def RunSteps(api):
         gerrit_project='third_party/dart-pkg',
         repo_dir=dart_pkg_dir,
         commit_message=COMMIT_MESSAGE.format(changes=changes),
+        commit_untracked=True,
     )
 
 

@@ -173,10 +173,19 @@
   {
     "cmd": [
       "git",
+      "add",
+      "-A"
+    ],
+    "cwd": "[START_DIR]/third_party/dart-pkg/pub",
+    "infra_step": true,
+    "name": "git add"
+  },
+  {
+    "cmd": [
+      "git",
       "commit",
       "-m",
-      "[roll] Update 3p packages\n\n\n\nChange-Id: abc123\n",
-      "-a"
+      "[roll] Update 3p packages\n\n\n\nChange-Id: abc123\n"
     ],
     "cwd": "[START_DIR]/third_party/dart-pkg/pub",
     "infra_step": true,
