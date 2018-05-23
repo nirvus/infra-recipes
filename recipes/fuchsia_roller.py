@@ -77,6 +77,10 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in,
   api.gitiles.ensure_gitiles()
 
   with api.context(infra_steps=True):
+    api.jiri.init()
+    api.jiri.import_manifest(manifest, remote, project)
+    api.jiri.update(run_hooks=False)
+
     # Read the remote URL of the repo we're rolling from.
     roll_from_repo = api.jiri.read_manifest_element(
         manifest=import_in,
@@ -86,10 +90,6 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in,
 
     if not revision:
       revision = api.gitiles.refs(roll_from_repo).get('refs/heads/master', None)
-
-    api.jiri.init()
-    api.jiri.import_manifest(manifest, remote, project)
-    api.jiri.update(run_hooks=False)
 
     project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):

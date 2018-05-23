@@ -60,34 +60,6 @@
     ]
   },
   {
-    "cmd": [],
-    "infra_step": true,
-    "name": "read_manifest_zircon"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "manifest",
-      "-v",
-      "-time",
-      "-element",
-      "zircon",
-      "-template",
-      "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\"\n      }\n      ",
-      "manifest/garnet"
-    ],
-    "infra_step": true,
-    "name": "read_manifest_zircon.jiri manifest",
-    "stdout": "/path/to/tmp/json",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"remote\": \"https://fuchsia.googlesource.com/zircon\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
@@ -128,6 +100,34 @@
     ],
     "infra_step": true,
     "name": "jiri update"
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "read_manifest_zircon"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "manifest",
+      "-v",
+      "-time",
+      "-element",
+      "zircon",
+      "-template",
+      "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\"\n      }\n      ",
+      "manifest/garnet"
+    ],
+    "infra_step": true,
+    "name": "read_manifest_zircon.jiri manifest",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"remote\": \"https://fuchsia.googlesource.com/zircon\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
