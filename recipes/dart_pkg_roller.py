@@ -59,6 +59,9 @@ def RunSteps(api):
     api.auto_roller.attempt_roll(
         gerrit_project='third_party/dart-pkg',
         repo_dir=dart_pkg_dir,
+        # TODO(mknyszek): Read this remote for dart-pkg out of the manifest/dart
+        # manifest.
+        repo_url='https://fuchsia.googlesource.com/third_party/dart-pkg',
         commit_message=COMMIT_MESSAGE.format(changes=changes),
         commit_untracked=True,
     )

@@ -51,8 +51,8 @@ class AutoRollerApi(recipe_api.RecipeApi):
     """
     return self._poll_timeout_secs
 
-  def _create_and_push_change(self, gerrit_project, repo_dir, commit_message,
-                              commit_untracked):
+  def _create_and_push_change(self, gerrit_project, repo_dir, repo_url,
+                              commit_message, commit_untracked):
     """Creates a Gerrit change containing modified files under repo_dir.
 
     Returns the unique Gerrit change ID for the newly created change.
@@ -111,7 +111,10 @@ class AutoRollerApi(recipe_api.RecipeApi):
         self.m.git.commit(message=updated_message, all_tracked=True)
       # TODO(mknyszek): Delete the change and report back if HEAD didn't change
       # any files.
-      self.m.git.push('HEAD:refs/for/%s' % UPSTREAM_REF)
+      self.m.git.push(
+          ref='HEAD:refs/for/%s' % UPSTREAM_REF,
+          remote=repo_url,
+      )
 
     return full_change_id
 
@@ -195,8 +198,8 @@ class AutoRollerApi(recipe_api.RecipeApi):
 
     return CQResult.TIMEOUT
 
-  def attempt_roll(self, gerrit_project, repo_dir, commit_message, commit_untracked=False,
-                   dry_run=False):
+  def attempt_roll(self, gerrit_project, repo_dir, repo_url, commit_message,
+                   commit_untracked=False, dry_run=False):
     """Attempts to submit local edits via the CQ.
 
     It additionally has two modes of operation, dry-run mode and production mode.
@@ -224,6 +227,7 @@ class AutoRollerApi(recipe_api.RecipeApi):
         fuchsia-review.googlesource.com.
       repo_dir (Path): The path to the directory containing a local copy of the
         git repo with changes that will be rolled.
+      repo_url (str): A repository URL specifying where we should push to.
       commit_message (str): The commit message for the roll. Note that this method will
         automatically append a Gerrit Change ID to the change. Also, it may be a
         multiline string (embedded newlines are allowed).
@@ -232,10 +236,11 @@ class AutoRollerApi(recipe_api.RecipeApi):
     """
     self.m.gerrit.ensure_gerrit()
 
-    # Create the change both locally and remotely and push.
+    # Create the change both locally and repo_urlly and push.
     change_id = self._create_and_push_change(
         gerrit_project=gerrit_project,
         repo_dir=repo_dir,
+        repo_url=repo_url,
         commit_message=commit_message,
         commit_untracked=commit_untracked,
     )

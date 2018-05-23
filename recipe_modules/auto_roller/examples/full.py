@@ -38,6 +38,7 @@ def RunSteps(api, project, remote, commit_untracked_files, dry_run):
   api.auto_roller.attempt_roll(
       gerrit_project=project,
       repo_dir=api.path['start_dir'].join(project),
+      repo_url=remote,
       commit_message='hello world!',
       commit_untracked=commit_untracked_files,
       dry_run=dry_run,

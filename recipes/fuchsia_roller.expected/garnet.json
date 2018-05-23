@@ -332,7 +332,7 @@
     "cmd": [
       "git",
       "push",
-      "origin",
+      "https://fuchsia.googlesource.com/peridot",
       "HEAD:refs/for/master"
     ],
     "cwd": "[START_DIR]/peridot",
