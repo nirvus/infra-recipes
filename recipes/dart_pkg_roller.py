@@ -13,6 +13,7 @@ DEPS = [
   'infra/auto_roller',
   'infra/jiri',
   'recipe_engine/context',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -52,10 +53,15 @@ def RunSteps(api):
         args=['--changelog', api.raw_io.output_text()],
     ).raw_io.output_text
 
+    # Read the dart-pkg entry in the dart manifest.
+    dart_pkg_entry = api.jiri.read_manifest_element(
+        manifest=api.path['start_dir'].join('topaz', 'manifest', 'dart'),
+        element_type='project',
+        element_name='third_party/dart-pkg',
+    )
+
     # Land the changes.
-    # TODO(mknyszek): Get the actual path for dart-pkg out of the manifest/dart
-    # manifest.
-    dart_pkg_dir = api.path['start_dir'].join('third_party', 'dart-pkg', 'pub')
+    dart_pkg_dir = api.path['start_dir'].join(dart_pkg_entry.get('path'))
     api.auto_roller.attempt_roll(
         gerrit_project='third_party/dart-pkg',
         repo_dir=dart_pkg_dir,
@@ -66,4 +72,13 @@ def RunSteps(api):
 
 def GenTests(api):
   yield (api.test('basic') +
+         api.jiri.read_manifest_element(api,
+             manifest=api.path['start_dir'].join('topaz', 'manifest', 'dart'),
+             element_type='project',
+             element_name='third_party/dart-pkg',
+             test_output={
+                 'remote': 'https://fuchsia.googlesource.com/third_party/dart-pkg',
+                 'path': 'third_party/dart-pkg/pub',
+             },
+         ) +
          api.step_data('check if done (0)', api.auto_roller.success()))
