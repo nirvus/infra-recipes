@@ -62,7 +62,10 @@ RUNCMDS_PACKAGE_SPEC = '''
 # variant property) to build-zircon.sh switches.
 VARIANTS_ZIRCON = [
     ('host_asan', '-H'),
-    ('asan', '-A'),
+    # TODO(ZX-2197): Don't build Zircon with ASan when building Fuchsia
+    # with ASan due to linking problems.  Long run, unclear whether we
+    # want to enable ASan in Zircon pieces on Fuchsia ASan bots.
+    #('asan', '-A'),
 ]
 
 
@@ -915,4 +918,3 @@ class FuchsiaApi(recipe_api.RecipeApi):
       # scanning the build page (also consider sorting by name).
       if test['result'] != 'PASS':
         step_result.presentation.status = self.m.step.FAILURE
-

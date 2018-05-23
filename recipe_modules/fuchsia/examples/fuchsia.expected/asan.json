@@ -276,7 +276,6 @@
       "-t",
       "arm64",
       "-H",
-      "-A",
       "-j",
       "50",
       "GOMACC=[START_DIR]/cipd/goma/gomacc"
