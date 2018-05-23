@@ -81,18 +81,18 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in,
     api.jiri.import_manifest(manifest, remote, project)
     api.jiri.update(run_hooks=False)
 
-    # Read the remote URL of the repo we're rolling from.
-    roll_from_repo = api.jiri.read_manifest_element(
-        manifest=import_in,
-        element_type=roll_type,
-        element_name=import_from,
-    ).get('remote')
-
-    if not revision:
-      revision = api.gitiles.refs(roll_from_repo).get('refs/heads/master', None)
-
     project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):
+      # Read the remote URL of the repo we're rolling from.
+      roll_from_repo = api.jiri.read_manifest_element(
+          manifest=import_in,
+          element_type=roll_type,
+          element_name=import_from,
+      ).get('remote')
+
+      if not revision:
+        revision = api.gitiles.refs(roll_from_repo).get('refs/heads/master', None)
+
       # Determine whether to update manifest imports or projects.
       if roll_type == 'import':
         updated_section = 'imports'

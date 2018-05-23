@@ -103,6 +103,7 @@
   },
   {
     "cmd": [],
+    "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "read_manifest_zircon"
   },
@@ -118,6 +119,7 @@
       "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\"\n      }\n      ",
       "manifest/garnet"
     ],
+    "cwd": "[START_DIR]/garnet",
     "infra_step": true,
     "name": "read_manifest_zircon.jiri manifest",
     "stdout": "/path/to/tmp/json",

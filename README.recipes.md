@@ -114,7 +114,6 @@ The precise steps it performs are as follows:
    * Abandon the change to clean up
 
 It assumes that repo_dir contains unstaged changes to only tracked files.
-TODO(mknyszek): Support committing untracked files if there's a use-case.
 
 Args:
   gerrit_project (str): The name of the project to roll to in Gerrit, which

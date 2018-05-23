@@ -103,6 +103,7 @@
   },
   {
     "cmd": [],
+    "cwd": "[START_DIR]/peridot",
     "infra_step": true,
     "name": "read_manifest_garnet"
   },
@@ -118,6 +119,7 @@
       "\n      {\n        \"manifest\": \"{{.Manifest}}\",\n        \"name\": \"{{.Name}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"revision\": \"{{.Revision}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"root\": \"{{.Root}}\"\n      }\n      ",
       "manifest/peridot"
     ],
+    "cwd": "[START_DIR]/peridot",
     "infra_step": true,
     "name": "read_manifest_garnet.jiri manifest",
     "stdout": "/path/to/tmp/json",
