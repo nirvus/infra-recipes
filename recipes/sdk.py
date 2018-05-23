@@ -53,6 +53,7 @@ PROPERTIES = {
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
              patch_repository_url, project, manifest, remote, revision):
   api.go.ensure_go()
+  api.gsutil.ensure_gsutil()
 
   api.fuchsia.checkout(
       manifest=manifest,
@@ -88,22 +89,62 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       )
       overlay = True
 
-  with api.step.nest('make sdk'):
+  if not api.properties.get('tryjob'):
+    with api.step.nest('upload sdk'):
+      # Upload the Fuchsia SDK to CIPD and GCS.
+      UploadPackage(api, sdk_dir, revision)
+
+  with api.step.nest('make chromium sdk'):
     out_dir = api.path['cleanup'].join('fuchsia-sdk')
     sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
     api.go('run', api.path['start_dir'].join('scripts', 'makesdk.go'),
            '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
 
   if not api.properties.get('tryjob'):
-    with api.step.nest('upload sdk'):
-      api.gsutil.ensure_gsutil()
-      # Upload the Chrome style SDK to GCS.
-      UploadArchive(api, sdk)
-      # Upload the Fuchsia SDK to CIPD and GCS.
-      UploadPackage(api, sdk_dir, revision)
+    with api.step.nest('upload chromium sdk'):
+      # Upload the Chromium style SDK to GCS and CIPD.
+      UploadArchive(api, sdk, out_dir, revision)
+
+def UploadPackage(api, staging_dir, revision):
+  cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
+  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if step.json.output['result']:
+    api.step('Package is up-to-date', cmd=None)
+    return
+
+  pkg_def = api.cipd.PackageDefinition(
+      package_name=cipd_pkg_name,
+      package_root=staging_dir,
+      install_mode='copy')
+  pkg_def.add_dir(staging_dir)
+  pkg_def.add_version_file('.versions/sdk.cipd_version')
+
+  cipd_pkg_file = api.path['cleanup'].join('sdk.cipd')
+
+  api.cipd.build_from_pkg(
+      pkg_def=pkg_def,
+      output_package=cipd_pkg_file,
+  )
+  step_result = api.cipd.register(
+      package_name=cipd_pkg_name,
+      package_path=cipd_pkg_file,
+      refs=['latest'],
+      tags={
+        'git_repository': 'https://fuchsia.googlesource.com/garnet',
+        'git_revision': revision,
+      }
+  )
+
+  instance_id = step_result.json.output['result']['instance_id']
+  api.gsutil.upload(
+      'fuchsia',
+      cipd_pkg_file,
+      api.gsutil.join('sdk', api.cipd.platform_suffix(), instance_id),
+      unauthenticated_url=True
+  )
 
 
-def UploadArchive(api, sdk):
+def UploadArchive(api, sdk, out_dir, revision):
   digest = api.hash.sha1('hash archive', sdk)
   archive_base_location = 'sdk/' + api.cipd.platform_suffix()
   archive_bucket = 'fuchsia'
@@ -138,9 +179,8 @@ def UploadArchive(api, sdk):
       name='upload latest digest',
       unauthenticated_url=True)
 
-
-def UploadPackage(api, sdk_dir, revision):
-  cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
+  # Upload the SDK to CIPD as well.
+  cipd_pkg_name = 'fuchsia/sdk/chromium/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
@@ -148,33 +188,18 @@ def UploadPackage(api, sdk_dir, revision):
 
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
-      package_root=sdk_dir,
+      package_root=out_dir,
       install_mode='copy')
-  pkg_def.add_dir(sdk_dir)
-  pkg_def.add_version_file('.versions/sdk.cipd_version')
+  pkg_def.add_dir(out_dir)
 
-  cipd_pkg_file = api.path['cleanup'].join('sdk.cipd')
-
-  api.cipd.build_from_pkg(
+  api.cipd.create_from_pkg(
       pkg_def=pkg_def,
-      output_package=cipd_pkg_file,
-  )
-  step_result = api.cipd.register(
-      package_name=cipd_pkg_name,
-      package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
         'git_repository': 'https://fuchsia.googlesource.com/garnet',
         'git_revision': revision,
+        'jiri_snapshot': digest,
       }
-  )
-
-  instance_id = step_result.json.output['result']['instance_id']
-  api.gsutil.upload(
-      'fuchsia',
-      cipd_pkg_file,
-      api.gsutil.join('sdk', api.cipd.platform_suffix(), instance_id),
-      unauthenticated_url=True
   )
 
 
@@ -185,18 +210,21 @@ def GenTests(api):
           project='garnet',
           manifest='manifest/garnet',
           remote='https://fuchsia.googlesource.com/garnet') +
-      api.step_data('upload sdk.hash archive',
+      api.step_data('upload chromium sdk.hash archive',
                     api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
   yield (api.test('ci_new') +
       api.properties(
           project='garnet',
           manifest='manifest/garnet',
           remote='https://fuchsia.googlesource.com/garnet') +
-      api.step_data('upload sdk.hash archive',
-                    api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')) +
       api.step_data('upload sdk.cipd search fuchsia/sdk/linux-amd64 ' +
                     'git_revision:' + api.jiri.example_revision,
-                     api.json.output({'result': []})))
+                     api.json.output({'result': []})) +
+      api.step_data('upload chromium sdk.cipd search fuchsia/sdk/chromium/linux-amd64 ' +
+                    'git_revision:' + api.jiri.example_revision,
+                     api.json.output({'result': []})) +
+      api.step_data('upload chromium sdk.hash archive',
+                    api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
   yield (api.test('cq_try') +
       api.properties.tryserver(
           project='garnet',

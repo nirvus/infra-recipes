@@ -31,6 +31,36 @@
   },
   {
     "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "infra_step": true,
     "name": "ensure_jiri"
   },
@@ -603,7 +633,7 @@
   },
   {
     "cmd": [],
-    "name": "make sdk"
+    "name": "make chromium sdk"
   },
   {
     "cmd": [
@@ -619,7 +649,7 @@
     "env": {
       "GOROOT": "[START_DIR]/cipd/go"
     },
-    "name": "make sdk.go run",
+    "name": "make chromium sdk.go run",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

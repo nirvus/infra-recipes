@@ -1221,9 +1221,9 @@ Recipe for building Fuchsia SDKs.
 
 &mdash; **def [RunSteps](/recipes/sdk.py#53)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 
-&mdash; **def [UploadArchive](/recipes/sdk.py#106)(api, sdk):**
+&mdash; **def [UploadArchive](/recipes/sdk.py#147)(api, sdk, out_dir, revision):**
 
-&mdash; **def [UploadPackage](/recipes/sdk.py#142)(api, sdk_dir, revision):**
+&mdash; **def [UploadPackage](/recipes/sdk.py#108)(api, staging_dir, revision):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)
