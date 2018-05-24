@@ -179,6 +179,24 @@
   },
   {
     "cmd": [
+      "git",
+      "ls-files",
+      "--modified",
+      "--deleted",
+      "--exclude-standard",
+      "--others"
+    ],
+    "cwd": "[START_DIR]/third_party/dart-pkg/pub",
+    "infra_step": true,
+    "name": "check for no-op commit",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@stdout@hello@@@",
+      "@@@STEP_LOG_END@stdout@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/gerrit/gerrit",
       "change-create",
       "-host",

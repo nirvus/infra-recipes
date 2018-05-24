@@ -12,6 +12,7 @@ DEPS = [
   'infra/git',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/raw_io',
 ]
 
 
@@ -67,6 +68,13 @@ def GenTests(api):
                         remote='https://fuchsia.googlesource.com/garnet',
                         commit_untracked_files=True) +
          api.step_data('check if done (0)', api.auto_roller.success()))
+
+  # Test a no-op roll of zircon into garnet with the default poll
+  # configuration.
+  yield (api.test('zircon_noop') +
+         api.properties(project='garnet',
+                        remote='https://fuchsia.googlesource.com/garnet') +
+         api.step_data('check for no-op commit', api.raw_io.stream_output('')))
 
   # Test a failure to roll zircon into garnet because CQ failed. The
   # Commit-Queue label is unset at the first check during polling.

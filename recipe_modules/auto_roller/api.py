@@ -51,14 +51,33 @@ class AutoRollerApi(recipe_api.RecipeApi):
     """
     return self._poll_timeout_secs
 
+  def _repo_has_uncommitted_files(self, repo_dir, check_untracked):
+    """Checks whether the git repository at repo_dir has any changes.
+
+    Args:
+      repo_dir (Path): Path to the git repository.
+      check_untracked (bool): Whether to include untracked files in the check.
+
+    Returns:
+      True if there are, and False if not.
+    """
+    args = ['--modified', '--deleted', '--exclude-standard']
+    if check_untracked:
+      args.append('--others')
+    with self.m.context(cwd=repo_dir):
+      step_result = self.m.git('ls-files', *args,
+          name='check for no-op commit',
+          stdout=self.m.raw_io.output(),
+          step_test_data=lambda: self.m.raw_io.test_api.stream_output('hello'))
+      step_result.presentation.logs['stdout'] = step_result.stdout.split('\n')
+    return bool(step_result.stdout.strip())
+
   def _create_and_push_change(self, gerrit_project, repo_dir, commit_message,
                               commit_untracked):
     """Creates a Gerrit change containing modified files under repo_dir.
 
     Returns the unique Gerrit change ID for the newly created change.
     """
-    # TODO(mknyszek): Verify that there are actually modified files to commit
-    # with git ls-files.
 
     # Create a new change for the roll.
     change = self.m.gerrit.create_change(
@@ -109,8 +128,6 @@ class AutoRollerApi(recipe_api.RecipeApi):
         self.m.git.commit(message=updated_message, all_files=True)
       else:
         self.m.git.commit(message=updated_message, all_tracked=True)
-      # TODO(mknyszek): Delete the change and report back if HEAD didn't change
-      # any files.
       self.m.git.push('HEAD:refs/for/%s' % UPSTREAM_REF)
 
     return full_change_id
@@ -231,6 +248,12 @@ class AutoRollerApi(recipe_api.RecipeApi):
       dry_run (bool): Whether to execute this method in dry_run mode.
     """
     self.m.gerrit.ensure_gerrit()
+
+    # Check to see if there are actually any changes in repo_dir before
+    # continuing.
+    if not self._repo_has_uncommitted_files(repo_dir, commit_untracked):
+      self.m.step('no changes to roll', None)
+      return
 
     # Create the change both locally and remotely and push.
     change_id = self._create_and_push_change(

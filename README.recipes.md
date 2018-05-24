@@ -87,13 +87,13 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 &mdash; **def [get\_token](/recipe_modules/authutil/api.py#32)(self, account, scopes=None, lifetime_sec=None):**
 ### *recipe_modules* / [auto\_roller](/recipe_modules/auto_roller)
 
-[DEPS](/recipe_modules/auto_roller/__init__.py#1): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+[DEPS](/recipe_modules/auto_roller/__init__.py#1): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [recipe\_engine/url][recipe_engine/recipe_modules/url]
 
 #### **class [AutoRollerApi](/recipe_modules/auto_roller/api.py#24)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 API for writing auto-roller recipes.
 
-&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#198)(self, gerrit_project, repo_dir, commit_message, commit_untracked=False, dry_run=False):**
+&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#215)(self, gerrit_project, repo_dir, commit_message, commit_untracked=False, dry_run=False):**
 
 Attempts to submit local edits via the CQ.
 
@@ -990,11 +990,11 @@ Args:
 &mdash; **def [RunSteps](/recipe_modules/authutil/examples/full.py#30)(api, scopes, lifetime_sec):**
 ### *recipes* / [auto\_roller:examples/full](/recipe_modules/auto_roller/examples/full.py)
 
-[DEPS](/recipe_modules/auto_roller/examples/full.py#10): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+[DEPS](/recipe_modules/auto_roller/examples/full.py#10): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
 Example recipe for auto-rolling.
 
-&mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#30)(api, project, remote, commit_untracked_files, dry_run):**
+&mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#31)(api, project, remote, commit_untracked_files, dry_run):**
 ### *recipes* / [breakpad\_tools](/recipes/breakpad_tools.py)
 
 [DEPS](/recipes/breakpad_tools.py#9): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

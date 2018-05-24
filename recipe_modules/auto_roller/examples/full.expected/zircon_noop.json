@@ -132,109 +132,19 @@
       "ls-files",
       "--modified",
       "--deleted",
-      "--exclude-standard",
-      "--others"
+      "--exclude-standard"
     ],
     "cwd": "[START_DIR]/garnet",
     "name": "check for no-op commit",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@stdout@hello@@@",
+      "@@@STEP_LOG_LINE@stdout@@@@",
       "@@@STEP_LOG_END@stdout@@@"
     ]
   },
   {
-    "cmd": [
-      "[START_DIR]/cipd/gerrit/gerrit",
-      "change-create",
-      "-host",
-      "https://fuchsia-review.googlesource.com",
-      "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"hello world!\"}}",
-      "-output",
-      "/path/to/tmp/json"
-    ],
-    "name": "create new change",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"change_id\": \"abc123\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"id\": \"beep%2Fboop~master~abc123\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/abc123@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "git",
-      "add",
-      "-A"
-    ],
-    "cwd": "[START_DIR]/garnet",
-    "name": "git add"
-  },
-  {
-    "cmd": [
-      "git",
-      "commit",
-      "-m",
-      "hello world!\nChange-Id: abc123\n"
-    ],
-    "cwd": "[START_DIR]/garnet",
-    "name": "git commit"
-  },
-  {
-    "cmd": [
-      "git",
-      "push",
-      "origin",
-      "HEAD:refs/for/master"
-    ],
-    "cwd": "[START_DIR]/garnet",
-    "name": "git push"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/gerrit/gerrit",
-      "set-review",
-      "-host",
-      "https://fuchsia-review.googlesource.com",
-      "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
-      "-output",
-      "/path/to/tmp/json"
-    ],
-    "name": "submit to commit queue",
-    "~followup_annotations": [
-      "@@@STEP_LOG_END@json.output (invalid)@@@",
-      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
-      "@@@STEP_LOG_END@json.output (exception)@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/gerrit/gerrit",
-      "change-detail",
-      "-host",
-      "https://fuchsia-review.googlesource.com",
-      "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\"}",
-      "-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "check if done (0)",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"labels\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"Commit-Queue\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"approved\": {}@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"status\": \"MERGED\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
+    "cmd": [],
+    "name": "no changes to roll"
   },
   {
     "name": "$result",
