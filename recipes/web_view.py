@@ -17,8 +17,6 @@ DEPS = [
   'recipe_engine/step',
 ]
 
-TARGETS = ['arm64', 'x64']
-
 BUILD_TYPE = 'release'
 
 PROPERTIES = {
@@ -32,7 +30,6 @@ PROPERTIES = {
                       default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
-  'target': Property(kind=Enum(*TARGETS), help='Target to build'),
   'snapshot_gcs_bucket': Property(kind=str,
                                   help='The GCS bucket to upload a jiri snapshot of the build'
                                        ' to. Will not upload a snapshot if this property is'
@@ -43,7 +40,7 @@ PROPERTIES = {
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url,
-             remote, manifest, project, target, snapshot_gcs_bucket):
+             remote, manifest, project, snapshot_gcs_bucket):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   api.fuchsia.checkout(
@@ -61,43 +58,42 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project(['third_party/webkit']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  build = api.fuchsia.build(
-      target=target,
-      build_type=BUILD_TYPE,
-      packages=['topaz/packages/prod/webkit'],
-      gn_args=['use_prebuilt_webkit=false'],
-      ninja_targets=['topaz/runtime/web_view:webkit'],
-  )
-
-  # Upload the built library to Google Cloud Storage.
-  if not api.properties.get('tryjob'):
-    # api.fuchsia.checkout() doesn't always ensure that gsutil exists.
-    api.gsutil.ensure_gsutil()
-
-    # The GCS path uses old-style target names.
-    bucket_root = {'arm64': 'aarch64', 'x64': 'x86_64'}[target]
-    api.gsutil.upload(
-        bucket='fuchsia',
-        src=build.fuchsia_build_dir.join('%s-shared' % target, 'libwebkit.so'),
-        dst=api.gsutil.join(bucket_root, 'webkit', revision, 'libwebkit.so'),
-        link_name='libwebkit.so',
-        unauthenticated_url=True,
-        name='upload libwebkit.so',
+  for target in ['arm64', 'x64']:
+    build = api.fuchsia.build(
+        target=target,
+        build_type=BUILD_TYPE,
+        packages=['topaz/packages/prod/webkit'],
+        gn_args=['use_prebuilt_webkit=false'],
+        ninja_targets=['topaz/runtime/web_view:webkit'],
     )
+
+    # Upload the built library to Google Cloud Storage.
+    if not api.properties.get('tryjob'):
+      # api.fuchsia.checkout() doesn't always ensure that gsutil exists.
+      api.gsutil.ensure_gsutil()
+
+      # The GCS path uses old-style target names.
+      bucket_root = {'arm64': 'aarch64', 'x64': 'x86_64'}[target]
+      api.gsutil.upload(
+          bucket='fuchsia',
+          src=build.fuchsia_build_dir.join('%s-shared' % target, 'libwebkit.so'),
+          dst=api.gsutil.join(bucket_root, 'webkit', revision, 'libwebkit.so'),
+          link_name='libwebkit.so',
+          unauthenticated_url=True,
+          name='upload libwebkit.so',
+      )
 
 
 def GenTests(api):
   yield api.test('default') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
   )
   yield api.test('cq') + api.properties.tryserver(
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
       tryjob=True,
   )
   yield api.test('cq_no_snapshot') + api.properties.tryserver(
@@ -105,7 +101,6 @@ def GenTests(api):
       patch_gerrit_url='fuchsia-review.googlesource.com',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
       tryjob=True,
       snapshot_gcs_bucket=None,
   )
@@ -114,6 +109,5 @@ def GenTests(api):
       patch_gerrit_url='fuchsia-review.googlesource.com',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
       snapshot_gcs_bucket=None,
   )
