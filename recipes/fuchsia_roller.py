@@ -136,7 +136,6 @@ def RunSteps(api, category, project, manifest, remote, roll_type, import_in,
     api.auto_roller.attempt_roll(
         gerrit_project=project,
         repo_dir=project_dir,
-        repo_url=remote,
         commit_message=message,
         dry_run=dry_run,
     )

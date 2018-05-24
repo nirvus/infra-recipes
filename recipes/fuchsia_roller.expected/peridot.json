@@ -332,7 +332,7 @@
     "cmd": [
       "git",
       "push",
-      "https://fuchsia.googlesource.com/topaz",
+      "origin",
       "HEAD:refs/for/master"
     ],
     "cwd": "[START_DIR]/topaz",

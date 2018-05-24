@@ -195,7 +195,7 @@
     "cmd": [
       "git",
       "push",
-      "https://fuchsia.googlesource.com/third_party/dart-pkg",
+      "origin",
       "HEAD:refs/for/master"
     ],
     "cwd": "[START_DIR]/third_party/dart-pkg/pub",

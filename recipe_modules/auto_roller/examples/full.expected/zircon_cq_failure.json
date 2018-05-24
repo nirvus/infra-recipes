@@ -162,7 +162,7 @@
     "cmd": [
       "git",
       "push",
-      "https://fuchsia.googlesource.com/garnet",
+      "origin",
       "HEAD:refs/for/master"
     ],
     "cwd": "[START_DIR]/garnet",

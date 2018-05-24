@@ -93,7 +93,7 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 
 API for writing auto-roller recipes.
 
-&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#201)(self, gerrit_project, repo_dir, repo_url, commit_message, commit_untracked=False, dry_run=False):**
+&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#198)(self, gerrit_project, repo_dir, commit_message, commit_untracked=False, dry_run=False):**
 
 Attempts to submit local edits via the CQ.
 
@@ -122,7 +122,6 @@ Args:
     fuchsia-review.googlesource.com.
   repo_dir (Path): The path to the directory containing a local copy of the
     git repo with changes that will be rolled.
-  repo_url (str): A repository URL specifying where we should push to.
   commit_message (str): The commit message for the roll. Note that this method will
     automatically append a Gerrit Change ID to the change. Also, it may be a
     multiline string (embedded newlines are allowed).

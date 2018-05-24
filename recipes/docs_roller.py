@@ -121,7 +121,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   api.auto_roller.attempt_roll(
       gerrit_project=project,
       repo_dir=project_dir,
-      repo_url=remote,
       commit_message=COMMIT_MESSAGE)
 
 
