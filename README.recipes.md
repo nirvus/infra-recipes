@@ -707,6 +707,29 @@ Return a jiri command step.
 
 &mdash; **def [checkout](/recipe_modules/jiri/api.py#249)(self, manifest, remote, project=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
 
+Initializes and populates a jiri checkout from a remote manifest.
+
+Emits a source manifest for the build.
+
+Args:
+  manifest (str): Relative path to the manifest in the remote repository.
+  remote (str): URL to the remote repository.
+  project (str): The name that jiri should assign to the project.
+  patch_ref (str): The ref at which a patch lives.
+  patch_gerrit_url (str): The Gerrit URL for the patch to apply.
+  patch_project (str): The Gerrit project where the patch lives.
+  timeout_secs (int): A timeout for jiri update in seconds.
+
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#276)(self, snapshot, timeout_secs=None):**
+
+Initializes and populates a jiri checkout from a snapshot.
+
+Emits a source manifest for the build.
+
+Args:
+  snapshot (Path): Path to the jiri snapshot.
+  timeout_secs (int): A timeout for jiri update in seconds.
+
 &mdash; **def [clean](/recipe_modules/jiri/api.py#135)(self, all=False, \*\*kwargs):**
 
 &mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#154)(self, manifest, projects=None, imports=None, test_data=None):**
@@ -760,7 +783,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#264)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#290)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -1172,9 +1195,9 @@ Recipe for building Jiri.
 &mdash; **def [UploadPackage](/recipes/jiri.py#42)(api, revision, staging_dir):**
 ### *recipes* / [jiri:examples/full](/recipe_modules/jiri/examples/full.py)
 
-[DEPS](/recipe_modules/jiri/examples/full.py#5): [jiri](#recipe_modules-jiri), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/jiri/examples/full.py#7): [jiri](#recipe_modules-jiri), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-&mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#16)(api):**
+&mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#24)(api, checkout_from_snapshot):**
 ### *recipes* / [minfs:examples/full](/recipe_modules/minfs/examples/full.py)
 
 [DEPS](/recipe_modules/minfs/examples/full.py#5): [minfs](#recipe_modules-minfs), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -248,6 +248,19 @@ class JiriApi(recipe_api.RecipeApi):
 
   def checkout(self, manifest, remote, project=None, patch_ref=None,
                patch_gerrit_url=None, patch_project=None, timeout_secs=None):
+    """Initializes and populates a jiri checkout from a remote manifest.
+
+    Emits a source manifest for the build.
+
+    Args:
+      manifest (str): Relative path to the manifest in the remote repository.
+      remote (str): URL to the remote repository.
+      project (str): The name that jiri should assign to the project.
+      patch_ref (str): The ref at which a patch lives.
+      patch_gerrit_url (str): The Gerrit URL for the patch to apply.
+      patch_project (str): The Gerrit project where the patch lives.
+      timeout_secs (int): A timeout for jiri update in seconds.
+    """
     self.init()
     self.import_manifest(manifest, remote, project)
     # Note that timeout is not a jiri commandline argument, but a param
@@ -260,6 +273,19 @@ class JiriApi(recipe_api.RecipeApi):
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
 
+  def checkout_snapshot(self, snapshot, timeout_secs=None):
+    """Initializes and populates a jiri checkout from a snapshot.
+
+    Emits a source manifest for the build.
+
+    Args:
+      snapshot (Path): Path to the jiri snapshot.
+      timeout_secs (int): A timeout for jiri update in seconds.
+    """
+    self.init()
+    self.update(run_hooks=False, snapshot=snapshot, timeout=timeout_secs)
+    self.run_hooks()
+    self.m.source_manifest.set_json_manifest('checkout', self.source_manifest())
 
   def read_manifest_element(self, manifest, element_type, element_name):
     """Reads information about a <project> or <import> from a manifest file.

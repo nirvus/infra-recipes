@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from recipe_engine.recipe_api import Property
+
 DEPS = [
     'jiri',
     'recipe_engine/json',
@@ -13,16 +15,26 @@ DEPS = [
 ]
 
 
-def RunSteps(api):
+PROPERTIES = {
+    'checkout_from_snapshot':
+        Property(kind=bool, help='Checkout from snapshot', default=False),
+}
+
+
+def RunSteps(api, checkout_from_snapshot):
   # First, ensure we have jiri.
   api.jiri.ensure_jiri()
   assert api.jiri.jiri
 
-  api.jiri.checkout(
-      'minimal',
-      'https://fuchsia.googlesource.com',
-      patch_ref='refs/changes/1/2/3',
-      patch_gerrit_url='https://fuchsia-review.googlesource.com')
+  if checkout_from_snapshot:
+    # Check out from snapshot.
+    api.jiri.checkout_snapshot('snapshot')
+  else:
+    api.jiri.checkout(
+        'minimal',
+        'https://fuchsia.googlesource.com',
+        patch_ref='refs/changes/1/2/3',
+        patch_gerrit_url='https://fuchsia-review.googlesource.com')
 
   # Setup a new jiri root.
   api.jiri.init('dir')
@@ -106,6 +118,19 @@ def RunSteps(api):
 # yapf: disable
 def GenTests(api):
   yield (api.test('basic') +
+      api.jiri.read_manifest_element(api,
+          manifest='minimal',
+          element_type='import',
+          element_name='test/import',
+          test_output=api.jiri.read_manifest_project_output) +
+      api.jiri.read_manifest_element(api,
+          manifest='minimal',
+          element_type='project',
+          element_name='test/project',
+          test_output=api.jiri.read_manifest_project_output))
+
+  yield (api.test('checkout_from_snapshot') +
+      api.properties(checkout_from_snapshot=True) +
       api.jiri.read_manifest_element(api,
           manifest='minimal',
           element_type='import',
