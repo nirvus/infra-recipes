@@ -117,14 +117,16 @@ def RunSteps(api, url, ref, revision):
 
   extra_options = {
     'linux': [
-      '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++',
+      '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
+      '-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
       '-DBOOTSTRAP_CMAKE_SYSROOT=%s' % cipd_dir,
+      '-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
+      '-DCMAKE_EXE_SHARED_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
       '-DCMAKE_SYSROOT=%s' % cipd_dir,
     ],
     'mac': [],
   }[api.platform.name]
 
-  extra_options = []
   for tc_arch, gn_arch in TARGETS:
     extra_options.extend([
       '-DSTAGE2_FUCHSIA_%s_SYSROOT=%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'sysroot')),
