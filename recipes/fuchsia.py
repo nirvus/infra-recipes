@@ -190,60 +190,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   # Upload an archive containing build artifacts if the properties say to do so.
   # Note: if we ran tests, this will only execute if the tests passed.
   if upload_archive and not api.properties.get('tryjob'):
-    api.gsutil.ensure_gsutil()
-    api.tar.ensure_tar()
-
-    # Glob for bootdata binaries.
-    bootdata_paths = api.file.glob_paths(
-        name='glob bootdata',
-        source=build.fuchsia_build_dir,
-        pattern='bootdata-blob-*.bin',
-        test_data=['/path/to/out/bootdata-blob-pc.bin'],
-    )
-    # Begin creating a tar package.
-    package = api.tar.create(api.path['cleanup'].join('fuchsia.tar.gz'), 'gzip')
-
-    # Add the images directory, which contain system images, to the package.
-    package.add(build.fuchsia_build_dir.join('images'), build.fuchsia_build_dir)
-
-    # Add all the bootdata-*.bin files to the package, which contain the core
-    # ramdisk necessary to boot.
-    for p in bootdata_paths:
-      package.add(p, build.fuchsia_build_dir)
-
-    # Add SSH keys to the package, making it easier for users to SSH into
-    # devices that are paved with buildbot-generated images.
-    package.add(
-        build.fuchsia_build_dir.join('ssh-keys'), build.fuchsia_build_dir)
-
-    # Add args.gn, a file containing the arguments passed to GN, to the package.
-    package.add(
-        build.fuchsia_build_dir.join('args.gn'), build.fuchsia_build_dir)
-
-    # Add the bootserver tool from zircon to the package. Note that since the
-    # CWD is set to the zircon build dir, it will be placed in tools/bootserver
-    # in the archive.
-    package.add(
-        build.zircon_build_dir.join('tools', 'bootserver'),
-        build.zircon_build_dir)
-
-    # Add the zircon kernel binary to the package.
-    package.add(
-        build.zircon_build_dir.join(build.zircon_kernel_image),
-        build.zircon_build_dir)
-
-    # Finalize the package and upload it.
-    package.tar('tar fuchsia')
-    digest = api.hash.sha1(
-        'hash archive',
-        package.archive,
-        test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
-    api.gsutil.upload(
-        bucket='fuchsia-archive',
-        src=package.archive,
-        dst=digest,
-        link_name='fuchsia.tar.gz',
-        name='upload fuchsia.tar.gz')
+    api.fuchsia.upload_build_artifacts(build)
 
 
 # yapf: disable

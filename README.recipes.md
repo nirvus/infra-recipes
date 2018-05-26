@@ -395,6 +395,15 @@ Args:
 
 Returns:
   A FuchsiaTestResults representing the completed test.
+
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#920)(self, build_results, bucket='fuchsia-archive'):**
+
+Uploads artifacts from the build to Google Cloud Storage.
+
+Args:
+  build_results (FuchsiaBuildResults): The Fuchsia build results to get
+    artifacts from.
+  bucket (str): The Google Cloud Storage bucket to upload to.
 ### *recipe_modules* / [gerrit](/recipe_modules/gerrit)
 
 [DEPS](/recipe_modules/gerrit/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]

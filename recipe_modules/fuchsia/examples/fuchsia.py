@@ -103,6 +103,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
     if test_results.summary and test_results.passed_tests:
         assert test_results.passed_tests['/hello']
     api.fuchsia.analyze_test_results('test results', test_results)
+  api.fuchsia.upload_build_artifacts(build)
 
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.

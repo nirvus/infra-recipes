@@ -916,3 +916,74 @@ class FuchsiaApi(recipe_api.RecipeApi):
       # scanning the build page (also consider sorting by name).
       if test['result'] != 'PASS':
         step_result.presentation.status = self.m.step.FAILURE
+
+  def upload_build_artifacts(self, build_results, bucket='fuchsia-archive'):
+    """Uploads artifacts from the build to Google Cloud Storage.
+
+    Args:
+      build_results (FuchsiaBuildResults): The Fuchsia build results to get
+        artifacts from.
+      bucket (str): The Google Cloud Storage bucket to upload to.
+    """
+    self.m.gsutil.ensure_gsutil()
+    self.m.tar.ensure_tar()
+
+    # Glob for bootdata binaries.
+    bootdata_paths = self.m.file.glob_paths(
+        name='glob bootdata',
+        source=build_results.fuchsia_build_dir,
+        pattern='bootdata-blob-*.bin',
+        test_data=['/path/to/out/bootdata-blob-pc.bin'],
+    )
+    # Begin creating a tar package.
+    package = self.m.tar.create(self.m.path['cleanup'].join('fuchsia.tar.gz'), 'gzip')
+
+    # Add the images directory, which contain system images, to the package.
+    package.add(
+        build_results.fuchsia_build_dir.join('images'),
+        build_results.fuchsia_build_dir)
+
+    # Add all the bootdata-*.bin files to the package, which contain the core
+    # ramdisk necessary to boot.
+    for p in bootdata_paths:
+      package.add(p, build_results.fuchsia_build_dir)
+
+    # Add SSH keys to the package, making it easier for users to SSH into
+    # devices that are paved with buildbot-generated images.
+    package.add(
+        build_results.fuchsia_build_dir.join('ssh-keys'),
+        build_results.fuchsia_build_dir)
+
+    # Add args.gn, a file containing the arguments passed to GN, to the package.
+    # This is useful for understanding what packages went into the build, as
+    # well as the over build configuration.
+    package.add(
+        build_results.fuchsia_build_dir.join('args.gn'),
+        build_results.fuchsia_build_dir)
+
+    # Add the bootserver tool from zircon to the package. Note that since the
+    # CWD is set to the zircon build dir, it will be placed in tools/bootserver
+    # in the archive. This makes the packages self-sufficient, allowing one to
+    # boot Fuchsia on a device without having to obtain any additional
+    # dependencies.
+    package.add(
+        build_results.zircon_build_dir.join('tools', 'bootserver'),
+        build_results.zircon_build_dir)
+
+    # Add the zircon kernel binary to the package.
+    package.add(
+        build_results.zircon_build_dir.join(build_results.zircon_kernel_image),
+        build_results.zircon_build_dir)
+
+    # Finalize the package and upload it.
+    package.tar('tar fuchsia')
+    digest = self.m.hash.sha1(
+        'hash archive',
+        package.archive,
+        test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
+    self.m.gsutil.upload(
+        bucket=bucket,
+        src=package.archive,
+        dst=digest,
+        link_name='fuchsia.tar.gz',
+        name='upload fuchsia.tar.gz')
