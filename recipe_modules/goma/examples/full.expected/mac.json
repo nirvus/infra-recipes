@@ -102,6 +102,7 @@
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "infra_step": true,
@@ -159,6 +160,7 @@
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "goma_jsonstatus"
@@ -173,6 +175,7 @@
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "goma_stat"
@@ -187,6 +190,7 @@
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "stop_goma"

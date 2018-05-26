@@ -91,6 +91,8 @@ print jobs
       env['GOMA_DEPS_CACHE_FILE'] = 'goma_deps_cache'
     if 'GOMA_CACHE_DIR' not in env:
       env['GOMA_CACHE_DIR'] = self.m.path['cache'].join('goma')
+    if 'GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS' not in env:
+      env['GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS'] = 'false'
     if self._luci_context:
       if not self._goma_context:
         step_result = self.m.json.read(
