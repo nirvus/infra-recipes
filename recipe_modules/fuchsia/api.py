@@ -261,8 +261,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
           patch_project,
           timeout_secs=timeout_secs,
       )
-      if patch_ref:
-        self.m.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
 
       snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
       snapshot_contents = self.m.jiri.snapshot(snapshot_file)

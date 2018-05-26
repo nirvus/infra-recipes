@@ -267,8 +267,20 @@ class JiriApi(recipe_api.RecipeApi):
     # that will get passed to self.m.step() via kwargs.
     self.update(run_hooks=False, timeout=timeout_secs)
     if patch_ref:
-      self.patch(patch_ref, host=patch_gerrit_url, project=patch_project, rebase=True)
-    self.run_hooks()
+      self.patch(
+        patch_ref,
+        host=patch_gerrit_url,
+        project=patch_project,
+        rebase=True
+      )
+      self.update(
+        gc=True,
+        rebase_tracked=True,
+        local_manifest=True,
+        run_hooks=False,
+        timeout=timeout_secs
+      )
+    self.run_hooks(local_manifest=patch_ref is not None)
 
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)

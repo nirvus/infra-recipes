@@ -579,8 +579,6 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest, remote, project, patch_ref, patch_gerrit_url,
                       patch_project)
-    if patch_ref:
-      api.jiri.update(gc=True, rebase_tracked=True, local_manifest=True)
 
   src_dir = api.path['start_dir'].join('zircon')
   build_dir = Build(

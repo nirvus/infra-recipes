@@ -150,10 +150,28 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-gc=true",
+      "-rebase-tracked",
+      "-local-manifest=true",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update (2)",
+    "timeout": 1200
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3"
+      "-attempts=3",
+      "-local-manifest=true"
     ],
     "infra_step": true,
     "name": "jiri run-hooks"
@@ -181,21 +199,6 @@
       "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
       "@@@STEP_LOG_END@json.output[source manifest]@@@"
     ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-gc=true",
-      "-rebase-tracked",
-      "-local-manifest=true"
-    ],
-    "infra_step": true,
-    "name": "jiri update (2)"
   },
   {
     "cmd": [
