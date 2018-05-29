@@ -219,13 +219,20 @@
   },
   {
     "cmd": [],
-    "name": "build"
+    "name": "build arm64"
   },
   {
     "cmd": [],
-    "name": "build.ensure_goma",
+    "name": "build arm64.build",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.build.ensure_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
@@ -240,9 +247,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "build.ensure_goma.ensure_installed",
+    "name": "build arm64.build.ensure_goma.ensure_installed",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@",
+      "@@@STEP_NEST_LEVEL@3@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -267,9 +274,9 @@
       "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
     },
     "infra_step": true,
-    "name": "build.start_goma",
+    "name": "build arm64.build.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
@@ -278,10 +285,10 @@
       "-u",
       "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
     ],
-    "name": "build.calculate the number of recommended jobs",
+    "name": "build arm64.build.calculate the number of recommended jobs",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
@@ -309,16 +316,16 @@
       "50",
       "GOMACC=[START_DIR]/cipd/goma/gomacc"
     ],
-    "name": "build.zircon",
+    "name": "build arm64.build.zircon",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build.build fuchsia",
+    "name": "build arm64.build.build fuchsia",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
@@ -329,9 +336,9 @@
       "--check",
       "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/prod/webkit\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false use_prebuilt_webkit=false"
     ],
-    "name": "build.build fuchsia.gn gen",
+    "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -343,9 +350,9 @@
       "50",
       "topaz/runtime/web_view:webkit"
     ],
-    "name": "build.build fuchsia.ninja",
+    "name": "build arm64.build.build fuchsia.ninja",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -361,9 +368,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
     },
-    "name": "build.goma_jsonstatus",
+    "name": "build arm64.build.goma_jsonstatus",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
@@ -378,9 +385,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
     },
-    "name": "build.goma_stat",
+    "name": "build arm64.build.goma_stat",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
@@ -395,9 +402,171 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
     },
-    "name": "build.stop_goma",
+    "name": "build arm64.build.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64"
+  },
+  {
+    "cmd": [],
+    "name": "build x64.build",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.build.ensure_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/goma",
+      "-ensure-file",
+      "infra_internal/goma/client/linux-amd64 release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "build x64.build.ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "restart"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
+    },
+    "infra_step": true,
+    "name": "build x64.build.start_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-t",
+      "x64",
+      "-j",
+      "50",
+      "GOMACC=[START_DIR]/cipd/goma/gomacc"
+    ],
+    "name": "build x64.build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/gn",
+      "gen",
+      "[START_DIR]/out/release-x64",
+      "--check",
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/prod/webkit\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false use_prebuilt_webkit=false"
+    ],
+    "name": "build x64.build.build fuchsia.gn gen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/ninja",
+      "-C",
+      "[START_DIR]/out/release-x64",
+      "-j",
+      "50",
+      "topaz/runtime/web_view:webkit"
+    ],
+    "name": "build x64.build.build fuchsia.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "jsonstatus",
+      "[START_DIR]/cipd/goma/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
+    },
+    "name": "build x64.build.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
+    },
+    "name": "build x64.build.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "stop"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
+    },
+    "name": "build x64.build.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
@@ -431,6 +600,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "upload arm64"
+  },
+  {
     "cmd": [
       "vpython",
       "-vpython-spec",
@@ -444,195 +617,15 @@
       "gs://fuchsia/aarch64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/8ac5404b688b34f2d34d1c8a648413aca30b7a97/libwebkit.so"
     ],
     "infra_step": true,
-    "name": "upload libwebkit.so",
+    "name": "upload arm64.upload libwebkit.so",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@libwebkit.so@https://storage.googleapis.com/fuchsia/aarch64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/8ac5404b688b34f2d34d1c8a648413aca30b7a97/libwebkit.so@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "build (2)"
-  },
-  {
-    "cmd": [],
-    "name": "build.ensure_goma (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/goma",
-      "-ensure-file",
-      "infra_internal/goma/client/linux-amd64 release",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "build.ensure_goma.ensure_installed (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "restart"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "infra_step": true,
-    "name": "build.start_goma (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "x64",
-      "-j",
-      "50",
-      "GOMACC=[START_DIR]/cipd/goma/gomacc"
-    ],
-    "name": "build.zircon (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "build.build fuchsia (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/buildtools/gn",
-      "gen",
-      "[START_DIR]/out/release-x64",
-      "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/prod/webkit\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false use_prebuilt_webkit=false"
-    ],
-    "name": "build.build fuchsia.gn gen (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/buildtools/ninja",
-      "-C",
-      "[START_DIR]/out/release-x64",
-      "-j",
-      "50",
-      "topaz/runtime/web_view:webkit"
-    ],
-    "name": "build.build fuchsia.ninja (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.goma_jsonstatus (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stat"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.goma_stat (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stop"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.stop_goma (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_gsutil (3)"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed (3)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
+    "name": "upload x64"
   },
   {
     "cmd": [
@@ -648,8 +641,9 @@
       "gs://fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/8ac5404b688b34f2d34d1c8a648413aca30b7a97/libwebkit.so"
     ],
     "infra_step": true,
-    "name": "upload libwebkit.so (2)",
+    "name": "upload x64.upload libwebkit.so",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@libwebkit.so@https://storage.googleapis.com/fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/8ac5404b688b34f2d34d1c8a648413aca30b7a97/libwebkit.so@@@"
     ]
   },

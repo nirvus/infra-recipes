@@ -17,7 +17,7 @@ DEPS = [
   'recipe_engine/step',
 ]
 
-BUILD_TYPE = 'release'
+TARGETS = ['arm64', 'x64']
 
 PROPERTIES = {
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
@@ -58,20 +58,28 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project(['third_party/webkit']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  for target in ['arm64', 'x64']:
-    build = api.fuchsia.build(
-        target=target,
-        build_type=BUILD_TYPE,
-        packages=['topaz/packages/prod/webkit'],
-        gn_args=['use_prebuilt_webkit=false'],
-        ninja_targets=['topaz/runtime/web_view:webkit'],
-    )
+  # Build for all targets before uploading any to avoid an incomplete upload.
+  builds = {}  # keyed by target string
+  for target in TARGETS:
+    with api.step.nest('build ' + target):
+      builds[target] = api.fuchsia.build(
+          target=target,
+          build_type='release',
+          packages=['topaz/packages/prod/webkit'],
+          gn_args=['use_prebuilt_webkit=false'],
+          ninja_targets=['topaz/runtime/web_view:webkit'],
+      )
 
-    # Upload the built library to Google Cloud Storage.
-    if not api.properties.get('tryjob'):
-      # api.fuchsia.checkout() doesn't always ensure that gsutil exists.
-      api.gsutil.ensure_gsutil()
+  # If this isn't a real run, don't pollute the storage.
+  if api.properties.get('tryjob'):
+    return
 
+  # Upload the built library to Google Cloud Storage.
+  # api.fuchsia.checkout() doesn't always ensure that gsutil exists.
+  api.gsutil.ensure_gsutil()
+
+  for target in TARGETS:
+    with api.step.nest('upload ' + target):
       # The GCS path has three main components:
       # - target architecture
       # - third_party/webkit git HEAD hash
@@ -81,9 +89,10 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
       # of topaz (header-defined values, static libs, etc.), it's also
       # important to reflect the topaz version.
       bucket_root = {'arm64': 'aarch64', 'x64': 'x86_64'}[target]
+      build_dir = builds[target].fuchsia_build_dir
       api.gsutil.upload(
           bucket='fuchsia',
-          src=build.fuchsia_build_dir.join('%s-shared' % target, 'libwebkit.so'),
+          src=build_dir.join('%s-shared' % target, 'libwebkit.so'),
           dst=api.gsutil.join(bucket_root, 'webkit', revision,
                               checkout.snapshot_file_sha1, 'libwebkit.so'),
           link_name='libwebkit.so',
