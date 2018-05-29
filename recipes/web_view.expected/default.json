@@ -441,12 +441,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[START_DIR]/out/release-arm64/arm64-shared/libwebkit.so",
-      "gs://fuchsia/aarch64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/libwebkit.so"
+      "gs://fuchsia/aarch64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/8ac5404b688b34f2d34d1c8a648413aca30b7a97/libwebkit.so"
     ],
     "infra_step": true,
     "name": "upload libwebkit.so",
     "~followup_annotations": [
-      "@@@STEP_LINK@libwebkit.so@https://storage.googleapis.com/fuchsia/aarch64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/libwebkit.so@@@"
+      "@@@STEP_LINK@libwebkit.so@https://storage.googleapis.com/fuchsia/aarch64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/8ac5404b688b34f2d34d1c8a648413aca30b7a97/libwebkit.so@@@"
     ]
   },
   {
@@ -645,12 +645,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[START_DIR]/out/release-x64/x64-shared/libwebkit.so",
-      "gs://fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/libwebkit.so"
+      "gs://fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/8ac5404b688b34f2d34d1c8a648413aca30b7a97/libwebkit.so"
     ],
     "infra_step": true,
     "name": "upload libwebkit.so (2)",
     "~followup_annotations": [
-      "@@@STEP_LINK@libwebkit.so@https://storage.googleapis.com/fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/libwebkit.so@@@"
+      "@@@STEP_LINK@libwebkit.so@https://storage.googleapis.com/fuchsia/x86_64/webkit/c22471f4e3f842ae18dd9adec82ed9eb78ed1127/8ac5404b688b34f2d34d1c8a648413aca30b7a97/libwebkit.so@@@"
     ]
   },
   {

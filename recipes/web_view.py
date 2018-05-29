@@ -43,7 +43,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
              remote, manifest, project, snapshot_gcs_bucket):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
-  api.fuchsia.checkout(
+  checkout = api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
       project=project,
@@ -72,12 +72,20 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
       # api.fuchsia.checkout() doesn't always ensure that gsutil exists.
       api.gsutil.ensure_gsutil()
 
-      # The GCS path uses old-style target names.
+      # The GCS path has three main components:
+      # - target architecture
+      # - third_party/webkit git HEAD hash
+      # - topaz jiri.snapshot file hash
+      # The HEAD hash component lets us find all builds for a given version
+      # of the webkit code. But, since the actual binary includes pieces
+      # of topaz (header-defined values, static libs, etc.), it's also
+      # important to reflect the topaz version.
       bucket_root = {'arm64': 'aarch64', 'x64': 'x86_64'}[target]
       api.gsutil.upload(
           bucket='fuchsia',
           src=build.fuchsia_build_dir.join('%s-shared' % target, 'libwebkit.so'),
-          dst=api.gsutil.join(bucket_root, 'webkit', revision, 'libwebkit.so'),
+          dst=api.gsutil.join(bucket_root, 'webkit', revision,
+                              checkout.snapshot_file_sha1, 'libwebkit.so'),
           link_name='libwebkit.so',
           unauthenticated_url=True,
           name='upload libwebkit.so',
