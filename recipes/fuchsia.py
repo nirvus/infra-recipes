@@ -30,14 +30,37 @@ DEPS = [
 
 PROPERTIES = {
     # Properties for checking out code from a Jiri manifest.
+    # NOTE: These properties are ignored if checkout_snapshot is True.
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
-        Property(kind=str, help='Jiri manifest to use'),
+        Property(kind=str, help='Jiri manifest to use', default=None),
     'remote':
-        Property(kind=str, help='Remote manifest repository'),
+        Property(kind=str, help='Remote manifest repository', default=None),
+
+    # Properties for checking out code from a snapshot.
+    'checkout_snapshot':
+        Property(
+            kind=bool,
+            help='Whether or not to checkout from a Jiri snapshot.'
+                 ' Snapshot is expected to be found at revision in repository.',
+            default=False),
+    'repository':
+        Property(
+            kind=str,
+            help='Repository which triggered this build.'
+                 ' Set by luci-scheduler. Used if checkout_snapshot is True.',
+            default=None),
+    'revision':
+        Property(
+            kind=str,
+            help='Revision which triggered this build.'
+                 ' Set by luci-scheduler. Used if checkout_snapshot is True.',
+            default=None),
 
     # Properties for applying a change from Gerrit as a patch.
+    # NOTE: in the case of checkout_snapshot, these are treated as applying
+    # to the snapshot, and not the full checkout.
     'patch_gerrit_url':
         Property(kind=str, help='Gerrit host', default=None),
     'patch_project':
@@ -108,10 +131,11 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, project, manifest, remote, patch_gerrit_url, patch_project,
-             patch_ref, target, build_type, packages, variant, gn_args,
-             run_tests, runtests_args, device_type, networking_for_tests,
-             test_timeout_secs, snapshot_gcs_bucket, upload_archive):
+def RunSteps(api, project, manifest, remote, checkout_snapshot, repository,
+             revision, patch_gerrit_url, patch_project, patch_ref, target,
+             build_type, packages, variant, gn_args, run_tests, runtests_args,
+             device_type, networking_for_tests, test_timeout_secs,
+             snapshot_gcs_bucket, upload_archive):
   # Don't upload snapshots for tryjobs.
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
@@ -129,15 +153,28 @@ def RunSteps(api, project, manifest, remote, patch_gerrit_url, patch_project,
       raise api.step.InfraFailure(
           'networking for tests is not available for tryjobs')
 
-  api.fuchsia.checkout(
-      manifest=manifest,
-      remote=remote,
-      project=project,
-      patch_ref=patch_ref,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
-      snapshot_gcs_bucket=snapshot_gcs_bucket,
-  )
+  if checkout_snapshot:
+    assert repository
+    assert revision
+    api.fuchsia.checkout_snapshot(
+        repository=repository,
+        revision=revision,
+        patch_ref=patch_ref,
+        patch_gerrit_url=patch_gerrit_url,
+        patch_project=patch_project,
+    )
+  else:
+    assert manifest
+    assert remote
+    api.fuchsia.checkout(
+        manifest=manifest,
+        remote=remote,
+        project=project,
+        patch_ref=patch_ref,
+        patch_gerrit_url=patch_gerrit_url,
+        patch_project=patch_project,
+        snapshot_gcs_bucket=snapshot_gcs_bucket,
+    )
   test_cmds = None
   if run_tests:
     test_cmds = [
@@ -266,6 +303,15 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       upload_archive=True,
       tryjob=True,
+  )
+
+  # Test cases for checking out Fuchsia from a snapshot.
+  yield api.test('checkout_from_snapshot') + api.properties(
+      checkout_snapshot=True,
+      repository='https://fuchsia.googlesource.com/snapshots',
+      revision='69acf9677ff075e15329cc860d968c1f70be5e6a',
+      target='x64',
+      packages=['topaz/packages/default'],
   )
 
   # Test cases for verifying build packages.
