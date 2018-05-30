@@ -928,13 +928,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.gsutil.ensure_gsutil()
     self.m.tar.ensure_tar()
 
-    # Glob for bootdata binaries.
-    bootdata_paths = self.m.file.glob_paths(
-        name='glob bootdata',
-        source=build_results.fuchsia_build_dir,
-        pattern='bootdata-blob-*.bin',
-        test_data=['/path/to/out/bootdata-blob-pc.bin'],
-    )
     # Begin creating a tar package.
     package = self.m.tar.create(self.m.path['cleanup'].join('fuchsia.tar.gz'), 'gzip')
 
@@ -942,6 +935,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
     package.add(
         build_results.fuchsia_build_dir.join('images'),
         build_results.fuchsia_build_dir)
+
+    # Glob for bootdata binaries.
+    bootdata_paths = self.m.file.glob_paths(
+        name='glob bootdata',
+        source=build_results.fuchsia_build_dir,
+        pattern='bootdata-blob-*.bin',
+        test_data=['/path/to/out/bootdata-blob-pc.bin'],
+    )
 
     # Add all the bootdata-*.bin files to the package, which contain the core
     # ramdisk necessary to boot.
