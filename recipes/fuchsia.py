@@ -29,24 +29,23 @@ DEPS = [
 ]
 
 PROPERTIES = {
-    'category':
-        Property(kind=str, help='Build category', default=None),
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_storage':
-        Property(kind=str, help='Patch location', default=None),
-    'patch_repository_url':
-        Property(kind=str, help='URL to a Git repository', default=None),
+    # Properties for checking out code from a Jiri manifest.
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
+
+    # Properties for applying a change from Gerrit as a patch.
+    'patch_gerrit_url':
+        Property(kind=str, help='Gerrit host', default=None),
+    'patch_project':
+        Property(kind=str, help='Gerrit project', default=None),
+    'patch_ref':
+        Property(kind=str, help='Gerrit patch ref', default=None),
+
+    # Properties pertaining to the build.
     'target':
         Property(kind=Enum(*TARGETS), help='Target to build'),
     'build_type':
@@ -63,6 +62,8 @@ PROPERTIES = {
     'gn_args':
         Property(
             kind=List(basestring), help='Extra args to pass to GN', default=[]),
+
+    # Properties pertaining to testing.
     'run_tests':
         Property(kind=bool, help='Whether to run tests or not', default=False),
     'runtests_args':
@@ -77,24 +78,6 @@ PROPERTIES = {
             ' not QEMU it will be passed to Swarming as the device_type'
             ' dimension',
             default='QEMU'),
-    'test_timeout_secs':
-        Property(
-            kind=int,
-            help='How long to wait until timing out on tests',
-            default=40 * 60),
-    'snapshot_gcs_bucket':
-        Property(
-            kind=str,
-            help='The GCS bucket to upload a jiri snapshot of the build'
-            ' to. Will not upload a snapshot if this property is'
-            ' blank or tryjob is True',
-            default='fuchsia-snapshots'),
-    'upload_archive':
-        Property(
-            kind=bool,
-            help='Whether to upload archive of the build artifacts'
-            ' (always False if tryjob is True)',
-            default=True),
     'networking_for_tests':
         Property(
             kind=bool,
@@ -102,14 +85,33 @@ PROPERTIES = {
             ' (if True, will cause a failure if tryjob is True or'
             ' if device_type != QEMU)',
             default=False),
+    'test_timeout_secs':
+        Property(
+            kind=int,
+            help='How long to wait until timing out on tests',
+            default=40 * 60),
+
+    # Properties pertaining to uploading build artifacts.
+    'snapshot_gcs_bucket':
+        Property(
+            kind=str,
+            help='The GCS bucket to upload a jiri snapshot of the build'
+            ' to. Will not upload a snapshot if this property is'
+            ' blank, tryjob is True, or checkout_snapshot is True.',
+            default='fuchsia-snapshots'),
+    'upload_archive':
+        Property(
+            kind=bool,
+            help='Whether to upload archive of the build artifacts'
+            ' (always False if tryjob is True)',
+            default=True),
 }
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, project, manifest, remote,
-             target, build_type, packages, variant, gn_args, run_tests,
-             runtests_args, device_type, test_timeout_secs, snapshot_gcs_bucket,
-             upload_archive, networking_for_tests):
+def RunSteps(api, project, manifest, remote, patch_gerrit_url, patch_project,
+             patch_ref, target, build_type, packages, variant, gn_args,
+             run_tests, runtests_args, device_type, networking_for_tests,
+             test_timeout_secs, snapshot_gcs_bucket, upload_archive):
   # Don't upload snapshots for tryjobs.
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None

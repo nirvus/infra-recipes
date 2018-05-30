@@ -1094,7 +1094,7 @@ Recipe for building libffmpeg.so.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#108)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, test_timeout_secs, snapshot_gcs_bucket, upload_archive, networking_for_tests):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#111)(api, project, manifest, remote, patch_gerrit_url, patch_project, patch_ref, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, networking_for_tests, test_timeout_secs, snapshot_gcs_bucket, upload_archive):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
