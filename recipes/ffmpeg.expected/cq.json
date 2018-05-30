@@ -203,6 +203,36 @@
   },
   {
     "cmd": [],
+    "name": "ensure bsdtar"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/tools/bsdtar/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure bsdtar.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "build arm64"
   },
   {
@@ -393,6 +423,92 @@
   },
   {
     "cmd": [],
+    "infra_step": true,
+    "name": "archive arm64"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/third_party/ffmpeg",
+      "fuchsia/config/**/*"
+    ],
+    "infra_step": true,
+    "name": "archive arm64.glob",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/third_party/ffmpeg/third_party/ffmpeg/fuchsia/config/StarStar/Star@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/third_party/ffmpeg",
+      "lib*/*.h"
+    ],
+    "infra_step": true,
+    "name": "archive arm64.glob (2)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/third_party/ffmpeg/third_party/ffmpeg/libStar/Star.h@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/third_party/ffmpeg",
+      "LICENSE.md"
+    ],
+    "infra_step": true,
+    "name": "archive arm64.glob (3)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/third_party/ffmpeg/third_party/ffmpeg/LICENSE.md@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bsdtar",
+      "-cf",
+      "[CLEANUP]/arm64.tar.gz",
+      "-z",
+      "-C",
+      "[START_DIR]/out/release-arm64/arm64-shared",
+      "libffmpeg.so",
+      "-C",
+      "[START_DIR]/third_party/ffmpeg",
+      "third_party/ffmpeg/fuchsia/config/StarStar/Star",
+      "third_party/ffmpeg/libStar/Star.h",
+      "third_party/ffmpeg/LICENSE.md"
+    ],
+    "infra_step": true,
+    "name": "archive arm64.tar",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "build x64"
   },
   {
@@ -551,6 +667,92 @@
     "name": "build x64.build.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "archive x64"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/third_party/ffmpeg",
+      "fuchsia/config/**/*"
+    ],
+    "infra_step": true,
+    "name": "archive x64.glob",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/third_party/ffmpeg/third_party/ffmpeg/fuchsia/config/StarStar/Star@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/third_party/ffmpeg",
+      "lib*/*.h"
+    ],
+    "infra_step": true,
+    "name": "archive x64.glob (2)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/third_party/ffmpeg/third_party/ffmpeg/libStar/Star.h@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/third_party/ffmpeg",
+      "LICENSE.md"
+    ],
+    "infra_step": true,
+    "name": "archive x64.glob (3)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/third_party/ffmpeg/third_party/ffmpeg/LICENSE.md@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bsdtar",
+      "-cf",
+      "[CLEANUP]/x64.tar.gz",
+      "-z",
+      "-C",
+      "[START_DIR]/out/release-x64/x64-shared",
+      "libffmpeg.so",
+      "-C",
+      "[START_DIR]/third_party/ffmpeg",
+      "third_party/ffmpeg/fuchsia/config/StarStar/Star",
+      "third_party/ffmpeg/libStar/Star.h",
+      "third_party/ffmpeg/LICENSE.md"
+    ],
+    "infra_step": true,
+    "name": "archive x64.tar",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {

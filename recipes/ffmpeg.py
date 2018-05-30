@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Recipe for building libffmpeg.so."""
+"""Recipe for building libffmpeg and uploading it and required source files."""
 
 from recipe_engine.config import Enum, List
 from recipe_engine.recipe_api import Property
@@ -12,10 +12,17 @@ DEPS = [
   'infra/fuchsia',
   'infra/gsutil',
   'infra/jiri',
+  'infra/tar',
   'recipe_engine/context',
+  'recipe_engine/file',
+  'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
 ]
+
+# Patterns of source code to include in the archive that this recipe produces.
+# All relative to third_party/ffmpeg.
+SOURCE_PATTERNS = ['fuchsia/config/**/*', 'lib*/*.h', 'LICENSE.md']
 
 TARGETS = ['arm64', 'x64']
 
@@ -44,6 +51,8 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
              remote, manifest, revision, project, snapshot_gcs_bucket):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
+  # TODO(garymm): Change to manifest to 'manifest/garnet' and
+  # remote to 'https://fuchsia.googlesource.com/garnet' to speed up checkout.
   checkout = api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
@@ -60,16 +69,38 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
     revision = api.jiri.project(['third_party/ffmpeg']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
-  # Build for all targets before uploading any to avoid an incomplete upload.
-  builds = {}  # keyed by target string
+  # Build and archive for all targets before uploading any to avoid an
+  # incomplete upload.
+  api.tar.ensure_tar()
+  archives = {}  # keyed by target string
   for target in TARGETS:
-    with api.step.nest('build ' + target):
-      builds[target] = api.fuchsia.build(
+    with api.step.nest('build %s' % target):
+      build_results = api.fuchsia.build(
           target=target,
           build_type='release',
           packages=['garnet/packages/prod/ffmpeg'],
           ninja_targets=['third_party/ffmpeg'],
       )
+    with api.context(infra_steps=True):
+      with api.step.nest('archive %s' % target):
+        # Archive build artifacts and source files.
+        archive = api.tar.create(
+            api.path['cleanup'].join('%s.tar.gz' % target), compression='gzip')
+        archives[target] = archive
+        shared_build_dir = build_results.fuchsia_build_dir.join(
+            '%s-shared' % target)
+        archive.add(shared_build_dir.join('libffmpeg.so'), shared_build_dir)
+        ffmpeg_dir = checkout.root_dir.join('third_party', 'ffmpeg')
+        source_paths = []
+        for pattern in SOURCE_PATTERNS:
+          source_paths.extend(api.file.glob_paths(
+            name='glob',
+            source=ffmpeg_dir,
+            pattern=pattern,
+            test_data=['third_party/ffmpeg/%s' % pattern.replace('*', 'Star')]))
+        for source_path in source_paths:
+          archive.add(source_path, ffmpeg_dir)
+        archive.tar('tar')
 
   # If this isn't a real run, don't pollute the storage.
   if api.properties.get('tryjob'):
@@ -79,8 +110,9 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
   # api.fuchsia.checkout() doesn't always ensure that gsutil exists.
   api.gsutil.ensure_gsutil()
 
-  for target in TARGETS:
-    with api.step.nest('upload ' + target):
+  with api.context(infra_steps=True):
+    for target in TARGETS:
+      basename = 'libffmpeg.tar.gz'
       # The GCS path has three main components:
       # - target architecture
       # - third_party/ffmpeg git HEAD hash
@@ -90,15 +122,14 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
       # of garnet (header-defined values, static libs, etc.), it's also
       # important to reflect the garnet version.
       bucket_root = {'arm64': 'aarch64', 'x64': 'x86_64'}[target]
-      build_dir = builds[target].fuchsia_build_dir
       api.gsutil.upload(
           bucket='fuchsia',
-          src=build_dir.join('%s-shared' % target, 'libffmpeg.so'),
+          src=archives[target].archive,
           dst=api.gsutil.join(bucket_root, 'ffmpeg', revision,
-                              checkout.snapshot_file_sha1, 'libffmpeg.so'),
-          link_name='libffmpeg.so',
+                              checkout.snapshot_file_sha1, basename),
+          link_name=basename,
           unauthenticated_url=True,
-          name='upload libffmpeg.so',
+          name='upload %s' % target,
       )
 
 

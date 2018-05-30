@@ -36,7 +36,7 @@
   * [dart_pkg_roller](#recipes-dart_pkg_roller) &mdash; Recipe for automatically updating Dart 3p packages.
   * [dart_toolchain](#recipes-dart_toolchain) &mdash; Recipe for building Dart toolchain.
   * [docs_roller](#recipes-docs_roller) &mdash; Recipe for generating docs.
-  * [ffmpeg](#recipes-ffmpeg) &mdash; Recipe for building libffmpeg.
+  * [ffmpeg](#recipes-ffmpeg) &mdash; Recipe for building libffmpeg and uploading it and required source files.
   * [fuchsia](#recipes-fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia:examples/fuchsia](#recipes-fuchsia_examples_fuchsia) &mdash; Recipe for building Fuchsia and running tests.
   * [fuchsia_perf](#recipes-fuchsia_perf) &mdash; Recipe for building Fuchsia and running performance tests.
@@ -1096,11 +1096,11 @@ Recipe for generating docs.
 &mdash; **def [RunSteps](/recipes/docs_roller.py#52)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, packages):**
 ### *recipes* / [ffmpeg](/recipes/ffmpeg.py)
 
-[DEPS](/recipes/ffmpeg.py#11): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/ffmpeg.py#11): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-Recipe for building libffmpeg.so.
+Recipe for building libffmpeg and uploading it and required source files.
 
-&mdash; **def [RunSteps](/recipes/ffmpeg.py#42)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, remote, manifest, revision, project, snapshot_gcs_bucket):**
+&mdash; **def [RunSteps](/recipes/ffmpeg.py#49)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, remote, manifest, revision, project, snapshot_gcs_bucket):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
