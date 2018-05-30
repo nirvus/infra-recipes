@@ -754,7 +754,9 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-xvf",
+      "--extract",
+      "--verbose",
+      "-f",
       "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/out.tar",
       "-C",
       "[START_DIR]/test_results"

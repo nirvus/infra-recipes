@@ -24,19 +24,19 @@ def RunSteps(api):
   api.step('touch c', ['touch', temp.join('sub', 'dir', 'c')])
 
   # Build a tar file.
-  package = api.tar.create(temp.join('more.tar.gz'), 'gzip')
-  package.add(temp.join('a'), temp)
+  archive = api.tar.create(temp.join('more.tar.gz'), compression='gzip')
+  archive.add(temp.join('a'), temp)
   with api.context(cwd=temp):
-    package.add(temp.join('b'))
-  package.add(temp.join('sub', 'dir', 'c'), temp.join('sub'))
-  package.tar('taring more')
+    archive.add(temp.join('b'))
+  archive.add(temp.join('sub', 'dir', 'c'), temp.join('sub'))
+  archive.tar('taring more')
 
   # Coverage for 'output' property.
-  api.step('report', ['echo', package.archive])
+  api.step('report', ['echo', archive.path])
 
-  # Untar the package into a directory stripping one path component.
-  api.tar.extract('untaring', temp.join('output.tar'), temp.join('output'),
-                  strip_components=1)
+  # Extract the archive into a directory stripping one path component.
+  api.tar.extract('untaring', temp.join('output.tar'),
+                  directory=temp.join('output'), strip_components=1)
   # List untarped content.
   with api.context(cwd=temp.join('output')):
     api.step('listing', ['find'])

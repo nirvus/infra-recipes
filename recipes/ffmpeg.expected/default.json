@@ -511,9 +511,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-cf",
+      "--create",
+      "-f",
       "[CLEANUP]/arm64.tar.gz",
-      "-z",
+      "--gzip",
       "-C",
       "[START_DIR]/out/release-arm64/arm64-shared",
       "libffmpeg.so",
@@ -755,9 +756,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-cf",
+      "--create",
+      "-f",
       "[CLEANUP]/x64.tar.gz",
-      "-z",
+      "--gzip",
       "-C",
       "[START_DIR]/out/release-x64/x64-shared",
       "libffmpeg.so",

@@ -722,7 +722,9 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-xvf",
+      "--extract",
+      "--verbose",
+      "-f",
       "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/out.tar",
       "-C",
       "[START_DIR]/test_results"
@@ -829,9 +831,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-cf",
+      "--create",
+      "-f",
       "[CLEANUP]/fuchsia.tar.gz",
-      "-z",
+      "--gzip",
       "-C",
       "[START_DIR]/out/build-zircon/build-arm64",
       "tools/bootserver",
@@ -880,9 +883,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-cf",
+      "--create",
+      "-f",
       "[CLEANUP]/packages.tar.gz",
-      "-z",
+      "--gzip",
       "-C",
       "[START_DIR]/out/debug-arm64",
       "host_x64/amber-publish",

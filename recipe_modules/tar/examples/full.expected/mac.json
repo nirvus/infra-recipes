@@ -68,9 +68,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-cf",
+      "--create",
+      "-f",
       "[TMP_BASE]/tar-example_tmp_1/more.tar.gz",
-      "-z",
+      "--gzip",
       "-C",
       "[TMP_BASE]/tar-example_tmp_1",
       "a",
@@ -91,7 +92,9 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bsdtar",
-      "-xvf",
+      "--extract",
+      "--verbose",
+      "-f",
       "[TMP_BASE]/tar-example_tmp_1/output.tar",
       "-C",
       "[TMP_BASE]/tar-example_tmp_1/output",

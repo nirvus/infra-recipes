@@ -174,8 +174,8 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     api.tar.ensure_tar()
     test_results_map = api.tar.extract(
         step_name='extract results',
-        archive=result[output_archive_name],
-        dir=api.raw_io.output_dir(leak_to=test_results_dir),
+        path=result[output_archive_name],
+        directory=api.raw_io.output_dir(leak_to=test_results_dir),
     ).raw_io.output_dir
 
   # Analyze the test results and report them in the presentation.

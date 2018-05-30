@@ -99,7 +99,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
             pattern=pattern,
             test_data=['third_party/ffmpeg/%s' % pattern.replace('*', 'Star')]))
         for source_path in source_paths:
-          archive.add(source_path, ffmpeg_dir)
+          archive.add(source_path, directory=ffmpeg_dir)
         archive.tar('tar')
 
   # If this isn't a real run, don't pollute the storage.
@@ -124,7 +124,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
       bucket_root = {'arm64': 'aarch64', 'x64': 'x86_64'}[target]
       api.gsutil.upload(
           bucket='fuchsia',
-          src=archives[target].archive,
+          src=archives[target].path,
           dst=api.gsutil.join(bucket_root, 'ffmpeg', revision,
                               checkout.snapshot_file_sha1, basename),
           link_name=basename,

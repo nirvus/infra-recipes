@@ -420,7 +420,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1112)(self, build_results, bucket='fuchsia-archive'):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1113)(self, build_results, bucket='fuchsia-archive'):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
@@ -1004,22 +1004,26 @@ Args:
 
 Provides steps to tar and untar files.
 
-&mdash; **def [create](/recipe_modules/tar/api.py#31)(self, archive, compression=None):**
+&mdash; **def [create](/recipe_modules/tar/api.py#33)(self, path, compression=None):**
 
-Returns TarPackage object that can be used to compress a set of files.
+Returns TarArchive object that can be used to compress a set of files.
 
-&mdash; **def [ensure\_tar](/recipe_modules/tar/api.py#17)(self, version=None):**
+Args:
+  path: path of the archive file to be created.
+  compression: str, one of COMPRESSION_OPTS or None to disable compression.
+
+&mdash; **def [ensure\_tar](/recipe_modules/tar/api.py#19)(self, version=None):**
 
 Ensures that bsdtar is installed.
 
-&mdash; **def [extract](/recipe_modules/tar/api.py#36)(self, step_name, archive, dir=None, strip_components=None):**
+&mdash; **def [extract](/recipe_modules/tar/api.py#44)(self, step_name, path, directory=None, strip_components=None):**
 
 Uncompress |archive| file.
 
 Args:
   step_name: name of the step.
-  archive: absolute path to a file.
-  dir: path directory to extract the archive in.
+  path: absolute path to archive file.
+  directory: directory to extract the archive in.
   strip_components: strip number of leading components from file names.
 ## Recipes
 
