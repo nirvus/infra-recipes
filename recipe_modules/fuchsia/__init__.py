@@ -1,5 +1,6 @@
 DEPS = [
   'infra/cipd',
+  'infra/git',
   'infra/goma',
   'infra/gsutil',
   'infra/hash',

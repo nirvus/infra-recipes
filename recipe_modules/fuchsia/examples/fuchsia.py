@@ -26,12 +26,28 @@ DEPS = [
 ]
 
 PROPERTIES = {
+  # Properties for checking out from a jiri manifest.
+  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
+  'manifest': Property(kind=str, help='Jiri manifest to use', default=None),
+  'remote': Property(kind=str, help='Remote manifest repository', default=None),
+
+  # Properties for checking out from a jiri snapshot.
+  'checkout_snapshot': Property(kind=bool,
+                                help='Whether to checkout from a snapshot',
+                                default=False),
+  'snapshot_repository': Property(kind=str,
+                                  help='Repository containing snapshot to check out',
+                                  default=None),
+  'snapshot_revision': Property(kind=str,
+                                  help='Snapshot revision in the repository to check out from',
+                                  default=None),
+
+  # Properties for patching a jiri checkout or snapshot.
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
   'patch_project': Property(kind=str, help='Gerrit project', default=None),
   'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
-  'manifest': Property(kind=str, help='Jiri manifest to use'),
-  'remote': Property(kind=str, help='Remote manifest repository'),
+
+  # Properties controlling a Fuchsia build.
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
   'build_type': Property(kind=Enum(*BUILD_TYPES),
                          help='The build type', default='debug'),
@@ -44,6 +60,8 @@ PROPERTIES = {
   'ninja_targets': Property(kind=List(basestring),
                             help='Extra target args to pass to ninja',
                             default=[]),
+
+  # Properties related to testing Fuchsia.
   'run_tests': Property(kind=bool,
                         help='Whether to run tests or not',
                         default=False),
@@ -53,32 +71,44 @@ PROPERTIES = {
   'device_type': Property(kind=str,
                           help='The type of device to run tests on',
                           default='QEMU'),
-  'snapshot_gcs_bucket': Property(kind=str,
-                                  help='The GCS bucket to upload a jiri snapshot of the build'
-                                       ' to. Will not upload a snapshot if this property is'
-                                       ' blank or tryjob is True',
-                                  default='fuchsia-snapshots'),
   'networking_for_tests': Property(kind=bool,
                                    help='Whether tests should have access to the network'
                                         ' (always False if tryjob is True or if device_type'
                                         ' != QEMU)',
                                    default=False),
+
+  # Misc. additional properties.
+  'snapshot_gcs_bucket': Property(kind=str,
+                                  help='The GCS bucket to upload a jiri snapshot of the build'
+                                       ' to. Will not upload a snapshot if this property is'
+                                       ' blank or tryjob is True',
+                                  default='fuchsia-snapshots'),
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project, manifest,
-             remote, target, build_type, packages, variants, gn_args,
-             ninja_targets, run_tests, runtests_args, device_type,
-             snapshot_gcs_bucket, networking_for_tests):
-  checkout = api.fuchsia.checkout(
-      manifest=manifest,
-      remote=remote,
-      project=project,
-      patch_ref=patch_ref,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
-      snapshot_gcs_bucket=snapshot_gcs_bucket,
-  )
+def RunSteps(api, project, manifest, remote, checkout_snapshot,
+             snapshot_repository, snapshot_revision, patch_gerrit_url,
+             patch_project, patch_ref,  target, build_type, packages, variants,
+             gn_args, ninja_targets, run_tests, runtests_args, device_type,
+             networking_for_tests, snapshot_gcs_bucket):
+  if checkout_snapshot:
+    checkout = api.fuchsia.checkout_snapshot(
+        repository=snapshot_repository,
+        revision=snapshot_revision,
+        patch_ref=patch_ref,
+        patch_gerrit_url=patch_gerrit_url,
+        patch_project=patch_project,
+    )
+  else:
+    checkout = api.fuchsia.checkout(
+        manifest=manifest,
+        remote=remote,
+        project=project,
+        patch_ref=patch_ref,
+        patch_gerrit_url=patch_gerrit_url,
+        patch_project=patch_project,
+        snapshot_gcs_bucket=snapshot_gcs_bucket,
+    )
   assert checkout.root_dir
   assert checkout.snapshot_file
   assert checkout.snapshot_file_sha1
@@ -301,4 +331,13 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
       tryjob=True,
+  )
+
+  # Test cases for checking out Fuchsia from a snapshot.
+  yield api.test('checkout_snapshot') + api.properties(
+      checkout_snapshot=True,
+      snapshot_repository='https://fuchsia.googlesource.com/snapshots',
+      snapshot_revision='69acf9677ff075e15329cc860d968c1f70be5e6a',
+      target='x64',
+      packages=['topaz/packages/default'],
   )

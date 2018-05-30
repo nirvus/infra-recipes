@@ -268,28 +268,92 @@ class FuchsiaApi(recipe_api.RecipeApi):
       # things like tryjob failures during roller-commits.
       snapshot_step_logs = self.m.step.active_result.presentation.logs
       snapshot_step_logs['snapshot_contents'] = snapshot_contents.split('\n')
+      return self._finalize_checkout(snapshot_file, snapshot_gcs_bucket)
 
-      digest = self.m.hash.sha1(
-          'hash snapshot',
-          snapshot_file,
-          test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
+  def checkout_snapshot(self,
+                        repository,
+                        revision,
+                        patch_ref=None,
+                        patch_gerrit_url=None,
+                        patch_project=None,
+                        timeout_secs=20 * 60):
+    """Uses Jiri to check out Fuchsia from a Jiri snapshot.
 
-      if snapshot_gcs_bucket:
-        self.m.gsutil.ensure_gsutil()
-        self.m.gsutil.upload(
-            bucket=snapshot_gcs_bucket,
-            src=snapshot_file,
-            dst=digest,
-            link_name='jiri.snapshot',
-            name='upload jiri.snapshot',
-            unauthenticated_url=True)
+    The patch_* arguments must all be set, or none at all.
+    The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
-      # TODO(dbort): Add some or all of the jiri.checkout() params if they
-      # become useful.
-      return FuchsiaCheckoutResults(
-          root_dir=self.m.path['start_dir'],
+    Args:
+      repository (str): A URL to the remote repository containing the snapshot.
+        The snapshot should be available at the top-level in a file called
+        'snapshot'.
+      revision (str): The git revision to check out from the repository.
+      patch_ref (str): A reference ID to the patch in Gerrit to apply
+      patch_gerrit_url (str): A URL of the patch in Gerrit to apply
+      patch_project (str): The name of Gerrit project
+      timeout_secs (int): How long to wait for the checkout to complete
+          before failing
+
+    Returns:
+      A FuchsiaCheckoutResults containing details of the checkout.
+    """
+    # TODO(IN-411): Support patching snapshots.
+    assert not patch_ref
+    assert not patch_gerrit_url
+    assert not patch_project
+    with self.m.context(infra_steps=True):
+      snapshot_repo_dir = self.m.path.mkdtemp('snapshot_repo')
+      self.m.git.checkout(
+          url=repository,
+          ref=revision,
+          path=snapshot_repo_dir,
+      )
+
+      # Read the snapshot so it shows up in the step presentation.
+      snapshot_file = snapshot_repo_dir.join('snapshot')
+      self.m.file.read_text('read snapshot', snapshot_file)
+
+      # Perform a jiri checkout from the snapshot.
+      self.m.jiri.ensure_jiri()
+      self.m.jiri.checkout_snapshot(snapshot_file)
+      return self._finalize_checkout(
           snapshot_file=snapshot_file,
-          snapshot_file_sha1=digest)
+          # This method should never upload a snapshot because the point is that
+          # we obtain a checkout from an existing snapshot. The snapshot is
+          # already readily available in the repository from whence it was
+          # retrieved. Note also that the checkout will never be patched by this
+          # method, unlike checkout(). This is because the purpose of the
+          # patch_* arguments is to patch the snapshot itself (e.g. to CQ a
+          # snapshot update).
+          snapshot_gcs_bucket=None,
+      )
+
+  def _finalize_checkout(self, snapshot_file, snapshot_gcs_bucket):
+    """Finalizes a Fuchsia checkout.
+
+    Constructs a FuchsiaCheckoutResults to return and optionally uploads the
+    Jiri snapshot of the Fuchsia checkout to a given GCS bucket.
+    """
+    digest = self.m.hash.sha1(
+        'hash snapshot',
+        snapshot_file,
+        test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
+
+    if snapshot_gcs_bucket:
+      self.m.gsutil.ensure_gsutil()
+      self.m.gsutil.upload(
+          bucket=snapshot_gcs_bucket,
+          src=snapshot_file,
+          dst=digest,
+          link_name='jiri.snapshot',
+          name='upload jiri.snapshot',
+          unauthenticated_url=True)
+
+    # TODO(dbort): Add some or all of the jiri.checkout() params if they
+    # become useful.
+    return FuchsiaCheckoutResults(
+        root_dir=self.m.path['start_dir'],
+        snapshot_file=snapshot_file,
+        snapshot_file_sha1=digest)
 
   def _create_runcmds_package(self, test_cmds, test_in_qemu=True):
     """Creates a Fuchsia package which contains a script for running tests automatically."""
