@@ -329,13 +329,23 @@
       "[CLEANUP]/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "jiri snapshot",
+    "name": "jiri snapshot"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CLEANUP]/jiri.snapshot",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read snapshot",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@snapshot_contents@<manifest>@@@",
-      "@@@STEP_LOG_LINE@snapshot_contents@  <projects>@@@",
-      "@@@STEP_LOG_LINE@snapshot_contents@    <project name=\"manifest\" path=\"manifest\" remote=\"https://fuchsia.googlesource.com/manifest\" revision=\"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"/>@@@",
-      "@@@STEP_LOG_LINE@snapshot_contents@  </projects>@@@",
-      "@@@STEP_LOG_LINE@snapshot_contents@</manifest>@@@",
+      "@@@STEP_LOG_LINE@snapshot_contents@@@@",
       "@@@STEP_LOG_END@snapshot_contents@@@"
     ]
   },

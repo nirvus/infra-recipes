@@ -266,11 +266,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       )
 
       snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
-      snapshot_contents = self.m.jiri.snapshot(snapshot_file)
-      # Always log snapshot contents (even if uploading to GCS) to help debug
-      # things like tryjob failures during roller-commits.
-      snapshot_step_logs = self.m.step.active_result.presentation.logs
-      snapshot_step_logs['snapshot_contents'] = snapshot_contents.split('\n')
+      self.m.jiri.snapshot(snapshot_file)
       return self._finalize_checkout(snapshot_file, snapshot_gcs_bucket)
 
   def checkout_snapshot(self,
@@ -313,7 +309,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       # Read the snapshot so it shows up in the step presentation.
       snapshot_file = snapshot_repo_dir.join('snapshot')
-      self.m.file.read_text('read snapshot', snapshot_file)
 
       # Perform a jiri checkout from the snapshot.
       self.m.jiri.ensure_jiri()
@@ -336,6 +331,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Constructs a FuchsiaCheckoutResults to return and optionally uploads the
     Jiri snapshot of the Fuchsia checkout to a given GCS bucket.
     """
+    snapshot_contents = self.m.file.read_text('read snapshot', snapshot_file)
+    # Always log snapshot contents (even if uploading to GCS) to help debug
+    # things like tryjob failures during roller-commits.
+    snapshot_step_logs = self.m.step.active_result.presentation.logs
+    snapshot_step_logs['snapshot_contents'] = snapshot_contents.split('\n')
+
     digest = self.m.hash.sha1(
         'hash snapshot',
         snapshot_file,

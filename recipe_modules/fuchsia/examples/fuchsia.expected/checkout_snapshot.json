@@ -104,20 +104,6 @@
     "name": "submodule update"
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[TMP_BASE]/snapshot_repo_tmp_1/snapshot",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "read snapshot"
-  },
-  {
     "cmd": [],
     "infra_step": true,
     "name": "ensure_jiri"
@@ -198,6 +184,24 @@
       "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
       "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/snapshot_repo_tmp_1/snapshot",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@snapshot_contents@@@@",
+      "@@@STEP_LOG_END@snapshot_contents@@@"
     ]
   },
   {
