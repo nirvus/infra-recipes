@@ -125,7 +125,7 @@
       "refs",
       "-json-output",
       "/path/to/tmp/json",
-      "https://fuchsia.googlesource.com/third_party/llvm",
+      "https://fuchsia.googlesource.com/third_party/llvm-project",
       "refs"
     ],
     "name": "refs",

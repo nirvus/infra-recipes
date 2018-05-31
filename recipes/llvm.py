@@ -37,10 +37,10 @@ TARGET_TO_ARCH = dict(zip(
     ['aarch64', 'x64'],
 ))
 
-LLVM_GIT = 'https://fuchsia.googlesource.com/third_party/llvm'
+LLVM_PROJECT_GIT = 'https://fuchsia.googlesource.com/third_party/llvm-project'
 
 PROPERTIES = {
-  'url': Property(kind=str, help='Git repository URL', default=LLVM_GIT),
+  'url': Property(kind=str, help='Git repository URL', default=LLVM_PROJECT_GIT),
   'ref': Property(kind=str, help='Git reference', default='refs/heads/master'),
   'revision': Property(kind=str, help='Revision', default=None),
 }
@@ -195,7 +195,7 @@ def RunSteps(api, url, ref, revision):
       refs=['latest'],
       tags={
         'version': llvm_version,
-        'git_repository': LLVM_GIT,
+        'git_repository': LLVM_PROJECT_GIT,
         'git_revision': revision,
       },
   )
