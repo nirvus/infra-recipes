@@ -295,8 +295,11 @@ class JiriApi(recipe_api.RecipeApi):
       timeout_secs (int): A timeout for jiri update in seconds.
     """
     self.init()
-    self.update(run_hooks=False, snapshot=snapshot, timeout=timeout_secs)
-    self.run_hooks()
+    # Hooks must be run during update for a snapshot, otherwise it will be
+    # impossible to run them later. It's impossible because jiri doesn't record
+    # the hooks anywhere when it updates from a snapshot, so the only way to
+    # run hooks inside of the snapshot is to re-run update, which is redundant.
+    self.update(run_hooks=True, snapshot=snapshot, timeout=timeout_secs)
     self.m.source_manifest.set_json_manifest('checkout', self.source_manifest())
 
   def read_manifest_element(self, manifest, element_type, element_name):

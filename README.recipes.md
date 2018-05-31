@@ -814,7 +814,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#302)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#305)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 

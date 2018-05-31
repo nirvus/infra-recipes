@@ -171,22 +171,10 @@
       "-time",
       "-autoupdate=false",
       "-attempts=3",
-      "-run-hooks=false",
       "[TMP_BASE]/snapshot_repo_tmp_1/snapshot"
     ],
     "infra_step": true,
     "name": "jiri update"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks",
-      "-v",
-      "-time",
-      "-attempts=3"
-    ],
-    "infra_step": true,
-    "name": "jiri run-hooks"
   },
   {
     "cmd": [
