@@ -176,8 +176,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "infra_step": true,
     "name": "start_goma"
@@ -208,8 +207,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "goma_jsonstatus"
   },
@@ -222,8 +220,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "goma_stat"
   },
@@ -236,8 +233,7 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "name": "stop_goma"
   },
