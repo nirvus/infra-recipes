@@ -29,8 +29,6 @@ PROPERTIES = {
   'project': Property(kind=str, help='Jiri remote manifest project',
                       default=None),
   'revision': Property(kind=str, help='Revision', default=None),
-  'manifest': Property(kind=str, help='Jiri manifest to use'),
-  'remote': Property(kind=str, help='Remote manifest repository'),
   'snapshot_gcs_bucket': Property(kind=str,
                                   help='The GCS bucket to upload a jiri snapshot of the build'
                                        ' to. Will not upload a snapshot if this property is'
@@ -39,14 +37,13 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, project, revision,
-             manifest, remote, snapshot_gcs_bucket):
+def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
+             patch_repository_url, project, revision, snapshot_gcs_bucket):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
-      manifest=manifest,
-      remote=remote,
+      manifest='manifest/topaz',
+      remote='https://fuchsia.googlesource.com/topaz',
       project=project,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
@@ -104,29 +101,20 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
 
 
 def GenTests(api):
-  yield api.test('default') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-  )
+  yield api.test('default')
   yield api.test('cq') + api.properties.tryserver(
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
       tryjob=True,
   )
   yield api.test('cq_no_snapshot') + api.properties.tryserver(
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
       tryjob=True,
       snapshot_gcs_bucket=None,
   )
   yield api.test('ci_no_snapshot') + api.properties.tryserver(
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
       snapshot_gcs_bucket=None,
   )
