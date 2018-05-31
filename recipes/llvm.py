@@ -133,7 +133,7 @@ def RunSteps(api, url, ref, revision):
           '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
           '-DCMAKE_ASM_COMPILER_TARGET=%s-fuchsia' % arch,
           '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
-          '-DCMAKE_AR=%s' % cipd_dir.join('bin', 'llvm-arg'),
+          '-DCMAKE_AR=%s' % cipd_dir.join('bin', 'llvm-ar'),
           '-DCMAKE_LINKER=%s' % cipd_dir.join('bin', 'ld.lld'),
           '-DCMAKE_NM=%s' % cipd_dir.join('bin', 'llvm-nm'),
           '-DCMAKE_OBJCOPY=%s' % cipd_dir.join('bin', 'llvm-objcopy'),
