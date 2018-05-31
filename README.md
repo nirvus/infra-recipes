@@ -244,6 +244,14 @@ nullifies a debug directory set by the environment on actual bots.
 If something strange is happening between re-runs, consider deleting the local
 work directory as is done on bots (`rm -rf .recipe_deps`).
 
+## Debugging
+
+To run a test under [PDB (the Python DeBugger)](
+https://docs.python.org/library/pdb.html), run:
+```sh
+python recipes.py test debug --filter [recipe_name]
+```
+
 ## Developer workflow
 
 ### Formatting
