@@ -398,21 +398,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/sdk/foundation/generate.py",
-      "--manifest",
-      "[START_DIR]/out/release-arm64/gen/garnet/public/sdk/garnet_molecule.sdk",
-      "--output",
-      "[CLEANUP]/sdk"
-    ],
-    "name": "build arm64.create sdk",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "build x64"
   },
@@ -575,19 +560,28 @@
       "-u",
       "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--manifest",
-      "[START_DIR]/out/release-x64/gen/garnet/public/sdk/garnet_molecule.sdk",
+      "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--output",
-      "[CLEANUP]/sdk",
+      "[CLEANUP]/sdk-fuchsia"
+    ],
+    "name": "create fuchsia sdk"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/sdk/foundation/generate.py",
+      "--manifest",
+      "[START_DIR]/scripts/sdk/foundation/generate.py",
+      "--output",
+      "[CLEANUP]/sdk-fuchsia",
       "--overlay"
     ],
-    "name": "build x64.create sdk",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "create fuchsia sdk (2)"
   },
   {
     "cmd": [],
-    "name": "upload sdk"
+    "name": "upload fuchsia sdk"
   },
   {
     "cmd": [
@@ -599,7 +593,7 @@
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "upload sdk.cipd search fuchsia/sdk/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "name": "upload fuchsia sdk.cipd search fuchsia/sdk/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -615,7 +609,67 @@
   },
   {
     "cmd": [],
-    "name": "upload sdk.Package is up-to-date",
+    "name": "upload fuchsia sdk.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--manifest",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--output",
+      "[CLEANUP]/sdk-bazel"
+    ],
+    "name": "create bazel sdk"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--manifest",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--output",
+      "[CLEANUP]/sdk-bazel",
+      "--overlay"
+    ],
+    "name": "create bazel sdk (2)"
+  },
+  {
+    "cmd": [],
+    "name": "upload bazel sdk"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/sdk/bazel/linux-amd64",
+      "-tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sdk/bazel/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload bazel sdk.Package is up-to-date",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -630,9 +684,9 @@
       "run",
       "[START_DIR]/scripts/sdk/foundation/makesdk.go",
       "-out-dir",
-      "[CLEANUP]/fuchsia-sdk",
+      "[CLEANUP]/chromium-sdk",
       "-output",
-      "[CLEANUP]/fuchsia-sdk.tgz",
+      "[CLEANUP]/chromium-sdk.tgz",
       "[START_DIR]"
     ],
     "env": {
@@ -654,7 +708,7 @@
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
       "-a",
       "sha1",
-      "[CLEANUP]/fuchsia-sdk.tgz"
+      "[CLEANUP]/chromium-sdk.tgz"
     ],
     "infra_step": true,
     "name": "upload chromium sdk.hash archive",
@@ -673,7 +727,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[CLEANUP]/fuchsia-sdk.tgz",
+      "[CLEANUP]/chromium-sdk.tgz",
       "gs://fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
     ],
     "infra_step": true,

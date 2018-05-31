@@ -457,21 +457,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/sdk/foundation/generate.py",
-      "--manifest",
-      "[START_DIR]/out/release-arm64/gen/garnet/public/sdk/garnet_molecule.sdk",
-      "--output",
-      "[CLEANUP]/sdk"
-    ],
-    "name": "build arm64.create sdk",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "build x64"
   },
@@ -634,15 +619,49 @@
       "-u",
       "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--manifest",
-      "[START_DIR]/out/release-x64/gen/garnet/public/sdk/garnet_molecule.sdk",
+      "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--output",
-      "[CLEANUP]/sdk",
+      "[CLEANUP]/sdk-fuchsia"
+    ],
+    "name": "create fuchsia sdk"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/sdk/foundation/generate.py",
+      "--manifest",
+      "[START_DIR]/scripts/sdk/foundation/generate.py",
+      "--output",
+      "[CLEANUP]/sdk-fuchsia",
       "--overlay"
     ],
-    "name": "build x64.create sdk",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "create fuchsia sdk (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--manifest",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--output",
+      "[CLEANUP]/sdk-bazel"
+    ],
+    "name": "create bazel sdk"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--manifest",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--output",
+      "[CLEANUP]/sdk-bazel",
+      "--overlay"
+    ],
+    "name": "create bazel sdk (2)"
   },
   {
     "cmd": [],
@@ -654,9 +673,9 @@
       "run",
       "[START_DIR]/scripts/sdk/foundation/makesdk.go",
       "-out-dir",
-      "[CLEANUP]/fuchsia-sdk",
+      "[CLEANUP]/chromium-sdk",
       "-output",
-      "[CLEANUP]/fuchsia-sdk.tgz",
+      "[CLEANUP]/chromium-sdk.tgz",
       "[START_DIR]"
     ],
     "env": {

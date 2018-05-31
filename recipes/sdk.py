@@ -7,6 +7,8 @@ from contextlib import contextmanager
 
 from recipe_engine.recipe_api import Property
 
+import collections
+
 DEPS = [
     'infra/cipd',
     'infra/fuchsia',
@@ -49,9 +51,27 @@ PROPERTIES = {
         Property(kind=str, help='Revision of manifest to import', default=None),
 }
 
+# namedtuple representing an SDK type to be built and uploaded to CIPD and GCS.
+# |name| is the name of the SDK
+# |script_path| is the path from the fuchsia root at which one finds the
+#   script that generates the SDK artifacts.
+SDKType = collections.namedtuple('SDKType', ('name', 'script_path'))
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, project, manifest, remote, revision):
+# The current list of SDKTypes that we build for.
+SDK_TYPES = (
+    SDKType(
+        name='fuchsia',
+        script_path=('scripts', 'sdk', 'foundation', 'generate.py'),
+    ),
+    SDKType(
+        name='bazel',
+        script_path=('scripts', 'sdk', 'bazel', 'generate.py'),
+    ),
+)
+
+def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
+             patch_storage, patch_repository_url, project, manifest, remote,
+             revision):
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
 
@@ -70,35 +90,46 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       revision = api.jiri.project(['garnet']).json.output[0]['revision']
       api.step.active_result.presentation.properties['got_revision'] = revision
 
-  sdk_dir = api.path['cleanup'].join('sdk')
-
-  overlay = False
+  # Build fuchsia for each target.
+  builds = {}
   for target in TARGETS:
     with api.step.nest('build ' + target):
-      build = api.fuchsia.build(
+      builds[target] = api.fuchsia.build(
           target=target,
           build_type=BUILD_TYPE,
           packages=['garnet/packages/sdk/base'])
 
-      api.python('create sdk',
-          api.path['start_dir'].join('scripts', 'sdk', 'foundation', 'generate.py'),
-          args=[
-            '--manifest',
-            build.fuchsia_build_dir.join('gen', 'garnet', 'public', 'sdk', 'garnet_molecule.sdk'),
-            '--output',
-            sdk_dir,
-          ] + (['--overlay'] if overlay else []),
-      )
-      overlay = True
+  # For each SDK type, per target, invoke the corresponding script that creates
+  # the layout of artifacts and upload these to CIPD and GCS.
+  for sdk_type in SDK_TYPES:
+    script_path = api.path['start_dir'].join(*sdk_type.script_path)
+    sdk_dir = api.path['cleanup'].join('sdk-%s' % sdk_type.name)
 
-  if not api.properties.get('tryjob'):
-    with api.step.nest('upload sdk'):
-      # Upload the Fuchsia SDK to CIPD and GCS.
-      UploadPackage(api, sdk_dir, revision)
+    # If |overlay| is false, the --output directory is deleted before producing
+    # the SDK; if true, the script verifies that the --output directory exists
+    # before overlaying content in it.
+    overlay = False
+    for target in TARGETS:
+        api.python('create %s sdk' % sdk_type.name,
+            script_path,
+            args=[
+              '--manifest',
+              script_path,
+              '--output',
+              sdk_dir,
+            ] + (['--overlay'] if overlay else []),
+        )
+        overlay = True
 
+    if not api.properties.get('tryjob'):
+      with api.step.nest('upload %s sdk' % sdk_type.name):
+        # Upload the SDK to CIPD and GCS.
+        UploadPackage(api, sdk_type.name, sdk_dir, revision)
+
+  # Likewise for the Chromium SDK, but by other legacy means.
   with api.step.nest('make chromium sdk'):
-    out_dir = api.path['cleanup'].join('fuchsia-sdk')
-    sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
+    out_dir = api.path['cleanup'].join('chromium-sdk')
+    sdk = api.path['cleanup'].join('chromium-sdk.tgz')
     api.go('run', api.path['start_dir'].join('scripts', 'sdk', 'foundation', 'makesdk.go'),
            '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
 
@@ -107,8 +138,15 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       # Upload the Chromium style SDK to GCS and CIPD.
       UploadArchive(api, sdk, out_dir, revision)
 
-def UploadPackage(api, staging_dir, revision):
-  cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
+# Given an SDK |sdk_name| with artifacts found in |staging_dir|, upload a
+# corresponding .cipd file to CIPD and GCS.
+def UploadPackage(api, sdk_name, staging_dir, revision):
+  if sdk_name == 'fuchsia':
+    sdk_subpath = 'sdk/%s' % api.cipd.platform_suffix()
+  else:
+    sdk_subpath = 'sdk/%s/%s' % (sdk_name,  api.cipd.platform_suffix())
+
+  cipd_pkg_name = 'fuchsia/%s' % sdk_subpath
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
@@ -141,7 +179,7 @@ def UploadPackage(api, staging_dir, revision):
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      api.gsutil.join('sdk', api.cipd.platform_suffix(), instance_id),
+      api.gsutil.join(sdk_subpath, instance_id),
       unauthenticated_url=True
   )
 
@@ -220,7 +258,10 @@ def GenTests(api):
           project='garnet',
           manifest='manifest/garnet',
           remote='https://fuchsia.googlesource.com/garnet') +
-      api.step_data('upload sdk.cipd search fuchsia/sdk/linux-amd64 ' +
+      api.step_data('upload fuchsia sdk.cipd search fuchsia/sdk/linux-amd64 ' +
+                    'git_revision:' + api.jiri.example_revision,
+                     api.json.output({'result': []})) +
+      api.step_data('upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 ' +
                     'git_revision:' + api.jiri.example_revision,
                      api.json.output({'result': []})) +
       api.step_data('upload chromium sdk.cipd search fuchsia/sdk/chromium/linux-amd64 ' +
