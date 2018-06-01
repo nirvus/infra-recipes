@@ -131,7 +131,8 @@ def RunSteps(api, url, ref, revision):
           '-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM',
           '-DLLVM_BUILD_LLVM_DYLIB=ON',
           '-DLLVM_ENABLE_LLD=ON',
-          '-DLLVM_EXTERNALIZE_DEBUGINFO=ON',
+          # TODO(BLD-182): we cannot enable this until llvm-strip supports -x
+          #'-DLLVM_EXTERNALIZE_DEBUGINFO=ON',
           llvm_dir.join('llvm'),
         ])
         api.step('build %s llvm' % target,

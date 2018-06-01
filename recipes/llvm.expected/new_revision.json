@@ -566,7 +566,6 @@
       "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
       "-DLLVM_BUILD_LLVM_DYLIB=ON",
       "-DLLVM_ENABLE_LLD=ON",
-      "-DLLVM_EXTERNALIZE_DEBUGINFO=ON",
       "[START_DIR]/llvm-project/llvm"
     ],
     "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_arm64_build_dir",
@@ -694,7 +693,6 @@
       "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
       "-DLLVM_BUILD_LLVM_DYLIB=ON",
       "-DLLVM_ENABLE_LLD=ON",
-      "-DLLVM_EXTERNALIZE_DEBUGINFO=ON",
       "[START_DIR]/llvm-project/llvm"
     ],
     "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x64_build_dir",
