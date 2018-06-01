@@ -193,6 +193,36 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure_sdk"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/sdk",
+      "-ensure-file",
+      "fuchsia/sdk/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_sdk.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sdk/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "python",
       "-u",
@@ -472,382 +502,6 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/clang_tmp_1/sdk"
-    ],
-    "infra_step": true,
-    "name": "create sdk dir"
-  },
-  {
-    "cmd": [],
-    "name": "build"
-  },
-  {
-    "cmd": [],
-    "name": "build.ensure_goma",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/goma",
-      "-ensure-file",
-      "infra_internal/goma/client/mac-amd64 release",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "build.ensure_goma.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/mac-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "restart"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "infra_step": true,
-    "name": "build.start_goma",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
-    ],
-    "name": "build.calculate the number of recommended jobs",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
-      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
-      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "arm64",
-      "-j",
-      "50",
-      "GOMACC=[START_DIR]/cipd/goma/gomacc"
-    ],
-    "name": "build.zircon",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "build.build fuchsia",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/buildtools/gn",
-      "gen",
-      "[START_DIR]/out/release-arm64",
-      "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/garnet\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
-    ],
-    "name": "build.build fuchsia.gn gen",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/buildtools/ninja",
-      "-C",
-      "[START_DIR]/out/release-arm64",
-      "-j",
-      "50"
-    ],
-    "name": "build.build fuchsia.ninja",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.goma_jsonstatus",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stat"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.goma_stat",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stop"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.stop_goma",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/sdk/create_layout.py",
-      "--manifest",
-      "[START_DIR]/out/release-arm64/gen/garnet/public/sdk/garnet_molecule.sdk",
-      "--output",
-      "[TMP_BASE]/clang_tmp_1/sdk"
-    ],
-    "name": "create arm64 sdk"
-  },
-  {
-    "cmd": [],
-    "name": "build (2)"
-  },
-  {
-    "cmd": [],
-    "name": "build.ensure_goma (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/goma",
-      "-ensure-file",
-      "infra_internal/goma/client/mac-amd64 release",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "build.ensure_goma.ensure_installed (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/mac-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "restart"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "infra_step": true,
-    "name": "build.start_goma (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/scripts/build-zircon.sh",
-      "-t",
-      "x64",
-      "-j",
-      "50",
-      "GOMACC=[START_DIR]/cipd/goma/gomacc"
-    ],
-    "name": "build.zircon (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "build.build fuchsia (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/buildtools/gn",
-      "gen",
-      "[START_DIR]/out/release-x64",
-      "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/garnet\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
-    ],
-    "name": "build.build fuchsia.gn gen (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/buildtools/ninja",
-      "-C",
-      "[START_DIR]/out/release-x64",
-      "-j",
-      "50"
-    ],
-    "name": "build.build fuchsia.ninja (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.goma_jsonstatus (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stat"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.goma_stat (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stop"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "GOMA_FAIL_FOR_UNSUPPORTED_COMPILER_FLAGS": "false"
-    },
-    "name": "build.stop_goma (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/sdk/create_layout.py",
-      "--manifest",
-      "[START_DIR]/out/release-x64/gen/garnet/public/sdk/garnet_molecule.sdk",
-      "--output",
-      "[TMP_BASE]/clang_tmp_1/sdk",
-      "--overlay"
-    ],
-    "name": "create x64 sdk"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
       "[TMP_BASE]/clang_tmp_1/llvm_build_dir"
     ],
     "infra_step": true,
@@ -882,14 +536,14 @@
       "-DCMAKE_INSTALL_PREFIX=",
       "-DLLVM_ENABLE_PROJECTS=clang;lld",
       "-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind",
-      "-DSTAGE2_FUCHSIA_aarch64_SYSROOT=[TMP_BASE]/clang_tmp_1/sdk/arch/arm64/sysroot",
-      "-DSTAGE2_FUCHSIA_aarch64_C_FLAGS=-I[TMP_BASE]/clang_tmp_1/sdk/pkg/launchpad/include",
-      "-DSTAGE2_FUCHSIA_aarch64_CXX_FLAGS=-I[TMP_BASE]/clang_tmp_1/sdk/pkg/launchpad/include",
-      "-DSTAGE2_FUCHSIA_aarch64_LINKER_FLAGS=-L[TMP_BASE]/clang_tmp_1/sdk/arch/arm64/lib",
-      "-DSTAGE2_FUCHSIA_x86_64_SYSROOT=[TMP_BASE]/clang_tmp_1/sdk/arch/x64/sysroot",
-      "-DSTAGE2_FUCHSIA_x86_64_C_FLAGS=-I[TMP_BASE]/clang_tmp_1/sdk/pkg/launchpad/include",
-      "-DSTAGE2_FUCHSIA_x86_64_CXX_FLAGS=-I[TMP_BASE]/clang_tmp_1/sdk/pkg/launchpad/include",
-      "-DSTAGE2_FUCHSIA_x86_64_LINKER_FLAGS=-L[TMP_BASE]/clang_tmp_1/sdk/arch/x64/lib",
+      "-DSTAGE2_FUCHSIA_aarch64_SYSROOT=[START_DIR]/sdk/arch/arm64/sysroot",
+      "-DSTAGE2_FUCHSIA_aarch64_C_FLAGS=-I[START_DIR]/sdk/pkg/launchpad/include",
+      "-DSTAGE2_FUCHSIA_aarch64_CXX_FLAGS=-I[START_DIR]/sdk/pkg/launchpad/include",
+      "-DSTAGE2_FUCHSIA_aarch64_LINKER_FLAGS=-L[START_DIR]/sdk/arch/arm64/lib",
+      "-DSTAGE2_FUCHSIA_x86_64_SYSROOT=[START_DIR]/sdk/arch/x64/sysroot",
+      "-DSTAGE2_FUCHSIA_x86_64_C_FLAGS=-I[START_DIR]/sdk/pkg/launchpad/include",
+      "-DSTAGE2_FUCHSIA_x86_64_CXX_FLAGS=-I[START_DIR]/sdk/pkg/launchpad/include",
+      "-DSTAGE2_FUCHSIA_x86_64_LINKER_FLAGS=-L[START_DIR]/sdk/arch/x64/lib",
       "-C",
       "[START_DIR]/llvm-project/clang/cmake/caches/Fuchsia.cmake",
       "[START_DIR]/llvm-project/llvm"

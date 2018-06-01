@@ -73,6 +73,14 @@ def RunSteps(api, url, ref, revision):
         })
       api.cipd.ensure(cipd_dir, packages)
 
+  with api.step.nest('ensure_sdk'):
+    with api.context(infra_steps=True):
+      sdk_dir = api.path['start_dir'].join('sdk')
+      packages = {
+        'fuchsia/sdk/${platform}': 'latest',
+      }
+      api.cipd.ensure(sdk_dir, packages)
+
   staging_dir = api.path.mkdtemp('clang')
   pkg_name = 'clang-%s' % api.platform.name.replace('mac', 'darwin')
   pkg_dir = staging_dir.join(pkg_name)
@@ -87,29 +95,6 @@ def RunSteps(api, url, ref, revision):
   with api.context(infra_steps=True):
     llvm_dir = api.path['start_dir'].join('llvm-project')
     api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
-
-  sdk_dir = staging_dir.join('sdk')
-  api.file.ensure_directory('create sdk dir', sdk_dir)
-
-  # Build Zircon sysroot.
-  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
-  overlay = False
-  for tc_arch, gn_arch in TARGETS:
-    build = api.fuchsia.build(
-        target=gn_arch,
-        build_type='release',
-        packages=['garnet/packages/sdk/garnet'],
-    )
-    api.python('create %s sdk' % gn_arch,
-        api.path['start_dir'].join('scripts', 'sdk', 'create_layout.py'),
-        args=[
-          '--manifest',
-          build.fuchsia_build_dir.join('gen', 'garnet', 'public', 'sdk', 'garnet_molecule.sdk'),
-          '--output',
-          sdk_dir,
-        ] + (['--overlay'] if overlay else []),
-    )
-    overlay = True
 
   # build clang+llvm
   build_dir = staging_dir.join('llvm_build_dir')
