@@ -731,8 +731,10 @@
     "cmd": [],
     "name": "test results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@summary.json@{\"tests\":[{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}]}@@@",
-      "@@@STEP_LOG_END@summary.json@@@"
+      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}]}@@@",
+      "@@@STEP_LOG_END@summary.json@@@",
+      "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",
+      "@@@STEP_LOG_END@goodbye-txt@@@"
     ]
   },
   {
