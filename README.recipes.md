@@ -420,11 +420,13 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1074)(self, build_results, bucket='fuchsia-archive'):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1112)(self, build_results, bucket='fuchsia-archive'):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
-More specifically, this uploads images and tools necessary to boot Fuchsia.
+More specifically, this uploads two sets of artifacts:
+* Images and tools necessary to boot Fuchsia.
+* Packages which may be sent to Fuchsia's package manager.
 
 Args:
   build_results (FuchsiaBuildResults): The Fuchsia build results to get
