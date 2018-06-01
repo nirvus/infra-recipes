@@ -12,7 +12,6 @@ import re
 
 DEPS = [
   'infra/cipd',
-  'infra/fuchsia',
   'infra/git',
   'infra/gitiles',
   'infra/goma',
@@ -85,12 +84,6 @@ def RunSteps(api, url, ref, revision):
   pkg_name = 'clang-%s' % api.platform.name.replace('mac', 'darwin')
   pkg_dir = staging_dir.join(pkg_name)
   api.file.ensure_directory('create pkg dir', pkg_dir)
-
-  api.fuchsia.checkout(
-      manifest='manifest/garnet',
-      remote='https://fuchsia.googlesource.com/garnet',
-      project='garnet',
-  )
 
   with api.context(infra_steps=True):
     llvm_dir = api.path['start_dir'].join('llvm-project')

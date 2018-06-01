@@ -13,7 +13,6 @@ from itertools import product
 
 DEPS = [
   'infra/cipd',
-  'infra/fuchsia',
   'infra/git',
   'infra/gitiles',
   'infra/gsutil',

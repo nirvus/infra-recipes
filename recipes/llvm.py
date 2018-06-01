@@ -12,7 +12,6 @@ import re
 
 DEPS = [
   'infra/cipd',
-  'infra/fuchsia',
   'infra/git',
   'infra/gitiles',
   'infra/goma',
@@ -81,12 +80,6 @@ def RunSteps(api, url, ref, revision):
   staging_dir = api.path.mkdtemp('llvm')
   pkg_dir = staging_dir.join('root')
   api.file.ensure_directory('create pkg root dir', pkg_dir)
-
-  api.fuchsia.checkout(
-      manifest='manifest/garnet',
-      remote='https://fuchsia.googlesource.com/garnet',
-      project='garnet',
-  )
 
   with api.context(infra_steps=True):
     llvm_dir = api.path['start_dir'].join('llvm-project')
