@@ -503,7 +503,7 @@
       "[CLEANUP]/fuchsia.tar.gz"
     ],
     "infra_step": true,
-    "name": "hash archive",
+    "name": "hash fuchsia.tar.gz",
     "stdout": "/path/to/tmp/"
   },
   {

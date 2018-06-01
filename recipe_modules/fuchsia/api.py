@@ -337,20 +337,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
     snapshot_step_logs = self.m.step.active_result.presentation.logs
     snapshot_step_logs['snapshot_contents'] = snapshot_contents.split('\n')
 
-    digest = self.m.hash.sha1(
-        'hash snapshot',
-        snapshot_file,
-        test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
-
     if snapshot_gcs_bucket:
       self.m.gsutil.ensure_gsutil()
-      self.m.gsutil.upload(
-          bucket=snapshot_gcs_bucket,
-          src=snapshot_file,
-          dst=digest,
-          link_name='jiri.snapshot',
-          name='upload jiri.snapshot',
-          unauthenticated_url=True)
+      digest = self._upload_file_to_gcs(snapshot_file, snapshot_gcs_bucket)
+    else:
+      digest = self.m.hash.sha1(
+          'hash snapshot',
+          snapshot_file,
+          test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
 
     # TODO(dbort): Add some or all of the jiri.checkout() params if they
     # become useful.
@@ -985,18 +979,18 @@ class FuchsiaApi(recipe_api.RecipeApi):
       if test['result'] != 'PASS':
         step_result.presentation.status = self.m.step.FAILURE
 
-  def upload_build_artifacts(self, build_results, bucket='fuchsia-archive'):
-    """Uploads artifacts from the build to Google Cloud Storage.
+  def _tar_fuchsia_boot_data(self, build_results):
+    """Collects build artifacts necessary to boot Fuchsia into a tarball.
 
     Args:
       build_results (FuchsiaBuildResults): The Fuchsia build results to get
         artifacts from.
-      bucket (str): The Google Cloud Storage bucket to upload to.
-    """
-    self.m.gsutil.ensure_gsutil()
-    self.m.tar.ensure_tar()
 
-    # Begin creating a tar package.
+    Returns:
+      A Path to a tarball containing Fuchsia packages.
+    """
+
+    # Begin creating a Fuchsia paving artifacts tar package.
     package = self.m.tar.create(self.m.path['cleanup'].join('fuchsia.tar.gz'), 'gzip')
 
     # Add the images directory, which contain system images, to the package.
@@ -1046,13 +1040,50 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Finalize the package and upload it.
     package.tar('tar fuchsia')
+
+    # Return a Path to the tarball.
+    return package.archive
+
+  def _upload_file_to_gcs(self, path, bucket):
+    """Uploads a file to a GCS bucket.
+
+    A SHA1 hash of the file is computed and used for the name of the file.
+
+    Args:
+      path (Path): A path to the file to upload.
+      bucket (str): The name of the GCS bucket to upload to.
+
+    Returns:
+      The SHA1 hash of the file.
+    """
+    # TODO(mknyszek): Determine if this is more generally useful, and if it's
+    # worth moving this into the gsutil package.
+    name = self.m.path.basename(path)
     digest = self.m.hash.sha1(
-        'hash archive',
-        package.archive,
+        'hash %s' % name,
+        path,
         test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
     self.m.gsutil.upload(
         bucket=bucket,
-        src=package.archive,
+        src=path,
         dst=digest,
-        link_name='fuchsia.tar.gz',
-        name='upload fuchsia.tar.gz')
+        link_name=name,
+        name='upload %s' % name)
+    return digest
+
+  def upload_build_artifacts(self, build_results, bucket='fuchsia-archive'):
+    """Uploads artifacts from the build to Google Cloud Storage.
+
+    More specifically, this uploads images and tools necessary to boot Fuchsia.
+
+    Args:
+      build_results (FuchsiaBuildResults): The Fuchsia build results to get
+        artifacts from.
+      bucket (str): The Google Cloud Storage bucket to upload to.
+    """
+    self.m.gsutil.ensure_gsutil()
+    self.m.tar.ensure_tar()
+
+    # Upload Fuchsia boot data.
+    archive = self._tar_fuchsia_boot_data(build_results)
+    self._upload_file_to_gcs(archive, bucket)

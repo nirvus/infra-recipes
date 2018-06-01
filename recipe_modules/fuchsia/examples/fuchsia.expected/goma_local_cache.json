@@ -136,19 +136,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "hash snapshot",
-    "stdout": "/path/to/tmp/"
-  },
-  {
     "cmd": [],
     "infra_step": true,
     "name": "ensure_gsutil"
@@ -181,6 +168,19 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[CLEANUP]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "hash jiri.snapshot",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
       "vpython",
       "-vpython-spec",
       "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
@@ -190,12 +190,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/jiri.snapshot",
-      "gs://fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97"
+      "gs://fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
     "name": "upload jiri.snapshot",
     "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/8ac5404b688b34f2d34d1c8a648413aca30b7a97@@@"
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {
@@ -488,7 +488,7 @@
       "[CLEANUP]/fuchsia.tar.gz"
     ],
     "infra_step": true,
-    "name": "hash archive",
+    "name": "hash fuchsia.tar.gz",
     "stdout": "/path/to/tmp/"
   },
   {
