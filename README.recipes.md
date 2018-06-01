@@ -419,7 +419,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1113)(self, build_results, bucket='fuchsia-archive'):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1121)(self, build_results, bucket='fuchsia-archive'):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
@@ -1074,6 +1074,7 @@ Recipe for building Clang toolchain.
 Recipe for building and testing Cobalt.
 
 &mdash; **def [RunSteps](/recipes/cobalt.py#31)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, revision):**
+### *recipes* / [dart\_pkg\_roller](/recipes/dart_pkg_roller.py)
 
 [DEPS](/recipes/dart_pkg_roller.py#12): [auto\_roller](#recipe_modules-auto_roller), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 

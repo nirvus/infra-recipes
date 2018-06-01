@@ -965,6 +965,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
     raw_summary_log = test_results.raw_summary.split('\n')
     self.m.step.active_result.presentation.logs['summary.json'] = raw_summary_log
 
+    # Log the contents of each output file mentioned in the summary.
+    # Note this assumes the outputs are all plain text.
+    for output_name, output_path in test_results.summary.get(
+        'outputs', {}).iteritems():
+      output_str = test_results.outputs[output_path]
+      self.m.step.active_result.presentation.logs[output_name] = (
+          output_str.split('\n'))
+
     for test in test_results.summary['tests']:
       test_name = test['name']
       test_output = test_results.outputs[test['output_file']]
