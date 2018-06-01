@@ -1286,7 +1286,7 @@ Recipe for testing Recipes.
 
 Recipe for building Rust toolchain.
 
-&mdash; **def [RunSteps](/recipes/rust_toolchain.py#94)(api, url, ref, revision):**
+&mdash; **def [RunSteps](/recipes/rust_toolchain.py#102)(api, url, ref, revision):**
 ### *recipes* / [sdk](/recipes/sdk.py)
 
 [DEPS](/recipes/sdk.py#10): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]

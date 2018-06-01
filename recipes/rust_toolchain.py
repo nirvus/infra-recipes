@@ -82,12 +82,20 @@ CARGO_CONFIG = '''
 [target.x86_64-unknown-fuchsia]
 linker = "{linker}"
 ar = "{ar}"
-rustflags = ["-C", "link-arg=--target=x86_64-unknown-fuchsia", "-C", "link-arg=--sysroot={x86_64_sysroot}"]
+rustflags = [
+  "-C", "link-arg=--target=x86_64-unknown-fuchsia",
+  "-C", "link-arg=--sysroot={x86_64_sysroot}",
+  "-C", "link-arg=-L{x86_64_lib}",
+]
 
 [target.aarch64-unknown-fuchsia]
 linker = "{linker}"
 ar = "{ar}"
-rustflags = ["-C", "link-arg=--target=aarch64-unknown-fuchsia", "-C", "link-arg=--sysroot={aarch64_sysroot}"]
+rustflags = [
+  "-C", "link-arg=--target=aarch64-unknown-fuchsia",
+  "-C", "link-arg=--sysroot={aarch64_sysroot}",
+  "-C", "link-arg=-L{aarch64_lib}",
+]
 '''
 
 
@@ -114,28 +122,17 @@ def RunSteps(api, url, ref, revision):
         'fuchsia/clang/${platform}': 'goma',
       })
 
-  api.fuchsia.checkout(
-      manifest='manifest/garnet',
-      remote='https://fuchsia.googlesource.com/garnet',
-      project='garnet',
-  )
+  with api.step.nest('ensure_sdk'):
+    with api.context(infra_steps=True):
+      sdk_dir = api.path['start_dir'].join('sdk')
+      packages = {
+        'fuchsia/sdk/${platform}': 'latest',
+      }
+      api.cipd.ensure(sdk_dir, packages)
 
   with api.context(infra_steps=True):
     rust_dir = api.path['start_dir'].join('rust')
     api.git.checkout(url, rust_dir, ref=revision, recursive=True)
-
-  # Build Zircon sysroot.
-  # TODO(mcgrathr): Move this into a module shared by all *_toolchain.py.
-  sysroot = {}
-  for tc_arch, gn_arch in TARGETS:
-    build = api.fuchsia.build(
-        target=gn_arch,
-        build_type='release',
-        packages=['garnet/packages/sdk/toolchain'],
-    )
-    # TODO(TO-688): This is an implementation detail of the GN build and we
-    # shouldn't rely on it outside of that build and instead use SDK.
-    sysroot[tc_arch] = build.fuchsia_build_dir.join('sdks', 'zircon_sysroot_for_toolchain', 'sysroot')
 
   # build rust
   staging_dir = api.path.mkdtemp('rust')
@@ -162,16 +159,29 @@ def RunSteps(api, url, ref, revision):
       CARGO_CONFIG.format(
           linker=cipd_dir.join('bin', 'clang'),
           ar=cipd_dir.join('bin', 'llvm-ar'),
-          x86_64_sysroot=sysroot['x86_64'],
-          aarch64_sysroot=sysroot['aarch64'],
+          x86_64_sysroot=sdk_dir.join('arch', 'x64', 'sysroot'),
+          aarch64_sysroot=sdk_dir.join('arch', 'arm64', 'sysroot'),
+          x86_64_lib=sdk_dir.join('arch', 'x64', 'lib'),
+          aarch64_lib=sdk_dir.join('arch', 'arm64', 'lib'),
       ),
   )
 
-  env = {
-    '%s_%s-unknown-fuchsia' % (flag, arch): (
-        '--target=%s-unknown-fuchsia --sysroot=%s' % (arch, sysroot))
-    for flag, (arch, sysroot) in product(['CFLAGS', 'LDFLAGS'], sysroot.iteritems())
-  }
+  env = {}
+  for tc_arch, gn_arch in TARGETS:
+    env['CFLAGS_%s-unknown-fuchsia' % tc_arch] = (
+      '--target=%s-unknown-fuchsia --sysroot=%s -I%s' % (
+        tc_arch,
+        sdk_dir.join('arch', gn_arch, 'sysroot'),
+        sdk_dir.join('pkg', 'launchpad', 'include'),
+      )
+    )
+    env['LDFLAGS_%s-unknown-fuchsia' % tc_arch] = (
+      '--target=%s-unknown-fuchsia --sysroot=%s -L%s' % (
+        tc_arch,
+        sdk_dir.join('arch', gn_arch, 'sysroot'),
+        sdk_dir.join('arch', gn_arch, 'lib'),
+      )
+    )
   env['CARGO_HOME'] = cargo_dir
   env_prefixes = {'PATH': [cipd_dir, cipd_dir.join('bin')]}
   with api.context(cwd=build_dir, env=env, env_prefixes=env_prefixes):
