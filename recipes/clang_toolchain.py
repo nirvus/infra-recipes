@@ -36,6 +36,8 @@ TARGETS = [
 ]
 
 LLVM_PROJECT_GIT = 'https://fuchsia.googlesource.com/third_party/llvm-project'
+LIBXML2_GIT = 'https://fuchsia.googlesource.com/third_party/libxml2'
+ZLIB_GIT = 'https://fuchsia.googlesource.com/third_party/zlib'
 
 PROPERTIES = {
   'url': Property(kind=str, help='Git repository URL', default=LLVM_PROJECT_GIT),
@@ -89,55 +91,111 @@ def RunSteps(api, url, ref, revision):
     llvm_dir = api.path['start_dir'].join('llvm-project')
     api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
 
-  # build clang+llvm
-  build_dir = staging_dir.join('llvm_build_dir')
-  api.file.ensure_directory('create llvm build dir', build_dir)
+    zlib_dir = api.path['start_dir'].join('zlib')
+    api.git.checkout(ZLIB_GIT, zlib_dir, ref='refs/heads/upstream/master')
 
-  extra_options = {
-    'linux': [
-      '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
-      '-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
-      '-DBOOTSTRAP_CMAKE_SYSROOT=%s' % cipd_dir,
-      '-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
-      '-DCMAKE_EXE_SHARED_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
-      '-DCMAKE_SYSROOT=%s' % cipd_dir,
-    ],
-    'mac': [],
-  }[api.platform.name]
+    libxml2_dir = api.path['start_dir'].join('libxml2')
+    api.git.checkout(LIBXML2_GIT, libxml2_dir, ref='refs/heads/upstream/master')
 
-  for tc_arch, gn_arch in TARGETS:
-    extra_options.extend([
-      '-DSTAGE2_FUCHSIA_%s_SYSROOT=%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'sysroot')),
-      '-DSTAGE2_FUCHSIA_%s_C_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'fdio', 'include')),
-      '-DSTAGE2_FUCHSIA_%s_CXX_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'fdio', 'include')),
-      '-DSTAGE2_FUCHSIA_%s_LINKER_FLAGS=-L%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'lib')),
-    ])
+  lib_install_dir = staging_dir.join('lib_install')
+  api.file.ensure_directory('create lib_install_dir', lib_install_dir)
 
-  with api.goma.build_with_goma(), api.context(cwd=build_dir):
-    api.step('configure clang', [
-      cipd_dir.join('bin', 'cmake'),
-      '-GNinja',
-      '-DCMAKE_C_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
-      '-DCMAKE_CXX_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
-      '-DCMAKE_ASM_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
-      '-DCMAKE_C_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
-      '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
-      '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
-      '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
-      '-DCMAKE_INSTALL_PREFIX=',
-      '-DLLVM_ENABLE_PROJECTS=clang;lld',
-      '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
-    ] + extra_options + [
-      '-C', llvm_dir.join('clang', 'cmake', 'caches', 'Fuchsia.cmake'),
-      llvm_dir.join('llvm'),
-    ])
-    api.step('build clang', [cipd_dir.join('ninja'), 'stage2-distribution'])
-    # TODO: we should be running stage2-check-all
-    api.step('check llvm', [cipd_dir.join('ninja'), 'stage2-check-llvm'])
-    api.step('check clang', [cipd_dir.join('ninja'), 'stage2-check-clang'])
-    with api.context(env={'DESTDIR': pkg_dir}):
-      api.step('install clang',
-               [cipd_dir.join('ninja'), 'stage2-install-distribution'])
+  with api.goma.build_with_goma():
+    vars = {
+      'CC': '%s %s' % (api.goma.goma_dir.join('gomacc'), cipd_dir.join('bin', 'clang')),
+      'CFLAGS': '-O3 -fPIC --sysroot=%s' % cipd_dir,
+      'AR': cipd_dir.join('bin', 'llvm-ar'),
+      'NM': cipd_dir.join('bin', 'llvm-nm'),
+      'RANLIB': cipd_dir.join('bin', 'llvm-ranlib'),
+    }
+
+    # build zlib
+    build_dir = staging_dir.join('zlib_build_dir')
+    api.file.ensure_directory('create zlib build dir', build_dir)
+
+    with api.step.nest('zlib'), api.context(cwd=build_dir, env=vars):
+      api.step('configure', [
+        zlib_dir.join('configure'),
+        '--prefix=',
+        '--static',
+      ])
+      api.step('build', ['make', '-j%d' % api.goma.recommended_goma_jobs])
+      api.step('install', ['make', 'install', 'DESTDIR=%s' % lib_install_dir])
+
+    # build libxml2
+    build_dir = staging_dir.join('libxml2_build_dir')
+    api.file.ensure_directory('create libxml2 build dir', build_dir)
+
+    with api.step.nest('libxml2'), api.context(cwd=build_dir):
+      api.step('autoconf', ['autoreconf', '-i', '-f'])
+      api.step('configure', [
+        libxml2_dir.join('configure'),
+        '--prefix=',
+        '--sysroot=%s' % cipd_dir,
+        '--enable-static',
+        '--disable-shared',
+        '--with-zlib=%s' % lib_install_dir,
+        '--without-icu',
+        '--without-lzma',
+        '--without-python',
+      ] + ['%s=%s' % (k, v) for k, v in vars.iteritems()])
+      api.step('build', ['make', '-j%d' % api.goma.recommended_goma_jobs])
+      api.step('install', ['make', 'install', 'DESTDIR=%s' % lib_install_dir])
+
+    # build clang+llvm
+    build_dir = staging_dir.join('llvm_build_dir')
+    api.file.ensure_directory('create llvm build dir', build_dir)
+
+    extra_options = {
+      'linux': [
+        # BOOTSTRAP_ prefixed flags are passed to the second stage compiler.
+        '-DBOOTSTRAP_CMAKE_C_FLAGS=-I%s -I%s' % (lib_install_dir.join('include'), lib_install_dir.join('include', 'libxml2')),
+        '-DBOOTSTRAP_CMAKE_CXX_FLAGS=-I%s -I%s' % (lib_install_dir.join('include'), lib_install_dir.join('include', 'libxml2')),
+        '-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
+        '-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++e-ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
+        '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
+        '-DBOOTSTRAP_CMAKE_SYSROOT=%s' % cipd_dir,
+        # Unprefixed flags are only used by the first stage compiler.
+        '-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
+        '-DCMAKE_EXE_SHARED_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
+        '-DCMAKE_SYSROOT=%s' % cipd_dir,
+      ],
+      'mac': [],
+    }[api.platform.name]
+
+    for tc_arch, gn_arch in TARGETS:
+      extra_options.extend([
+        '-DSTAGE2_FUCHSIA_%s_SYSROOT=%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'sysroot')),
+        '-DSTAGE2_FUCHSIA_%s_C_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'fdio', 'include')),
+        '-DSTAGE2_FUCHSIA_%s_CXX_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'fdio', 'include')),
+        '-DSTAGE2_FUCHSIA_%s_LINKER_FLAGS=-L%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'lib')),
+      ])
+
+    with api.step.nest('clang'), api.context(cwd=build_dir):
+      api.step('configure', [
+        cipd_dir.join('bin', 'cmake'),
+        '-GNinja',
+        '-DCMAKE_C_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
+        '-DCMAKE_CXX_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
+        '-DCMAKE_ASM_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
+        '-DCMAKE_C_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
+        '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
+        '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
+        '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
+        '-DCMAKE_INSTALL_PREFIX=',
+        '-DLLVM_ENABLE_PROJECTS=clang;lld',
+        '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
+      ] + extra_options + [
+        '-C', llvm_dir.join('clang', 'cmake', 'caches', 'Fuchsia.cmake'),
+        llvm_dir.join('llvm'),
+      ])
+      api.step('build', [cipd_dir.join('ninja'), 'stage2-distribution'])
+      # TODO: we should be running stage2-check-all
+      api.step('check-llvm', [cipd_dir.join('ninja'), 'stage2-check-llvm'])
+      api.step('check-clang', [cipd_dir.join('ninja'), 'stage2-check-clang'])
+      with api.context(env={'DESTDIR': pkg_dir}):
+        api.step('install',
+                 [cipd_dir.join('ninja'), 'stage2-install-distribution'])
 
   # use first rather than second stage clang just in case we're cross-compiling
   step_result = api.step('clang version',

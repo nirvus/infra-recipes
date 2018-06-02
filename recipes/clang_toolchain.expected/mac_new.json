@@ -351,10 +351,220 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/clang_tmp_1/llvm_build_dir"
+      "[START_DIR]/zlib"
     ],
     "infra_step": true,
-    "name": "create llvm build dir"
+    "name": "makedirs (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "infra_step": true,
+    "name": "git init (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/zlib"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "infra_step": true,
+    "name": "git remote (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "upstream/master"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "infra_step": true,
+    "name": "git fetch (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "infra_step": true,
+    "name": "git checkout (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "infra_step": true,
+    "name": "git rev-parse (2)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "infra_step": true,
+    "name": "git clean (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "infra_step": true,
+    "name": "submodule sync (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "infra_step": true,
+    "name": "submodule update (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/libxml2"
+    ],
+    "infra_step": true,
+    "name": "makedirs (3)"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "infra_step": true,
+    "name": "git init (3)"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/libxml2"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "infra_step": true,
+    "name": "git remote (3)"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "upstream/master"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "infra_step": true,
+    "name": "git fetch (3)"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "infra_step": true,
+    "name": "git checkout (3)"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "infra_step": true,
+    "name": "git rev-parse (3)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "infra_step": true,
+    "name": "git clean (3)"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "infra_step": true,
+    "name": "submodule sync (3)"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "infra_step": true,
+    "name": "submodule update (3)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/clang_tmp_1/lib_install"
+    ],
+    "infra_step": true,
+    "name": "create lib_install_dir"
   },
   {
     "cmd": [
@@ -369,6 +579,213 @@
     },
     "infra_step": true,
     "name": "start_goma"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/clang_tmp_1/zlib_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create zlib build dir"
+  },
+  {
+    "cmd": [],
+    "name": "zlib"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zlib/configure",
+      "--prefix=",
+      "--static"
+    ],
+    "cwd": "[TMP_BASE]/clang_tmp_1/zlib_build_dir",
+    "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "NM": "[START_DIR]/cipd/bin/llvm-nm",
+      "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
+    },
+    "name": "zlib.configure",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
+    ],
+    "cwd": "[TMP_BASE]/clang_tmp_1/zlib_build_dir",
+    "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "NM": "[START_DIR]/cipd/bin/llvm-nm",
+      "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
+    },
+    "name": "zlib.calculate the number of recommended jobs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
+      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
+      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "-j50"
+    ],
+    "cwd": "[TMP_BASE]/clang_tmp_1/zlib_build_dir",
+    "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "NM": "[START_DIR]/cipd/bin/llvm-nm",
+      "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
+    },
+    "name": "zlib.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "install",
+      "DESTDIR=[TMP_BASE]/clang_tmp_1/lib_install"
+    ],
+    "cwd": "[TMP_BASE]/clang_tmp_1/zlib_build_dir",
+    "env": {
+      "AR": "[START_DIR]/cipd/bin/llvm-ar",
+      "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "NM": "[START_DIR]/cipd/bin/llvm-nm",
+      "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
+    },
+    "name": "zlib.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/clang_tmp_1/libxml2_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create libxml2 build dir"
+  },
+  {
+    "cmd": [],
+    "name": "libxml2"
+  },
+  {
+    "cmd": [
+      "autoreconf",
+      "-i",
+      "-f"
+    ],
+    "cwd": "[TMP_BASE]/clang_tmp_1/libxml2_build_dir",
+    "name": "libxml2.autoconf",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/libxml2/configure",
+      "--prefix=",
+      "--sysroot=[START_DIR]/cipd",
+      "--enable-static",
+      "--disable-shared",
+      "--with-zlib=[TMP_BASE]/clang_tmp_1/lib_install",
+      "--without-icu",
+      "--without-lzma",
+      "--without-python",
+      "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "AR=[START_DIR]/cipd/bin/llvm-ar",
+      "RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
+      "NM=[START_DIR]/cipd/bin/llvm-nm",
+      "CFLAGS=-O3 -fPIC --sysroot=[START_DIR]/cipd"
+    ],
+    "cwd": "[TMP_BASE]/clang_tmp_1/libxml2_build_dir",
+    "name": "libxml2.configure",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "-j50"
+    ],
+    "cwd": "[TMP_BASE]/clang_tmp_1/libxml2_build_dir",
+    "name": "libxml2.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "install",
+      "DESTDIR=[TMP_BASE]/clang_tmp_1/lib_install"
+    ],
+    "cwd": "[TMP_BASE]/clang_tmp_1/libxml2_build_dir",
+    "name": "libxml2.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/clang_tmp_1/llvm_build_dir"
+    ],
+    "infra_step": true,
+    "name": "create llvm build dir"
+  },
+  {
+    "cmd": [],
+    "name": "clang"
   },
   {
     "cmd": [
@@ -397,7 +814,10 @@
       "[START_DIR]/llvm-project/llvm"
     ],
     "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
-    "name": "configure clang"
+    "name": "clang.configure",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -405,7 +825,10 @@
       "stage2-distribution"
     ],
     "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
-    "name": "build clang"
+    "name": "clang.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -413,7 +836,10 @@
       "stage2-check-llvm"
     ],
     "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
-    "name": "check llvm"
+    "name": "clang.check-llvm",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -421,7 +847,10 @@
       "stage2-check-clang"
     ],
     "cwd": "[TMP_BASE]/clang_tmp_1/llvm_build_dir",
-    "name": "check clang"
+    "name": "clang.check-clang",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -432,7 +861,10 @@
     "env": {
       "DESTDIR": "[TMP_BASE]/clang_tmp_1/clang-darwin"
     },
-    "name": "install clang"
+    "name": "clang.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [

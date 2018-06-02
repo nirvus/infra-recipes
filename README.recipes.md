@@ -1067,7 +1067,7 @@ Recipe for building some Breakpad tools.
 
 Recipe for building Clang toolchain.
 
-&mdash; **def [RunSteps](/recipes/clang_toolchain.py#47)(api, url, ref, revision):**
+&mdash; **def [RunSteps](/recipes/clang_toolchain.py#49)(api, url, ref, revision):**
 ### *recipes* / [cobalt](/recipes/cobalt.py)
 
 [DEPS](/recipes/cobalt.py#10): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
