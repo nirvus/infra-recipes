@@ -44,7 +44,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.path['start_dir'].join('scripts', 'rust', 'check_rust_licenses.py'),
     '--verify',
     '--directory',
-    api.path['start_dir'].join('third_party', 'rust-crates', 'vendor'),
+    api.path['start_dir'].join(
+        'third_party', 'rust-crates', 'rustc_deps', 'vendor'),
   ]
   api.step('verify licenses', cmd)
 
