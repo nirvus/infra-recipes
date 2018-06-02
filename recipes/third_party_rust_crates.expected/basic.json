@@ -50,7 +50,7 @@
       "import",
       "-v",
       "-time",
-      "runtimes/rust",
+      "third_party_rust_crates",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "infra_step": true,

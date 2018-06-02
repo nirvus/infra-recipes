@@ -34,7 +34,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   with api.context(infra_steps=True):
     api.jiri.init()
-    api.jiri.import_manifest('runtimes/rust',
+    api.jiri.import_manifest('third_party_rust_crates',
                              'https://fuchsia.googlesource.com/manifest')
     api.jiri.update()
     revision = api.jiri.project(['rust-crates']).json.output[0]['revision']
