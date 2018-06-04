@@ -199,13 +199,18 @@ def RunSteps(api, url, ref, revision):
   assert m, 'Cannot determine Rust version'
   version = m.group(1)
 
-  cipd_pkg_file = staging_dir.join('rust.cipd')
-
-  api.cipd.build(
-      input_dir=pkg_dir,
+  pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
+      package_root=pkg_dir,
+      install_mode='copy')
+  pkg_def.add_dir(pkg_dir)
+  pkg_def.add_version_file('.versions/rust.cipd_version')
+
+  cipd_pkg_file = api.path['cleanup'].join('rust.cipd')
+
+  api.cipd.build_from_pkg(
+      pkg_def=pkg_def,
       output_package=cipd_pkg_file,
-      install_mode='copy',
   )
   step_result = api.cipd.register(
       package_name=cipd_pkg_name,
@@ -218,10 +223,11 @@ def RunSteps(api, url, ref, revision):
       },
   )
 
+  instance_id = step_result.json.output['result']['instance_id']
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      api.gsutil.join('rust', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
+      api.gsutil.join('rust', api.cipd.platform_suffix(), instance_id),
       unauthenticated_url=True
   )
 
