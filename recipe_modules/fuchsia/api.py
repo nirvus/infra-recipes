@@ -1002,7 +1002,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     archive = self.m.tar.create(
         self.m.path['cleanup'].join('fuchsia.tar.gz'), compression='gzip')
 
-    # Add the images directory, which contain system images, to the package.
+    # Add the images directory, which contain system images.
     archive.add(
         build_results.fuchsia_build_dir.join('images'),
         build_results.fuchsia_build_dir)
@@ -1015,34 +1015,33 @@ class FuchsiaApi(recipe_api.RecipeApi):
         test_data=['/path/to/out/bootdata-blob-pc.bin'],
     )
 
-    # Add all the bootdata-*.bin files to the package, which contain the core
-    # ramdisk necessary to boot.
+    # Add all the bootdata-*.bin files, which contain the core ramdisk necessary
+    # to boot.
     for p in bootdata_paths:
       archive.add(p, build_results.fuchsia_build_dir)
 
-    # Add SSH keys to the package, making it easier for users to SSH into
-    # devices that are paved with buildbot-generated images.
+    # Add SSH keys, making it easier for users to SSH into devices that are
+    # paved with buildbot-generated images.
     archive.add(
         build_results.fuchsia_build_dir.join('ssh-keys'),
         build_results.fuchsia_build_dir)
 
-    # Add args.gn, a file containing the arguments passed to GN, to the package.
-    # This is useful for understanding what packages went into the build, as
-    # well as the over build configuration.
+    # Add args.gn, a file containing the arguments passed to GN. This is useful
+    # for understanding what packages went into the build, as well as the over
+    # build configuration.
     archive.add(
         build_results.fuchsia_build_dir.join('args.gn'),
         build_results.fuchsia_build_dir)
 
-    # Add the bootserver tool from zircon to the package. Note that since the
-    # CWD is set to the zircon build dir, it will be placed in tools/bootserver
-    # in the archive. This makes the packages self-sufficient, allowing one to
-    # boot Fuchsia on a device without having to obtain any additional
-    # dependencies.
+    # Add the bootserver tool from zircon. Note that since the CWD is set to the
+    # zircon build dir, it will be placed in tools/bootserver in the archive.
+    # This makes the packages self-sufficient, allowing one to boot Fuchsia on a
+    # device without having to obtain any additional dependencies.
     archive.add(
         build_results.zircon_build_dir.join('tools', 'bootserver'),
         build_results.zircon_build_dir)
 
-    # Add the zircon kernel binary to the package.
+    # Add the zircon kernel binary.
     archive.add(
         build_results.zircon_build_dir.join(build_results.zircon_kernel_image),
         build_results.zircon_build_dir)
@@ -1067,18 +1066,17 @@ class FuchsiaApi(recipe_api.RecipeApi):
     archive = self.m.tar.create(
         self.m.path['cleanup'].join('packages.tar.gz'), compression='gzip')
 
-    # Add targets and blobs under 'targets' and 'blobs' in the tarball. These
-    # directories together make up complete Fuchsia packages which may be
-    # pushed into the system.
+    # Add targets and blobs under 'targets' and 'blobs'. These directories
+    # together make up complete Fuchsia packages which may be pushed into the
+    # system.
     amber_repo_dir = build_results.fuchsia_build_dir.join(
         'amber-files', 'repository')
     archive.add(amber_repo_dir.join('targets'), directory=amber_repo_dir)
     archive.add(amber_repo_dir.join('blobs'), directory=amber_repo_dir)
 
-    # Add a host_x64 directory to the tarball containing the contents of
-    # host_x64/amber-publish and host_x64/pm in the fuchsia build output
-    # directory. These directories contain host tools and files necessary to
-    # push packages to Fuchsia.
+    # Add a host_x64 directory containing the contents of host_x64/amber-publish
+    # and host_x64/pm in the fuchsia build output directory. These directories
+    # contain host tools and files necessary to push packages to Fuchsia.
     host_build_dir = build_results.fuchsia_build_dir.join('host_x64')
     archive.add(host_build_dir.join('amber-publish'),
                 directory=build_results.fuchsia_build_dir)
