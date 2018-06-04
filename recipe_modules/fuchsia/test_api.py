@@ -49,15 +49,12 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       RecipeTestApi.step_data for the extract_results step.
     """
     result = 'FAIL' if failure else 'PASS'
-    summary_json = self.m.json.dumps({
-        'tests': [{'name': '/hello',
-                   'output_file': 'hello.out',
-                   'result': result}],
-        'outputs': {'goodbye-txt': 'goodbye.txt'}})
     return self.step_data(
         'extract results',
         self.m.raw_io.output_dir({
-            'summary.json': summary_json,
-            'hello.out': 'hello',
-            'goodbye.txt': 'goodbye',
+            'summary.json':
+                '{"tests":[{"name": "/hello", "output_file": "hello.out", "result": "%s"}]}'
+                % result,
+            'hello.out':
+                'hello',
         }))
