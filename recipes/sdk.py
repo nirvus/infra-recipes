@@ -81,7 +81,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
           packages=['garnet/packages/sdk/base'])
 
       api.python('create sdk',
-          api.path['start_dir'].join('scripts', 'sdk', 'create_layout.py'),
+          api.path['start_dir'].join('scripts', 'sdk', 'foundation', 'generate.py'),
           args=[
             '--manifest',
             build.fuchsia_build_dir.join('gen', 'garnet', 'public', 'sdk', 'garnet_molecule.sdk'),
@@ -99,7 +99,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
   with api.step.nest('make chromium sdk'):
     out_dir = api.path['cleanup'].join('fuchsia-sdk')
     sdk = api.path['cleanup'].join('fuchsia-sdk.tgz')
-    api.go('run', api.path['start_dir'].join('scripts', 'makesdk.go'),
+    api.go('run', api.path['start_dir'].join('scripts', 'sdk', 'foundation', 'makesdk.go'),
            '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
 
   if not api.properties.get('tryjob'):

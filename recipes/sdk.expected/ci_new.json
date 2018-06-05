@@ -428,7 +428,7 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/scripts/sdk/create_layout.py",
+      "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--manifest",
       "[START_DIR]/out/release-arm64/gen/garnet/public/sdk/garnet_molecule.sdk",
       "--output",
@@ -600,7 +600,7 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/scripts/sdk/create_layout.py",
+      "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--manifest",
       "[START_DIR]/out/release-x64/gen/garnet/public/sdk/garnet_molecule.sdk",
       "--output",
@@ -712,7 +712,7 @@
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "run",
-      "[START_DIR]/scripts/makesdk.go",
+      "[START_DIR]/scripts/sdk/foundation/makesdk.go",
       "-out-dir",
       "[CLEANUP]/fuchsia-sdk",
       "-output",
