@@ -107,17 +107,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/dart/update_3p_packages.py",
-      "--changelog",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "update dart 3p packages"
-  },
-  {
     "cmd": [],
     "infra_step": true,
     "name": "read_manifest_third_party/dart-pkg"
@@ -145,6 +134,28 @@
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "--detach",
+      "origin/master"
+    ],
+    "cwd": "[START_DIR]/third_party/dart-pkg/pub",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/dart/update_3p_packages.py",
+      "--changelog",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "update dart 3p packages"
   },
   {
     "cmd": [],

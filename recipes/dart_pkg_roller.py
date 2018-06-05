@@ -11,6 +11,7 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
   'infra/auto_roller',
+  'infra/git',
   'infra/jiri',
   'recipe_engine/context',
   'recipe_engine/json',
@@ -45,6 +46,24 @@ def RunSteps(api):
         project='topaz',
     )
 
+    # Read the dart-pkg entry in the dart manifest.
+    dart_pkg_entry = api.jiri.read_manifest_element(
+        manifest=api.path['start_dir'].join('topaz', 'manifest', 'dart'),
+        element_type='project',
+        element_name='third_party/dart-pkg',
+    )
+
+    # Checkout master for third_party/dart-pkg.
+    # We check out master here because this roller is updating the
+    # third_party/dart-pkg repository itself, and we're checking out Topaz which
+    # has a pinned version of the repository. In order to ensure the patch is
+    # accurate, we checkout master. Note that we cannot simply check out
+    # the repository without Topaz because update_3p_packages.py depends on a
+    # full Topaz checkout.
+    dart_pkg_dir = api.path['start_dir'].join(dart_pkg_entry.get('path'))
+    with api.context(cwd=dart_pkg_dir):
+      api.git('checkout', '--detach', 'origin/master')
+
     # Execute script to update 3p packages.
     changes = api.python(
         name='update dart 3p packages',
@@ -53,15 +72,7 @@ def RunSteps(api):
         args=['--changelog', api.raw_io.output_text()],
     ).raw_io.output_text
 
-    # Read the dart-pkg entry in the dart manifest.
-    dart_pkg_entry = api.jiri.read_manifest_element(
-        manifest=api.path['start_dir'].join('topaz', 'manifest', 'dart'),
-        element_type='project',
-        element_name='third_party/dart-pkg',
-    )
-
     # Land the changes.
-    dart_pkg_dir = api.path['start_dir'].join(dart_pkg_entry.get('path'))
     api.auto_roller.attempt_roll(
         gerrit_project='third_party/dart-pkg',
         repo_dir=dart_pkg_dir,

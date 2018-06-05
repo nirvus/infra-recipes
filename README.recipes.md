@@ -1127,11 +1127,11 @@ Args:
   manifest_path (Path): A path to the Jiri manifest to overwrite.
 ### *recipes* / [dart\_pkg\_roller](/recipes/dart_pkg_roller.py)
 
-[DEPS](/recipes/dart_pkg_roller.py#12): [auto\_roller](#recipe_modules-auto_roller), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/dart_pkg_roller.py#12): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for automatically updating Dart 3p packages.
 
-&mdash; **def [RunSteps](/recipes/dart_pkg_roller.py#37)(api):**
+&mdash; **def [RunSteps](/recipes/dart_pkg_roller.py#38)(api):**
 ### *recipes* / [dart\_toolchain](/recipes/dart_toolchain.py)
 
 [DEPS](/recipes/dart_toolchain.py#11): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
