@@ -1083,6 +1083,18 @@ class FuchsiaApi(recipe_api.RecipeApi):
     archive.add(host_build_dir.join('pm'),
                 directory=build_results.fuchsia_build_dir)
 
+    # Add the keys used to sign the OTA metadata.
+    # TODO(jmatt): This is a near-term solution for shuffling keys around, we'll
+    #   do something better in the future.
+    # TODO(dbort): Get the source root from a FuchsiaCheckoutResults instead
+    #   of hard-coding. See if we can stuff the FuchsiaCheckoutResults in the
+    #   FuchsiaBuildResults; maybe even move the api.build() method onto the
+    #   checkout. That may let us remove most 'start_dir' hard-coding from this
+    #   module.
+    root_dir = self.m.path['start_dir']
+    amber_src_dir = root_dir.join('garnet', 'go', 'src', 'amber')
+    archive.add(amber_src_dir.join('keys'), amber_src_dir)
+
     # Tar the files.
     archive.tar('tar fuchsia packages')
 
