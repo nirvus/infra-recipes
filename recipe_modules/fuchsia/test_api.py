@@ -7,6 +7,21 @@ from recipe_engine import recipe_test_api
 
 class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
 
+  def breakpad_symbol_summary(self, summary_json):
+    """Returns mock data for the summary file written by //tools/dump_breakpad_symbols.
+
+    Args:
+      summary_json (Dict): The contents of the dump_breakpad_symbols summary file.
+        The summary is a JSON object whose keys are absolute paths to binaries and
+        values are absolute paths to the generated breakpad symbol files for those
+        those binaries. See //tools/cmd/dump_breakpad_symbols for more information.
+
+    Returns:
+      RecipeTestApi.step_data for the 'read symbol file summary' step.
+    """
+    return self.step_data('read symbol file summary', self.m.json.output(summary_json))
+
+
   def task_step_data(self,
                      output='',
                      device=False,

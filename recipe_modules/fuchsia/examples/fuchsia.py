@@ -76,7 +76,8 @@ PROPERTIES = {
                                         ' (always False if tryjob is True or if device_type'
                                         ' != QEMU)',
                                    default=False),
-
+  'upload_breakpad_symbols': Property(kind=bool, help='Whether to upload breakpad symbol files',
+                                      default=False),
   # Misc. additional properties.
   'snapshot_gcs_bucket': Property(kind=str,
                                   help='The GCS bucket to upload a jiri snapshot of the build'
@@ -90,7 +91,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
              snapshot_repository, snapshot_revision, patch_gerrit_url,
              patch_project, patch_ref,  target, build_type, packages, variants,
              gn_args, ninja_targets, run_tests, runtests_args, device_type,
-             networking_for_tests, snapshot_gcs_bucket):
+             networking_for_tests, snapshot_gcs_bucket, upload_breakpad_symbols):
   if checkout_snapshot:
     checkout = api.fuchsia.checkout_snapshot(
         repository=snapshot_repository,
@@ -133,7 +134,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
     if test_results.summary and test_results.passed_tests:
         assert test_results.passed_tests['/hello']
     api.fuchsia.analyze_test_results('test results', test_results)
-  api.fuchsia.upload_build_artifacts(build)
+  api.fuchsia.upload_build_artifacts(build, upload_breakpad_symbols=upload_breakpad_symbols)
 
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.
@@ -308,7 +309,7 @@ def GenTests(api):
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
-      packages=['topaz/packages/default'],
+      packages=['topaz/packages/default',],
       tryjob=True,
       gn_args=['super_arg=false', 'less_super_arg=true'],
   )
@@ -341,3 +342,36 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
   )
+
+  # Test cases for generating symbol files during the build.
+  yield api.test('upload_breakpad_symbols') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      # build_type and target determine the path used in the key of
+      # fuchsia.breakpad_symbol_summary below.
+      build_type='release',
+      target='x64',
+      packages=['topaz/packages/default'],
+      upload_breakpad_symbols=True,
+      ninja_targets=['//build/gn:breakpad_symbols'],
+  ) + api.fuchsia.breakpad_symbol_summary({'/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'})
+
+  yield api.test('dont_upload_breakpad_symbols') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      build_type='release',
+      target='x64',
+      packages=['topaz/packages/default'],
+      upload_breakpad_symbols=False,
+      ninja_targets=['//build/gn:breakpad_symbols'],
+  )
+
+  yield api.test('upload_but_symbol_files_missing') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      build_type='release',
+      target='x64',
+      packages=['topaz/packages/default'],
+      upload_breakpad_symbols=True,
+      ninja_targets=['//build/gn:breakpad_symbols'],
+  ) + api.fuchsia.breakpad_symbol_summary({})

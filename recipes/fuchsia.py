@@ -82,7 +82,13 @@ PROPERTIES = {
     'gn_args':
         Property(
             kind=List(basestring), help='Extra args to pass to GN', default=[]),
-
+    'ninja_targets': Property(
+        kind=List(basestring), help='Extra target args to pass to ninja', default=[]),
+    'upload_breakpad_symbols':
+        Property(
+            kind=bool,
+            help='Whether to upload breakpad symbol files',
+            default=False),
     # Properties pertaining to testing.
     'run_tests':
         Property(kind=bool, help='Whether to run tests or not', default=False),
@@ -131,8 +137,8 @@ PROPERTIES = {
 def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              repository, patch_gerrit_url, patch_project, patch_ref, target,
              build_type, packages, variant, gn_args, run_tests, runtests_args,
-             device_type, networking_for_tests, test_timeout_secs,
-             snapshot_gcs_bucket, upload_archive):
+             device_type, networking_for_tests, ninja_targets, test_timeout_secs,
+             upload_archive, upload_breakpad_symbols, snapshot_gcs_bucket):
   # Don't upload snapshots for tryjobs.
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
@@ -194,6 +200,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
       packages=packages,
       variants=variant,
       gn_args=gn_args,
+      ninja_targets=ninja_targets,
       test_cmds=test_cmds,
       test_device_type=device_type,
   )
@@ -228,7 +235,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
   # Upload an archive containing build artifacts if the properties say to do so.
   # Note: if we ran tests, this will only execute if the tests passed.
   if upload_archive and not api.properties.get('tryjob'):
-    api.fuchsia.upload_build_artifacts(build)
+    api.fuchsia.upload_build_artifacts(build, upload_breakpad_symbols=upload_breakpad_symbols)
 
 
 # yapf: disable
@@ -350,4 +357,21 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       snapshot_gcs_bucket=None,
   )
+
+  # Test cases for generating symbol files as part of the build
+  yield api.test('upload_breakpad_symbols') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      # build_type and target determine the path used in the key of
+      # fuchsia.breakpad_symbol_summary below.
+      build_type='release',
+      target='x64',
+      packages=['topaz/packages/default'],
+      revision=api.jiri.example_revision,
+      upload_archive=True,
+      upload_breakpad_symbols=True,
+      tryjob=False,
+      ninja_targets=['//build/gn:breakpad_symbols']
+  ) + api.fuchsia.breakpad_symbol_summary({'/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'})
+
 # yapf: enable

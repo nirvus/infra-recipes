@@ -420,7 +420,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1132)(self, build_results, bucket='fuchsia-archive'):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1159)(self, build_results, upload_breakpad_symbols=False, bucket='fuchsia-archive'):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
@@ -1159,14 +1159,14 @@ Recipe for building libffmpeg and uploading it and required source files.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#131)(api, project, manifest, remote, revision, checkout_snapshot, repository, patch_gerrit_url, patch_project, patch_ref, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, networking_for_tests, test_timeout_secs, snapshot_gcs_bucket, upload_archive):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#137)(api, project, manifest, remote, revision, checkout_snapshot, repository, patch_gerrit_url, patch_project, patch_ref, target, build_type, packages, variant, gn_args, run_tests, runtests_args, device_type, networking_for_tests, ninja_targets, test_timeout_secs, upload_archive, upload_breakpad_symbols, snapshot_gcs_bucket):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#89)(api, project, manifest, remote, checkout_snapshot, snapshot_repository, snapshot_revision, patch_gerrit_url, patch_project, patch_ref, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, networking_for_tests, snapshot_gcs_bucket):**
+&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#90)(api, project, manifest, remote, checkout_snapshot, snapshot_repository, snapshot_revision, patch_gerrit_url, patch_project, patch_ref, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, networking_for_tests, snapshot_gcs_bucket, upload_breakpad_symbols):**
 ### *recipes* / [fuchsia\_perf](/recipes/fuchsia_perf.py)
 
 [DEPS](/recipes/fuchsia_perf.py#27): [catapult](#recipe_modules-catapult), [fuchsia](#recipe_modules-fuchsia), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
