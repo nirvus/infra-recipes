@@ -587,7 +587,7 @@
       "-u",
       "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--manifest",
-      "[START_DIR]/scripts/sdk/foundation/generate.py",
+      "[START_DIR]/out/release-arm64/sdk-manifests/garnet",
       "--output",
       "[CLEANUP]/sdk-fuchsia"
     ],
@@ -599,7 +599,7 @@
       "-u",
       "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--manifest",
-      "[START_DIR]/scripts/sdk/foundation/generate.py",
+      "[START_DIR]/out/release-x64/sdk-manifests/garnet",
       "--output",
       "[CLEANUP]/sdk-fuchsia",
       "--overlay"
@@ -704,7 +704,7 @@
       "-u",
       "[START_DIR]/scripts/sdk/bazel/generate.py",
       "--manifest",
-      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "[START_DIR]/out/release-arm64/sdk-manifests/garnet",
       "--output",
       "[CLEANUP]/sdk-bazel"
     ],
@@ -716,7 +716,7 @@
       "-u",
       "[START_DIR]/scripts/sdk/bazel/generate.py",
       "--manifest",
-      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "[START_DIR]/out/release-x64/sdk-manifests/garnet",
       "--output",
       "[CLEANUP]/sdk-bazel",
       "--overlay"

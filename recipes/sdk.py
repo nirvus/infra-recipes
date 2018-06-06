@@ -114,7 +114,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
             script_path,
             args=[
               '--manifest',
-              script_path,
+              builds[target].fuchsia_build_dir.join('sdk-manifests', 'garnet'),
               '--output',
               sdk_dir,
             ] + (['--overlay'] if overlay else []),
