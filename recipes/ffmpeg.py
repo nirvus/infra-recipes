@@ -49,8 +49,8 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
-      manifest='manifest/garnet',
-      remote='https://fuchsia.googlesource.com/garnet',
+      manifest='manifest/ffmpeg',
+      remote='https://fuchsia.googlesource.com/third_party/ffmpeg',
       project=project,
       revision=revision,
       patch_ref=patch_ref,
@@ -73,7 +73,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       build_results = api.fuchsia.build(
           target=target,
           build_type='release',
-          packages=['garnet/packages/prod/ffmpeg'],
+          packages=['third_party/ffmpeg/packages/ffmpeg'],
           ninja_targets=['third_party/ffmpeg'],
       )
     with api.context(infra_steps=True):
@@ -108,20 +108,18 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
   with api.context(infra_steps=True):
     for target in TARGETS:
       basename = 'libffmpeg.tar.gz'
-      # The GCS path has three main components:
-      # - target architecture
-      # - third_party/ffmpeg git HEAD hash
-      # - garnet jiri.snapshot file hash
-      # The HEAD hash component lets us find all builds for a given version
-      # of the ffmpeg code. But, since the actual binary includes pieces
-      # of garnet (header-defined values, static libs, etc.), it's also
-      # important to reflect the garnet version.
-      bucket_root = {'arm64': 'aarch64', 'x64': 'x86_64'}[target]
+      # Use the same arch names that CIPD uses.
+      cipd_arch = {'arm64': 'arm64', 'x64': 'amd64'}[target]
+      # The GCS path includes the HEAD git revision that was used to build the
+      # prebuilt. Since the git repo contains the manifest, and all manifest
+      # entries (all the way down) should be pinned, this should exactly
+      # describe the environment used to build the artifact.
+      gcs_path = api.gsutil.join(
+          'lib', 'ffmpeg', 'fuchsia-' + cipd_arch, revision, basename)
       api.gsutil.upload(
           bucket='fuchsia',
           src=archives[target].path,
-          dst=api.gsutil.join(bucket_root, 'ffmpeg', revision,
-                              checkout.snapshot_file_sha1, basename),
+          dst=gcs_path,
           link_name=basename,
           unauthenticated_url=True,
           name='upload %s' % target,

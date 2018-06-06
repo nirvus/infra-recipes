@@ -51,8 +51,8 @@
       "import",
       "-v",
       "-time",
-      "manifest/garnet",
-      "https://fuchsia.googlesource.com/garnet"
+      "manifest/ffmpeg",
+      "https://fuchsia.googlesource.com/third_party/ffmpeg"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -357,7 +357,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/prod/ffmpeg\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"third_party/ffmpeg/packages/ffmpeg\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -602,7 +602,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/prod/ffmpeg\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"third_party/ffmpeg/packages/ffmpeg\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [
