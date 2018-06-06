@@ -33,6 +33,7 @@
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
   * [cobalt](#recipes-cobalt) &mdash; Recipe for building and testing Cobalt.
+  * [cut_release](#recipes-cut_release) &mdash; Recipe for automatically cutting new release branches.
   * [dart_flutter_roller](#recipes-dart_flutter_roller) &mdash; Recipe for automatically updating Flutter, flutter/engine, and Dart.
   * [dart_pkg_roller](#recipes-dart_pkg_roller) &mdash; Recipe for automatically updating Dart 3p packages.
   * [dart_toolchain](#recipes-dart_toolchain) &mdash; Recipe for building Dart toolchain.
@@ -1115,6 +1116,13 @@ Recipe for building Clang toolchain.
 Recipe for building and testing Cobalt.
 
 &mdash; **def [RunSteps](/recipes/cobalt.py#31)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, revision):**
+### *recipes* / [cut\_release](/recipes/cut_release.py)
+
+[DEPS](/recipes/cut_release.py#12): [git](#recipe_modules-git), [lkgs](#recipe_modules-lkgs), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/time][recipe_engine/recipe_modules/time]
+
+Recipe for automatically cutting new release branches.
+
+&mdash; **def [RunSteps](/recipes/cut_release.py#48)(api, release_repository, release_names, release_targets, reference_builders):**
 ### *recipes* / [dart\_flutter\_roller](/recipes/dart_flutter_roller.py)
 
 [DEPS](/recipes/dart_flutter_roller.py#13): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
