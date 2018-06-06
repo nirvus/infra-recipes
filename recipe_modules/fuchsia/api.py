@@ -364,7 +364,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # dropping test output into the block device.
     test_dir = self.target_test_dir()
     runcmds = [
-        '#!/boot/bin/sh',
         'mkdir %s' % test_dir,
     ]
     if test_in_qemu:
@@ -650,7 +649,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     }[build.target]
 
     cmdline = [
-        'zircon.autorun.system=/system/data/infra/runcmds',
+        'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds',
         'kernel.halt-on-panic=true',
     ] + TARGET_CMDLINE[build.target]
 
@@ -810,7 +809,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         '-ramdisk', ramdisk_name,
         '-test', self.target_test_dir(),
         '-out', output_archive_name,
-        'zircon.autorun.system=/system/data/infra/runcmds',
+        'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds',
     ] # yapf: disable
 
     # Isolate the Fuchsia build artifacts.

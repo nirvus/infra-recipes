@@ -206,13 +206,12 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/boot/bin/sh\nmkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output \numount /tmp/infra-test-output\ndm poweroff",
+      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output \numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/runcmds"
     ],
     "infra_step": true,
     "name": "write runcmds",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@runcmds@#!/boot/bin/sh@@@",
       "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
@@ -450,7 +449,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none",
+      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none",
       "[START_DIR]/run-qemu.sh"
     ],
     "infra_step": true,
@@ -458,7 +457,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
       "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds kernel.halt-on-panic=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none@@@",
       "@@@STEP_LOG_END@run-qemu.sh@@@"
     ]
   },

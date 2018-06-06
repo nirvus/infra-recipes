@@ -136,7 +136,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     '-ramdisk', ramdisk_name,
     '-test', api.fuchsia.target_test_dir(),
     '-out', output_archive_name,
-    'zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH,
+    'zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH,
   ]
 
   # Isolate all necessary build artifacts.
@@ -229,7 +229,7 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
   booted_tests_qemu_cmd = GenerateQEMUCommand(
       target=target,
       # On boot, execute the RUNCMDS script.
-      cmdline=['zircon.autorun.boot=/boot/' + RUNCMDS_BOOTFS_PATH],
+      cmdline=['zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH],
       use_kvm=use_kvm,
       blkdev=output_image_name,
   )
@@ -503,7 +503,6 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
   # results and test output to. Thus, the runcmds script must:
   target_test_dir = api.fuchsia.target_test_dir()
   runcmds = [
-    '#!/boot/bin/sh',
     # 1. Make a test directory.
     'mkdir %s' % target_test_dir,
   ]
