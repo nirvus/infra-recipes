@@ -92,10 +92,10 @@ def RunSteps(api, url, ref, revision):
     api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
 
     zlib_dir = api.path['start_dir'].join('zlib')
-    api.git.checkout(ZLIB_GIT, zlib_dir, ref='refs/heads/upstream/master')
+    api.git.checkout(ZLIB_GIT, zlib_dir, ref='refs/tags/v1.2.9')
 
     libxml2_dir = api.path['start_dir'].join('libxml2')
-    api.git.checkout(LIBXML2_GIT, libxml2_dir, ref='refs/heads/upstream/master')
+    api.git.checkout(LIBXML2_GIT, libxml2_dir, ref='refs/tags/v2.9.8')
 
   lib_install_dir = staging_dir.join('lib_install')
   api.file.ensure_directory('create lib_install_dir', lib_install_dir)

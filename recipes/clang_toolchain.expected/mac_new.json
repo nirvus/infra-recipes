@@ -382,7 +382,7 @@
       "git",
       "fetch",
       "origin",
-      "upstream/master"
+      "refs/tags/v1.2.9"
     ],
     "cwd": "[START_DIR]/zlib",
     "infra_step": true,
@@ -487,7 +487,7 @@
       "git",
       "fetch",
       "origin",
-      "upstream/master"
+      "refs/tags/v2.9.8"
     ],
     "cwd": "[START_DIR]/libxml2",
     "infra_step": true,
