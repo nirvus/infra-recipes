@@ -100,10 +100,23 @@ def RunSteps(api, url, ref, revision):
   lib_install_dir = staging_dir.join('lib_install')
   api.file.ensure_directory('create lib_install_dir', lib_install_dir)
 
+  if api.platform.name == 'linux':
+    host_sysroot = cipd_dir
+  elif api.platform.name == 'mac':
+    # TODO(IN-148): Eventually use our own hermetic sysroot as for Linux.
+    step_result = api.step(
+        'xcrun', ['xcrun', '--show-sdk-path'],
+        stdout=api.raw_io.output(name='sdk-path', add_output_log=True),
+        step_test_data=lambda: api.raw_io.test_api.stream_output(
+            '/some/xcode/path'))
+    host_sysroot = step_result.stdout.strip()
+  else: # pragma: no cover
+    assert false, "unsupported platform"
+
   with api.goma.build_with_goma():
     vars = {
       'CC': '%s %s' % (api.goma.goma_dir.join('gomacc'), cipd_dir.join('bin', 'clang')),
-      'CFLAGS': '-O3 -fPIC --sysroot=%s' % cipd_dir,
+      'CFLAGS': '-O3 -fPIC --sysroot=%s' % host_sysroot,
       'AR': cipd_dir.join('bin', 'llvm-ar'),
       'NM': cipd_dir.join('bin', 'llvm-nm'),
       'RANLIB': cipd_dir.join('bin', 'llvm-ranlib'),
@@ -127,7 +140,8 @@ def RunSteps(api, url, ref, revision):
     api.file.ensure_directory('create libxml2 build dir', build_dir)
 
     with api.step.nest('libxml2'), api.context(cwd=build_dir):
-      api.step('autoconf', ['autoreconf', '-i', '-f'])
+      with api.context(cwd=libxml2_dir):
+        api.step('autoconf', ['autoreconf', '-i', '-f'])
       api.step('configure', [
         libxml2_dir.join('configure'),
         '--prefix=',
@@ -152,7 +166,7 @@ def RunSteps(api, url, ref, revision):
         '-DBOOTSTRAP_CMAKE_C_FLAGS=-I%s -I%s' % (lib_install_dir.join('include'), lib_install_dir.join('include', 'libxml2')),
         '-DBOOTSTRAP_CMAKE_CXX_FLAGS=-I%s -I%s' % (lib_install_dir.join('include'), lib_install_dir.join('include', 'libxml2')),
         '-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
-        '-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++e-ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
+        '-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
         '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
         '-DBOOTSTRAP_CMAKE_SYSROOT=%s' % cipd_dir,
         # Unprefixed flags are only used by the first stage compiler.

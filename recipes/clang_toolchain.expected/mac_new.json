@@ -568,6 +568,18 @@
   },
   {
     "cmd": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "name": "xcrun",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@raw_io.output[sdk-path]@/some/xcode/path@@@",
+      "@@@STEP_LOG_END@raw_io.output[sdk-path]@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "[START_DIR]/cipd/goma/goma_ctl.py",
@@ -609,7 +621,7 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "CFLAGS": "-O3 -fPIC --sysroot=/some/xcode/path",
       "NM": "[START_DIR]/cipd/bin/llvm-nm",
       "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
     },
@@ -628,7 +640,7 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "CFLAGS": "-O3 -fPIC --sysroot=/some/xcode/path",
       "NM": "[START_DIR]/cipd/bin/llvm-nm",
       "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
     },
@@ -663,7 +675,7 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "CFLAGS": "-O3 -fPIC --sysroot=/some/xcode/path",
       "NM": "[START_DIR]/cipd/bin/llvm-nm",
       "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
     },
@@ -682,7 +694,7 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "CFLAGS": "-O3 -fPIC --sysroot=/some/xcode/path",
       "NM": "[START_DIR]/cipd/bin/llvm-nm",
       "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
     },
@@ -716,7 +728,7 @@
       "-i",
       "-f"
     ],
-    "cwd": "[TMP_BASE]/clang_tmp_1/libxml2_build_dir",
+    "cwd": "[START_DIR]/libxml2",
     "name": "libxml2.autoconf",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
@@ -737,7 +749,7 @@
       "AR=[START_DIR]/cipd/bin/llvm-ar",
       "RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
       "NM=[START_DIR]/cipd/bin/llvm-nm",
-      "CFLAGS=-O3 -fPIC --sysroot=[START_DIR]/cipd"
+      "CFLAGS=-O3 -fPIC --sysroot=/some/xcode/path"
     ],
     "cwd": "[TMP_BASE]/clang_tmp_1/libxml2_build_dir",
     "name": "libxml2.configure",

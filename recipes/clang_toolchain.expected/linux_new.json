@@ -720,7 +720,7 @@
       "-i",
       "-f"
     ],
-    "cwd": "[TMP_BASE]/clang_tmp_1/libxml2_build_dir",
+    "cwd": "[START_DIR]/libxml2",
     "name": "libxml2.autoconf",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
@@ -808,7 +808,7 @@
       "-DBOOTSTRAP_CMAKE_C_FLAGS=-I[TMP_BASE]/clang_tmp_1/lib_install/include -I[TMP_BASE]/clang_tmp_1/lib_install/include/libxml2",
       "-DBOOTSTRAP_CMAKE_CXX_FLAGS=-I[TMP_BASE]/clang_tmp_1/lib_install/include -I[TMP_BASE]/clang_tmp_1/lib_install/include/libxml2",
       "-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
-      "-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++e-ldl -lpthread -L[START_DIR]/cipd/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
+      "-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
       "-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
       "-DBOOTSTRAP_CMAKE_SYSROOT=[START_DIR]/cipd",
       "-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib",
