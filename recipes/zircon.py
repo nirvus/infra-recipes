@@ -228,8 +228,13 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
   ], use_kvm=use_kvm)
   booted_tests_qemu_cmd = GenerateQEMUCommand(
       target=target,
-      # On boot, execute the RUNCMDS script.
-      cmdline=['zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH],
+      cmdline=[
+          # On boot, execute the RUNCMDS script.
+          'zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH,
+          # Print a message if `dm poweroff` times out. Note that this is a
+          # devmgr flag, and devmgr doesn't exist in core-tests mode.
+          'devmgr.suspend-timeout-debug=true',
+      ],
       use_kvm=use_kvm,
       blkdev=output_image_name,
   )

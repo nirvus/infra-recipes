@@ -651,6 +651,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     cmdline = [
         'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds',
         'kernel.halt-on-panic=true',
+        # Print a message if `dm poweroff` times out.
+        'devmgr.suspend-timeout-debug=true',
     ] + TARGET_CMDLINE[build.target]
 
     # As part of running tests, we'll send a MinFS image over to another machine
