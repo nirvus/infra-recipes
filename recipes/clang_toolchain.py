@@ -145,7 +145,6 @@ def RunSteps(api, url, ref, revision):
       api.step('configure', [
         libxml2_dir.join('configure'),
         '--prefix=',
-        '--sysroot=%s' % cipd_dir,
         '--enable-static',
         '--disable-shared',
         '--with-zlib=%s' % lib_install_dir,

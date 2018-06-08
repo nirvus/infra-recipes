@@ -738,7 +738,6 @@
     "cmd": [
       "[START_DIR]/libxml2/configure",
       "--prefix=",
-      "--sysroot=[START_DIR]/cipd",
       "--enable-static",
       "--disable-shared",
       "--with-zlib=[TMP_BASE]/clang_tmp_1/lib_install",
