@@ -180,6 +180,25 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         snapshot_gcs_bucket=snapshot_gcs_bucket,
     )
 
+  if project:
+    if project.startswith('vendor/'):
+      vendor = project[len('vendor/'):]
+      args = [
+          '--vendor-layer',
+          vendor,
+          '--namespaces',
+          vendor,
+      ]
+    else:
+      args = [
+          '--layer',
+          project,
+      ]
+    api.python(
+        'verify FIDL namespaces',
+        api.path['start_dir'].join('scripts', 'style', 'verify-fidl-libraries.py'),
+        args=args)
+
   test_cmds = None
   if run_tests:
     test_cmds = [
@@ -188,10 +207,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
             runtests_args,
         )
     ]
-  verify_build_packages = project and (
-      project in ['garnet', 'peridot', 'topaz'] or
-      project.startswith('vendor/'))
-  if verify_build_packages:
+  if project:
     # Add the tool required to validate build packages.
     packages.append('build/packages/json_validator')
   build = api.fuchsia.build(
@@ -204,12 +220,12 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
       test_cmds=test_cmds,
       test_device_type=device_type,
   )
-  if verify_build_packages:
+  if project:
     validator = build.fuchsia_build_dir.join('tools', 'json_validator')
     if project.startswith('vendor/'):
       layer_args = [
           '--vendor-layer',
-          project[7:],
+          project[len('vendor/'):],
       ]
     else:
       layer_args = [

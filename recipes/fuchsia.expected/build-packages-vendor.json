@@ -201,6 +201,18 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/style/verify-fidl-libraries.py",
+      "--vendor-layer",
+      "foobar",
+      "--namespaces",
+      "foobar"
+    ],
+    "name": "verify FIDL namespaces"
+  },
+  {
     "cmd": [],
     "name": "build"
   },

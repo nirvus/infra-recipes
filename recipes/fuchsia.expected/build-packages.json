@@ -201,6 +201,16 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/style/verify-fidl-libraries.py",
+      "--layer",
+      "topaz"
+    ],
+    "name": "verify FIDL namespaces"
+  },
+  {
     "cmd": [],
     "name": "build"
   },
