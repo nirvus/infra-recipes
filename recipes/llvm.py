@@ -33,7 +33,7 @@ DEPS = [
 TARGETS = ['arm64', 'x64']
 TARGET_TO_ARCH = dict(zip(
     TARGETS,
-    ['aarch64', 'x64'],
+    ['aarch64', 'x86_64'],
 ))
 
 LLVM_PROJECT_GIT = 'https://fuchsia.googlesource.com/third_party/llvm-project'
