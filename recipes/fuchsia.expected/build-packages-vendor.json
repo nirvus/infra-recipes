@@ -485,7 +485,9 @@
       "images",
       "path/to/out/bootdata-blob-pc.bin",
       "ssh-keys",
-      "args.gn"
+      "args.gn",
+      "image_paths.sh",
+      "zedboot_image_paths.sh"
     ],
     "name": "tar fuchsia"
   },

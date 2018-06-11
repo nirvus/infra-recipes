@@ -1034,6 +1034,16 @@ class FuchsiaApi(recipe_api.RecipeApi):
         build_results.fuchsia_build_dir.join('args.gn'),
         build_results.fuchsia_build_dir)
 
+    # Add build artifact manfiest files.  These are shell scripts that are sourced
+    # by //scripts/devshell to provide paths to images and other files used for
+    # paving.
+    archive.add(
+        build_results.fuchsia_build_dir.join('image_paths.sh'),
+        build_results.fuchsia_build_dir)
+    archive.add(
+        build_results.fuchsia_build_dir.join('zedboot_image_paths.sh'),
+        build_results.fuchsia_build_dir)
+
     # Add the bootserver tool from zircon. Note that since the CWD is set to the
     # zircon build dir, it will be placed in tools/bootserver in the archive.
     # This makes the packages self-sufficient, allowing one to boot Fuchsia on a
