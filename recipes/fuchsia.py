@@ -371,7 +371,7 @@ def GenTests(api):
       upload_archive=True,
       upload_breakpad_symbols=True,
       tryjob=False,
-      ninja_targets=['//build/gn:breakpad_symbols']
+      ninja_targets=['build/gn:breakpad_symbols']
   ) + api.fuchsia.breakpad_symbol_summary({'/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'})
 
 # yapf: enable
