@@ -341,7 +341,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"[gndoc] Update GN build arguments documentation\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"[gndoc] Update GN build arguments documentation\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -360,7 +360,7 @@
       "git",
       "commit",
       "-m",
-      "[gndoc] Update GN build arguments documentation\nChange-Id: abc123\n",
+      "[gndoc] Update GN build arguments documentation\n\nChange-Id: abc123\n",
       "-a"
     ],
     "cwd": "[START_DIR]/garnet",
