@@ -20,6 +20,7 @@ import sys
 
 def copyfile(src_a, src_b, dst, def_a=None, def_b=None):
   if filecmp.cmp(src_a, src_b):
+    print 'Copy: %s' % dst
     shutil.copyfile(src_a, dst)
     return
 
@@ -41,6 +42,7 @@ def copyfile(src_a, src_b, dst, def_a=None, def_b=None):
       out.extend(['#ifdef %s\n' % def_b] + diff_b + ['#endif\n'])
 
   with open(dst, 'w') as f:
+    print 'Merge: %s' % dst
     f.writelines(out)
 
 

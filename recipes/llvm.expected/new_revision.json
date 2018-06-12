@@ -645,7 +645,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/llvm_tmp_1/root/arch/x64/include/llvm/Config/llvm-config.h",
+      "[TMP_BASE]/llvm_tmp_1/root/pkg/include/llvm/Config/llvm-config.h",
       "/path/to/tmp/"
     ],
     "infra_step": true,
