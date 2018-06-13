@@ -99,7 +99,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     api.step('gn gen (%s)' % target, [
         api.path['start_dir'].join('buildtools', 'gn'),
         'gen',
-        api.path['start_dir'].join('out', target),
+        api.path['start_dir'].join('root_build_dir'),
         '--args=%s' % ' '.join(args),
     ])
 
@@ -107,7 +107,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'gn args --list (%s)' % target,
         [
             api.path['start_dir'].join('buildtools', 'gn'), 'args',
-            api.path['start_dir'].join('out', target), '--list', '--json'
+            api.path['start_dir'].join('root_build_dir'), '--list', '--json'
         ],
         stdout=api.raw_io.output(
             leak_to=api.path['cleanup'].join('%s.json' % target)),

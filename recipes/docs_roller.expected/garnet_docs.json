@@ -236,7 +236,7 @@
     "cmd": [
       "[START_DIR]/buildtools/gn",
       "gen",
-      "[START_DIR]/out/arm64",
+      "[START_DIR]/root_build_dir",
       "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/default\"]"
     ],
     "name": "gn gen (arm64)"
@@ -245,7 +245,7 @@
     "cmd": [
       "[START_DIR]/buildtools/gn",
       "args",
-      "[START_DIR]/out/arm64",
+      "[START_DIR]/root_build_dir",
       "--list",
       "--json"
     ],
@@ -256,7 +256,7 @@
     "cmd": [
       "[START_DIR]/buildtools/gn",
       "gen",
-      "[START_DIR]/out/x64",
+      "[START_DIR]/root_build_dir",
       "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/default\"]"
     ],
     "name": "gn gen (x64)"
@@ -265,7 +265,7 @@
     "cmd": [
       "[START_DIR]/buildtools/gn",
       "args",
-      "[START_DIR]/out/x64",
+      "[START_DIR]/root_build_dir",
       "--list",
       "--json"
     ],
