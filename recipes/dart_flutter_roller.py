@@ -40,12 +40,14 @@ DART_SDK_NAME = 'dart/sdk'
 COMMIT_SUBJECT = """\
 [roll] Update {deps}
 
+{logs}
+
+TEST=CQ
 """
 
 LOG_FORMAT = """\
 {project} {old}..{new} ({count} commits)
 {commits}
-
 """
 
 
@@ -142,9 +144,9 @@ def RollChanges(api, path, updated_deps):
     a log string, summarizing the update.
   """
   # Generate the commit message.
-  commit_message = COMMIT_SUBJECT.format(deps=', '.join(updated_deps.keys()))
-  for v in updated_deps.itervalues():
-    commit_message += v
+  commit_message = COMMIT_SUBJECT.format(
+      deps=', '.join(updated_deps.keys()),
+      logs='\n'.join(updated_deps.itervalues()))
 
   # Land the changes.
   api.auto_roller.attempt_roll(

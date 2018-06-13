@@ -32,6 +32,8 @@ COMMIT_MESSAGE = """\
 [roll] Update 3p packages
 
 {changes}
+
+TEST=CQ
 """
 
 

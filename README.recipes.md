@@ -1081,7 +1081,7 @@ Recipe for building and testing Cobalt.
 
 Recipe for automatically updating Flutter, flutter/engine, and Dart.
 
-&mdash; **def [ExtractDartVersionFromDEPS](/recipes/dart_flutter_roller.py#100)(api, deps_path):**
+&mdash; **def [ExtractDartVersionFromDEPS](/recipes/dart_flutter_roller.py#102)(api, deps_path):**
 
 Extracts the dart_version from a flutter/engine's DEPS file.
 
@@ -1091,7 +1091,7 @@ Args:
     dependencies.
   manifest_path (Path): A path to the Jiri manifest to overwrite.
 
-&mdash; **def [RollChanges](/recipes/dart_flutter_roller.py#136)(api, path, updated_deps):**
+&mdash; **def [RollChanges](/recipes/dart_flutter_roller.py#138)(api, path, updated_deps):**
 
 Rolls manifest changes in a git repository.
 
@@ -1100,9 +1100,9 @@ Args:
   updated_deps (dict[str]str): A map of dependencies that were updated to
   a log string, summarizing the update.
 
-&mdash; **def [RunSteps](/recipes/dart_flutter_roller.py#157)(api, revision):**
+&mdash; **def [RunSteps](/recipes/dart_flutter_roller.py#159)(api, revision):**
 
-&mdash; **def [UpdateManifestProject](/recipes/dart_flutter_roller.py#52)(api, manifest, project_name, revision):**
+&mdash; **def [UpdateManifestProject](/recipes/dart_flutter_roller.py#54)(api, manifest, project_name, revision):**
 
 Updates the revision for a project in a manifest.
 
@@ -1117,7 +1117,7 @@ Returns:
   A formatted log string summarizing the updates as well as the project's
   remote property.
 
-&mdash; **def [UpdatePkgManifest](/recipes/dart_flutter_roller.py#120)(api, dart_path, manifest_path):**
+&mdash; **def [UpdatePkgManifest](/recipes/dart_flutter_roller.py#122)(api, dart_path, manifest_path):**
 
 Overwrites a dart third party package manifest.
 
@@ -1131,7 +1131,7 @@ Args:
 
 Recipe for automatically updating Dart 3p packages.
 
-&mdash; **def [RunSteps](/recipes/dart_pkg_roller.py#38)(api):**
+&mdash; **def [RunSteps](/recipes/dart_pkg_roller.py#40)(api):**
 ### *recipes* / [dart\_toolchain](/recipes/dart_toolchain.py)
 
 [DEPS](/recipes/dart_toolchain.py#11): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1198,7 +1198,7 @@ Args:
 
 Recipe for rolling Fuchsia layers into upper layers.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#72)(api, project, manifest, remote, roll_type, import_in, import_from, revision, dry_run):**
+&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#74)(api, project, manifest, remote, roll_type, import_in, import_from, revision, dry_run):**
 ### *recipes* / [gcc\_toolchain](/recipes/gcc_toolchain.py)
 
 [DEPS](/recipes/gcc_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]
