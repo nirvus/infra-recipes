@@ -387,8 +387,8 @@
     "cwd": "[TMP_BASE]/rust_tmp_1/build",
     "env": {
       "CARGO_HOME": "[TMP_BASE]/rust_tmp_1/.cargo",
-      "CFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -I[START_DIR]/sdk/pkg/launchpad/include",
-      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/x64/sysroot -I[START_DIR]/sdk/pkg/launchpad/include",
+      "CFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -I[START_DIR]/sdk/pkg/fdio/include",
+      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/x64/sysroot -I[START_DIR]/sdk/pkg/fdio/include",
       "LDFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -L[START_DIR]/sdk/arch/arm64/lib",
       "LDFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/x64/sysroot -L[START_DIR]/sdk/arch/x64/lib"
     },

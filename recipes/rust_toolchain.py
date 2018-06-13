@@ -171,7 +171,7 @@ def RunSteps(api, url, ref, revision):
       '--target=%s-unknown-fuchsia --sysroot=%s -I%s' % (
         tc_arch,
         sdk_dir.join('arch', gn_arch, 'sysroot'),
-        sdk_dir.join('pkg', 'launchpad', 'include'),
+        sdk_dir.join('pkg', 'fdio', 'include'),
       )
     )
     env['LDFLAGS_%s-unknown-fuchsia' % tc_arch] = (
