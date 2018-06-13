@@ -149,7 +149,7 @@ def RunSteps(api, url, ref, revision):
     )
 
   step_result = api.file.read_text('llvm-config.h',
-      pkg_dir.join('pkg', 'include', 'llvm', 'Config', 'llvm-config.h'),
+      pkg_dir.join('pkg', 'llvm', 'include', 'llvm', 'Config', 'llvm-config.h'),
       test_data='#define LLVM_VERSION_STRING "7.0.0svn"')
   m = re.search(r'LLVM_VERSION_STRING "([0-9.-]+)', step_result)
   assert m, 'Cannot determine LLVM version'
