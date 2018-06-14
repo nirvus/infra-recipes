@@ -31,6 +31,36 @@
   },
   {
     "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/tools/gndoc/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/gndoc/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "infra_step": true,
     "name": "ensure_jiri (2)"
   },
@@ -84,7 +114,7 @@
       "-name",
       "topaz",
       "fuchsia",
-      "https://fuchsia.googlesource.com/manifest"
+      "https://fuchsia.googlesource.com/topaz"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -182,33 +212,7 @@
   },
   {
     "cmd": [],
-    "name": "ensure_packages"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "fuchsia/tools/gndoc/${platform} latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_packages.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/gndoc/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
+    "name": "gndoc"
   },
   {
     "cmd": [
@@ -219,8 +223,9 @@
       "-json-output",
       "[CLEANUP]/projects.json"
     ],
-    "name": "jiri project",
+    "name": "gndoc.jiri project",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@[@@@",
       "@@@STEP_LOG_LINE@json.output@  {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"name\": \"build\", @@@",
@@ -239,7 +244,10 @@
       "[START_DIR]/root_build_dir",
       "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/default\"]"
     ],
-    "name": "gn gen (arm64)"
+    "name": "gndoc.gn gen (arm64)",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -249,8 +257,11 @@
       "--list",
       "--json"
     ],
-    "name": "gn args --list (arm64)",
-    "stdout": "[CLEANUP]/arm64.json"
+    "name": "gndoc.gn args --list (arm64)",
+    "stdout": "[CLEANUP]/arm64.json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -259,7 +270,10 @@
       "[START_DIR]/root_build_dir",
       "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"]"
     ],
-    "name": "gn gen (x64)"
+    "name": "gndoc.gn gen (x64)",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -269,8 +283,11 @@
       "--list",
       "--json"
     ],
-    "name": "gn args --list (x64)",
-    "stdout": "[CLEANUP]/x64.json"
+    "name": "gndoc.gn args --list (x64)",
+    "stdout": "[CLEANUP]/x64.json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -286,7 +303,10 @@
       "-in",
       "[CLEANUP]/x64.json"
     ],
-    "name": "gndoc"
+    "name": "gndoc.gndoc",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [],

@@ -46,32 +46,12 @@ PROPERTIES = {
         Property(kind=str, help='Remote manifest repository'),
     'packages':
         Property(kind=List(basestring), help='Packages to build', default=[]),
+    'run_gndoc':
+        Property(kind=bool, help='Run gndoc', default=True),
 }
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, project, manifest, remote,
-             packages):
-  api.jiri.ensure_jiri()
-
-  api.fuchsia.checkout(
-      manifest=manifest,
-      remote=remote,
-      project=project,
-      patch_ref=patch_ref,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
-  )
-
-  cipd_dir = api.path['start_dir'].join('cipd')
-  with api.step.nest('ensure_packages'):
-    with api.context(infra_steps=True):
-      api.cipd.ensure(cipd_dir, {
-          'fuchsia/tools/gndoc/${platform}': 'latest',
-      })
-
-  project_dir = api.path['start_dir'].join(*project.split('/'))
-
+def gen_gndoc(api, packages, project_dir):
   # Get the project list for linkifiying (need all projects).
   sources_path = api.path['cleanup'].join('projects.json')
   project_result = api.jiri.project(out=sources_path)
@@ -79,7 +59,7 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
   # Gather args for running gndoc tool.
   out_file = project_dir.join('docs', 'gen', 'build_arguments.md')
   gndoc_cmd = [
-      cipd_dir.join('gndoc'),
+      api.path['start_dir'].join('cipd', 'gndoc'),
       '-key',
       'target_cpu',
       '-out',
@@ -96,6 +76,9 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
         'fuchsia_packages=[%s]' % ','.join('"%s"' % pkg for pkg in packages),
     ]
 
+    # The build directory is root_build_dir, as this will end up in the
+    # generated documenation for any arg that is declared in this directory.
+    # $root_build_dir is a clear way to indicate from where the arg is named.
     api.step('gn gen (%s)' % target, [
         api.path['start_dir'].join('buildtools', 'gn'),
         'gen',
@@ -118,6 +101,34 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
   api.step("gndoc", gndoc_cmd)
 
+
+def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
+             patch_storage, patch_repository_url, project, manifest, remote,
+             packages, run_gndoc):
+  api.jiri.ensure_jiri()
+
+  cipd_dir = api.path['start_dir'].join('cipd')
+  with api.step.nest('ensure_packages'):
+    with api.context(infra_steps=True):
+      api.cipd.ensure(cipd_dir, {
+          'fuchsia/tools/gndoc/${platform}': 'latest',
+      })
+
+  api.fuchsia.checkout(
+      manifest=manifest,
+      remote=remote,
+      project=project,
+      patch_ref=patch_ref,
+      patch_gerrit_url=patch_gerrit_url,
+      patch_project=patch_project,
+  )
+
+  project_dir = api.path['start_dir'].join(*project.split('/'))
+
+  if run_gndoc:
+    with api.step.nest('gndoc'):
+      gen_gndoc(api, packages, project_dir)
+
   api.auto_roller.attempt_roll(
       gerrit_project=project,
       repo_dir=project_dir,
@@ -125,30 +136,43 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
 
 def GenTests(api):
-  for project in ['garnet', 'peridot', 'topaz']:
-    yield api.test(project + '_docs') + api.properties(
+  roller_success = api.step_data('check if done (0)', api.auto_roller.success())
+
+  def properties(project):
+    return api.properties(
         manifest='fuchsia',
         project=project,
-        remote='https://fuchsia.googlesource.com/manifest',
+        remote='https://fuchsia.googlesource.com/' + project,
         packages=[project + '/packages/default'],
-    ) + api.step_data(
-        'check if done (0)', api.auto_roller.success()) + api.step_data(
-            'jiri project',
+    )
+
+  def gndoc_test_data(project):
+    return api.step_data(
+        'gndoc.jiri project',
+        api.json.output([{
+            "name": "build",
+            "path": "/path/to/build",
+            "relativePath": "build",
+            "remote": "https://fuchsia.googlesource.com/build",
+        }])) + api.step_data(
+            'gndoc.gn args --list (x64)',
             api.json.output([{
-                "name": "build",
-                "path": "/path/to/build",
-                "relativePath": "build",
-                "remote": "https://fuchsia.googlesource.com/build",
-            }])) + api.step_data(
-                'gn args --list (x64)',
-                api.json.output([{
-                    "current": {
-                        "file": "//" + project + "/out/x64/args.gn",
-                        "line": 1,
-                        "value": "\"x64\""
-                    },
-                    "default": {
-                        "value": "\"\""
-                    },
-                    "name": "target_cpu"
-                }]))
+                "current": {
+                    "file": "//" + project + "/out/x64/args.gn",
+                    "line": 1,
+                    "value": "\"x64\""
+                },
+                "default": {
+                    "value": "\"\""
+                },
+                "name": "target_cpu"
+            }]))
+
+  yield (api.test('garnet_docs') + roller_success + properties('garnet') +
+         gndoc_test_data('garnet'))
+
+  yield (api.test('peridot_docs') + roller_success + properties('peridot') +
+         gndoc_test_data('peridot'))
+
+  yield (api.test('topaz_docs') + roller_success + properties('topaz') +
+         gndoc_test_data('topaz'))
