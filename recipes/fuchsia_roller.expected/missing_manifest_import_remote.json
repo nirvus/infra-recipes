@@ -82,7 +82,7 @@
       "-time",
       "-name",
       "garnet",
-      "manifest/minimal",
+      "manifest/garnet",
       "https://fuchsia.googlesource.com/garnet"
     ],
     "infra_step": true,

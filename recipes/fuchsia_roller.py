@@ -54,8 +54,6 @@ PROPERTIES = {
             'Whether to dry-run the auto-roller (CQ+1 and abandon the change)'),
 }
 
-FUCHSIA_URL = 'https://fuchsia.googlesource.com/'
-
 COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 
 {commits}
@@ -116,6 +114,13 @@ def RunSteps(api, project, manifest, remote, roll_type, import_in, import_from,
       if not roll_from_repo:
         raise api.step.StepFailure('%s missing remote= attribute' % import_from)
 
+      # After rolling the commit, re-update and emit a source manifest.
+      # Emitting a source manifest is necessary for luci-notify to be able to
+      # pick up on a checkout diff, allowing it to notify the blamelist across
+      # the whole checkout.
+      api.jiri.update(run_hooks=False)
+      api.jiri.emit_source_manifest()
+
       # Get the commit history and generate a commit message.
       log = api.gitiles.log(
           roll_from_repo, '%s..%s' % (old_rev, new_rev), step_name='log')
@@ -151,12 +156,12 @@ def GenTests(api):
   yield (api.test('missing_revision') +
       # Set test input properties.
       api.properties(project='garnet',
-                     manifest='manifest/minimal',
+                     manifest='manifest/garnet',
                      remote='https://fuchsia.googlesource.com/garnet',
                      import_in='manifest/third_party',
                      import_from='zircon') +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='zircon',
           element_type='import',
           test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}) +
@@ -164,7 +169,7 @@ def GenTests(api):
           'refs/heads/master', 'fc4dc762688d2263b254208f444f5c0a4b91bc07')) +
       api.gitiles.log('log', 'A') + success_step_data +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='zircon',
           element_type='import',
           test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}))
@@ -173,7 +178,7 @@ def GenTests(api):
   yield (api.test('missing_manifest_project_remote') +
       # Set test input properties.
       api.properties(project='garnet',
-                     manifest='manifest/minimal',
+                     manifest='manifest/garnet',
                      remote='https://fuchsia.googlesource.com/garnet',
                      import_in='manifest/third_party',
                      roll_type='project',
@@ -181,7 +186,7 @@ def GenTests(api):
                      revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
       # Generate step data. Mock a call to JiriApi.read_manifest_element.
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='cobalt',
           element_type='project',
           test_output={}))
@@ -189,14 +194,14 @@ def GenTests(api):
   # Test when the import to roll from is missing a 'remote' manifest attribute.
   yield (api.test('missing_manifest_import_remote') +
       api.properties(project='garnet',
-                     manifest='manifest/minimal',
+                     manifest='manifest/garnet',
                      remote='https://fuchsia.googlesource.com/garnet',
                      import_in='manifest/garnet',
                      roll_type='import',
                      import_from='zircon',
                      revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='zircon',
           element_type='import',
           test_output={}))
@@ -204,7 +209,7 @@ def GenTests(api):
   # Test rolling a project instead of an import.
   yield (api.test('cobalt_project') +
       api.properties(project='garnet',
-                     manifest='manifest/minimal',
+                     manifest='manifest/garnet',
                      remote='https://fuchsia.googlesource.com/garnet',
                      import_in='manifest/third_party',
                      roll_type='project',
@@ -212,7 +217,7 @@ def GenTests(api):
                      revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
       api.gitiles.log('log', 'A') + success_step_data +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='cobalt',
           element_type='project',
           test_output={
@@ -222,14 +227,14 @@ def GenTests(api):
   # Test a successful roll of zircon into garnet.
   yield (api.test('zircon') +
       api.properties(project='garnet',
-                        manifest='manifest/minimal',
+                        manifest='manifest/garnet',
                         import_in='manifest/garnet',
                         import_from='zircon',
                         remote='https://fuchsia.googlesource.com/garnet',
                         revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
       api.gitiles.log('log', 'A') + success_step_data +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='zircon',
           element_type='import',
           test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}))
@@ -237,13 +242,13 @@ def GenTests(api):
   # Test a no-op roll of zircon into garnet.
   yield (api.test('zircon-noop') +
       api.properties(project='garnet',
-                     manifest='manifest/minimal',
+                     manifest='manifest/garnet',
                      import_in='manifest/garnet',
                      import_from='zircon',
                      remote='https://fuchsia.googlesource.com/garnet',
                      revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='zircon',
           element_type='import',
           test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}) +
@@ -252,14 +257,14 @@ def GenTests(api):
   # Test a successful roll of garnet into peridot.
   yield (api.test('garnet') +
       api.properties(project='peridot',
-                     manifest='manifest/minimal',
+                     manifest='manifest/peridot',
                      import_in='manifest/peridot',
                      import_from='garnet',
                      remote='https://fuchsia.googlesource.com/peridot',
                      revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
       api.gitiles.log('log', 'A') + success_step_data +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='garnet',
           element_type='import',
           test_output={'remote': 'https://fuchsia.googlesource.com/garnet'}))
@@ -267,14 +272,14 @@ def GenTests(api):
   # Test a successful roll of peridot into topaz.
   yield (api.test('peridot') +
       api.properties(project='topaz',
-                     manifest='manifest/minimal',
+                     manifest='manifest/topaz',
                      import_in='manifest/topaz',
                      import_from='peridot',
                      remote='https://fuchsia.googlesource.com/topaz',
                      revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
       api.gitiles.log('log', 'A') + success_step_data +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='peridot',
           element_type='import',
           test_output={'remote': 'https://fuchsia.googlesource.com/peridot'}))
@@ -284,7 +289,7 @@ def GenTests(api):
   # unsetting the CQ label to indicate that the CQ dry-run finished.
   yield (api.test('zircon_dry_run') +
       api.properties(project='garnet',
-                     manifest='manifest/minimal',
+                     manifest='manifest/garnet',
                      import_in='manifest/garnet',
                      import_from='zircon',
                      remote='https://fuchsia.googlesource.com/garnet',
@@ -293,7 +298,7 @@ def GenTests(api):
       api.gitiles.log('log', 'A') +
       api.step_data('check if done (0)', api.auto_roller.dry_run()) +
       api.jiri.read_manifest_element(api,
-          manifest='manifest/minimal',
+          manifest='manifest/garnet',
           element_name='zircon',
           element_type='import',
           test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}))
