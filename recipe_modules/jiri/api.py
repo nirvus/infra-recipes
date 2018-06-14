@@ -253,6 +253,14 @@ class JiriApi(recipe_api.RecipeApi):
     return step.raw_io.output
 
   def source_manifest(self, file=None, test_data=None, **kwargs):
+    """Generates a source manifest JSON file.
+
+    Args:
+      file (Path): Optional output path for the source manifest.
+
+    Returns:
+      The contents of the source manifest as a Python dictionary.
+    """
     cmd = [
       'source-manifest',
       self.m.json.output(name='source manifest', leak_to=file),
@@ -261,6 +269,11 @@ class JiriApi(recipe_api.RecipeApi):
       test_data = self.test_api.example_source_manifest
     step = self(*cmd, step_test_data=lambda: self.test_api.source_manifest(test_data), **kwargs)
     return step.json.output
+
+  def emit_source_manifest(self):
+    """Emits a source manifest for this build for the current jiri checkout."""
+    manifest = self.source_manifest()
+    self.m.source_manifest.set_json_manifest('checkout', manifest)
 
   def checkout(self, manifest, remote, project=None, revision=None,
                patch_ref=None, patch_gerrit_url=None, patch_project=None,
@@ -299,9 +312,7 @@ class JiriApi(recipe_api.RecipeApi):
         timeout=timeout_secs
       )
     self.run_hooks(local_manifest=patch_ref is not None)
-
-    manifest = self.source_manifest()
-    self.m.source_manifest.set_json_manifest('checkout', manifest)
+    self.emit_source_manifest()
 
   def checkout_snapshot(self, snapshot, timeout_secs=None):
     """Initializes and populates a jiri checkout from a snapshot.

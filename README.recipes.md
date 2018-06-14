@@ -742,7 +742,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#265)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#278)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -758,7 +758,7 @@ Args:
   patch_project (str): The Gerrit project where the patch lives.
   timeout_secs (int): A timeout for jiri update in seconds.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#306)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#317)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -785,6 +785,10 @@ Args:
 
 Returns:
   A step to edit the manifest.
+
+&mdash; **def [emit\_source\_manifest](/recipe_modules/jiri/api.py#273)(self):**
+
+Emits a source manifest for this build for the current jiri checkout.
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#32)(self, version=None):**
 
@@ -832,7 +836,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#323)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#334)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -857,6 +861,14 @@ Returns:
 &mdash; **def [snapshot](/recipe_modules/jiri/api.py#245)(self, file=None, test_data=None, \*\*kwargs):**
 
 &mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#255)(self, file=None, test_data=None, \*\*kwargs):**
+
+Generates a source manifest JSON file.
+
+Args:
+  file (Path): Optional output path for the source manifest.
+
+Returns:
+  The contents of the source manifest as a Python dictionary.
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#106)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
