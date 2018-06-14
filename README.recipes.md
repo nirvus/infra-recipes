@@ -17,6 +17,7 @@
   * [hash](#recipe_modules-hash)
   * [isolated](#recipe_modules-isolated)
   * [jiri](#recipe_modules-jiri)
+  * [lkgs](#recipe_modules-lkgs)
   * [minfs](#recipe_modules-minfs)
   * [qemu](#recipe_modules-qemu)
   * [service_account](#recipe_modules-service_account)
@@ -55,6 +56,7 @@
   * [jiri](#recipes-jiri) &mdash; Recipe for building Jiri.
   * [jiri:examples/full](#recipes-jiri_examples_full)
   * [licenses](#recipes-licenses) &mdash; Recipe for checking license text in the source code.
+  * [lkgs:examples/full](#recipes-lkgs_examples_full)
   * [llvm](#recipes-llvm) &mdash; Recipe for building LLVM.
   * [minfs:examples/full](#recipes-minfs_examples_full)
   * [modules](#recipes-modules) &mdash; Recipe for building and running pre-submit checks for the modules repo.
@@ -871,6 +873,31 @@ Returns:
   The contents of the source manifest as a Python dictionary.
 
 &mdash; **def [update](/recipe_modules/jiri/api.py#106)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
+### *recipe_modules* / [lkgs](/recipe_modules/lkgs)
+
+[DEPS](/recipe_modules/lkgs/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [LkgsApi](/recipe_modules/lkgs/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+APIs for deriving the last-known-good-snapshot for a builder.
+
+&mdash; **def [\_\_call\_\_](/recipe_modules/lkgs/api.py#15)(self, step_name, builder, output_file):**
+
+Retrieves the last-known-"good"-(jiri-)snapshot given a builder.
+
+Args:
+  step_name (str): The name of the step produced.
+  builder (str): A fully-qualified buildbucket v2 builder ID, consisting of
+    <project>/<project-namespaced bucket>/<builder name>. For example:
+    fuchsia/ci/garnet-x64-release-qemu_kvm.
+  output_file (Path|Placeholder): The location to dump the retrieved
+    snapshot.
+
+&mdash; **def [ensure\_lkgs](/recipe_modules/lkgs/api.py#33)(self, version=None):**
+
+Ensures that the lkgs tool is installed.
+
+&emsp; **@property**<br>&mdash; **def [lkgs\_tool](/recipe_modules/lkgs/api.py#47)(self):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
 
 [DEPS](/recipe_modules/minfs/__init__.py#1): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1315,6 +1342,11 @@ Recipe for checking license text in the source code.
 Requires topaz source to be present in the manifest.
 
 &mdash; **def [RunSteps](/recipes/licenses.py#41)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, remote, manifest, revision):**
+### *recipes* / [lkgs:examples/full](/recipe_modules/lkgs/examples/full.py)
+
+[DEPS](/recipe_modules/lkgs/examples/full.py#5): [lkgs](#recipe_modules-lkgs), [recipe\_engine/path][recipe_engine/recipe_modules/path]
+
+&mdash; **def [RunSteps](/recipe_modules/lkgs/examples/full.py#11)(api):**
 ### *recipes* / [llvm](/recipes/llvm.py)
 
 [DEPS](/recipes/llvm.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
