@@ -188,6 +188,7 @@
       "-time",
       "-autoupdate=false",
       "-attempts=3",
+      "-local-manifest=true",
       "-run-hooks=false"
     ],
     "cwd": "[START_DIR]/garnet",

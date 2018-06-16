@@ -117,8 +117,16 @@ def RunSteps(api, project, manifest, remote, roll_type, import_in, import_from,
       # After rolling the commit, re-update and emit a source manifest.
       # Emitting a source manifest is necessary for luci-notify to be able to
       # pick up on a checkout diff, allowing it to notify the blamelist across
-      # the whole checkout.
-      api.jiri.update(run_hooks=False)
+      # the whole checkout. Note that we need to say "local_manifest=True"
+      # because otherwise jiri won't use the pin we just updated in the jiri
+      # update, so the emitted source manifest won't contain the updated pin.
+      #
+      # Note that local_manifest=True only works in this way if the pin we're
+      # updating is for the same manifest that we originally pulled from (i.e.
+      # the manifest property) since otherwise the manifest update  will just
+      # get ignored and jiri will error (it will never overwrite a dirty
+      # repository).
+      api.jiri.update(run_hooks=False, local_manifest=True)
       api.jiri.emit_source_manifest()
 
       # Get the commit history and generate a commit message.
