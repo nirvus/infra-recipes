@@ -361,7 +361,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"peridot\", \"subject\": \"[gndoc] Update GN build arguments documentation\\n\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"peridot\", \"subject\": \"[gndoc] Update GN build arguments documentation\\\\Test: CQ\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -380,7 +380,7 @@
       "git",
       "commit",
       "-m",
-      "[gndoc] Update GN build arguments documentation\n\nChange-Id: abc123\n",
+      "[gndoc] Update GN build arguments documentation\\Test: CQ\n\nChange-Id: abc123\n",
       "-a"
     ],
     "cwd": "[START_DIR]/peridot",

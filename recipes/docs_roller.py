@@ -10,7 +10,7 @@ from recipe_engine.recipe_api import Property
 
 TARGET_CPU = ['arm64', 'x64']
 
-COMMIT_MESSAGE = '[gndoc] Update GN build arguments documentation\n'
+COMMIT_MESSAGE = '[gndoc] Update GN build arguments documentation\Test: CQ\n'
 
 DEPS = [
     'infra/auto_roller',
