@@ -1002,7 +1002,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"topaz\", \"subject\": \"[roll] Update external/github.com/flutter/flutter, external/github.com/flutter/engine, dart/sdk\\n\\nexternal/github.com/flutter/flutter abc123..def456 (3 commits)\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\nexternal/github.com/flutter/engine abc123..def456 (3 commits)\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\ndart/sdk abc123..def456 (3 commits)\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\n\\nTEST=CQ\\n\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"topaz\", \"subject\": \"[roll] Update external/github.com/flutter/flutter, external/github.com/flutter/engine, dart/sdk\\n\\nexternal/github.com/flutter/flutter abc123..def456 (3 commits)\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\nexternal/github.com/flutter/engine abc123..def456 (3 commits)\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\ndart/sdk abc123..def456 (3 commits)\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\n\\nTest: CQ\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -1022,7 +1022,7 @@
       "git",
       "commit",
       "-m",
-      "[roll] Update external/github.com/flutter/flutter, external/github.com/flutter/engine, dart/sdk\n\nexternal/github.com/flutter/flutter abc123..def456 (3 commits)\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nexternal/github.com/flutter/engine abc123..def456 (3 commits)\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\ndart/sdk abc123..def456 (3 commits)\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\n\nTEST=CQ\n\nChange-Id: abc123\n",
+      "[roll] Update external/github.com/flutter/flutter, external/github.com/flutter/engine, dart/sdk\n\nexternal/github.com/flutter/flutter abc123..def456 (3 commits)\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nexternal/github.com/flutter/engine abc123..def456 (3 commits)\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\ndart/sdk abc123..def456 (3 commits)\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\n\nTest: CQ\n\nChange-Id: abc123\n",
       "-a"
     ],
     "cwd": "[START_DIR]/topaz",

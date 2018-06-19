@@ -213,7 +213,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"third_party/dart-pkg\", \"subject\": \"[roll] Update 3p packages\\n\\n\\n\\nTEST=CQ\\n\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"third_party/dart-pkg\", \"subject\": \"[roll] Update 3p packages\\n\\n\\n\\nTest: CQ\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -243,7 +243,7 @@
       "git",
       "commit",
       "-m",
-      "[roll] Update 3p packages\n\n\n\nTEST=CQ\n\nChange-Id: abc123\n"
+      "[roll] Update 3p packages\n\n\n\nTest: CQ\n\nChange-Id: abc123\n"
     ],
     "cwd": "[START_DIR]/third_party/dart-pkg/pub",
     "infra_step": true,

@@ -1185,9 +1185,9 @@ Recipe for building Dart toolchain.
 
 Recipe for generating docs.
 
-&mdash; **def [RunGnDoc](/recipes/docs_roller.py#52)(api, packages, project_dir):**
+&mdash; **def [RunSteps](/recipes/docs_roller.py#105)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, packages, run_gndoc):**
 
-&mdash; **def [RunSteps](/recipes/docs_roller.py#101)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, packages):**
+&mdash; **def [gen\_gndoc](/recipes/docs_roller.py#54)(api, packages, project_dir):**
 ### *recipes* / [ffmpeg](/recipes/ffmpeg.py)
 
 [DEPS](/recipes/ffmpeg.py#11): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

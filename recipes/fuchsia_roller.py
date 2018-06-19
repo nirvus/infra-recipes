@@ -58,7 +58,7 @@ COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 
 {commits}
 
-TEST=CQ
+Test: CQ
 """
 
 

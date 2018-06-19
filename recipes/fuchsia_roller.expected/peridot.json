@@ -358,7 +358,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"topaz\", \"subject\": \"[roll] Roll peridot [OLD_RE..fc4dc76 (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\nTEST=CQ\\n\"}}",
+      "{\"input\": {\"branch\": \"master\", \"project\": \"topaz\", \"subject\": \"[roll] Roll peridot [OLD_RE..fc4dc76 (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\nTest: CQ\\n\"}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -378,7 +378,7 @@
       "git",
       "commit",
       "-m",
-      "[roll] Roll peridot [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nTEST=CQ\n\nChange-Id: abc123\n",
+      "[roll] Roll peridot [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nTest: CQ\n\nChange-Id: abc123\n",
       "-a"
     ],
     "cwd": "[START_DIR]/topaz",

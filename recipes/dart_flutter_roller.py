@@ -42,7 +42,7 @@ COMMIT_SUBJECT = """\
 
 {logs}
 
-TEST=CQ
+Test: CQ
 """
 
 LOG_FORMAT = """\

@@ -33,7 +33,7 @@ COMMIT_MESSAGE = """\
 
 {changes}
 
-TEST=CQ
+Test: CQ
 """
 
 
