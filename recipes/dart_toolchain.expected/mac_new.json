@@ -417,6 +417,8 @@
       "--report",
       "--time",
       "--runtime=vm",
+      "-compiler=dartk",
+      "--strong",
       "vm",
       "language"
     ],
