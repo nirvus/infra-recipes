@@ -180,7 +180,7 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
         '--report',
         '--time',
         '--runtime=vm',
-        '-compiler=dartk',
+        '--compiler=dartk',
         '--strong',
         'vm',
         'language',
