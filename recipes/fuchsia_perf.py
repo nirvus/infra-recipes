@@ -143,7 +143,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   test_cmds = [
       '/pkgfs/packages/%s_benchmarks/0/bin/benchmarks.sh %s' % (
           project,
-          api.fuchsia.target_test_dir(),
+          api.fuchsia.results_dir_on_target,
       )
   ]
 

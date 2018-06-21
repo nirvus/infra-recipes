@@ -71,6 +71,9 @@ PROPERTIES = {
   'device_type': Property(kind=str,
                           help='The type of device to run tests on',
                           default='QEMU'),
+  'run_host_tests': Property(kind=bool,
+                             help='Whether to run host tests',
+                             default=False),
   'networking_for_tests': Property(kind=bool,
                                    help='Whether tests should have access to the network'
                                         ' (always False if tryjob is True or if device_type'
@@ -91,7 +94,8 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
              snapshot_repository, snapshot_revision, patch_gerrit_url,
              patch_project, patch_ref,  target, build_type, packages, variants,
              gn_args, ninja_targets, run_tests, runtests_args, device_type,
-             networking_for_tests, snapshot_gcs_bucket, upload_breakpad_symbols):
+             run_host_tests, networking_for_tests, snapshot_gcs_bucket,
+             upload_breakpad_symbols):
   if checkout_snapshot:
     checkout = api.fuchsia.checkout_snapshot(
         repository=snapshot_repository,
@@ -134,6 +138,16 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
     if test_results.summary and test_results.passed_tests:
         assert test_results.passed_tests['/hello']
     api.fuchsia.analyze_test_results('test results', test_results)
+
+  if run_host_tests:
+    test_results = api.fuchsia.test_on_host(build)
+    # Ensure failed_tests gets filled out when tests fail.
+    if test_results.summary and test_results.failed_tests:
+        assert test_results.failed_tests['[START_DIR]/hello']
+    # Ensure passed_tests gets filled out when tests pass.
+    if test_results.summary and test_results.passed_tests:
+        assert test_results.passed_tests['[START_DIR]/hello']
+    api.fuchsia.analyze_test_results('test results', test_results)
   api.fuchsia.upload_build_artifacts(build, upload_breakpad_symbols=upload_breakpad_symbols)
 
 def GenTests(api):
@@ -153,6 +167,13 @@ def GenTests(api):
       run_tests=True,
       networking_for_tests=True,
   ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
+  yield api.test('host_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_host_tests=True,
+  ) + api.fuchsia.test_step_data(host_results=True)
   yield api.test('isolated_tests_arm64') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -184,6 +205,13 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data(
       failure=True,
   ) + api.step_data('test results.symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
+  yield api.test('host_tests_failure') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_host_tests=True,
+  ) + api.fuchsia.test_step_data(failure=True, host_results=True)
   yield api.test('isolated_tests_task_failure') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',

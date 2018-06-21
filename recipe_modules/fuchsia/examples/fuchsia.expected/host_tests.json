@@ -199,41 +199,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output \numount /tmp/infra-test-output\ndm poweroff",
-      "[CLEANUP]/runcmds"
-    ],
-    "infra_step": true,
-    "name": "write runcmds",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
-      "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests -o /tmp/infra-test-output @@@",
-      "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
-      "@@@STEP_LOG_END@runcmds@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@{@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@  name = \"infra_runcmds\"@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@  deprecated_system_image = true@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@  resources = [@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@    {@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@      path = \"[CLEANUP]/runcmds\"@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@      dest = \"infra/runcmds\"@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@    },@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@  ]@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@}@@@",
-      "@@@STEP_LOG_END@runcmds_package_spec@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "build"
   },
@@ -342,7 +307,7 @@
       "gen",
       "[START_DIR]/out/debug-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true synthesize_packages = [ \n{\n  name = \"infra_runcmds\"\n  deprecated_system_image = true\n  resources = [\n    {\n      path = \"[CLEANUP]/runcmds\"\n      dest = \"infra/runcmds\"\n    },\n  ]\n}\n ]"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -412,325 +377,19 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_swarming"
-  },
-  {
     "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/luci/swarming",
-      "-ensure-file",
-      "infra/tools/luci/swarming/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
+      "[START_DIR]/out/build-zircon/build-x64/tools/runtests",
+      "-o",
+      "[START_DIR]/test_results/host",
+      "[START_DIR]/out/debug-x64/host_tests"
     ],
-    "infra_step": true,
-    "name": "ensure_swarming.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/swarming/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none",
-      "[START_DIR]/run-qemu.sh"
-    ],
-    "infra_step": true,
-    "name": "write qemu runner",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none@@@",
-      "@@@STEP_LOG_END@run-qemu.sh@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/out/build-zircon/tools/minfs",
-      "[START_DIR]/input.fs@16M",
-      "create"
-    ],
-    "name": "create test image"
-  },
-  {
-    "cmd": [],
-    "name": "ensure_isolated"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/luci/isolate",
-      "-ensure-file",
-      "infra/tools/luci/isolated/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_isolated.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/isolated/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_qemu"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/qemu",
-      "-ensure-file",
-      "fuchsia/qemu/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_qemu.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/qemu/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/qemu/bin/qemu-img",
-      "create",
-      "-f",
-      "qcow2",
-      "-b",
-      "fvm.blk",
-      "fuchsia.qcow2"
-    ],
-    "cwd": "[START_DIR]/out/debug-x64/images",
-    "name": "qemu-img create fuchsia.qcow2"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/luci/isolate/isolated",
-      "archive",
-      "-isolate-server",
-      "https://isolateserver.appspot.com",
-      "-namespace",
-      "default-gzip",
-      "-dump-hash",
-      "/path/to/tmp/",
-      "-files",
-      "[START_DIR]/out/debug-x64/images:fvm.blk",
-      "-files",
-      "[START_DIR]/out/debug-x64/images:fuchsia.qcow2",
-      "-files",
-      "[START_DIR]/out/build-zircon/build-x64:zircon.bin",
-      "-files",
-      "[START_DIR]:input.fs",
-      "-files",
-      "[START_DIR]:run-qemu.sh",
-      "-files",
-      "[START_DIR]/out/debug-x64:bootdata-blob-pc.bin"
-    ],
-    "name": "archive"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/luci/swarming/swarming",
-      "trigger",
-      "-isolate-server",
-      "https://isolateserver.appspot.com",
-      "-server",
-      "https://chromium-swarm.appspot.com",
-      "-task-name",
-      "all tests",
-      "-namespace",
-      "default-gzip",
-      "-dump-json",
-      "[CLEANUP]/qemu_test_results.json",
-      "-isolated",
-      "[dummy hash]",
-      "-dimension",
-      "cpu=x86-64",
-      "-dimension",
-      "kvm=1",
-      "-dimension",
-      "os=Debian",
-      "-dimension",
-      "pool=fuchsia.tests",
-      "-io-timeout",
-      "60",
-      "-hard-timeout",
-      "2400",
-      "-cipd-package",
-      "qemu:fuchsia/qemu/linux-amd64=latest",
-      "-output",
-      "output.fs",
-      "-raw-cmd",
-      "--",
-      "/bin/sh",
-      "run-qemu.sh"
-    ],
-    "infra_step": true,
-    "name": "trigger all tests",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"Request\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"expiration_secs\": \"3600\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"all tests\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"priority\": \"100\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"properties\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"cipd_input\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"packages\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@          {@@@",
-      "@@@STEP_LOG_LINE@json.output@            \"package_name\": \"fuchsia/qemu/linux-amd64\", @@@",
-      "@@@STEP_LOG_LINE@json.output@            \"path\": \"qemu\", @@@",
-      "@@@STEP_LOG_LINE@json.output@            \"version\": \"latest\"@@@",
-      "@@@STEP_LOG_LINE@json.output@          }@@@",
-      "@@@STEP_LOG_LINE@json.output@        ]@@@",
-      "@@@STEP_LOG_LINE@json.output@      }, @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"command\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"/bin/sh\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"run-qemu.sh\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      ], @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"dimensions\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@        {@@@",
-      "@@@STEP_LOG_LINE@json.output@          \"key\": \"cpu\", @@@",
-      "@@@STEP_LOG_LINE@json.output@          \"value\": \"x86-64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@        }, @@@",
-      "@@@STEP_LOG_LINE@json.output@        {@@@",
-      "@@@STEP_LOG_LINE@json.output@          \"key\": \"kvm\", @@@",
-      "@@@STEP_LOG_LINE@json.output@          \"value\": \"1\"@@@",
-      "@@@STEP_LOG_LINE@json.output@        }, @@@",
-      "@@@STEP_LOG_LINE@json.output@        {@@@",
-      "@@@STEP_LOG_LINE@json.output@          \"key\": \"os\", @@@",
-      "@@@STEP_LOG_LINE@json.output@          \"value\": \"Debian\"@@@",
-      "@@@STEP_LOG_LINE@json.output@        }, @@@",
-      "@@@STEP_LOG_LINE@json.output@        {@@@",
-      "@@@STEP_LOG_LINE@json.output@          \"key\": \"pool\", @@@",
-      "@@@STEP_LOG_LINE@json.output@          \"value\": \"fuchsia.tests\"@@@",
-      "@@@STEP_LOG_LINE@json.output@        }@@@",
-      "@@@STEP_LOG_LINE@json.output@      ], @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"execution_timeout_secs\": \"3600\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"grace_period_secs\": \"30\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"io_timeout_secs\": \"1200\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"user\": \"luci\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"TaskID\": \"397418be219814a0\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/luci/swarming/swarming",
-      "collect",
-      "-server",
-      "https://chromium-swarm.appspot.com",
-      "-task-summary-json",
-      "/path/to/tmp/json",
-      "-task-output-stdout",
-      "json",
-      "-output-dir",
-      "[TMP_BASE]/swarming_tmp_1",
-      "-requests-json",
-      "{\"Request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"/bin/sh\", \"run-qemu.sh\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"TaskID\": \"397418be219814a0\", \"ViewURL\": \"https://chromium-swarm.appspot.com/user/task/39c188c09955c210\"}"
-    ],
-    "infra_step": true,
-    "name": "collect",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ee7010\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"bot_version\": \"f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c47f2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2017-11-01T22:06:11.538070\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2017-11-01T22:06:08.298510\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"duration\": 0.06629300117492676, @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"exit_code\": \"2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2017-11-01T22:06:11.538070\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"name\": \"test\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ee7011\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"started_ts\": \"2017-11-01T22:06:09.155530\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"state\": \"COMPLETED\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"tags\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"os:Debian\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"pool:Fuchsia\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      ], @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ee7010\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"try_number\": \"1\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"user\": \"luci\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@39927049b6ee7010.stdout@hello world!@@@",
-      "@@@STEP_LOG_END@39927049b6ee7010.stdout@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "task results",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
-      "@@@STEP_LOG_END@kernel log@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/out/build-zircon/tools/minfs",
-      "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/output.fs",
-      "cp",
-      "::",
-      "[START_DIR]/test_results/target"
-    ],
-    "infra_step": true,
-    "name": "extract results"
+    "name": "run host tests"
   },
   {
     "cmd": [],
     "name": "test results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}]}@@@",
+      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"[START_DIR]/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}]}@@@",
       "@@@STEP_LOG_END@summary.json@@@",
       "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",
       "@@@STEP_LOG_END@goodbye-txt@@@"
@@ -738,7 +397,7 @@
   },
   {
     "cmd": [],
-    "name": "test results./hello",
+    "name": "test results.//hello",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@stdio@hello@@@",

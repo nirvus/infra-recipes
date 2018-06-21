@@ -134,7 +134,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     './botanist/botanist',
     '-kernel', kernel_name,
     '-ramdisk', ramdisk_name,
-    '-test', api.fuchsia.target_test_dir(),
+    '-test', api.fuchsia.results_dir_on_target,
     '-out', output_archive_name,
     'zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH,
   ]
@@ -169,7 +169,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
   api.fuchsia.analyze_collect_result('task results', result, build_dir)
 
   # Extract test results.
-  test_results_dir = api.path['start_dir'].join('test_results')
+  test_results_dir = api.fuchsia.results_dir_on_host.join('target')
   with api.context(infra_steps=True):
     api.tar.ensure_tar()
     test_results_map = api.tar.extract(
@@ -183,7 +183,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     'booted test results',
     api.fuchsia.FuchsiaTestResults(
         build_dir=build_dir,
-        output=result.output,
+        zircon_kernel_log=result.output,
         outputs=test_results_map,
         json_api=api.json,
     )
@@ -480,7 +480,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   )
 
   # Extract test results from the MinFS image.
-  test_results_dir = api.path['start_dir'].join('test_results')
+  test_results_dir = api.fuchsia.results_dir_on_host.join('target')
   test_results_map = api.minfs.copy_image(
       step_name='extract results',
       image_path=booted_result[booted_task_output_image],
@@ -492,7 +492,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
     'booted test results',
     api.fuchsia.FuchsiaTestResults(
         build_dir=build_dir,
-        output=booted_result.output,
+        zircon_kernel_log=booted_result.output,
         outputs=test_results_map,
         json_api=api.json,
   ))
@@ -506,10 +506,10 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
   runcmds_path = tmp_dir.join('runcmds')
   # In the use_isolate case, we need to mount a block device to write test
   # results and test output to. Thus, the runcmds script must:
-  target_test_dir = api.fuchsia.target_test_dir()
+  results_dir_on_target = api.fuchsia.results_dir_on_target
   runcmds = [
     # 1. Make a test directory.
-    'mkdir %s' % target_test_dir,
+    'mkdir %s' % results_dir_on_target,
   ]
   if needs_blkdev:
     # If we need a block device to get test output off Fuchsia, then we need
@@ -524,11 +524,11 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
       # <timeout> ms).
       'waitfor class=block topo=%s timeout=60000' % device_topological_path,
       # 3. Mount the block device to the new test directory.
-      'mount %s %s' % (device_topological_path, target_test_dir),
+      'mount %s %s' % (device_topological_path, results_dir_on_target),
       # 4. Execute the desired test command.
       test_cmd,
       # 5. Unmount and poweroff.
-      'umount %s' % target_test_dir,
+      'umount %s' % results_dir_on_target,
       'dm poweroff',
     ])
   else:
@@ -598,7 +598,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       make_args=make_args,
       src_dir=src_dir,
       test_cmd='runtests -o %s %s' % (
-          api.fuchsia.target_test_dir(),
+          api.fuchsia.results_dir_on_target,
           runtests_args,
       ),
       needs_blkdev=(device_type == 'QEMU'),

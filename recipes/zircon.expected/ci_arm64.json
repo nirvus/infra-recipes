@@ -674,7 +674,7 @@
       "[TMP_BASE]/swarming_tmp_1/11/output.fs",
       "cp",
       "::",
-      "[START_DIR]/test_results"
+      "[START_DIR]/test_results/target"
     ],
     "name": "extract results"
   },

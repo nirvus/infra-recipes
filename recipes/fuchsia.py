@@ -91,12 +91,14 @@ PROPERTIES = {
             default=False),
     # Properties pertaining to testing.
     'run_tests':
-        Property(kind=bool, help='Whether to run tests or not', default=False),
+        Property(kind=bool, help='Whether to run target tests', default=False),
     'runtests_args':
         Property(
             kind=str,
             help='Shell-quoted string to add to the runtests commandline',
             default=''),
+    'run_host_tests':
+        Property(kind=bool, help='Whether to run host tests', default=False),
     'device_type':
         Property(
             kind=Enum(*DEVICES),
@@ -137,8 +139,9 @@ PROPERTIES = {
 def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              repository, patch_gerrit_url, patch_project, patch_ref, target,
              build_type, packages, variant, gn_args, run_tests, runtests_args,
-             device_type, networking_for_tests, ninja_targets, test_timeout_secs,
-             upload_archive, upload_breakpad_symbols, snapshot_gcs_bucket):
+             run_host_tests, device_type, networking_for_tests, ninja_targets,
+             test_timeout_secs, upload_archive, upload_breakpad_symbols,
+             snapshot_gcs_bucket):
   # Don't upload snapshots for tryjobs.
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
@@ -203,10 +206,11 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
   if run_tests:
     test_cmds = [
         'runtests -o %s %s' % (
-            api.fuchsia.target_test_dir(),
+            api.fuchsia.results_dir_on_target,
             runtests_args,
         )
     ]
+
   if project:
     # Add the tool required to validate build packages.
     packages.append('build/packages/json_validator')
@@ -248,11 +252,14 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
     )
     api.fuchsia.analyze_test_results('test results', test_results)
 
+  if run_host_tests:
+    test_results = api.fuchsia.test_on_host(build)
+    api.fuchsia.analyze_test_results('test results', test_results)
+
   # Upload an archive containing build artifacts if the properties say to do so.
   # Note: if we ran tests, this will only execute if the tests passed.
   if upload_archive and not api.properties.get('tryjob'):
     api.fuchsia.upload_build_artifacts(build, upload_breakpad_symbols=upload_breakpad_symbols)
-
 
 # yapf: disable
 def GenTests(api):
@@ -272,6 +279,24 @@ def GenTests(api):
       run_tests=True,
       device_type='Intel NUC Kit NUC6i3SYK',
   ) + api.fuchsia.task_step_data(device=True) + api.fuchsia.test_step_data()
+
+  yield api.test('host_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_host_tests=True,
+  ) + api.fuchsia.test_step_data(host_results=True)
+
+  yield api.test('host_and_device_tests') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      run_tests=True,
+      device_type='Intel NUC Kit NUC6i3SYK',
+      run_host_tests=True,
+  ) + api.fuchsia.task_step_data(device=True) + api.fuchsia.test_step_data(host_results=False) + api.fuchsia.test_step_data(host_results=True)
 
   # Test cases for tests with networking.
   yield api.test('isolated_tests_with_networking') + api.properties(

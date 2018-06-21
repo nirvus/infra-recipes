@@ -6,6 +6,7 @@ from recipe_engine import recipe_api
 
 import collections
 import hashlib
+import os
 import pipes
 import re
 
@@ -102,13 +103,13 @@ class FuchsiaCheckoutResults(object):
 class FuchsiaBuildResults(object):
   """Represents a completed build of Fuchsia."""
 
-  def __init__(self, target, zircon_build_dir, fuchsia_build_dir, has_tests,
+  def __init__(self, target, zircon_build_dir, fuchsia_build_dir, has_target_tests,
                test_device_type):
     assert target in TARGETS
     self._zircon_build_dir = zircon_build_dir
     self._fuchsia_build_dir = fuchsia_build_dir
     self._target = target
-    self._has_tests = has_tests
+    self._has_target_tests = has_target_tests
     self._test_device_type = test_device_type
 
   @property
@@ -132,9 +133,9 @@ class FuchsiaBuildResults(object):
     return self._fuchsia_build_dir
 
   @property
-  def has_tests(self):
-    """Whether or not this build has the necessary additions to be tested."""
-    return self._has_tests
+  def has_target_tests(self):
+    """Whether this build has the necessary additions to be tested on target."""
+    return self._has_target_tests
 
   @property
   def test_device_type(self):
@@ -151,9 +152,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
   class FuchsiaTestResults(object):
     """Represents the result of testing of a Fuchsia build."""
 
-    def __init__(self, build_dir, output, outputs, json_api):
+    def __init__(self, build_dir, zircon_kernel_log, outputs, json_api):
       self._build_dir = build_dir
-      self._output = output
+      self._zircon_kernel_log = zircon_kernel_log
       self._outputs = outputs
 
       # Default to empty values if the summary file is missing.
@@ -173,9 +174,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
       return self._build_dir
 
     @property
-    def output(self):
+    def zircon_kernel_log(self):
       """Kernel output which may be passed to the symbolizer script."""
-      return self._output
+      return self._zircon_kernel_log
 
     @property
     def outputs(self):
@@ -362,17 +363,17 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Script that mounts the block device to contain test output and runs tests,
     # dropping test output into the block device.
-    test_dir = self.target_test_dir()
+    results_dir = self.results_dir_on_target
     runcmds = [
-        'mkdir %s' % test_dir,
+        'mkdir %s' % results_dir,
     ]
     if test_in_qemu:
       runcmds.extend([
           # Wait until the MinFS test image shows up (max <timeout> ms).
           'waitfor class=block topo=%s timeout=60000' % device_topological_path,
-          'mount %s %s' % (device_topological_path, test_dir),
+          'mount %s %s' % (device_topological_path, results_dir),
       ] + test_cmds + [
-          'umount %s' % test_dir,
+          'umount %s' % results_dir,
           'dm poweroff',
       ])
     else:
@@ -507,7 +508,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         target=target,
         zircon_build_dir=out_dir.join('build-zircon', 'build-%s' % target),
         fuchsia_build_dir=out_dir.join('%s-%s' % (build_dir, target)),
-        has_tests=bool(test_cmds),
+        has_target_tests=bool(test_cmds),
         test_device_type=test_device_type,
     )
     with self.m.step.nest('build'):
@@ -521,6 +522,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             gn_args=gn_args,
             ninja_targets=ninja_targets)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
+
     return build
 
   def _symbolize_compat(self, build_dir, data):
@@ -562,8 +564,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
           'symbolized logs'] = symbolized_lines
       symbolize_result.presentation.status = self.m.step.FAILURE
 
-  # Do both old and new symbolization styles for now.
   def _symbolize(self, build_dir, data):
+    # Do both old and new symbolization styles for now.
     self._symbolize_compat(build_dir, data)
     self._symbolize_filter(build_dir, data)
 
@@ -619,9 +621,54 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Archive the isolated.
     return isolated.archive('isolate artifacts')
 
-  def target_test_dir(self):
-    """Returns the location of the mounted test directory on the target."""
+  @property
+  def results_dir_on_target(self):
+    """The directory on target to which target test results will be written."""
     return '/tmp/infra-test-output'
+
+  @property
+  def results_dir_on_host(self):
+    """The directory on host to which host and target test results will be written.
+
+    Target test results will be copied over to this location and host test
+    results will be written here. Host and target tests on should write to
+    separate subdirectories so as not to collide.
+    """
+    return self.m.path['start_dir'].join('test_results')
+
+  def test_on_host(self, build):
+    """Tests a Fuchsia build from the host machine.
+
+    Args:
+      build (FuchsiaBuildResults): The Fuchsia build to test.
+
+    Returns:
+      A FuchsiaTestResults representing the completed test.
+    """
+    runtests = build.zircon_build_dir.join('tools', 'runtests')
+    host_test_dir = build.fuchsia_build_dir.join('host_tests')
+
+    # Write test results to the 'host' subdirectory of |results_dir_on_host|
+    # so as not to collide with target test results.
+    test_results_dir = self.results_dir_on_host.join('host')
+
+    # Allow the runtests invocation to fail without resulting in a step failure.
+    # The relevant, individual test failures will be reported during the
+    # processing of summary.json - and an early step failure will prevent this.
+    self.m.step('run host tests', [
+        runtests,
+        '-o', self.m.raw_io.output_dir(leak_to=test_results_dir),
+        host_test_dir,
+    ], ok_ret=('any'))
+
+    # Extract test results.
+    test_results_map = self.m.step.active_result.raw_io.output_dir
+    return self.FuchsiaTestResults(
+        build_dir=build.fuchsia_build_dir,
+        zircon_kernel_log=None,  # We did not run tests on target.
+        outputs=test_results_map,
+        json_api=self.m.json,
+    )
 
   def _test_in_qemu(self, build, timeout_secs, external_network):
     """Tests a Fuchsia build inside of QEMU.
@@ -770,8 +817,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.analyze_collect_result('task results', result, build.zircon_build_dir)
 
     # Extract test results.
-    test_results_dir = self.m.path['start_dir'].join('test_results')
     with self.m.context(infra_steps=True):
+      # Write test results to the 'target' subdirectory of |results_dir_on_host|
+      # so as not to collide with host test results.
+      test_results_dir = self.results_dir_on_host.join('target')
       test_results_map = self.m.minfs.copy_image(
           step_name='extract results',
           image_path=result[output_image_name],
@@ -779,13 +828,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
       ).raw_io.output_dir
     return self.FuchsiaTestResults(
         build_dir=build.fuchsia_build_dir,
-        output=result.output,
+        zircon_kernel_log=result.output,
         outputs=test_results_map,
         json_api=self.m.json,
     )
 
   def _test_on_device(self, build, timeout_secs):
-    """Tests a Fuchsia on a specific device.
+    """Tests a Fuchsia build on a specific device.
 
     Expects the build and artifacts to be at the same place they were at
     the end of the build.
@@ -809,7 +858,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         '-config', '/etc/botanist/config.json',
         '-kernel', kernel_name,
         '-ramdisk', ramdisk_name,
-        '-test', self.target_test_dir(),
+        '-test', self.results_dir_on_target,
         '-out', output_archive_name,
         'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds',
     ] # yapf: disable
@@ -846,9 +895,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.analyze_collect_result('task results', result, build.zircon_build_dir)
 
     # Extract test results.
-    test_results_dir = self.m.path['start_dir'].join('test_results')
     with self.m.context(infra_steps=True):
       self.m.tar.ensure_tar()
+      # Write test results to the 'target' subdirectory of |results_dir_on_host|
+      # so as not to collide with host test results.
+      test_results_dir = self.results_dir_on_host.join('target')
       test_results_map = self.m.tar.extract(
           step_name='extract results',
           path=result[output_archive_name],
@@ -856,7 +907,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       ).raw_io.output_dir
     return self.FuchsiaTestResults(
         build_dir=build.fuchsia_build_dir,
-        output=result.output,
+        zircon_kernel_log=result.output,
         outputs=test_results_map,
         json_api=self.m.json,
     )
@@ -878,7 +929,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       A FuchsiaTestResults representing the completed test.
     """
-    assert build.has_tests
+    assert build.has_target_tests
+
     if build.test_device_type == 'QEMU':
       return self._test_in_qemu(
           build=build,
@@ -912,7 +964,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         # io_timeout failure, since task timeout > collect timeout.
         step_result.presentation.step_text = 'i/o timeout'
         step_result.presentation.status = self.m.step.FAILURE
-        self._symbolize(zircon_build_dir, result.output)
+        if result.output:
+          self._symbolize(zircon_build_dir, result.output)
         failure_lines = [
             'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
             'Last 10 lines of kernel output:',
@@ -925,7 +978,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     elif 'KERNEL PANIC' in result.output:
       step_result.presentation.step_text = 'kernel panic'
       step_result.presentation.status = self.m.step.FAILURE
-      self._symbolize(zircon_build_dir, result.output)
+      if result.output:
+        self._symbolize(zircon_build_dir, result.output)
       raise self.m.step.StepFailure(
           'Found kernel panic. See symbolized output for details.')
 
@@ -944,8 +998,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.report_test_results(test_results)
 
       if test_results.failed_tests:
-        # Symbolize test output to help debug failures.
-        self._symbolize(test_results.build_dir, test_results.output)
+        # If a Zircon kernel log is present, it may contain stack traces which
+        # we want to symbolize.
+        if test_results.zircon_kernel_log:
+          self._symbolize(test_results.build_dir, test_results.zircon_kernel_log)
         # Halt with a step failure.
         raise self.m.step.StepFailure(
           'Test failure(s): ' + ', '.join(test_results.failed_tests.keys()))
@@ -957,10 +1013,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
       test_results (FuchsiaTestResults): The test results.
     """
     if not test_results.summary:
-      self._symbolize(test_results.build_dir, test_results.output)
+      if test_results.zircon_kernel_log:
+        self._symbolize(test_results.build_dir, test_results.zircon_kernel_log)
+
       # Halt with step failure if summary file is missing.
       raise self.m.step.StepFailure(
           'Test summary JSON not found, see kernel log for details')
+
 
     # Log the summary file's contents.
     raw_summary_log = test_results.raw_summary.split('\n')
@@ -974,8 +1033,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.step.active_result.presentation.logs[output_name] = (
           output_str.split('\n'))
 
+    root_dir = str(self.m.path['start_dir'])
     for test in test_results.summary['tests']:
       test_name = test['name']
+      # For host paths, replace the Fuchsia root with '//', the standard
+      # shorthand used in GN and documentation.
+      if test_name.startswith(root_dir):
+        test_name = '//%s' % os.path.relpath(test_name, root_dir)
       test_output = test_results.outputs[test['output_file']]
       # Create individual step just for this test.
       step_result = self.m.step(test_name, None)

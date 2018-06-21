@@ -51,7 +51,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
                               infra_failure=infra_failure,
                               timed_out=timed_out,))
 
-  def test_step_data(self, failure=False):
+  def test_step_data(self, failure=False, host_results=False):
     """Returns mock step data for test results.
 
     This should be used by any test which calls api.fuchsia.test*() and expects
@@ -59,18 +59,24 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
 
     Args:
       failure (bool): Whether a test failed or not.
+      host_results (bool): Whether mock step data is being return for host tests
 
     Returns:
       RecipeTestApi.step_data for the extract_results step.
     """
     result = 'FAIL' if failure else 'PASS'
+
+    # Host Results locally and do not require an 'extract results' step.
+    step_name = 'run host tests' if host_results else 'extract results'
+
+    test_name_prefix = '[START_DIR]' if host_results else ''
     summary_json = self.m.json.dumps({
-        'tests': [{'name': '/hello',
+        'tests': [{'name': '%s/hello' % test_name_prefix,
                    'output_file': 'hello.out',
                    'result': result}],
         'outputs': {'goodbye-txt': 'goodbye.txt'}})
     return self.step_data(
-        'extract results',
+        step_name,
         self.m.raw_io.output_dir({
             'summary.json': summary_json,
             'hello.out': 'hello',
