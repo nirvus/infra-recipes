@@ -115,13 +115,51 @@ PROPERTIES = {
   'device_type': Property(kind=Enum(*DEVICES),
                           help='The type of device to execute tests on',
                           default='QEMU'),
+  'run_host_tests': Property(kind=bool,
+                             help='Run host tests after building',
+                             default=False),
 }
+
+
+def RunTestsOnHost(api, build_dir):
+  """Runs host tests.
+
+  Args:
+    build_dir (Path): Path to the build directory.
+  """
+  runtests = build_dir.join('tools', 'runtests')
+  host_test_dir = build_dir.join('host_tests')
+
+  # Write test results to the 'host' subdirectory of |results_dir_on_host|
+  # so as not to collide with target test results.
+  test_results_dir = api.fuchsia.results_dir_on_host.join('host')
+
+  # Allow the runtests invocation to fail without resulting in a step failure.
+  # The relevant, individual test failures will be reported during the
+  # processing of summary.json - and an early step failure will prevent this.
+  api.step('run host tests', [
+      runtests,
+      '-o', api.raw_io.output_dir(leak_to=test_results_dir),
+      host_test_dir,
+  ], ok_ret='any')
+
+  # Extract test results.
+  test_results_map = api.step.active_result.raw_io.output_dir
+  api.fuchsia.analyze_test_results(
+      'host test results',
+      api.fuchsia.FuchsiaTestResults(
+          build_dir=build_dir,
+          zircon_kernel_log=None,  # We did not run tests on target.
+          outputs=test_results_map,
+          json_api=api.json,
+      )
+  )
 
 
 def RunTestsOnDevice(api, target, build_dir, device_type):
   """Executes Zircon tests on a hardware device.
 
-  Args:
+  Args
     api (recipe_engine.Api): The recipe engine API for this recipe.
     target (str): The zircon target architecture to execute tests on.
     build_dir (Path): Path to the build directory.
@@ -577,7 +615,7 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
              patch_repository_url, project, manifest, remote, revision,
              target, toolchain, make_args, use_kvm, run_tests, runtests_args,
-             device_type):
+             device_type, run_host_tests):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
@@ -617,6 +655,8 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       RunTestsInQEMU(api, target, build_dir, use_kvm)
     else:
       RunTestsOnDevice(api, target, build_dir, device_type)
+  if run_host_tests:
+    RunTestsOnHost(api, build_dir)
 
 
 def GenTests(api):
@@ -659,6 +699,25 @@ def GenTests(api):
                      target='arm64',
                      toolchain='gcc',
                      use_kvm=False) +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      collect_data)
+  yield (api.test('ci_host_tests') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='x64',
+                     toolchain='gcc',
+                     run_tests=False,
+                     run_host_tests=True))
+  yield (api.test('ci_host_and_target_tests') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='x64',
+                     toolchain='gcc',
+                     run_tests=True,
+                     run_host_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
