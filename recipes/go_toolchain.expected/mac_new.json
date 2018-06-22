@@ -31,28 +31,28 @@
   },
   {
     "cmd": [],
-    "name": "ensure_jiri"
+    "name": "ensure_gitiles"
   },
   {
     "cmd": [
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/jiri",
+      "[START_DIR]/cipd/gitiles",
       "-ensure-file",
-      "fuchsia/tools/jiri/mac-amd64 stable",
+      "infra/tools/luci/gitiles/mac-amd64 latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
+    "name": "ensure_gitiles.ensure_installed",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -91,117 +91,40 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "init",
-      "-v",
-      "-time",
-      "-analytics-opt=false",
-      "-rewrite-sso-to-https=true",
-      "-cache",
-      "[CACHE]/git",
-      "-shared"
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
+      "-json-output",
+      "/path/to/tmp/json",
+      "https://fuchsia.googlesource.com/third_party/go",
+      "refs"
     ],
     "infra_step": true,
-    "name": "jiri init"
+    "name": "refs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/master\": \"c6c554304e6d268f34ed510a36e77071830352cc\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "import",
-      "-v",
-      "-time",
-      "runtimes/go_head",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "infra_step": true,
-    "name": "jiri import"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks",
-      "-v",
-      "-time",
-      "-attempts=3"
-    ],
-    "infra_step": true,
-    "name": "jiri run-hooks"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "source-manifest",
-      "-v",
-      "-time",
+      "cipd",
+      "search",
+      "fuchsia/go/mac-amd64",
+      "-tag",
+      "git_revision:c6c554304e6d268f34ed510a36e77071830352cc",
+      "-json-output",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "jiri source-manifest",
+    "name": "cipd search fuchsia/go/mac-amd64 git_revision:c6c554304e6d268f34ed510a36e77071830352cc",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
-      "@@@STEP_LOG_END@json.output[source manifest]@@@"
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
     ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-v",
-      "-time",
-      "-json-output",
-      "/path/to/tmp/json",
-      "third_party/go"
-    ],
-    "infra_step": true,
-    "name": "jiri project",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"third_party/go\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/third_party/go\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/third_party/go\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/third_party/go/src/make.bash"
-    ],
-    "cwd": "[START_DIR]/third_party/go/src",
-    "env": {
-      "GOROOT_BOOTSTRAP": "[START_DIR]/cipd/go"
-    },
-    "name": "make"
   },
   {
     "cmd": [
@@ -213,10 +136,131 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/go_tmp_1/go"
+      "[START_DIR]/third_party/go"
     ],
     "infra_step": true,
-    "name": "create pkg dir"
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/third_party/go",
+    "infra_step": true,
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/go"
+    ],
+    "cwd": "[START_DIR]/third_party/go",
+    "infra_step": true,
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin"
+    ],
+    "cwd": "[START_DIR]/third_party/go",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "c6c554304e6d268f34ed510a36e77071830352cc"
+    ],
+    "cwd": "[START_DIR]/third_party/go",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/third_party/go",
+    "infra_step": true,
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/third_party/go",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/third_party/go",
+    "infra_step": true,
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/third_party/go",
+    "infra_step": true,
+    "name": "submodule update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/third_party/go/src/make.bash"
+    ],
+    "cwd": "[START_DIR]/third_party/go/src",
+    "env": {
+      "GOROOT_BOOTSTRAP": "[START_DIR]/cipd/go"
+    },
+    "name": "build"
+  },
+  {
+    "cmd": [],
+    "name": "install"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CLEANUP]/go.install"
+    ],
+    "infra_step": true,
+    "name": "install.create pkg dir",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -227,10 +271,13 @@
       "/path/to/tmp/json",
       "copytree",
       "[START_DIR]/third_party/go/bin",
-      "[TMP_BASE]/go_tmp_1/go/bin"
+      "[CLEANUP]/go.install/bin"
     ],
     "infra_step": true,
-    "name": "copy bin"
+    "name": "install.copy bin",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -241,10 +288,13 @@
       "/path/to/tmp/json",
       "copytree",
       "[START_DIR]/third_party/go/lib",
-      "[TMP_BASE]/go_tmp_1/go/lib"
+      "[CLEANUP]/go.install/lib"
     ],
     "infra_step": true,
-    "name": "copy lib"
+    "name": "install.copy lib",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -255,10 +305,13 @@
       "/path/to/tmp/json",
       "copytree",
       "[START_DIR]/third_party/go/pkg",
-      "[TMP_BASE]/go_tmp_1/go/pkg"
+      "[CLEANUP]/go.install/pkg"
     ],
     "infra_step": true,
-    "name": "copy pkg"
+    "name": "install.copy pkg",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -269,10 +322,13 @@
       "/path/to/tmp/json",
       "copytree",
       "[START_DIR]/third_party/go/src",
-      "[TMP_BASE]/go_tmp_1/go/src"
+      "[CLEANUP]/go.install/src"
     ],
     "infra_step": true,
-    "name": "copy src"
+    "name": "install.copy src",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -283,10 +339,13 @@
       "/path/to/tmp/json",
       "copytree",
       "[START_DIR]/third_party/go/misc",
-      "[TMP_BASE]/go_tmp_1/go/misc"
+      "[CLEANUP]/go.install/misc"
     ],
     "infra_step": true,
-    "name": "copy misc"
+    "name": "install.copy misc",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -305,27 +364,9 @@
   {
     "cmd": [
       "cipd",
-      "search",
-      "fuchsia/go/mac-amd64",
-      "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "name": "cipd search fuchsia/go/mac-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "cipd",
       "pkg-build",
       "-in",
-      "[TMP_BASE]/go_tmp_1/go",
+      "[CLEANUP]/go.install",
       "-name",
       "fuchsia/go/mac-amd64",
       "-out",
@@ -358,7 +399,7 @@
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/third_party/go",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "git_revision:c6c554304e6d268f34ed510a36e77071830352cc",
       "-tag",
       "version:go1.8"
     ],
