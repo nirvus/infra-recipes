@@ -383,6 +383,14 @@
       "[START_DIR]/test_results/host",
       "[START_DIR]/out/debug-x64/host_tests"
     ],
+    "env": {
+      "ASAN_SYMBOLIZER_PATH": "[START_DIR]/zircon/prebuilt/downloads/clang/bin/llvm-symbolizer"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/zircon/prebuilt/downloads/clang/bin"
+      ]
+    },
     "name": "run host tests"
   },
   {

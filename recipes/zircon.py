@@ -134,14 +134,28 @@ def RunTestsOnHost(api, build_dir):
   # so as not to collide with target test results.
   test_results_dir = api.fuchsia.results_dir_on_host.join('host')
 
-  # Allow the runtests invocation to fail without resulting in a step failure.
-  # The relevant, individual test failures will be reported during the
-  # processing of summary.json - and an early step failure will prevent this.
-  api.step('run host tests', [
-      runtests,
-      '-o', api.raw_io.output_dir(leak_to=test_results_dir),
-      host_test_dir,
-  ], ok_ret='any')
+  # In order to symbolize host ASan output, the llvm symbolizer must be in
+  # one's PATH and the path to the symbolizer must be set as
+  # ASAN_SYMBOLIZER_PATH. See the following for documentation:
+  # https://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports
+  llvm_tools_dir = api.path['start_dir'].join('zircon', 'prebuilt', 'downloads',
+                                              'clang', 'bin')
+  llvm_symbolizer = llvm_tools_dir.join('llvm-symbolizer')
+  with api.context(
+      env={"ASAN_SYMBOLIZER_PATH": llvm_symbolizer},
+      env_prefixes={'PATH': [llvm_tools_dir]}):
+
+    # Allow the runtests invocation to fail without resulting in a step failure.
+    # The relevant, individual test failures will be reported during the
+    # processing of summary.json - and an early step failure will prevent this.
+    api.step(
+        'run host tests', [
+            runtests,
+            '-o',
+            api.raw_io.output_dir(leak_to=test_results_dir),
+            host_test_dir,
+        ],
+        ok_ret='any')
 
   # Extract test results.
   test_results_map = api.step.active_result.raw_io.output_dir
