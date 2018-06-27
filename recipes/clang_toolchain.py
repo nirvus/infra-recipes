@@ -11,13 +11,11 @@ import re
 
 
 DEPS = [
-  'infra/cipd',
   'infra/git',
   'infra/gitiles',
   'infra/goma',
   'infra/gsutil',
-  'infra/hash',
-  'infra/jiri',
+  'recipe_engine/cipd',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -50,37 +48,38 @@ def RunSteps(api, url, ref, revision):
   api.gitiles.ensure_gitiles()
   api.goma.ensure_goma()
   api.gsutil.ensure_gsutil()
-  api.jiri.ensure_jiri()
+
+  # TODO: factor this out into a host_build recipe module.
+  host_platform = '%s-%s' % (api.platform.name.replace('win', 'windows'), {
+      'intel': {
+          32: '386',
+          64: 'amd64',
+      },
+      'arm': {
+          32: 'armv6',
+          64: 'arm64',
+      },
+  }[api.platform.arch][api.platform.bits])
 
   if not revision:
     revision = api.gitiles.refs(url).get(ref, None)
-  cipd_pkg_name = 'fuchsia/clang/' + api.cipd.platform_suffix()
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if step.json.output['result']:
+  cipd_pkg_name = 'fuchsia/clang/' + host_platform
+  cipd_pins = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if cipd_pins:
     api.step('Package is up-to-date', cmd=None)
     return
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
-      packages = {
-        'infra/cmake/${platform}': 'version:3.11.4',
-        'infra/ninja/${platform}': 'version:1.8.2',
-        'fuchsia/clang/${platform}': 'goma',
-      }
-      if api.platform.name == 'linux':
-        packages.update({
-          'fuchsia/sysroot/${platform}': 'latest'
-        })
-      api.cipd.ensure(cipd_dir, packages)
-
-  with api.step.nest('ensure_sdk'):
-    with api.context(infra_steps=True):
-      sdk_dir = api.path['start_dir'].join('sdk')
-      packages = {
-        'fuchsia/sdk/${platform}': 'latest',
-      }
-      api.cipd.ensure(sdk_dir, packages)
+      pkgs = api.cipd.EnsureFile()
+      pkgs.add_package('infra/cmake/${platform}', 'version:3.11.4')
+      pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
+      pkgs.add_package('fuchsia/clang/${platform}', 'goma')
+      if api.platform.is_linux:
+        pkgs.add_package('fuchsia/sysroot/${platform}', 'latest')
+      pkgs.add_package('fuchsia/sdk/${platform}', 'latest', 'sdk')
+      api.cipd.ensure(cipd_dir, pkgs)
 
   staging_dir = api.path.mkdtemp('clang')
   pkg_name = 'clang-%s' % api.platform.name.replace('mac', 'darwin')
@@ -190,7 +189,7 @@ def RunSteps(api, url, ref, revision):
         '-DCMAKE_INSTALL_PREFIX=',
         '-DLLVM_ENABLE_PROJECTS=clang;lld',
         '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
-        '-DSTAGE2_FUCHSIA_SDK=%s' % sdk_dir,
+        '-DSTAGE2_FUCHSIA_SDK=%s' % cipd_dir.join('sdk'),
       ] + extra_options + [
         '-C', llvm_dir.join('clang', 'cmake', 'caches', 'Fuchsia.cmake'),
         llvm_dir.join('llvm'),
@@ -248,7 +247,8 @@ def RunSteps(api, url, ref, revision):
       pkg_def=pkg_def,
       output_package=cipd_pkg_file,
   )
-  step_result = api.cipd.register(
+
+  cipd_pin = api.cipd.register(
       package_name=cipd_pkg_name,
       package_path=cipd_pkg_file,
       refs=['latest'],
@@ -262,7 +262,7 @@ def RunSteps(api, url, ref, revision):
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      api.gsutil.join('clang', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
+      api.gsutil.join('clang', host_platform, cipd_pin.instance_id),
       unauthenticated_url=True
   )
 
@@ -280,4 +280,4 @@ def GenTests(api):
            api.step_data('clang version', api.raw_io.stream_output(version)) +
            api.step_data('cipd search fuchsia/clang/' + platform + '-amd64 ' +
                          'git_revision:' + revision,
-                         api.json.output({'result': []})))
+                         api.cipd.example_search('fuchsia/clang/' + platform + '-amd64 ', [])))

@@ -90,36 +90,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_jiri"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/jiri",
-      "-ensure-file",
-      "fuchsia/tools/jiri/linux-amd64 stable",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/gitiles/gitiles",
       "refs",
@@ -165,7 +135,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/clang/${platform} goma\nfuchsia/sysroot/${platform} latest\ninfra/cmake/${platform} version:3.11.4\ninfra/ninja/${platform} version:1.8.2",
+      "infra/cmake/${platform} version:3.11.4\ninfra/ninja/${platform} version:1.8.2\nfuchsia/clang/${platform} goma\nfuchsia/sysroot/${platform} latest\n@Subdir sdk\nfuchsia/sdk/${platform} latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -174,54 +144,32 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sysroot/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.11.4--\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_sdk"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/sdk",
-      "-ensure-file",
-      "fuchsia/sdk/${platform} latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_sdk.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sdk/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/clang/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/sysroot/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:3.11.4--\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/cmake/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/ninja/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"sdk\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/sdk/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -804,7 +752,7 @@
       "-DCMAKE_INSTALL_PREFIX=",
       "-DLLVM_ENABLE_PROJECTS=clang;lld",
       "-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind",
-      "-DSTAGE2_FUCHSIA_SDK=[START_DIR]/sdk",
+      "-DSTAGE2_FUCHSIA_SDK=[START_DIR]/cipd/sdk",
       "-DBOOTSTRAP_CMAKE_C_FLAGS=-I[TMP_BASE]/clang_tmp_1/lib_install/include -I[TMP_BASE]/clang_tmp_1/lib_install/include/libxml2",
       "-DBOOTSTRAP_CMAKE_CXX_FLAGS=-I[TMP_BASE]/clang_tmp_1/lib_install/include -I[TMP_BASE]/clang_tmp_1/lib_install/include/libxml2",
       "-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
@@ -974,8 +922,6 @@
       "cipd",
       "pkg-register",
       "[CLEANUP]/clang.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
       "-ref",
       "latest",
       "-tag",
@@ -983,7 +929,9 @@
       "-tag",
       "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
       "-tag",
-      "version:5.0.0"
+      "version:5.0.0",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
     "name": "register fuchsia/clang/linux-amd64",
     "~followup_annotations": [
