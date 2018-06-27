@@ -33,18 +33,22 @@ TARGETS = [
   ('x86_64', 'x64'),
 ]
 
-LLVM_PROJECT_GIT = 'https://fuchsia.googlesource.com/third_party/llvm-project'
 LIBXML2_GIT = 'https://fuchsia.googlesource.com/third_party/libxml2'
 ZLIB_GIT = 'https://fuchsia.googlesource.com/third_party/zlib'
 
 PROPERTIES = {
-  'url': Property(kind=str, help='Git repository URL', default=LLVM_PROJECT_GIT),
-  'ref': Property(kind=str, help='Git reference', default='refs/heads/master'),
-  'revision': Property(kind=str, help='Revision', default=None),
+  'repository':
+      Property(
+          kind=str, help='Git repository URL',
+          default='https://fuchsia.googlesource.com/third_party/llvm-project'),
+  'branch':
+      Property(kind=str, help='Git branch', default='refs/heads/master'),
+  'revision':
+      Property(kind=str, help='Revision', default=None),
 }
 
 
-def RunSteps(api, url, ref, revision):
+def RunSteps(api, repository, branch, revision):
   api.gitiles.ensure_gitiles()
   api.goma.ensure_goma()
   api.gsutil.ensure_gsutil()
@@ -62,7 +66,7 @@ def RunSteps(api, url, ref, revision):
   }[api.platform.arch][api.platform.bits])
 
   if not revision:
-    revision = api.gitiles.refs(url).get(ref, None)
+    revision = api.gitiles.refs(repository).get(branch, None)
   cipd_pkg_name = 'fuchsia/clang/' + host_platform
   cipd_pins = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if cipd_pins:
@@ -88,7 +92,7 @@ def RunSteps(api, url, ref, revision):
 
   with api.context(infra_steps=True):
     llvm_dir = api.path['start_dir'].join('llvm-project')
-    api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
+    api.git.checkout(repository, llvm_dir, ref=revision, submodules=True)
 
     zlib_dir = api.path['start_dir'].join('zlib')
     api.git.checkout(ZLIB_GIT, zlib_dir, ref='refs/tags/v1.2.9')
@@ -254,7 +258,7 @@ def RunSteps(api, url, ref, revision):
       refs=['latest'],
       tags={
         'version': clang_version,
-        'git_repository': LLVM_PROJECT_GIT,
+        'git_repository': repository,
         'git_revision': revision,
       },
   )
