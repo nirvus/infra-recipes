@@ -107,24 +107,6 @@
     ]
   },
   {
-    "cmd": [
-      "cipd",
-      "search",
-      "fuchsia/clang/linux-amd64",
-      "-tag",
-      "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "name": "cipd search fuchsia/clang/linux-amd64 git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "ensure_packages"
   },
@@ -135,7 +117,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "infra/cmake/${platform} version:3.11.4\ninfra/ninja/${platform} version:1.8.2\nfuchsia/clang/${platform} goma\nfuchsia/sysroot/${platform} latest\n@Subdir sdk\nfuchsia/sdk/${platform} latest",
+      "infra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\nfuchsia/clang/${platform} goma\n@Subdir linux-amd64\nfuchsia/sysroot/linux-amd64 latest\n@Subdir linux-arm64\nfuchsia/sysroot/linux-arm64 latest\n@Subdir sdk\nfuchsia/sdk/${platform} latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -151,16 +133,24 @@
       "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/clang/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@      }, @@@",
       "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/sysroot/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      }, @@@",
-      "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:3.11.4--\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:3.9.2---\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/cmake/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@      }, @@@",
       "@@@STEP_LOG_LINE@json.output@      {@@@",
       "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/ninja/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"linux-amd64\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/sysroot/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"linux-arm64\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/sysroot/linux-arm64\"@@@",
       "@@@STEP_LOG_LINE@json.output@      }@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"sdk\": [@@@",
@@ -561,7 +551,7 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "CFLAGS": "-O3 -fPIC --target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/linux-amd64",
       "NM": "[START_DIR]/cipd/bin/llvm-nm",
       "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
     },
@@ -580,7 +570,7 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "CFLAGS": "-O3 -fPIC --target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/linux-amd64",
       "NM": "[START_DIR]/cipd/bin/llvm-nm",
       "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
     },
@@ -615,7 +605,7 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "CFLAGS": "-O3 -fPIC --target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/linux-amd64",
       "NM": "[START_DIR]/cipd/bin/llvm-nm",
       "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
     },
@@ -634,7 +624,7 @@
     "env": {
       "AR": "[START_DIR]/cipd/bin/llvm-ar",
       "CC": "[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
-      "CFLAGS": "-O3 -fPIC --sysroot=[START_DIR]/cipd",
+      "CFLAGS": "-O3 -fPIC --target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/linux-amd64",
       "NM": "[START_DIR]/cipd/bin/llvm-nm",
       "RANLIB": "[START_DIR]/cipd/bin/llvm-ranlib"
     },
@@ -688,7 +678,7 @@
       "AR=[START_DIR]/cipd/bin/llvm-ar",
       "RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
       "NM=[START_DIR]/cipd/bin/llvm-nm",
-      "CFLAGS=-O3 -fPIC --sysroot=[START_DIR]/cipd"
+      "CFLAGS=-O3 -fPIC --target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/linux-amd64"
     ],
     "cwd": "[TMP_BASE]/clang_tmp_1/libxml2_build_dir",
     "name": "libxml2.configure",
@@ -749,19 +739,30 @@
       "-DCMAKE_CXX_COMPILER=[START_DIR]/cipd/bin/clang++",
       "-DCMAKE_ASM_COMPILER=[START_DIR]/cipd/bin/clang",
       "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
+      "-DCMAKE_AR=[START_DIR]/cipd/bin/llvm-ar",
+      "-DCMAKE_LINKER=[START_DIR]/cipd/bin/ld.lld",
+      "-DCMAKE_NM=[START_DIR]/cipd/bin/llvm-nm",
+      "-DCMAKE_OBJCOPY=[START_DIR]/cipd/bin/llvm-objcopy",
+      "-DCMAKE_OBJDUMP=[START_DIR]/cipd/bin/llvm-objdump",
+      "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
+      "-DCMAKE_STRIP=[START_DIR]/cipd/bin/llvm-strip",
       "-DCMAKE_INSTALL_PREFIX=",
       "-DLLVM_ENABLE_PROJECTS=clang;lld",
       "-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind",
       "-DSTAGE2_FUCHSIA_SDK=[START_DIR]/cipd/sdk",
+      "-DSTAGE2_LINUX_aarch64_SYSROOT=[START_DIR]/cipd/linux-arm64",
+      "-DSTAGE2_LINUX_x86_64_SYSROOT=[START_DIR]/cipd/linux-amd64",
       "-DBOOTSTRAP_CMAKE_C_FLAGS=-I[TMP_BASE]/clang_tmp_1/lib_install/include -I[TMP_BASE]/clang_tmp_1/lib_install/include/libxml2",
       "-DBOOTSTRAP_CMAKE_CXX_FLAGS=-I[TMP_BASE]/clang_tmp_1/lib_install/include -I[TMP_BASE]/clang_tmp_1/lib_install/include/libxml2",
-      "-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
-      "-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
-      "-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
-      "-DBOOTSTRAP_CMAKE_SYSROOT=[START_DIR]/cipd",
+      "-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/linux-amd64/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
+      "-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/linux-amd64/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
+      "-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/linux-amd64/lib -L[TMP_BASE]/clang_tmp_1/lib_install/lib",
+      "-DBOOTSTRAP_CMAKE_SYSROOT=[START_DIR]/cipd/linux-amd64",
+      "-DBOOTSTRAP_LLVM_DEFAULT_TARGET_TRIPLE=x86_64-linux-gnu",
       "-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib",
       "-DCMAKE_EXE_SHARED_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib",
-      "-DCMAKE_SYSROOT=[START_DIR]/cipd",
+      "-DCMAKE_SYSROOT=[START_DIR]/cipd/linux-amd64",
+      "-DLLVM_DEFAULT_TARGET_TRIPLE=x86_64-linux-gnu",
       "-C",
       "[START_DIR]/llvm-project/clang/cmake/caches/Fuchsia.cmake",
       "[START_DIR]/llvm-project/llvm"
@@ -875,11 +876,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "lib/libclang_rt.asan-aarch64.so=clang/5.0.0/lib/fuchsia/libclang_rt.asan-aarch64.so\nlib/libclang_rt.ubsan_standalone-aarch64.so=clang/5.0.0/lib/fuchsia/libclang_rt.ubsan_standalone-aarch64.so\nlib/libclang_rt.scudo-aarch64.so=clang/5.0.0/lib/fuchsia/libclang_rt.scudo-aarch64.so\nlib/libc++.so.2=aarch64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=aarch64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=aarch64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=aarch64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=aarch64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=aarch64-fuchsia/lib/asan/libunwind.so.1\n",
-      "[TMP_BASE]/clang_tmp_1/clang-linux/lib/aarch64-fuchsia.manifest"
+      "lib/libclang_rt.asan.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.asan.so\nlib/libclang_rt.ubsan_standalone.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.ubsan_standalone.so\nlib/libclang_rt.scudo.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.scudo.so\nlib/libc++.so.2=clang/5.0.0/x86_64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=clang/5.0.0/x86_64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=clang/5.0.0/x86_64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=clang/5.0.0/x86_64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=clang/5.0.0/x86_64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=clang/5.0.0/x86_64-fuchsia/lib/asan/libunwind.so.1\n",
+      "[TMP_BASE]/clang_tmp_1/clang-linux/lib/x86_64-fuchsia.manifest"
     ],
     "infra_step": true,
-    "name": "write aarch64-fuchsia.manifest"
+    "name": "write x86_64-fuchsia.manifest"
   },
   {
     "cmd": [
@@ -889,11 +890,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "lib/libclang_rt.asan-x86_64.so=clang/5.0.0/lib/fuchsia/libclang_rt.asan-x86_64.so\nlib/libclang_rt.ubsan_standalone-x86_64.so=clang/5.0.0/lib/fuchsia/libclang_rt.ubsan_standalone-x86_64.so\nlib/libclang_rt.scudo-x86_64.so=clang/5.0.0/lib/fuchsia/libclang_rt.scudo-x86_64.so\nlib/libc++.so.2=x86_64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=x86_64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=x86_64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=x86_64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=x86_64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=x86_64-fuchsia/lib/asan/libunwind.so.1\n",
-      "[TMP_BASE]/clang_tmp_1/clang-linux/lib/x86_64-fuchsia.manifest"
+      "lib/libclang_rt.asan.so=clang/5.0.0/aarch64-fuchsia/lib/libclang_rt.asan.so\nlib/libclang_rt.ubsan_standalone.so=clang/5.0.0/aarch64-fuchsia/lib/libclang_rt.ubsan_standalone.so\nlib/libclang_rt.scudo.so=clang/5.0.0/aarch64-fuchsia/lib/libclang_rt.scudo.so\nlib/libc++.so.2=clang/5.0.0/aarch64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=clang/5.0.0/aarch64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=clang/5.0.0/aarch64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=clang/5.0.0/aarch64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=clang/5.0.0/aarch64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=clang/5.0.0/aarch64-fuchsia/lib/asan/libunwind.so.1\n",
+      "[TMP_BASE]/clang_tmp_1/clang-linux/lib/aarch64-fuchsia.manifest"
     ],
     "infra_step": true,
-    "name": "write x86_64-fuchsia.manifest"
+    "name": "write aarch64-fuchsia.manifest"
   },
   {
     "cmd": [
@@ -913,6 +914,24 @@
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/clang/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/clang/linux-amd64",
+      "-tag",
+      "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "cipd search fuchsia/clang/linux-amd64 git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]

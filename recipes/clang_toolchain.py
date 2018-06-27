@@ -28,10 +28,18 @@ DEPS = [
   'recipe_engine/tempfile',
 ]
 
-TARGETS = [
-  ('aarch64', 'arm64'),
-  ('x86_64', 'x64'),
-]
+TARGET_TO_ARCH = {
+  'x64': 'x86_64',
+  'arm64': 'aarch64',
+}
+TARGETS = TARGET_TO_ARCH.keys()
+
+PLATFORM_TO_TRIPLE = {
+  'linux-amd64': 'x86_64-linux-gnu',
+  'linux-arm64': 'aarch64-linux-gnu',
+  'mac-amd64': 'x86_64-apple-darwin',
+}
+PLATFORMS = PLATFORM_TO_TRIPLE.keys()
 
 LIBXML2_GIT = 'https://fuchsia.googlesource.com/third_party/libxml2'
 ZLIB_GIT = 'https://fuchsia.googlesource.com/third_party/zlib'
@@ -45,13 +53,19 @@ PROPERTIES = {
       Property(kind=str, help='Git branch', default='refs/heads/master'),
   'revision':
       Property(kind=str, help='Revision', default=None),
+  'platform':
+      Property(
+          kind=str, help='CIPD platform for the target', default=None),
 }
 
 
-def RunSteps(api, repository, branch, revision):
+def RunSteps(api, repository, branch, revision, platform):
   api.gitiles.ensure_gitiles()
   api.goma.ensure_goma()
   api.gsutil.ensure_gsutil()
+
+  if not revision:
+    revision = api.gitiles.refs(repository).get(branch, None)
 
   # TODO: factor this out into a host_build recipe module.
   host_platform = '%s-%s' % (api.platform.name.replace('win', 'windows'), {
@@ -64,24 +78,17 @@ def RunSteps(api, repository, branch, revision):
           64: 'arm64',
       },
   }[api.platform.arch][api.platform.bits])
-
-  if not revision:
-    revision = api.gitiles.refs(repository).get(branch, None)
-  cipd_pkg_name = 'fuchsia/clang/' + host_platform
-  cipd_pins = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if cipd_pins:
-    api.step('Package is up-to-date', cmd=None)
-    return
+  target_platform = platform or host_platform
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       pkgs = api.cipd.EnsureFile()
-      pkgs.add_package('infra/cmake/${platform}', 'version:3.11.4')
+      pkgs.add_package('infra/cmake/${platform}', 'version:3.9.2')
       pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
       pkgs.add_package('fuchsia/clang/${platform}', 'goma')
-      if api.platform.is_linux:
-        pkgs.add_package('fuchsia/sysroot/${platform}', 'latest')
+      pkgs.add_package('fuchsia/sysroot/linux-amd64', 'latest', 'linux-amd64')
+      pkgs.add_package('fuchsia/sysroot/linux-arm64', 'latest', 'linux-arm64')
       pkgs.add_package('fuchsia/sdk/${platform}', 'latest', 'sdk')
       api.cipd.ensure(cipd_dir, pkgs)
 
@@ -103,8 +110,12 @@ def RunSteps(api, repository, branch, revision):
   lib_install_dir = staging_dir.join('lib_install')
   api.file.ensure_directory('create lib_install_dir', lib_install_dir)
 
+  target_triple = PLATFORM_TO_TRIPLE[target_platform]
+  host_triple = PLATFORM_TO_TRIPLE[host_platform]
+
   if api.platform.name == 'linux':
-    host_sysroot = cipd_dir
+    host_sysroot = cipd_dir.join(host_platform)
+    target_sysroot = cipd_dir.join(target_platform)
   elif api.platform.name == 'mac':
     # TODO(IN-148): Eventually use our own hermetic sysroot as for Linux.
     step_result = api.step(
@@ -112,14 +123,14 @@ def RunSteps(api, repository, branch, revision):
         stdout=api.raw_io.output(name='sdk-path', add_output_log=True),
         step_test_data=lambda: api.raw_io.test_api.stream_output(
             '/some/xcode/path'))
-    host_sysroot = step_result.stdout.strip()
+    target_sysroot = host_sysroot = step_result.stdout.strip()
   else: # pragma: no cover
     assert false, "unsupported platform"
 
   with api.goma.build_with_goma():
     vars = {
       'CC': '%s %s' % (api.goma.goma_dir.join('gomacc'), cipd_dir.join('bin', 'clang')),
-      'CFLAGS': '-O3 -fPIC --sysroot=%s' % host_sysroot,
+      'CFLAGS': '-O3 -fPIC --target=%s --sysroot=%s' % (target_triple, target_sysroot),
       'AR': cipd_dir.join('bin', 'llvm-ar'),
       'NM': cipd_dir.join('bin', 'llvm-nm'),
       'RANLIB': cipd_dir.join('bin', 'llvm-ranlib'),
@@ -167,14 +178,16 @@ def RunSteps(api, repository, branch, revision):
         # BOOTSTRAP_ prefixed flags are passed to the second stage compiler.
         '-DBOOTSTRAP_CMAKE_C_FLAGS=-I%s -I%s' % (lib_install_dir.join('include'), lib_install_dir.join('include', 'libxml2')),
         '-DBOOTSTRAP_CMAKE_CXX_FLAGS=-I%s -I%s' % (lib_install_dir.join('include'), lib_install_dir.join('include', 'libxml2')),
-        '-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
-        '-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
-        '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join('lib'), lib_install_dir.join('lib')),
-        '-DBOOTSTRAP_CMAKE_SYSROOT=%s' % cipd_dir,
+        '-DBOOTSTRAP_CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join(target_platform, 'lib'), lib_install_dir.join('lib')),
+        '-DBOOTSTRAP_CMAKE_MODULE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join(target_platform, 'lib'), lib_install_dir.join('lib')),
+        '-DBOOTSTRAP_CMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s -L%s' % (cipd_dir.join(target_platform, 'lib'), lib_install_dir.join('lib')),
+        '-DBOOTSTRAP_CMAKE_SYSROOT=%s' % target_sysroot,
+        '-DBOOTSTRAP_LLVM_DEFAULT_TARGET_TRIPLE=%s' % target_triple,
         # Unprefixed flags are only used by the first stage compiler.
         '-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
         '-DCMAKE_EXE_SHARED_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
-        '-DCMAKE_SYSROOT=%s' % cipd_dir,
+        '-DCMAKE_SYSROOT=%s' % host_sysroot,
+        '-DLLVM_DEFAULT_TARGET_TRIPLE=%s' % host_triple,
       ],
       'mac': [],
     }[api.platform.name]
@@ -190,10 +203,19 @@ def RunSteps(api, repository, branch, revision):
         '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
         '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
         '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
+        '-DCMAKE_AR=%s' % cipd_dir.join('bin', 'llvm-ar'),
+        '-DCMAKE_LINKER=%s' % cipd_dir.join('bin', 'ld.lld'),
+        '-DCMAKE_NM=%s' % cipd_dir.join('bin', 'llvm-nm'),
+        '-DCMAKE_OBJCOPY=%s' % cipd_dir.join('bin', 'llvm-objcopy'),
+        '-DCMAKE_OBJDUMP=%s' % cipd_dir.join('bin', 'llvm-objdump'),
+        '-DCMAKE_RANLIB=%s' % cipd_dir.join('bin', 'llvm-ranlib'),
+        '-DCMAKE_STRIP=%s' % cipd_dir.join('bin', 'llvm-strip'),
         '-DCMAKE_INSTALL_PREFIX=',
         '-DLLVM_ENABLE_PROJECTS=clang;lld',
         '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
         '-DSTAGE2_FUCHSIA_SDK=%s' % cipd_dir.join('sdk'),
+        '-DSTAGE2_LINUX_aarch64_SYSROOT=%s' % cipd_dir.join('linux-arm64'),
+        '-DSTAGE2_LINUX_x86_64_SYSROOT=%s' % cipd_dir.join('linux-amd64'),
       ] + extra_options + [
         '-C', llvm_dir.join('clang', 'cmake', 'caches', 'Fuchsia.cmake'),
         llvm_dir.join('llvm'),
@@ -217,11 +239,11 @@ def RunSteps(api, repository, branch, revision):
   # TODO(TO-471): Ideally this would be done by the cmake build itself.
   manifest_format = ''
   for soname in [
-      'libclang_rt.asan-{arch}.so',
-      'libclang_rt.ubsan_standalone-{arch}.so',
-      'libclang_rt.scudo-{arch}.so',
+      'libclang_rt.asan.so',
+      'libclang_rt.ubsan_standalone.so',
+      'libclang_rt.scudo.so',
   ]:
-    manifest_format += ('lib/%s=clang/{clang_version}/lib/fuchsia/%s\n' %
+    manifest_format += ('lib/%s=clang/{clang_version}/{arch}-fuchsia/lib/%s\n' %
                         (soname, soname))
   for prefix in ('', 'asan/'):
     for soname in [
@@ -229,15 +251,15 @@ def RunSteps(api, repository, branch, revision):
         'libc++abi.so.1',
         'libunwind.so.1',
     ]:
-      manifest_format += ('lib/%s={arch}-fuchsia/lib/%s\n' %
-                         (prefix + soname, prefix + soname))
-  for tc_arch, gn_arch in TARGETS:
-    manifest_file = '%s-fuchsia.manifest' % tc_arch
+      manifest_format += ('lib/%s=clang/{clang_version}/{arch}-fuchsia/lib/%s\n' %
+                          (prefix + soname, prefix + soname))
+  for _, arch in TARGET_TO_ARCH.iteritems():
+    manifest_file = '%s-fuchsia.manifest' % arch
     api.file.write_text('write %s' % manifest_file,
                         pkg_dir.join('lib', manifest_file),
-                        manifest_format.format(arch=tc_arch,
-                                               clang_version=clang_version))
+                        manifest_format.format(arch=arch, clang_version=clang_version))
 
+  cipd_pkg_name = 'fuchsia/clang/' + target_platform
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
       package_root=pkg_dir,
@@ -251,6 +273,11 @@ def RunSteps(api, repository, branch, revision):
       pkg_def=pkg_def,
       output_package=cipd_pkg_file,
   )
+
+  cipd_pins = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if cipd_pins:
+    api.step('Package is up-to-date', cmd=None)
+    return
 
   cipd_pin = api.cipd.register(
       package_name=cipd_pkg_name,
@@ -266,7 +293,7 @@ def RunSteps(api, repository, branch, revision):
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      api.gsutil.join('clang', host_platform, cipd_pin.instance_id),
+      api.gsutil.join('clang', target_platform, cipd_pin.instance_id),
       unauthenticated_url=True
   )
 
@@ -277,7 +304,8 @@ def GenTests(api):
   for platform in ('linux', 'mac'):
     yield (api.test(platform) +
            api.platform.name(platform) +
-           api.gitiles.refs('refs', ('refs/heads/master', revision)))
+           api.gitiles.refs('refs', ('refs/heads/master', revision)) +
+           api.step_data('clang version', api.raw_io.stream_output(version)))
     yield (api.test(platform + '_new') +
            api.platform.name(platform) +
            api.gitiles.refs('refs', ('refs/heads/master', revision)) +
