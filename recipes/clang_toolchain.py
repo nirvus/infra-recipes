@@ -64,7 +64,7 @@ def RunSteps(api, url, ref, revision):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
       packages = {
-        'infra/cmake/${platform}': 'version:3.9.2',
+        'infra/cmake/${platform}': 'version:3.11.4',
         'infra/ninja/${platform}': 'version:1.8.2',
         'fuchsia/clang/${platform}': 'goma',
       }
