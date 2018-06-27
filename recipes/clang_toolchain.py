@@ -176,14 +176,6 @@ def RunSteps(api, url, ref, revision):
       'mac': [],
     }[api.platform.name]
 
-    for tc_arch, gn_arch in TARGETS:
-      extra_options.extend([
-        '-DSTAGE2_FUCHSIA_%s_SYSROOT=%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'sysroot')),
-        '-DSTAGE2_FUCHSIA_%s_C_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'fdio', 'include')),
-        '-DSTAGE2_FUCHSIA_%s_CXX_FLAGS=-I%s' % (tc_arch, sdk_dir.join('pkg', 'fdio', 'include')),
-        '-DSTAGE2_FUCHSIA_%s_LINKER_FLAGS=-L%s' % (tc_arch, sdk_dir.join('arch', gn_arch, 'lib')),
-      ])
-
     with api.step.nest('clang'), api.context(cwd=build_dir):
       api.step('configure', [
         cipd_dir.join('bin', 'cmake'),
@@ -198,6 +190,7 @@ def RunSteps(api, url, ref, revision):
         '-DCMAKE_INSTALL_PREFIX=',
         '-DLLVM_ENABLE_PROJECTS=clang;lld',
         '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
+        '-DSTAGE2_FUCHSIA_SDK=%s' % sdk_dir,
       ] + extra_options + [
         '-C', llvm_dir.join('clang', 'cmake', 'caches', 'Fuchsia.cmake'),
         llvm_dir.join('llvm'),
