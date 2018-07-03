@@ -299,11 +299,6 @@
     "env": {
       "ASAN_SYMBOLIZER_PATH": "[START_DIR]/zircon/prebuilt/downloads/clang/bin/llvm-symbolizer"
     },
-    "env_prefixes": {
-      "PATH": [
-        "[START_DIR]/zircon/prebuilt/downloads/clang/bin"
-      ]
-    },
     "name": "run host tests"
   },
   {

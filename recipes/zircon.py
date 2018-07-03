@@ -138,12 +138,9 @@ def RunTestsOnHost(api, build_dir):
   # one's PATH and the path to the symbolizer must be set as
   # ASAN_SYMBOLIZER_PATH. See the following for documentation:
   # https://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports
-  llvm_tools_dir = api.path['start_dir'].join('zircon', 'prebuilt', 'downloads',
-                                              'clang', 'bin')
-  llvm_symbolizer = llvm_tools_dir.join('llvm-symbolizer')
-  with api.context(
-      env={"ASAN_SYMBOLIZER_PATH": llvm_symbolizer},
-      env_prefixes={'PATH': [llvm_tools_dir]}):
+  llvm_symbolizer = api.path['start_dir'].join(
+      'zircon', 'prebuilt', 'downloads', 'clang', 'bin', 'llvm-symbolizer')
+  with api.context(env={"ASAN_SYMBOLIZER_PATH": llvm_symbolizer}):
 
     # Allow the runtests invocation to fail without resulting in a step failure.
     # The relevant, individual test failures will be reported during the

@@ -10,6 +10,14 @@ import os
 import pipes
 import re
 
+# Host architecture -> number of bits -> host platform name.
+# Add to this dictionary as we support building on more devices.
+HOST_PLATFORMS = {
+    'intel': {
+        64: 'x64',
+    },
+}
+
 # List of available targets.
 TARGETS = ['x64', 'arm64']
 
@@ -652,29 +660,28 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # so as not to collide with target test results.
     test_results_dir = self.results_dir_on_host.join('host')
 
-    # In order to symbolize host ASan output, the llvm symbolizer must be in
-    # one's PATH and the path to the symbolizer must be set as
-    # ASAN_SYMBOLIZER_PATH. See the following for documentation:
-    # https://clang.llvm.org/docs/AddressSanitizer.html#symbolizing-the-reports
-    llvm_tools_dir = self.m.path['start_dir'].join('zircon', 'prebuilt',
-                                                   'downloads', 'clang', 'bin')
-    llvm_symbolizer = llvm_tools_dir.join('llvm-symbolizer')
-    with self.m.context(
-        env={"ASAN_SYMBOLIZER_PATH": llvm_symbolizer},
-        env_prefixes={'PATH': [llvm_tools_dir]}):
+    # The following executes a script that (1) sets sanitizer-related environment
+    # variables, given a path to the clang pre-built binaries as its first
+    # argument, and then (2) executes the remaining arguments as an appended
+    # command.
+    host_platform = HOST_PLATFORMS[self.m.platform.arch][self.m.platform.bits]
+    set_vars_and_run_cmd = [
+        self.m.path['start_dir'].join('build', 'gn_run_binary.sh'),
+        self.m.path['start_dir'].join(
+            'buildtools', '%s-%s' % (self.m.platform.name, host_platform),
+            'clang', 'bin'),
+    ]
 
-      # Allow the runtests invocation to fail without resulting in a step
-      # failure. The relevant, individual test failures will be reported during
-      # the processing of summary.json - and an early step failure will prevent
-      # this.
-      self.m.step(
-          'run host tests', [
-              runtests,
-              '-o',
-              self.m.raw_io.output_dir(leak_to=test_results_dir),
-              host_test_dir,
-          ],
-          ok_ret=('any'))
+    # Allow the runtests invocation to fail without resulting in a step failure.
+    # The relevant, individual test failures will be reported during the
+    # processing of summary.json - and an early step failure will prevent this.
+    self.m.step('run host tests', set_vars_and_run_cmd + [
+        runtests,
+        '-o',
+        self.m.raw_io.output_dir(leak_to=test_results_dir),
+        host_test_dir,
+      ],
+      ok_ret='any')
 
     # Extract test results.
     test_results_map = self.m.step.active_result.raw_io.output_dir

@@ -752,19 +752,13 @@
   },
   {
     "cmd": [
+      "[START_DIR]/build/gn_run_binary.sh",
+      "[START_DIR]/buildtools/linux-x64/clang/bin",
       "[START_DIR]/out/build-zircon/build-x64/tools/runtests",
       "-o",
       "[START_DIR]/test_results/host",
       "[START_DIR]/out/debug-x64/host_tests"
     ],
-    "env": {
-      "ASAN_SYMBOLIZER_PATH": "[START_DIR]/zircon/prebuilt/downloads/clang/bin/llvm-symbolizer"
-    },
-    "env_prefixes": {
-      "PATH": [
-        "[START_DIR]/zircon/prebuilt/downloads/clang/bin"
-      ]
-    },
     "name": "run host tests"
   },
   {
