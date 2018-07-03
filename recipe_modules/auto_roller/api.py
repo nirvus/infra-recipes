@@ -76,52 +76,50 @@ class AutoRollerApi(recipe_api.RecipeApi):
                               commit_untracked):
     """Creates a Gerrit change containing modified files under repo_dir.
 
-    Returns the unique Gerrit change ID for the newly created change.
+    Returns the full (unique) Gerrit change ID for the newly created change.
     """
 
-    # Create a new change for the roll.
-    change = self.m.gerrit.create_change(
-        'create new change',
-        gerrit_project,
-        commit_message,
-        # TODO(mknyszek): Support branches other than UPSTREAM_REF when there's a
-        # use-case for it.
-        UPSTREAM_REF,
-        # Step data intended to be substituted in when a new change is created. This
-        # provides an incomplete mock Gerrit change (as JSON) to the result of
-        # api.gerrit.change_create() so that the auto-roller can move forward with
-        # 'id' and 'change_id' in testing. For more information on the structure of
-        # this see:
-        # https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#change-info
-        test_data=self.m.json.test_api.output({
-          'id': 'beep%2Fboop~master~abc123',
-          'change_id': 'abc123',
-        }),
-    )
-
-    # NOTE: The project in a change_id may contain characters which are URL
-    # encoded by gerrit (for example, '/'). This gets re-encoded by the
-    # gerrit client underlying the gerrit recipe module for security, leading
-    # to some strange results. By decoding first using self.m.url.unquote, we prevent
-    # this from happening.
-
-    # Represents the unique change ID for this change, usually of the form
-    # <project>~<branch>~<change id> and is necessary for any API calls.
-    full_change_id = self.m.url.unquote(change['id'])
-
-    # Represents the change ID used in commit messages, which may not be
-    # unique across projects and branches, but is useful for anything
-    # UI-related.
-    change_id = self.m.url.unquote(change['change_id'])
-
-    # Surface a link to the change by querying gerrit for the change ID. If
-    # it's the only commit with that change ID (highly likely) then it will
-    # open it automatically. Unfortunately the unique change ID doesn't
-    # exhibit this same behavior, so we avoid using it.
-    self.m.step.active_result.presentation.links[self._gerrit_link_name] = self._gerrit_link(
-      change_id)
-
     with self.m.context(cwd=repo_dir):
+      # Generate a change ID from this change based on the diff by first running
+      # `git diff` and extracting the output. Then, include information about the
+      # committer. Finally, execute `git hash-object` on that output.
+      #
+      # We generate our own change ID because it allows us to create the Gerrit
+      # change via `git push` as opposed to using the API to create a change and
+      # then pushing the actual git commit. Creating a change via the API can
+      # create a race condition, as Gerrit's backend propagates information
+      # asynchronously, and so `git push` may fail. This is generally handled
+      # with retries, and so for the gerrit recipe module this is OK since the
+      # underlying client can retry, but we cannot easily retry a git push.
+      #
+      # Note that the Gerrit allows one to generate their own
+      # change ID of any form, we simply choose to loosely follow Gerrit's
+      # default which is a hash of the commit information (such as the committer's
+      # personal information) and the diff itself.
+      #
+      # Gerrit-generated change IDs are 40-character hex digests prefixed with
+      # "I", so we do that here too.
+
+      # Compute the git diff for the uncommitted changes in the tree.
+      diff_step = self.m.git('diff',
+                 stdout=self.m.raw_io.output(),
+                 step_test_data=lambda: self.m.raw_io.test_api.stream_output('a diff'))
+
+      # TODO(mknyszek): Include the committer's personal information (such as
+      # the service account email for this recipe run) to the value that's
+      # hashed in order to reduce the chance that two change IDs conflict. It's OK
+      # not to include it now because human-created changes will always have the
+      # change ID based on additional info and rollers do not have conflicting diffs
+      # (and do not conflict with themselves).
+
+      # Hash the diff and commit information.
+      hash_step = self.m.git('hash-object',
+                 self.m.raw_io.input(diff_step.stdout),
+                 stdout=self.m.raw_io.output(),
+                 step_test_data=lambda: self.m.raw_io.test_api.stream_output('abc123'))
+
+      change_id = 'I%s' % hash_step.stdout
+
       # Update message with a Change-Id line and push the roll.
       updated_message = commit_message + ("\nChange-Id: %s\n" % change_id)
       if commit_untracked:
@@ -130,7 +128,16 @@ class AutoRollerApi(recipe_api.RecipeApi):
         self.m.git.commit(message=updated_message, all_tracked=True)
       self.m.git.push('HEAD:refs/for/%s' % UPSTREAM_REF)
 
-    return full_change_id
+      # Surface a link to the change by querying gerrit for the change ID. If
+      # it's the only commit with that change ID (highly likely) then it will
+      # open it automatically. Unfortunately the full change ID doesn't
+      # exhibit this same behavior, so we avoid using it.
+      self.m.step.active_result.presentation.links[self._gerrit_link_name] = self._gerrit_link(
+        change_id)
+
+    # Represents the full (unique) change ID for this change and is necessary
+    # for any API calls.
+    return '%s~%s~%s' % (gerrit_project, UPSTREAM_REF, change_id)
 
   def _trigger_cq(self, change_id, dry_run):
     """Triggers CQ for the given change_id."""

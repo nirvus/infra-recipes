@@ -99,7 +99,7 @@ https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
 
 API for writing auto-roller recipes.
 
-&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#215)(self, gerrit_project, repo_dir, commit_message, commit_untracked=False, dry_run=False):**
+&mdash; **def [attempt\_roll](/recipe_modules/auto_roller/api.py#222)(self, gerrit_project, repo_dir, commit_message, commit_untracked=False, dry_run=False):**
 
 Attempts to submit local edits via the CQ.
 

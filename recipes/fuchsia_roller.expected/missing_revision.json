@@ -372,32 +372,31 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/gerrit/gerrit",
-      "change-create",
-      "-host",
-      "https://fuchsia-review.googlesource.com",
-      "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"[roll] Roll zircon [OLD_RE..fc4dc76 (3 commits)\\n\\n3e30158 fake A msg 0\\n3380b83 fake A msg 1\\n363caa9 fake A msg 2\\n\\nTest: CQ\\n\"}}",
-      "-output",
-      "/path/to/tmp/json"
+      "git",
+      "diff"
     ],
+    "cwd": "[START_DIR]/garnet",
     "infra_step": true,
-    "name": "create new change",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"change_id\": \"abc123\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"id\": \"beep%2Fboop~master~abc123\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/abc123@@@"
-    ]
+    "name": "git diff",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "git",
+      "hash-object",
+      "a diff"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "infra_step": true,
+    "name": "git hash-object",
+    "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [
       "git",
       "commit",
       "-m",
-      "[roll] Roll zircon [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nTest: CQ\n\nChange-Id: abc123\n",
+      "[roll] Roll zircon [OLD_RE..fc4dc76 (3 commits)\n\n3e30158 fake A msg 0\n3380b83 fake A msg 1\n363caa9 fake A msg 2\n\nTest: CQ\n\nChange-Id: Iabc123\n",
       "-a"
     ],
     "cwd": "[START_DIR]/garnet",
@@ -413,7 +412,10 @@
     ],
     "cwd": "[START_DIR]/garnet",
     "infra_step": true,
-    "name": "git push"
+    "name": "git push",
+    "~followup_annotations": [
+      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/Iabc123@@@"
+    ]
   },
   {
     "cmd": [
@@ -422,7 +424,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
+      "{\"change_id\": \"garnet~master~Iabc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -441,7 +443,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\"}",
+      "{\"change_id\": \"garnet~master~Iabc123\"}",
       "-output",
       "/path/to/tmp/json"
     ],

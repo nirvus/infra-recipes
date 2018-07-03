@@ -144,31 +144,29 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/gerrit/gerrit",
-      "change-create",
-      "-host",
-      "https://fuchsia-review.googlesource.com",
-      "-input",
-      "{\"input\": {\"branch\": \"master\", \"project\": \"garnet\", \"subject\": \"hello world!\"}}",
-      "-output",
-      "/path/to/tmp/json"
+      "git",
+      "diff"
     ],
-    "name": "create new change",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"change_id\": \"abc123\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"id\": \"beep%2Fboop~master~abc123\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/abc123@@@"
-    ]
+    "cwd": "[START_DIR]/garnet",
+    "name": "git diff",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "git",
+      "hash-object",
+      "a diff"
+    ],
+    "cwd": "[START_DIR]/garnet",
+    "name": "git hash-object",
+    "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [
       "git",
       "commit",
       "-m",
-      "hello world!\nChange-Id: abc123\n",
+      "hello world!\nChange-Id: Iabc123\n",
       "-a"
     ],
     "cwd": "[START_DIR]/garnet",
@@ -182,7 +180,10 @@
       "HEAD:refs/for/master"
     ],
     "cwd": "[START_DIR]/garnet",
-    "name": "git push"
+    "name": "git push",
+    "~followup_annotations": [
+      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/Iabc123@@@"
+    ]
   },
   {
     "cmd": [
@@ -191,7 +192,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
+      "{\"change_id\": \"garnet~master~Iabc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -209,7 +210,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\"}",
+      "{\"change_id\": \"garnet~master~Iabc123\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -234,7 +235,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"beep/boop~master~abc123\"}",
+      "{\"change_id\": \"garnet~master~Iabc123\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -243,7 +244,7 @@
       "@@@STEP_LOG_END@json.output (invalid)@@@",
       "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
       "@@@STEP_LOG_END@json.output (exception)@@@",
-      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/beep/boop~master~abc123@@@"
+      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/garnet~master~Iabc123@@@"
     ]
   },
   {
