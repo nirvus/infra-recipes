@@ -278,16 +278,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.jiri.snapshot(snapshot_file)
       return self._finalize_checkout(snapshot_file, snapshot_gcs_bucket)
 
-  def checkout_snapshot(self,
-                        repository,
-                        revision,
-                        patch_ref=None,
-                        patch_gerrit_url=None,
-                        patch_project=None,
-                        timeout_secs=20 * 60):
+  def checkout_snapshot(self, repository, revision, timeout_secs=20 * 60):
     """Uses Jiri to check out Fuchsia from a Jiri snapshot.
 
-    The patch_* arguments must all be set, or none at all.
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
     Args:
@@ -295,26 +288,93 @@ class FuchsiaApi(recipe_api.RecipeApi):
         The snapshot should be available at the top-level in a file called
         'snapshot'.
       revision (str): The git revision to check out from the repository.
-      patch_ref (str): A reference ID to the patch in Gerrit to apply
-      patch_gerrit_url (str): A URL of the patch in Gerrit to apply
-      patch_project (str): The name of Gerrit project
       timeout_secs (int): How long to wait for the checkout to complete
           before failing
 
     Returns:
       A FuchsiaCheckoutResults containing details of the checkout.
     """
-    # TODO(IN-411): Support patching snapshots.
-    assert not patch_ref
-    assert not patch_gerrit_url
-    assert not patch_project
     with self.m.context(infra_steps=True):
       snapshot_repo_dir = self.m.path.mkdtemp('snapshot_repo')
+
+      # Without any patch information, we just want to fetch whatever we're
+      # told via repository and revision.
       self.m.git.checkout(
           url=repository,
           ref=revision,
           path=snapshot_repo_dir,
       )
+
+      # Read the snapshot so it shows up in the step presentation.
+      snapshot_file = snapshot_repo_dir.join('snapshot')
+
+      # Perform a jiri checkout from the snapshot.
+      self.m.jiri.ensure_jiri()
+      self.m.jiri.checkout_snapshot(snapshot_file)
+      return self._finalize_checkout(
+          snapshot_file=snapshot_file,
+          # This method should never upload a snapshot because the point is that
+          # we obtain a checkout from an existing snapshot. The snapshot is
+          # already readily available in the repository from whence it was
+          # retrieved. Note also that the checkout will never be patched by this
+          # method, unlike checkout(). This is because the purpose of the
+          # patch_* arguments is to patch the snapshot itself (e.g. to CQ a
+          # snapshot update).
+          snapshot_gcs_bucket=None,
+      )
+
+  def checkout_patched_snapshot(self,
+                                patch_gerrit_url,
+                                patch_issue,
+                                patch_project,
+                                patch_ref,
+                                patch_repository_url,
+                                timeout_secs=20 * 60):
+    """Uses Jiri to check out Fuchsia from a Jiri snapshot from a Gerrit patch.
+
+    The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
+
+    Args:
+      patch_gerrit_url (str): A URL of the patch in Gerrit to apply.
+      patch_issue (str): The issue number for Gerrit CL.
+      patch_project (str): The name of Gerrit project.
+      patch_ref (str): A reference ID to the patch in Gerrit to apply.
+      patch_repository_url (str): The repository the change is for.
+      timeout_secs (int): How long to wait for the checkout to complete
+          before failing
+
+    Returns:
+      A FuchsiaCheckoutResults containing details of the checkout.
+    """
+    with self.m.context(infra_steps=True):
+      snapshot_repo_dir = self.m.path.mkdtemp('snapshot_repo')
+
+      # 1) Check out the patch from Gerrit (initializing the repo also).
+      # 2) Learn the destination branch for the Gerrit change.
+      # 3) Fetch and rebase the patch against the destination branch.
+      #
+      # Firstly, we want to rebase on top of the upstream branch because when
+      # we're testing, we want to test the rebased change to make the tryjob as
+      # accurate as possible before submitting.
+      #
+      # Secondly, we need to fetch the destination branch for a Gerrit change
+      # via the Gerrit recipe module because CQ does not provide this
+      # information. This is the canonical way in which other Chrome Infra
+      # tryjob recipes are able to rebase onto the destination branch.
+      self.m.git.checkout(
+          url='%s/%s' % (patch_gerrit_url, patch_project),
+          ref=patch_ref,
+          path=snapshot_repo_dir,
+      )
+      self.m.gerrit.ensure_gerrit()
+      details = self.m.gerrit.change_details(
+          name='get destination branch',
+          change_id='%s~%s' % (patch_project, patch_issue),
+          test_data=self.m.json.test_api.output({'branch': 'master'}),
+      )
+      with self.m.context(cwd=snapshot_repo_dir):
+        self.m.git('fetch', patch_repository_url, details['branch'])
+        self.m.git('rebase', 'FETCH_HEAD')
 
       # Read the snapshot so it shows up in the step presentation.
       snapshot_file = snapshot_repo_dir.join('snapshot')

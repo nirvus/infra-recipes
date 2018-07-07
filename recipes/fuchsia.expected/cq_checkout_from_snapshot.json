@@ -1,5 +1,182 @@
 [
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/snapshot_repo_tmp_1"
+    ],
+    "infra_step": true,
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "fuchsia-review.googlesource.com/fuchsia"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/changes/23/123/1"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "submodule update"
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "ensure_gerrit"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gerrit",
+      "-ensure-file",
+      "infra/tools/luci/gerrit/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gerrit.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gerrit/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-detail",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"fuchsia~23\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "get destination branch",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"branch\": \"master\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "https://fuchsia.googlesource.com/snapshots",
+      "master"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "git fetch (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "rebase",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "infra_step": true,
+    "name": "git rebase"
+  },
+  {
     "cmd": [],
     "infra_step": true,
     "name": "ensure_jiri"
@@ -48,39 +225,15 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "import",
-      "-v",
-      "-time",
-      "fuchsia",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "infra_step": true,
-    "name": "jiri import"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-v",
       "-time",
       "-autoupdate=false",
       "-attempts=3",
-      "-run-hooks=false"
+      "[TMP_BASE]/snapshot_repo_tmp_1/snapshot"
     ],
     "infra_step": true,
-    "name": "jiri update",
-    "timeout": 1200
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks",
-      "-v",
-      "-time",
-      "-attempts=3"
-    ],
-    "infra_step": true,
-    "name": "jiri run-hooks"
+    "name": "jiri update"
   },
   {
     "cmd": [
@@ -108,24 +261,13 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "snapshot",
-      "-v",
-      "-time",
-      "[CLEANUP]/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "jiri snapshot"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[CLEANUP]/jiri.snapshot",
+      "[TMP_BASE]/snapshot_repo_tmp_1/snapshot",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -142,7 +284,7 @@
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
       "-a",
       "sha1",
-      "[CLEANUP]/jiri.snapshot"
+      "[TMP_BASE]/snapshot_repo_tmp_1/snapshot"
     ],
     "infra_step": true,
     "name": "hash snapshot",
@@ -324,192 +466,6 @@
     "name": "build.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_gsutil"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure bsdtar"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "fuchsia/tools/bsdtar/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure bsdtar.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
-      "[START_DIR]/out/debug-x64",
-      "bootdata-blob-*.bin"
-    ],
-    "infra_step": true,
-    "name": "glob bootdata",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/out/debug-x64/path/to/out/bootdata-blob-pc.bin@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "--create",
-      "-f",
-      "[CLEANUP]/fuchsia.tar.gz",
-      "--gzip",
-      "-C",
-      "[START_DIR]/out/build-zircon/build-x64",
-      "tools/bootserver",
-      "zircon.bin",
-      "-C",
-      "[START_DIR]/out/debug-x64",
-      "images",
-      "path/to/out/bootdata-blob-pc.bin",
-      "ssh-keys",
-      "args.gn",
-      "image_paths.sh",
-      "zedboot_image_paths.sh"
-    ],
-    "name": "tar fuchsia"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/fuchsia.tar.gz"
-    ],
-    "infra_step": true,
-    "name": "hash fuchsia.tar.gz",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/fuchsia.tar.gz",
-      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "upload fuchsia.tar.gz",
-    "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "--create",
-      "-f",
-      "[CLEANUP]/packages.tar.gz",
-      "--gzip",
-      "-C",
-      "[START_DIR]/garnet/go/src/amber",
-      "keys",
-      "-C",
-      "[START_DIR]/out/debug-x64",
-      "host_x64/amber-publish",
-      "host_x64/pm",
-      "-C",
-      "[START_DIR]/out/debug-x64/amber-files/repository",
-      "targets",
-      "blobs"
-    ],
-    "name": "tar fuchsia packages"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/packages.tar.gz"
-    ],
-    "infra_step": true,
-    "name": "hash packages.tar.gz",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/packages.tar.gz",
-      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "upload packages.tar.gz",
-    "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {

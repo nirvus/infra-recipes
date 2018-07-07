@@ -60,10 +60,14 @@ PROPERTIES = {
     # to the snapshot, and not the full checkout.
     'patch_gerrit_url':
         Property(kind=str, help='Gerrit host', default=None),
+    'patch_issue':
+        Property(kind=int, help='Gerrit patch issue number', default=None),
     'patch_project':
         Property(kind=str, help='Gerrit project', default=None),
     'patch_ref':
         Property(kind=str, help='Gerrit patch ref', default=None),
+    'patch_repository_url':
+        Property(kind=str, help='Repository which Gerrit change patches', default=None),
 
     # Properties pertaining to the build.
     'target':
@@ -89,6 +93,7 @@ PROPERTIES = {
             kind=bool,
             help='Whether to upload breakpad symbol files',
             default=False),
+
     # Properties pertaining to testing.
     'run_tests':
         Property(kind=bool, help='Whether to run target tests', default=False),
@@ -137,9 +142,10 @@ PROPERTIES = {
 
 
 def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
-             repository, patch_gerrit_url, patch_project, patch_ref, target,
-             build_type, packages, variant, gn_args, run_tests, runtests_args,
-             run_host_tests, device_type, networking_for_tests, ninja_targets,
+             repository, patch_gerrit_url, patch_issue, patch_project,
+             patch_ref, patch_repository_url, target, build_type, packages,
+             variant, gn_args, run_tests, runtests_args, run_host_tests,
+             device_type, networking_for_tests, ninja_targets,
              test_timeout_secs, upload_archive, upload_breakpad_symbols,
              snapshot_gcs_bucket):
   # Don't upload snapshots for tryjobs.
@@ -160,15 +166,16 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
           'networking for tests is not available for tryjobs')
 
   if checkout_snapshot:
-    assert repository
-    assert revision
-    api.fuchsia.checkout_snapshot(
-        repository=repository,
-        revision=revision,
-        patch_ref=patch_ref,
-        patch_gerrit_url=patch_gerrit_url,
-        patch_project=patch_project,
-    )
+    if api.properties.get('tryjob'):
+      api.fuchsia.checkout_patched_snapshot(
+          patch_gerrit_url=patch_gerrit_url,
+          patch_issue=patch_issue,
+          patch_project=patch_project,
+          patch_ref=patch_ref,
+          patch_repository_url=patch_repository_url,
+      )
+    else:
+      api.fuchsia.checkout_snapshot(repository, revision)
   else:
     assert manifest
     assert remote
@@ -177,9 +184,9 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         remote=remote,
         project=project,
         revision=revision,
-        patch_ref=patch_ref,
         patch_gerrit_url=patch_gerrit_url,
         patch_project=patch_project,
+        patch_ref=patch_ref,
         snapshot_gcs_bucket=snapshot_gcs_bucket,
     )
 
@@ -361,6 +368,17 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
   )
+  yield api.test('cq_checkout_from_snapshot') + api.properties.tryserver(
+      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_issue=23,
+      patch_project='fuchsia',
+      patch_ref='refs/changes/23/123/1',
+      patch_repository_url='https://fuchsia.googlesource.com/snapshots',
+      checkout_snapshot=True,
+      target='x64',
+      packages=['topaz/packages/default'],
+      tryjob=True,
+  )
 
   # Test cases for verifying build packages.
   yield api.test('build-packages') + api.properties(
@@ -389,9 +407,7 @@ def GenTests(api):
       snapshot_gcs_bucket=None,
       tryjob=True,
   )
-  yield api.test('ci_no_snapshot') + api.properties.tryserver(
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+  yield api.test('ci_no_snapshot') + api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',

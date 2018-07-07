@@ -43,9 +43,16 @@ PROPERTIES = {
                                   default=None),
 
   # Properties for patching a jiri checkout or snapshot.
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
+  'patch_gerrit_url':
+      Property(kind=str, help='Gerrit host', default=None),
+  'patch_issue':
+      Property(kind=int, help='Gerrit patch issue number', default=None),
+  'patch_project':
+      Property(kind=str, help='Gerrit project', default=None),
+  'patch_ref':
+      Property(kind=str, help='Gerrit patch ref', default=None),
+  'patch_repository_url':
+      Property(kind=str, help='Repository which Gerrit change patches', default=None),
 
   # Properties controlling a Fuchsia build.
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
@@ -92,18 +99,25 @@ PROPERTIES = {
 
 def RunSteps(api, project, manifest, remote, checkout_snapshot,
              snapshot_repository, snapshot_revision, patch_gerrit_url,
-             patch_project, patch_ref,  target, build_type, packages, variants,
-             gn_args, ninja_targets, run_tests, runtests_args, device_type,
-             run_host_tests, networking_for_tests, snapshot_gcs_bucket,
+             patch_issue, patch_project, patch_ref, patch_repository_url,
+             target, build_type, packages, variants, gn_args, ninja_targets,
+             run_tests, runtests_args, device_type, run_host_tests, 
+             networking_for_tests, snapshot_gcs_bucket,
              upload_breakpad_symbols):
   if checkout_snapshot:
-    checkout = api.fuchsia.checkout_snapshot(
-        repository=snapshot_repository,
-        revision=snapshot_revision,
-        patch_ref=patch_ref,
-        patch_gerrit_url=patch_gerrit_url,
-        patch_project=patch_project,
-    )
+    if api.properties.get('tryjob'):
+      checkout = api.fuchsia.checkout_patched_snapshot(
+          patch_gerrit_url=patch_gerrit_url,
+          patch_issue=patch_issue,
+          patch_project=patch_project,
+          patch_ref=patch_ref,
+          patch_repository_url=patch_repository_url,
+      )
+    else:
+      checkout = api.fuchsia.checkout_snapshot(
+          repository=snapshot_repository,
+          revision=snapshot_revision,
+      )
   else:
     checkout = api.fuchsia.checkout(
         manifest=manifest,
@@ -369,6 +383,17 @@ def GenTests(api):
       snapshot_revision='69acf9677ff075e15329cc860d968c1f70be5e6a',
       target='x64',
       packages=['topaz/packages/default'],
+  )
+  yield api.test('cq_checkout_snapshot') + api.properties(
+      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_issue=23,
+      patch_project='snapshots',
+      patch_ref='refs/changes/23/123/12',
+      patch_repository_url='https://fuchsia.googlesource.com/snapshots',
+      checkout_snapshot=True,
+      target='x64',
+      packages=['topaz/packages/default'],
+      tryjob=True,
   )
 
   # Test cases for generating symbol files during the build.
