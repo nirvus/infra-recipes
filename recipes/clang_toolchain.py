@@ -176,6 +176,14 @@ def RunSteps(api, repository, branch, revision, platform):
 
     extra_options = {
       'linux': [
+        # Generic flags used by both stages.
+        '-DCMAKE_AR=%s' % cipd_dir.join('bin', 'llvm-ar'),
+        '-DCMAKE_LINKER=%s' % cipd_dir.join('bin', 'ld.lld'),
+        '-DCMAKE_NM=%s' % cipd_dir.join('bin', 'llvm-nm'),
+        '-DCMAKE_OBJCOPY=%s' % cipd_dir.join('bin', 'llvm-objcopy'),
+        '-DCMAKE_OBJDUMP=%s' % cipd_dir.join('bin', 'llvm-objdump'),
+        '-DCMAKE_RANLIB=%s' % cipd_dir.join('bin', 'llvm-ranlib'),
+        '-DCMAKE_STRIP=%s' % cipd_dir.join('bin', 'llvm-strip'),
         # BOOTSTRAP_ prefixed flags are passed to the second stage compiler.
         '-DBOOTSTRAP_CMAKE_C_FLAGS=-I%s -I%s' % (lib_install_dir.join('include'), lib_install_dir.join('include', 'libxml2')),
         '-DBOOTSTRAP_CMAKE_CXX_FLAGS=-I%s -I%s' % (lib_install_dir.join('include'), lib_install_dir.join('include', 'libxml2')),
@@ -206,13 +214,6 @@ def RunSteps(api, repository, branch, revision, platform):
         '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
         '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
         '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
-        '-DCMAKE_AR=%s' % cipd_dir.join('bin', 'llvm-ar'),
-        '-DCMAKE_LINKER=%s' % cipd_dir.join('bin', 'ld.lld'),
-        '-DCMAKE_NM=%s' % cipd_dir.join('bin', 'llvm-nm'),
-        '-DCMAKE_OBJCOPY=%s' % cipd_dir.join('bin', 'llvm-objcopy'),
-        '-DCMAKE_OBJDUMP=%s' % cipd_dir.join('bin', 'llvm-objdump'),
-        '-DCMAKE_RANLIB=%s' % cipd_dir.join('bin', 'llvm-ranlib'),
-        '-DCMAKE_STRIP=%s' % cipd_dir.join('bin', 'llvm-strip'),
         '-DCMAKE_INSTALL_PREFIX=',
         '-DLLVM_ENABLE_PROJECTS=clang;lld',
         '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
