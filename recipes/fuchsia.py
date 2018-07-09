@@ -351,7 +351,7 @@ def GenTests(api):
   )
   yield api.test('cq') + api.properties.tryserver(
       patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
@@ -369,7 +369,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
   )
   yield api.test('cq_checkout_from_snapshot') + api.properties.tryserver(
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       patch_issue=23,
       patch_project='fuchsia',
       patch_ref='refs/changes/23/123/1',
@@ -399,7 +399,7 @@ def GenTests(api):
   # Test cases for uploading snapshots.
   yield api.test('cq_no_snapshot') + api.properties.tryserver(
       patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',

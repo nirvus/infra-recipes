@@ -13,13 +13,16 @@ class GerritApi(recipe_api.RecipeApi):
     self._gerrit_host = gerrit_host
     self._gerrit_path = None
 
-  def __call__(self, name, subcmd, input_json, test_data=None):
+  def __call__(self, name, subcmd, input_json, gerrit_host=None,
+               test_data=None):
     assert self._gerrit_path
-    assert self._gerrit_host
+    if not gerrit_host:
+      assert self._gerrit_host
+      gerrit_host = self._gerrit_host
     cmd = [
       self._gerrit_path,
       subcmd,
-      '-host', self._gerrit_host,
+      '-host', gerrit_host,
       '-input', self.m.json.input(input_json),
       '-output', self.m.json.output(),
     ]
@@ -146,18 +149,22 @@ class GerritApi(recipe_api.RecipeApi):
         test_data=test_data,
     )
 
-  def change_details(self, name, change_id, test_data=None):
+  def change_details(self, name, change_id, gerrit_host=None, test_data=None):
     """Returns a JSON dict of details regarding a specific change.
 
     Args:
       name (str): The name of the step.
       change_id (str): A change ID that uniquely defines a change on the host.
-      test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
+      gerrit_host (str): The Gerrit host to make the query against. Overrides
+        the recipe module's global host property.
+      test_data (recipe_test_api.StepTestData): Test JSON output data for this
+        step.
     """
     return self(
         name=name,
         subcmd='change-detail',
         input_json={'change_id': change_id},
+        gerrit_host=gerrit_host,
         test_data=test_data,
     )
 

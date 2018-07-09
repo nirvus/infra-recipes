@@ -305,7 +305,7 @@ parameters will be used.
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1025)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1026)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -319,7 +319,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1068)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1069)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -330,7 +330,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#532)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#533)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -409,14 +409,14 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1091)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1092)(self, test_results):**
 
 Logs individual test results in separate steps.
 
 Args:
   test_results (FuchsiaTestResults): The test results.
 
-&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_host](/recipe_modules/fuchsia/api.py#697)(self):**
+&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_host](/recipe_modules/fuchsia/api.py#698)(self):**
 
 The directory on host to which host and target test results will be written.
 
@@ -424,11 +424,11 @@ Target test results will be copied over to this location and host test
 results will be written here. Host and target tests on should write to
 separate subdirectories so as not to collide.
 
-&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_target](/recipe_modules/fuchsia/api.py#692)(self):**
+&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_target](/recipe_modules/fuchsia/api.py#693)(self):**
 
 The directory on target to which target test results will be written.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#997)(self, build, timeout_secs=(40 \* 60), external_network=False):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#998)(self, build, timeout_secs=(40 \* 60), external_network=False):**
 
 Tests a Fuchsia build on the specified device.
 
@@ -446,7 +446,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [test\_on\_host](/recipe_modules/fuchsia/api.py#707)(self, build):**
+&mdash; **def [test\_on\_host](/recipe_modules/fuchsia/api.py#708)(self, build):**
 
 Tests a Fuchsia build from the host machine.
 
@@ -456,7 +456,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1315)(self, build_results, upload_breakpad_symbols=False, bucket='fuchsia-archive'):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1316)(self, build_results, upload_breakpad_symbols=False, bucket='fuchsia-archive'):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
@@ -476,7 +476,7 @@ Args:
 
 Module for querying a Gerrit host through the Gerrit API.
 
-&mdash; **def [abandon](/recipe_modules/gerrit/api.py#60)(self, name, change_id, message=None, test_data=None):**
+&mdash; **def [abandon](/recipe_modules/gerrit/api.py#63)(self, name, change_id, message=None, test_data=None):**
 
 Abandons a change.
 
@@ -488,16 +488,19 @@ Args:
   message (str): A message explaining the reason for abandoning the change.
   test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
 
-&mdash; **def [change\_details](/recipe_modules/gerrit/api.py#149)(self, name, change_id, test_data=None):**
+&mdash; **def [change\_details](/recipe_modules/gerrit/api.py#152)(self, name, change_id, gerrit_host=None, test_data=None):**
 
 Returns a JSON dict of details regarding a specific change.
 
 Args:
   name (str): The name of the step.
   change_id (str): A change ID that uniquely defines a change on the host.
-  test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
+  gerrit_host (str): The Gerrit host to make the query against. Overrides
+    the recipe module's global host property.
+  test_data (recipe_test_api.StepTestData): Test JSON output data for this
+    step.
 
-&mdash; **def [create\_change](/recipe_modules/gerrit/api.py#81)(self, name, project, subject, branch, topic=None, test_data=None):**
+&mdash; **def [create\_change](/recipe_modules/gerrit/api.py#84)(self, name, project, subject, branch, topic=None, test_data=None):**
 
 Creates a new change for a given project on the gerrit host.
 
@@ -512,11 +515,11 @@ Args:
     other changes in the same topic.
   test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
 
-&mdash; **def [ensure\_gerrit](/recipe_modules/gerrit/api.py#39)(self, version=None):**
+&mdash; **def [ensure\_gerrit](/recipe_modules/gerrit/api.py#42)(self, version=None):**
 
-&emsp; **@host.setter**<br>&mdash; **def [host](/recipe_modules/gerrit/api.py#56)(self, host):**
+&emsp; **@host.setter**<br>&mdash; **def [host](/recipe_modules/gerrit/api.py#59)(self, host):**
 
-&mdash; **def [set\_review](/recipe_modules/gerrit/api.py#110)(self, name, change_id, labels=None, reviewers=None, ccs=None, revision='current', test_data=None):**
+&mdash; **def [set\_review](/recipe_modules/gerrit/api.py#113)(self, name, change_id, labels=None, reviewers=None, ccs=None, revision='current', test_data=None):**
 
 Sets a change at a revision for review. Can optionally set labels,
 reviewers, and CCs.

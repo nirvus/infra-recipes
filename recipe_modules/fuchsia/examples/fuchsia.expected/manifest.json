@@ -78,7 +78,7 @@
       "-v",
       "-time",
       "-host",
-      "fuchsia-review.googlesource.com",
+      "https://fuchsia-review.googlesource.com",
       "-project",
       "manifest",
       "-rebase=true",

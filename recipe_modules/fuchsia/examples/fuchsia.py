@@ -318,7 +318,7 @@ def GenTests(api):
       variants=['host_asan', 'asan'],
   )
   yield api.test('cq') + api.properties.tryserver(
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -327,8 +327,6 @@ def GenTests(api):
       tryjob=True,
   )
   yield api.test('ci_no_snapshot') + api.properties.tryserver(
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
@@ -336,7 +334,7 @@ def GenTests(api):
       snapshot_gcs_bucket=None,
   )
   yield api.test('cq_no_snapshot') + api.properties.tryserver(
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -346,7 +344,7 @@ def GenTests(api):
       snapshot_gcs_bucket=None,
   )
   yield api.test('gn_args') + api.properties.tryserver(
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -356,7 +354,7 @@ def GenTests(api):
       gn_args=['super_arg=false', 'less_super_arg=true'],
   )
   yield api.test('ninja_targets') + api.properties.tryserver(
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -367,7 +365,7 @@ def GenTests(api):
   )
   yield api.test('manifest') + api.properties.tryserver(
       patch_project='manifest',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       patch_ref='refs/changes/23/123/12',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
@@ -385,7 +383,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
   )
   yield api.test('cq_checkout_snapshot') + api.properties(
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       patch_issue=23,
       patch_project='snapshots',
       patch_ref='refs/changes/23/123/12',

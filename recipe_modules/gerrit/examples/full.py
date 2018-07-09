@@ -28,6 +28,13 @@ def RunSteps(api):
   # Get change details.
   api.gerrit.change_details('get details', change_id)
 
+  # Change details can override the Gerrit host.
+  api.gerrit.change_details(
+      name='get details',
+      change_id=change_id,
+      gerrit_host='https://chromium-review.googlesource.com',
+  )
+
   # Set review.
   api.gerrit.set_review(
       '-1',

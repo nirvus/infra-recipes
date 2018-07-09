@@ -29,7 +29,7 @@
       "remote",
       "add",
       "origin",
-      "fuchsia-review.googlesource.com/fuchsia"
+      "https://fuchsia-review.googlesource.com/fuchsia"
     ],
     "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
     "infra_step": true,

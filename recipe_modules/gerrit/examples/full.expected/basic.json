@@ -69,6 +69,24 @@
   {
     "cmd": [
       "[START_DIR]/cipd/gerrit/gerrit",
+      "change-detail",
+      "-host",
+      "https://chromium-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"some id\"}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "get details (2)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
       "set-review",
       "-host",
       "https://fuchsia-review.googlesource.com",

@@ -370,6 +370,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       details = self.m.gerrit.change_details(
           name='get destination branch',
           change_id='%s~%s' % (patch_project, patch_issue),
+          gerrit_host=patch_gerrit_url,
           test_data=self.m.json.test_api.output({'branch': 'master'}),
       )
       with self.m.context(cwd=snapshot_repo_dir):
