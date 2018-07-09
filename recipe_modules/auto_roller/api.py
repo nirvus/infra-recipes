@@ -118,7 +118,7 @@ class AutoRollerApi(recipe_api.RecipeApi):
                  stdout=self.m.raw_io.output(),
                  step_test_data=lambda: self.m.raw_io.test_api.stream_output('abc123'))
 
-      change_id = 'I%s' % hash_step.stdout
+      change_id = 'I%s' % hash_step.stdout.strip()
 
       # Update message with a Change-Id line and push the roll.
       updated_message = commit_message + ("\nChange-Id: %s\n" % change_id)
