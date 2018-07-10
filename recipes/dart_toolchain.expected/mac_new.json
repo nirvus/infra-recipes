@@ -167,109 +167,216 @@
   {
     "cmd": [],
     "infra_step": true,
-    "name": "ensure_jiri"
+    "name": "depot_tools"
   },
   {
     "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/jiri",
-      "-ensure-file",
-      "fuchsia/tools/jiri/mac-amd64 stable",
-      "-json-output",
-      "/path/to/tmp/json"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/depot_tools"
     ],
     "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
+    "name": "depot_tools.makedirs",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/mac-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "init",
-      "-v",
-      "-time",
-      "-analytics-opt=false",
-      "-rewrite-sso-to-https=true",
-      "-cache",
-      "[CACHE]/git",
-      "-shared"
+      "git",
+      "init"
     ],
+    "cwd": "[START_DIR]/depot_tools",
     "infra_step": true,
-    "name": "jiri init"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "import",
-      "-v",
-      "-time",
-      "-name",
-      "manifest",
-      "dart_toolchain",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "infra_step": true,
-    "name": "jiri import"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks",
-      "-v",
-      "-time",
-      "-attempts=3"
-    ],
-    "infra_step": true,
-    "name": "jiri run-hooks"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "source-manifest",
-      "-v",
-      "-time",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "jiri source-manifest",
+    "name": "depot_tools.git init",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
-      "@@@STEP_LOG_END@json.output[source manifest]@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://chromium.googlesource.com/chromium/tools/depot_tools"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "depot_tools.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "master"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "depot_tools.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "depot_tools.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "depot_tools.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/depot_tools",
+    "infra_step": true,
+    "name": "depot_tools.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "dart-sdk"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/dart/sdk"
+    ],
+    "infra_step": true,
+    "name": "dart-sdk.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/dart/sdk",
+    "infra_step": true,
+    "name": "dart-sdk.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://dart.googlesource.com/sdk.git"
+    ],
+    "cwd": "[START_DIR]/dart/sdk",
+    "infra_step": true,
+    "name": "dart-sdk.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin"
+    ],
+    "cwd": "[START_DIR]/dart/sdk",
+    "infra_step": true,
+    "name": "dart-sdk.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "301b5a1f16414bc031091eb214ddd6c589e6ed9a"
+    ],
+    "cwd": "[START_DIR]/dart/sdk",
+    "infra_step": true,
+    "name": "dart-sdk.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/dart/sdk",
+    "infra_step": true,
+    "name": "dart-sdk.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/dart/sdk",
+    "infra_step": true,
+    "name": "dart-sdk.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -288,23 +395,6 @@
     },
     "infra_step": true,
     "name": "gclient config"
-  },
-  {
-    "cmd": [
-      "git",
-      "-C",
-      "sdk",
-      "checkout",
-      "301b5a1f16414bc031091eb214ddd6c589e6ed9a"
-    ],
-    "cwd": "[START_DIR]/dart",
-    "env_prefixes": {
-      "PATH": [
-        "[START_DIR]/depot_tools"
-      ]
-    },
-    "infra_step": true,
-    "name": "pin git"
   },
   {
     "cmd": [

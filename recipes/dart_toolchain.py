@@ -13,7 +13,6 @@ DEPS = [
   'infra/git',
   'infra/gitiles',
   'infra/goma',
-  'infra/jiri',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -24,6 +23,7 @@ DEPS = [
   'recipe_engine/step',
 ]
 
+DEPOT_TOOLS_GIT = 'https://chromium.googlesource.com/chromium/tools/depot_tools'
 DART_SDK_GIT = 'https://dart.googlesource.com/sdk.git'
 
 PROPERTIES = {
@@ -96,18 +96,19 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
     assert false, "what platform?"
 
   with api.context(infra_steps=True):
-    api.jiri.ensure_jiri()
-    api.jiri.checkout(
-        manifest='dart_toolchain',
-        remote='https://fuchsia.googlesource.com/manifest',
-        project='manifest',
-    )
+    with api.step.nest('depot_tools'):
+      # TODO(phosek): Move this to a named cache so it's shared across builds.
+      depot_tools_dir = api.path['start_dir'].join('depot_tools')
+      api.git.checkout(DEPOT_TOOLS_GIT, depot_tools_dir, submodules=False)
+
+    with api.step.nest('dart-sdk'):
+      dart_sdk_dir = api.path['start_dir'].join('dart', 'sdk')
+      api.git.checkout(url, dart_sdk_dir, ref=revision, submodules=False)
 
   # Use gclient to fetch the DEPS, but don't let it change dart/sdk itself.
   dart_dir = api.path['start_dir'].join('dart')
   with api.context(infra_steps=True, cwd=dart_dir,
-                   env_prefixes={'PATH': [
-                       api.path['start_dir'].join('depot_tools')]}):
+                   env_prefixes={'PATH': [depot_tools_dir]}):
     api.step('gclient config', [
         'gclient',
         'config',
@@ -116,7 +117,6 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
         '-v',
         DART_SDK_GIT,
     ])
-    api.step('pin git', ['git', '-C', 'sdk', 'checkout', revision])
     api.step('gclient sync', [
         'gclient',
         'sync',
@@ -130,7 +130,6 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
                             ['sim' + cpu if cpu != host_cpu else cpu
                              for cpu in FUCHSIA_TARGETS]))
 
-  dart_sdk_dir = dart_dir.join('sdk')
   gn_common = [
       'tools/gn.py',
       '-v',
