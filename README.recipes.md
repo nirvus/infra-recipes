@@ -1481,7 +1481,7 @@ Recipe for checking licenses in the repo hosting third-party Rust crates.
 
 Recipe for building and publishing tools.
 
-&mdash; **def [RunSteps](/recipes/tools.py#94)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, packages):**
+&mdash; **def [RunSteps](/recipes/tools.py#99)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, packages):**
 
 &mdash; **def [UploadPackage](/recipes/tools.py#56)(api, name, target, staging_dir, revision, remote):**
 ### *recipes* / [tricium/clang-format](/recipes/tricium/clang-format.py)

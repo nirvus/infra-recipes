@@ -55,10 +55,15 @@ PROPERTIES = {
 
 def UploadPackage(api, name, target, staging_dir, revision, remote):
   cipd_pkg_name = 'fuchsia/tools/%s/%s' % (name, target)
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if step.json.output['result']:
-    api.step('Package is up-to-date', cmd=None)
-    return
+  # TODO: remote the try block after CIPD client is fixed
+  try:
+    api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  except:
+    pass
+  finally:
+    if api.step.active_result.json.output['result']:
+      api.step('Package is up-to-date', cmd=None)
+      return
 
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
@@ -174,7 +179,7 @@ def GenTests(api):
              + revision,
              api.json.output({
                  'result': []
-             }),))
+             }), retcode=1))
   yield (api.test('ci') + api.properties(
       project='tools',
       manifest='tools',
