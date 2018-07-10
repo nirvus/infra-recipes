@@ -17,7 +17,6 @@ DEPS = [
   'infra/goma',
   'infra/gsutil',
   'infra/hash',
-  'infra/jiri',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -39,20 +38,22 @@ TARGET_TO_ARCH = dict(zip(
 LLVM_PROJECT_GIT = 'https://fuchsia.googlesource.com/third_party/llvm-project'
 
 PROPERTIES = {
-  'url': Property(kind=str, help='Git repository URL', default=LLVM_PROJECT_GIT),
-  'ref': Property(kind=str, help='Git reference', default='refs/heads/master'),
-  'revision': Property(kind=str, help='Revision', default=None),
+  'repository':
+      Property(kind=str, help='Git repository URL', default=LLVM_PROJECT_GIT),
+  'branch':
+      Property(kind=str, help='Git branch', default='refs/heads/master'),
+  'revision':
+      Property(kind=str, help='Revision', default=None),
 }
 
 
-def RunSteps(api, url, ref, revision):
+def RunSteps(api, repository, branch, revision):
   api.gitiles.ensure_gitiles()
   api.goma.ensure_goma()
   api.gsutil.ensure_gsutil()
-  api.jiri.ensure_jiri()
 
   if not revision:
-    revision = api.gitiles.refs(url).get(ref, None)
+    revision = api.gitiles.refs(repository).get(branch, None)
   cipd_pkg_name = 'fuchsia/lib/llvm'
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
@@ -83,7 +84,7 @@ def RunSteps(api, url, ref, revision):
 
   with api.context(infra_steps=True):
     llvm_dir = api.path['start_dir'].join('llvm-project')
-    api.git.checkout(url, llvm_dir, ref=revision, submodules=True)
+    api.git.checkout(repository, llvm_dir, ref=revision, submodules=True)
 
   # build llvm
   with api.goma.build_with_goma():
@@ -174,7 +175,7 @@ def RunSteps(api, url, ref, revision):
       refs=['latest'],
       tags={
         'version': llvm_version,
-        'git_repository': LLVM_PROJECT_GIT,
+        'git_repository': repository,
         'git_revision': revision,
       },
   )
