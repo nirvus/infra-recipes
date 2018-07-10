@@ -27,9 +27,12 @@ DEPOT_TOOLS_GIT = 'https://chromium.googlesource.com/chromium/tools/depot_tools'
 DART_SDK_GIT = 'https://dart.googlesource.com/sdk.git'
 
 PROPERTIES = {
-  'url': Property(kind=str, help='Git repository URL', default=DART_SDK_GIT),
-  'ref': Property(kind=str, help='Git reference', default='refs/heads/master'),
-  'revision': Property(kind=str, help='Revision', default=None),
+  'repository':
+      Property(kind=str, help='Git repository URL', default=DART_SDK_GIT),
+  'branch':
+      Property(kind=str, help='Git branch', default='refs/heads/master'),
+  'revision':
+      Property(kind=str, help='Revision', default=None),
   'host_cpu': Property(kind=Enum('arm64', 'x64'),
                        help='GN $host_cpu toolchain will run on',
                        default=None),
@@ -49,7 +52,7 @@ GN_CIPD_CPU_MAP = {
 }
 
 
-def RunSteps(api, url, ref, revision, host_cpu, host_os):
+def RunSteps(api, repository, branch, revision, host_cpu, host_os):
   api.gitiles.ensure_gitiles()
   api.goma.ensure_goma()
 
@@ -61,7 +64,7 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
   cipd_platform = '%s-%s' % (host_os, GN_CIPD_CPU_MAP.get(host_cpu, host_cpu))
 
   if not revision:
-    revision = api.gitiles.refs(url).get(ref, None)
+    revision = api.gitiles.refs(repository).get(branch, None)
   cipd_pkg_name = 'fuchsia/dart-sdk/' + cipd_platform
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
@@ -103,7 +106,7 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
 
     with api.step.nest('dart-sdk'):
       dart_sdk_dir = api.path['start_dir'].join('dart', 'sdk')
-      api.git.checkout(url, dart_sdk_dir, ref=revision, submodules=False)
+      api.git.checkout(repository, dart_sdk_dir, ref=revision, submodules=False)
 
   # Use gclient to fetch the DEPS, but don't let it change dart/sdk itself.
   dart_dir = api.path['start_dir'].join('dart')
@@ -226,7 +229,7 @@ def RunSteps(api, url, ref, revision, host_cpu, host_os):
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-          'git_repository': url,
+          'git_repository': repository,
           'git_revision': revision,
           'dart_sdk_version': dart_sdk_version,
       },
