@@ -156,39 +156,45 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
                             'GOOS': goos,
                             'GOARCH': goarch}):
     for pkg in packages:
-      # Build the package.
-      api.go('build', '-v', pkg)
+      with api.step.nest(pkg):
+        # Build the package.
+        api.go('build', '-v', pkg)
 
-      if not api.properties.get('tryjob', False):
-        # Upload the package to CIPD.
-        UploadPackage(api,
-                      pkg.split('/')[-1], target, staging_dir, revision, remote)
+        if not api.properties.get('tryjob', False):
+          # Upload the package to CIPD.
+          UploadPackage(api, pkg.split('/')[-1], target,
+                        staging_dir, revision, remote)
 
 
 def GenTests(api):
   revision = 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127'
   target = 'linux-amd64'
+  packages = ['fuchsia.googlesource.com/tools/cmd/gndoc',
+              'fuchsia.googlesource.com/tools/cmd/symbolizer']
+  cipd_search_step_data = reduce(
+      lambda a, b: a + b,
+      [api.step_data(package + '.cipd search fuchsia/tools/' +
+                     package.split('/')[-1] + '/' + target +
+                     ' git_revision:' + revision,
+                     api.json.output({'result': []}),
+                     retcode=1)
+      for package in packages])
   yield (api.test('ci_new') + api.properties(
       project='tools',
       manifest='tools',
       remote='https://fuchsia.googlesource.com/tools',
       target=target,
-      packages=['fuchsia.googlesource.com/tools/cmd/symbolizer']) +
-         api.step_data(
-             'cipd search fuchsia/tools/symbolizer/' + target + ' git_revision:'
-             + revision,
-             api.json.output({
-                 'result': []
-             }), retcode=1))
+      packages=packages) +
+         cipd_search_step_data)
   yield (api.test('ci') + api.properties(
       project='tools',
       manifest='tools',
       remote='https://fuchsia.googlesource.com/tools',
-      packages=['fuchsia.googlesource.com/tools/cmd/symbolizer']))
+      packages=packages))
   yield (api.test('cq_try') + api.properties(
       project='tools',
       manifest='tools',
       tryjob=True,
       remote='https://fuchsia.googlesource.com/tools',
       target=target,
-      packages=['fuchsia.googlesource.com/tools/cmd/symbolizer']))
+      packages=packages))

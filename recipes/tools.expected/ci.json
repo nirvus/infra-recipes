@@ -274,6 +274,88 @@
     "name": "go test"
   },
   {
+    "cmd": [],
+    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/cmd/gndoc"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-v",
+      "fuchsia.googlesource.com/tools/cmd/gndoc"
+    ],
+    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/cmd/gndoc.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/tools/gndoc/linux-amd64",
+      "-tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/cmd/gndoc.cipd search fuchsia/tools/gndoc/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/gndoc/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/cmd/gndoc.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/cmd/symbolizer"
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "build",
@@ -287,7 +369,10 @@
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
-    "name": "go build"
+    "name": "fuchsia.googlesource.com/tools/cmd/symbolizer.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -305,8 +390,9 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
-    "name": "cipd search fuchsia/tools/symbolizer/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "name": "fuchsia.googlesource.com/tools/cmd/symbolizer.cipd search fuchsia/tools/symbolizer/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -326,7 +412,10 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
-    "name": "Package is up-to-date"
+    "name": "fuchsia.googlesource.com/tools/cmd/symbolizer.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result",
