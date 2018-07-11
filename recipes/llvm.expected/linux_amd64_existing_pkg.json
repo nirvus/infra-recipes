@@ -119,7 +119,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "infra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\nfuchsia/clang/${platform} goma\n@Subdir sdk\nfuchsia/sdk/${platform} latest",
+      "infra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\nfuchsia/clang/${platform} goma\n@Subdir sysroot\nfuchsia/sysroot/linux-amd64 latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -143,10 +143,10 @@
       "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/ninja/${platform}\"@@@",
       "@@@STEP_LOG_LINE@json.output@      }@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"sdk\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"sysroot\": [@@@",
       "@@@STEP_LOG_LINE@json.output@      {@@@",
       "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/sdk/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/sysroot/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@      }@@@",
       "@@@STEP_LOG_LINE@json.output@    ]@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
@@ -304,43 +304,35 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/llvm_tmp_1/llvm_arm64_build_dir"
+      "[TMP_BASE]/llvm_tmp_1/llvm_x86_64_linux_gnu_build_dir"
     ],
     "infra_step": true,
-    "name": "create arm64 llvm build dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[TMP_BASE]/llvm_tmp_1/llvm_arm64_install_dir"
-    ],
-    "infra_step": true,
-    "name": "create arm64 llvm install dir"
+    "name": "create x86_64-linux-gnu llvm build dir"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/bin/cmake",
       "-GNinja",
+      "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
       "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
       "-DCMAKE_INSTALL_PREFIX=",
-      "-DCMAKE_SYSTEM_NAME=Fuchsia",
+      "-DCMAKE_SYSTEM_NAME=Linux",
       "-DCMAKE_C_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_CXX_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_ASM_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_C_COMPILER=[START_DIR]/cipd/bin/clang",
-      "-DCMAKE_C_COMPILER_TARGET=aarch64-fuchsia",
+      "-DCMAKE_C_COMPILER_TARGET=x86_64-linux-gnu",
       "-DCMAKE_CXX_COMPILER=[START_DIR]/cipd/bin/clang++",
-      "-DCMAKE_CXX_COMPILER_TARGET=aarch64-fuchsia",
+      "-DCMAKE_CXX_COMPILER_TARGET=x86_64-linux-gnu",
       "-DCMAKE_ASM_COMPILER=[START_DIR]/cipd/bin/clang",
-      "-DCMAKE_ASM_COMPILER_TARGET=aarch64-fuchsia",
-      "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
+      "-DCMAKE_ASM_COMPILER_TARGET=x86_64-linux-gnu",
+      "-DCMAKE_SYSROOT=[START_DIR]/cipd/sysroot",
+      "-DLLVM_HOST_TRIPLE=x86_64-linux-gnu",
+      "-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64",
+      "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
+      "-DLLVM_BUILD_LLVM_DYLIB=ON",
+      "-DLLVM_ENABLE_LLD=ON",
+      "-DLLVM_EXTERNALIZE_DEBUGINFO=ON",
       "-DCMAKE_AR=[START_DIR]/cipd/bin/llvm-ar",
       "-DCMAKE_LINKER=[START_DIR]/cipd/bin/ld.lld",
       "-DCMAKE_NM=[START_DIR]/cipd/bin/llvm-nm",
@@ -348,16 +340,10 @@
       "-DCMAKE_OBJDUMP=[START_DIR]/cipd/bin/llvm-objdump",
       "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
       "-DCMAKE_STRIP=[START_DIR]/cipd/bin/llvm-strip",
-      "-DCMAKE_SYSROOT=[START_DIR]/cipd/sdk/arch/arm64/sysroot",
-      "-DLLVM_HOST_TRIPLE=aarch64-fuchsia",
-      "-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64",
-      "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
-      "-DLLVM_BUILD_LLVM_DYLIB=ON",
-      "-DLLVM_ENABLE_LLD=ON",
       "[START_DIR]/llvm-project/llvm"
     ],
-    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_arm64_build_dir",
-    "name": "configure arm64 llvm"
+    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x86_64_linux_gnu_build_dir",
+    "name": "configure x86_64-linux-gnu llvm"
   },
   {
     "cmd": [
@@ -365,148 +351,19 @@
       "distribution",
       "-j20"
     ],
-    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_arm64_build_dir",
-    "name": "build arm64 llvm"
+    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x86_64_linux_gnu_build_dir",
+    "name": "build x86_64-linux-gnu llvm"
   },
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
       "install-distribution"
     ],
-    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_arm64_build_dir",
+    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x86_64_linux_gnu_build_dir",
     "env": {
-      "DESTDIR": "[TMP_BASE]/llvm_tmp_1/llvm_arm64_install_dir"
+      "DESTDIR": "[TMP_BASE]/llvm_tmp_1/root"
     },
-    "name": "install arm64 llvm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copytree",
-      "[TMP_BASE]/llvm_tmp_1/llvm_arm64_install_dir/lib",
-      "[TMP_BASE]/llvm_tmp_1/root/arch/arm64/lib"
-    ],
-    "infra_step": true,
-    "name": "copy arm64 libs"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[TMP_BASE]/llvm_tmp_1/llvm_x64_build_dir"
-    ],
-    "infra_step": true,
-    "name": "create x64 llvm build dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[TMP_BASE]/llvm_tmp_1/llvm_x64_install_dir"
-    ],
-    "infra_step": true,
-    "name": "create x64 llvm install dir"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bin/cmake",
-      "-GNinja",
-      "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
-      "-DCMAKE_INSTALL_PREFIX=",
-      "-DCMAKE_SYSTEM_NAME=Fuchsia",
-      "-DCMAKE_C_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
-      "-DCMAKE_CXX_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
-      "-DCMAKE_ASM_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
-      "-DCMAKE_C_COMPILER=[START_DIR]/cipd/bin/clang",
-      "-DCMAKE_C_COMPILER_TARGET=x86_64-fuchsia",
-      "-DCMAKE_CXX_COMPILER=[START_DIR]/cipd/bin/clang++",
-      "-DCMAKE_CXX_COMPILER_TARGET=x86_64-fuchsia",
-      "-DCMAKE_ASM_COMPILER=[START_DIR]/cipd/bin/clang",
-      "-DCMAKE_ASM_COMPILER_TARGET=x86_64-fuchsia",
-      "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
-      "-DCMAKE_AR=[START_DIR]/cipd/bin/llvm-ar",
-      "-DCMAKE_LINKER=[START_DIR]/cipd/bin/ld.lld",
-      "-DCMAKE_NM=[START_DIR]/cipd/bin/llvm-nm",
-      "-DCMAKE_OBJCOPY=[START_DIR]/cipd/bin/llvm-objcopy",
-      "-DCMAKE_OBJDUMP=[START_DIR]/cipd/bin/llvm-objdump",
-      "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
-      "-DCMAKE_STRIP=[START_DIR]/cipd/bin/llvm-strip",
-      "-DCMAKE_SYSROOT=[START_DIR]/cipd/sdk/arch/x64/sysroot",
-      "-DLLVM_HOST_TRIPLE=x86_64-fuchsia",
-      "-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64",
-      "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
-      "-DLLVM_BUILD_LLVM_DYLIB=ON",
-      "-DLLVM_ENABLE_LLD=ON",
-      "[START_DIR]/llvm-project/llvm"
-    ],
-    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x64_build_dir",
-    "name": "configure x64 llvm"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/ninja",
-      "distribution",
-      "-j20"
-    ],
-    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x64_build_dir",
-    "name": "build x64 llvm"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/ninja",
-      "install-distribution"
-    ],
-    "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x64_build_dir",
-    "env": {
-      "DESTDIR": "[TMP_BASE]/llvm_tmp_1/llvm_x64_install_dir"
-    },
-    "name": "install x64 llvm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copytree",
-      "[TMP_BASE]/llvm_tmp_1/llvm_x64_install_dir/lib",
-      "[TMP_BASE]/llvm_tmp_1/root/arch/x64/lib"
-    ],
-    "infra_step": true,
-    "name": "copy x64 libs"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE[infra::llvm].resources/merge_headers.py",
-      "--out",
-      "[TMP_BASE]/llvm_tmp_1/root/pkg/llvm/include",
-      "--def1",
-      "__aarch64__",
-      "--def2",
-      "__x86_64__",
-      "[TMP_BASE]/llvm_tmp_1/llvm_arm64_install_dir/include",
-      "[TMP_BASE]/llvm_tmp_1/llvm_x64_install_dir/include"
-    ],
-    "name": "merge headers"
+    "name": "install x86_64-linux-gnu llvm"
   },
   {
     "cmd": [],
@@ -591,18 +448,18 @@
       "cipd",
       "pkg-build",
       "-pkg-def",
-      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/llvm.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/lib/llvm\", \"root\": \"[TMP_BASE]/llvm_tmp_1/root\"}",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/llvm.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/lib/llvm/linux-amd64\", \"root\": \"[TMP_BASE]/llvm_tmp_1/root\"}",
       "-out",
       "[CLEANUP]/llvm.cipd",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "build fuchsia/lib/llvm",
+    "name": "build fuchsia/lib/llvm/linux-amd64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/lib/llvm\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/lib/llvm/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
@@ -612,19 +469,19 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/lib/llvm",
+      "fuchsia/lib/llvm/linux-amd64",
       "-tag",
       "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/lib/llvm git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
+    "name": "cipd search fuchsia/lib/llvm/linux-amd64 git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/lib/llvm\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/lib/llvm/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
