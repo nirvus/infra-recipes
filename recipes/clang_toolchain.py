@@ -102,12 +102,6 @@ def RunSteps(api, repository, branch, revision, platform):
     llvm_dir = api.path['start_dir'].join('llvm-project')
     api.git.checkout(repository, llvm_dir, ref=revision, submodules=True)
 
-    zlib_dir = api.path['start_dir'].join('zlib')
-    api.git.checkout(ZLIB_GIT, zlib_dir, ref='refs/tags/v1.2.9')
-
-    libxml2_dir = api.path['start_dir'].join('libxml2')
-    api.git.checkout(LIBXML2_GIT, libxml2_dir, ref='refs/tags/v2.9.8')
-
   lib_install_dir = staging_dir.join('lib_install')
   api.file.ensure_directory('create lib_install_dir', lib_install_dir)
 
@@ -138,37 +132,41 @@ def RunSteps(api, repository, branch, revision, platform):
     }
 
     # build zlib
-    build_dir = staging_dir.join('zlib_build_dir')
-    api.file.ensure_directory('create zlib build dir', build_dir)
-
-    with api.step.nest('zlib'), api.context(cwd=build_dir, env=vars):
-      api.step('configure', [
-        zlib_dir.join('configure'),
-        '--prefix=',
-        '--static',
-      ])
-      api.step('build', ['make', '-j%d' % api.goma.recommended_goma_jobs])
-      api.step('install', ['make', 'install', 'DESTDIR=%s' % lib_install_dir])
+    with api.step.nest('zlib'):
+      zlib_dir = api.path['start_dir'].join('zlib')
+      api.git.checkout(ZLIB_GIT, zlib_dir, ref='refs/tags/v1.2.9', submodules=False)
+      build_dir = staging_dir.join('zlib_build_dir')
+      api.file.ensure_directory('create build dir', build_dir)
+      with api.context(cwd=build_dir, env=vars):
+        api.step('configure', [
+          zlib_dir.join('configure'),
+          '--prefix=',
+          '--static',
+        ])
+        api.step('build', ['make', '-j%d' % api.goma.recommended_goma_jobs])
+        api.step('install', ['make', 'install', 'DESTDIR=%s' % lib_install_dir])
 
     # build libxml2
-    build_dir = staging_dir.join('libxml2_build_dir')
-    api.file.ensure_directory('create libxml2 build dir', build_dir)
-
-    with api.step.nest('libxml2'), api.context(cwd=build_dir):
+    with api.step.nest('libxml2'):
+      libxml2_dir = api.path['start_dir'].join('libxml2')
+      api.git.checkout(LIBXML2_GIT, libxml2_dir, ref='refs/tags/v2.9.8', submodules=False)
       with api.context(cwd=libxml2_dir):
         api.step('autoconf', ['autoreconf', '-i', '-f'])
-      api.step('configure', [
-        libxml2_dir.join('configure'),
-        '--prefix=',
-        '--enable-static',
-        '--disable-shared',
-        '--with-zlib=%s' % lib_install_dir,
-        '--without-icu',
-        '--without-lzma',
-        '--without-python',
-      ] + ['%s=%s' % (k, v) for k, v in vars.iteritems()])
-      api.step('build', ['make', '-j%d' % api.goma.recommended_goma_jobs])
-      api.step('install', ['make', 'install', 'DESTDIR=%s' % lib_install_dir])
+      build_dir = staging_dir.join('libxml2_build_dir')
+      api.file.ensure_directory('create build dir', build_dir)
+      with api.context(cwd=build_dir):
+        api.step('configure', [
+          libxml2_dir.join('configure'),
+          '--prefix=',
+          '--enable-static',
+          '--disable-shared',
+          '--with-zlib=%s' % lib_install_dir,
+          '--without-icu',
+          '--without-lzma',
+          '--without-python',
+        ] + ['%s=%s' % (k, v) for k, v in vars.iteritems()])
+        api.step('build', ['make', '-j%d' % api.goma.recommended_goma_jobs])
+        api.step('install', ['make', 'install', 'DESTDIR=%s' % lib_install_dir])
 
     # build clang+llvm
     build_dir = staging_dir.join('llvm_build_dir')

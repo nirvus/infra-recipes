@@ -281,216 +281,6 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/zlib"
-    ],
-    "infra_step": true,
-    "name": "makedirs (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "init"
-    ],
-    "cwd": "[START_DIR]/zlib",
-    "infra_step": true,
-    "name": "git init (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "remote",
-      "add",
-      "origin",
-      "https://fuchsia.googlesource.com/third_party/zlib"
-    ],
-    "cwd": "[START_DIR]/zlib",
-    "infra_step": true,
-    "name": "git remote (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "fetch",
-      "origin",
-      "refs/tags/v1.2.9"
-    ],
-    "cwd": "[START_DIR]/zlib",
-    "infra_step": true,
-    "name": "git fetch (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "checkout",
-      "-f",
-      "FETCH_HEAD"
-    ],
-    "cwd": "[START_DIR]/zlib",
-    "infra_step": true,
-    "name": "git checkout (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "rev-parse",
-      "HEAD"
-    ],
-    "cwd": "[START_DIR]/zlib",
-    "infra_step": true,
-    "name": "git rev-parse (2)",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "git",
-      "clean",
-      "-f",
-      "-d",
-      "-x"
-    ],
-    "cwd": "[START_DIR]/zlib",
-    "infra_step": true,
-    "name": "git clean (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "submodule",
-      "sync"
-    ],
-    "cwd": "[START_DIR]/zlib",
-    "infra_step": true,
-    "name": "submodule sync (2)"
-  },
-  {
-    "cmd": [
-      "git",
-      "submodule",
-      "update",
-      "--init"
-    ],
-    "cwd": "[START_DIR]/zlib",
-    "infra_step": true,
-    "name": "submodule update (2)"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/libxml2"
-    ],
-    "infra_step": true,
-    "name": "makedirs (3)"
-  },
-  {
-    "cmd": [
-      "git",
-      "init"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "infra_step": true,
-    "name": "git init (3)"
-  },
-  {
-    "cmd": [
-      "git",
-      "remote",
-      "add",
-      "origin",
-      "https://fuchsia.googlesource.com/third_party/libxml2"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "infra_step": true,
-    "name": "git remote (3)"
-  },
-  {
-    "cmd": [
-      "git",
-      "fetch",
-      "origin",
-      "refs/tags/v2.9.8"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "infra_step": true,
-    "name": "git fetch (3)"
-  },
-  {
-    "cmd": [
-      "git",
-      "checkout",
-      "-f",
-      "FETCH_HEAD"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "infra_step": true,
-    "name": "git checkout (3)"
-  },
-  {
-    "cmd": [
-      "git",
-      "rev-parse",
-      "HEAD"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "infra_step": true,
-    "name": "git rev-parse (3)",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "git",
-      "clean",
-      "-f",
-      "-d",
-      "-x"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "infra_step": true,
-    "name": "git clean (3)"
-  },
-  {
-    "cmd": [
-      "git",
-      "submodule",
-      "sync"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "infra_step": true,
-    "name": "submodule sync (3)"
-  },
-  {
-    "cmd": [
-      "git",
-      "submodule",
-      "update",
-      "--init"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "infra_step": true,
-    "name": "submodule update (3)"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
       "[TMP_BASE]/clang_tmp_1/lib_install"
     ],
     "infra_step": true,
@@ -523,6 +313,107 @@
     "name": "start_goma"
   },
   {
+    "cmd": [],
+    "name": "zlib"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/zlib"
+    ],
+    "infra_step": true,
+    "name": "zlib.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "name": "zlib.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/zlib"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "name": "zlib.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/tags/v1.2.9"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "name": "zlib.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "name": "zlib.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "name": "zlib.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/zlib",
+    "name": "zlib.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
     "cmd": [
       "python",
       "-u",
@@ -535,11 +426,10 @@
       "[TMP_BASE]/clang_tmp_1/zlib_build_dir"
     ],
     "infra_step": true,
-    "name": "create zlib build dir"
-  },
-  {
-    "cmd": [],
-    "name": "zlib"
+    "name": "zlib.create build dir",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -634,6 +524,119 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "libxml2"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/libxml2"
+    ],
+    "infra_step": true,
+    "name": "libxml2.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "name": "libxml2.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/libxml2"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "name": "libxml2.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/tags/v2.9.8"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "name": "libxml2.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "name": "libxml2.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "name": "libxml2.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "name": "libxml2.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "autoreconf",
+      "-i",
+      "-f"
+    ],
+    "cwd": "[START_DIR]/libxml2",
+    "name": "libxml2.autoconf",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
     "cmd": [
       "python",
       "-u",
@@ -646,20 +649,7 @@
       "[TMP_BASE]/clang_tmp_1/libxml2_build_dir"
     ],
     "infra_step": true,
-    "name": "create libxml2 build dir"
-  },
-  {
-    "cmd": [],
-    "name": "libxml2"
-  },
-  {
-    "cmd": [
-      "autoreconf",
-      "-i",
-      "-f"
-    ],
-    "cwd": "[START_DIR]/libxml2",
-    "name": "libxml2.autoconf",
+    "name": "libxml2.create build dir",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
