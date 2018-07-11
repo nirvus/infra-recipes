@@ -11,12 +11,12 @@ import re
 
 
 DEPS = [
-  'infra/cipd',
   'infra/git',
   'infra/gitiles',
   'infra/goma',
   'infra/gsutil',
   'infra/hash',
+  'recipe_engine/cipd',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -54,29 +54,17 @@ def RunSteps(api, repository, branch, revision):
 
   if not revision:
     revision = api.gitiles.refs(repository).get(branch, None)
-  cipd_pkg_name = 'fuchsia/lib/llvm'
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if step.json.output['result']:
-    api.step('Package is up-to-date', cmd=None)
-    return
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
-      packages = {
-        'infra/cmake/${platform}': 'version:3.9.2',
-        'infra/ninja/${platform}': 'version:1.8.2',
-        'fuchsia/clang/${platform}': 'goma',
-      }
-      api.cipd.ensure(cipd_dir, packages)
-
-  with api.step.nest('ensure_sdk'):
-    with api.context(infra_steps=True):
-      sdk_dir = api.path['start_dir'].join('sdk')
-      packages = {
-        'fuchsia/sdk/${platform}': 'latest',
-      }
-      api.cipd.ensure(sdk_dir, packages)
+      # TODO: deduplicate this and the clang toolchain recipe
+      pkgs = api.cipd.EnsureFile()
+      pkgs.add_package('infra/cmake/${platform}', 'version:3.9.2')
+      pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
+      pkgs.add_package('fuchsia/clang/${platform}', 'goma')
+      pkgs.add_package('fuchsia/sdk/${platform}', 'latest', 'sdk')
+      api.cipd.ensure(cipd_dir, pkgs)
 
   staging_dir = api.path.mkdtemp('llvm')
   pkg_dir = staging_dir.join('root')
@@ -119,7 +107,7 @@ def RunSteps(api, repository, branch, revision):
           '-DCMAKE_OBJDUMP=%s' % cipd_dir.join('bin', 'llvm-objdump'),
           '-DCMAKE_RANLIB=%s' % cipd_dir.join('bin', 'llvm-ranlib'),
           '-DCMAKE_STRIP=%s' % cipd_dir.join('bin', 'llvm-strip'),
-          '-DCMAKE_SYSROOT=%s' % sdk_dir.join('arch', target, 'sysroot'),
+          '-DCMAKE_SYSROOT=%s' % cipd_dir.join('sdk', 'arch', target, 'sysroot'),
           '-DLLVM_HOST_TRIPLE=%s-fuchsia' % arch,
           '-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64',
           '-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM',
@@ -156,6 +144,7 @@ def RunSteps(api, repository, branch, revision):
   assert m, 'Cannot determine LLVM version'
   llvm_version = m.group(1)
 
+  cipd_pkg_name = 'fuchsia/lib/llvm'
   pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
       package_root=pkg_dir,
@@ -169,7 +158,13 @@ def RunSteps(api, repository, branch, revision):
       pkg_def=pkg_def,
       output_package=cipd_pkg_file,
   )
-  step_result = api.cipd.register(
+
+  cipd_pins = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if cipd_pins:
+    api.step('Package is up-to-date', cmd=None)
+    return
+
+  cipd_pin = api.cipd.register(
       package_name=cipd_pkg_name,
       package_path=cipd_pkg_file,
       refs=['latest'],
@@ -180,11 +175,10 @@ def RunSteps(api, repository, branch, revision):
       },
   )
 
-  instance_id = step_result.json.output['result']['instance_id']
   api.gsutil.upload(
       'fuchsia',
       cipd_pkg_file,
-      api.gsutil.join('lib', 'llvm', instance_id),
+      api.gsutil.join('lib', 'llvm', cipd_pin.instance_id),
       unauthenticated_url=True
   )
 
