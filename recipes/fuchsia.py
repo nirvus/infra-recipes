@@ -132,12 +132,20 @@ PROPERTIES = {
             ' to. Will not upload a snapshot if this property is'
             ' blank, tryjob is True, or checkout_snapshot is True.',
             default='fuchsia-snapshots'),
+    # TODO(dbort): Remove upload_archive in favor of archive_gcs_bucket.
     'upload_archive':
         Property(
             kind=bool,
             help='Whether to upload archive of the build artifacts'
             ' (always False if tryjob is True)',
             default=True),
+    'archive_gcs_bucket':
+        Property(
+            kind=str,
+            help='The GCS bucket to upload build artifacts to. Will not'
+            ' upload a snapshot if this property is blank or if tryjob'
+            ' is True.',
+            default='fuchsia-archive'),
 }
 
 
@@ -146,11 +154,16 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              patch_ref, patch_repository_url, target, build_type, packages,
              variant, gn_args, run_tests, runtests_args, run_host_tests,
              device_type, networking_for_tests, ninja_targets,
-             test_timeout_secs, upload_archive, upload_breakpad_symbols,
-             snapshot_gcs_bucket):
+             test_timeout_secs, upload_archive, archive_gcs_bucket,
+             upload_breakpad_symbols, snapshot_gcs_bucket):
   # Don't upload snapshots for tryjobs.
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
+    archive_gcs_bucket = None
+
+  # TODO(dbort): Remove this once upload_archive goes away.
+  if not upload_archive:
+    archive_gcs_bucket = None
 
   # Handle illegal setting of networking_for_tests.
   if networking_for_tests:
@@ -265,8 +278,11 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
 
   # Upload an archive containing build artifacts if the properties say to do so.
   # Note: if we ran tests, this will only execute if the tests passed.
-  if upload_archive and not api.properties.get('tryjob'):
-    api.fuchsia.upload_build_artifacts(build, upload_breakpad_symbols=upload_breakpad_symbols)
+  if archive_gcs_bucket:
+    api.fuchsia.upload_build_artifacts(
+        build_results=build,
+        bucket=archive_gcs_bucket,
+        upload_breakpad_symbols=upload_breakpad_symbols)
 
 # yapf: disable
 def GenTests(api):
@@ -413,6 +429,32 @@ def GenTests(api):
       target='x64',
       packages=['topaz/packages/default'],
       snapshot_gcs_bucket=None,
+  )
+
+  # Test cases for archiving artifacts.
+  yield api.test('cq_no_archive') + api.properties.tryserver(
+      patch_project='fuchsia',
+      patch_gerrit_url='fuchsia-review.googlesource.com',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      archive_gcs_bucket='',
+      tryjob=True,
+  )
+  yield api.test('ci_no_archive') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      archive_gcs_bucket='',
+  )
+  yield api.test('ci_override_archive') + api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      archive_gcs_bucket='different-archive-bucket',
   )
 
   # Test cases for generating symbol files as part of the build

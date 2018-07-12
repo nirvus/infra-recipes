@@ -74,44 +74,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-v",
-      "-time",
-      "-host",
-      "https://fuchsia-review.googlesource.com",
-      "-project",
-      "chromium/src",
-      "-rebase=true",
-      "refs/changes/23/123/12"
-    ],
-    "infra_step": true,
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-gc=true",
-      "-rebase-tracked",
-      "-local-manifest=true",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update (2)",
-    "timeout": 1200
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3",
-      "-local-manifest=true"
+      "-attempts=3"
     ],
     "infra_step": true,
     "name": "jiri run-hooks"
@@ -341,7 +307,7 @@
       "gen",
       "[START_DIR]/out/debug-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true super_arg=false less_super_arg=true"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=true"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -535,12 +501,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/fuchsia.tar.gz",
-      "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+      "gs://different-archive-bucket/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
     "name": "upload fuchsia.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/different-archive-bucket/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {
@@ -588,12 +554,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/packages.tar.gz",
-      "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+      "gs://different-archive-bucket/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
     "name": "upload packages.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/different-archive-bucket/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {

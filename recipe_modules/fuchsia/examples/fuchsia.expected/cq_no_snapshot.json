@@ -485,12 +485,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/fuchsia.tar.gz",
-      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+      "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
     "name": "upload fuchsia.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {
@@ -538,12 +538,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/packages.tar.gz",
-      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+      "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
     "name": "upload packages.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {

@@ -1313,19 +1313,24 @@ class FuchsiaApi(recipe_api.RecipeApi):
         name='upload %s' % name)
     return digest
 
-  def upload_build_artifacts(self, build_results, upload_breakpad_symbols=False,
-                             bucket='fuchsia-archive'):
+  def upload_build_artifacts(self, build_results, bucket,
+                             upload_breakpad_symbols=False):
     """Uploads artifacts from the build to Google Cloud Storage.
 
-    More specifically, this uploads two sets of artifacts:
+    More specifically, this uploads multiple sets of artifacts:
     * Images and tools necessary to boot Fuchsia.
     * Packages which may be sent to Fuchsia's package manager.
+    * Optionally, symbols for the Fuchsia binaries.
 
     Args:
       build_results (FuchsiaBuildResults): The Fuchsia build results to get
         artifacts from.
       bucket (str): The Google Cloud Storage bucket to upload to.
+      upload_breakpad_symbols (bool): If true, uploads breakpad symbols to
+        the bucket as well.
     """
+    assert bucket
+
     self.m.gsutil.ensure_gsutil()
     self.m.tar.ensure_tar()
 

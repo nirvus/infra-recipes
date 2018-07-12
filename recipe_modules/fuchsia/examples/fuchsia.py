@@ -162,7 +162,11 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
     if test_results.summary and test_results.passed_tests:
         assert test_results.passed_tests['[START_DIR]/hello']
     api.fuchsia.analyze_test_results('test results', test_results)
-  api.fuchsia.upload_build_artifacts(build, upload_breakpad_symbols=upload_breakpad_symbols)
+
+  api.fuchsia.upload_build_artifacts(
+      build_results=build,
+      bucket='###fake-artifact-bucket###',
+      upload_breakpad_symbols=upload_breakpad_symbols)
 
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.
