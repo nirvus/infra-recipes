@@ -5,8 +5,9 @@
 DEPS = [
     'catapult',
     'recipe_engine/file',
-    'recipe_engine/raw_io',
     'recipe_engine/json',
+    'recipe_engine/properties',
+    'recipe_engine/raw_io',
 ]
 
 
@@ -49,4 +50,5 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  yield api.test('basic')
+  yield (api.test('basic') + 
+         api.properties(buildbucket=api.catapult.buildbucket_property_json))

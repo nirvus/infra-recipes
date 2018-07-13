@@ -802,6 +802,8 @@
       "1337000001500",
       "-logdog-stream-name",
       "fuchsia.passed",
+      "-log-url",
+      "http://log.com/123",
       "-output",
       "/path/to/tmp/json",
       "{\"test_name\": \"a\", \"units\": \"b\", \"samples\": [1, 2, 3]}"

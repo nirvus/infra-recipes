@@ -147,7 +147,7 @@ Returns how many seconds roll() will poll for.
 Defined by the input property with the same name.
 ### *recipe_modules* / [catapult](/recipe_modules/catapult)
 
-[DEPS](/recipe_modules/catapult/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/catapult/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [CatapultApi](/recipe_modules/catapult/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -176,7 +176,7 @@ Args:
 Returns:
   The step result of executing the make_histogram subcommand.
 
-&mdash; **def [upload](/recipe_modules/catapult/api.py#73)(self, input_file, url, timeout=None, \*\*kwargs):**
+&mdash; **def [upload](/recipe_modules/catapult/api.py#82)(self, input_file, url, timeout=None, \*\*kwargs):**
 
 Uploads performance JSON data to a dashboard.
 
@@ -1127,9 +1127,9 @@ Recipe for building some Breakpad tools.
 &mdash; **def [RunSteps](/recipes/breakpad_tools.py#43)(api, url, ref, revision, cipd_target):**
 ### *recipes* / [catapult:examples/full](/recipe_modules/catapult/examples/full.py)
 
-[DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
+[DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
-&mdash; **def [RunSteps](/recipe_modules/catapult/examples/full.py#13)(api):**
+&mdash; **def [RunSteps](/recipe_modules/catapult/examples/full.py#14)(api):**
 ### *recipes* / [cipd:examples/full](/recipe_modules/cipd/examples/full.py)
 
 [DEPS](/recipe_modules/cipd/examples/full.py#8): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

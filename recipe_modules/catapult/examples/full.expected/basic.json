@@ -50,6 +50,8 @@
       "123456789",
       "-logdog-stream-name",
       "example.suite",
+      "-log-url",
+      "http://log.com/123",
       "-output",
       "/path/to/tmp/json",
       "{}"
