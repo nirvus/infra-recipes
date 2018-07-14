@@ -250,7 +250,6 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
-      buildbucket=api.catapult.buildbucket_property_json,
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results', api.raw_io.output_dir(extracted_results))
 
@@ -269,7 +268,6 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=False,
-      buildbucket=api.catapult.buildbucket_property_json,
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results', api.raw_io.output_dir(extracted_results))
 
@@ -287,7 +285,6 @@ def GenTests(api):
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=True,
       tryjob=True,
-      buildbucket=api.catapult.buildbucket_property_json,
   ) + api.fuchsia.task_step_data() + api.step_data(
       'extract results', api.raw_io.output_dir(extracted_results))
 
@@ -300,7 +297,6 @@ def GenTests(api):
       device_type='Intel NUC Kit NUC6i3SYK',
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
-      buildbucket=api.catapult.buildbucket_property_json,
   ) + api.fuchsia.task_step_data(device=True) + api.step_data(
       'extract results', api.raw_io.output_dir(extracted_results))
 
@@ -312,6 +308,5 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
-      buildbucket=api.catapult.buildbucket_property_json,
   ) + api.fuchsia.task_step_data() + api.step_data('extract results',
                                                    api.raw_io.output_dir({}))

@@ -53,12 +53,6 @@ class CatapultApi(recipe_api.RecipeApi):
     Returns:
       The step result of executing the make_histogram subcommand.
     """
-
-    # Get the url to the LUCI build log page.  The URL should always be present.
-    log_url = self.m.buildbucket.properties.get('build', {}).get('url', None)
-    assert log_url
-
-    #yapf: disable
     return self(
         'make_histogram',
         '-test-suite',
@@ -71,13 +65,10 @@ class CatapultApi(recipe_api.RecipeApi):
         execution_timestamp_ms,
         '-logdog-stream-name',
         test_suite,
-        '-log-url',
-        log_url,
         '-output',
         output_file,
         input_file,
         **kwargs)
-    #yapf: enable
 
   def upload(self, input_file, url, timeout=None, **kwargs):
     """
