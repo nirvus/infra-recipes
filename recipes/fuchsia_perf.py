@@ -135,7 +135,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   )
 
   # Each project should have a Fuchsia package named ${project}_benchmarks
-  # containing a single script called "benchamrks.sh" that runs all benchmarks
+  # containing a single script called "benchmarks.sh" that runs all benchmarks
   # in the project.  Its only argument should be the directory where output is
   # written.
   #
