@@ -33,6 +33,7 @@
   * [catapult:examples/full](#recipes-catapult_examples_full)
   * [cipd:examples/full](#recipes-cipd_examples_full)
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
+  * [clang_tidy](#recipes-clang_tidy) &mdash; Recipe for running CQ-blocking clang-tidy checks.
   * [clang_tidy:examples/full](#recipes-clang_tidy_examples_full)
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
   * [cloudkms:examples/full](#recipes-cloudkms_examples_full)
@@ -1189,6 +1190,13 @@ Recipe for building some Breakpad tools.
 [DEPS](/recipe_modules/cipd/examples/platform_suffix.py#9): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 &mdash; **def [RunSteps](/recipe_modules/cipd/examples/platform_suffix.py#24)(api, arch_override, bits_override, expect_error):**
+### *recipes* / [clang\_tidy](/recipes/clang_tidy.py)
+
+[DEPS](/recipes/clang_tidy.py#11): [cipd](#recipe_modules-cipd), [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
+
+Recipe for running CQ-blocking clang-tidy checks.
+
+&mdash; **def [RunSteps](/recipes/clang_tidy.py#57)(api, manifest, remote, project, revision, patch_gerrit_url, patch_project, patch_ref, checks):**
 ### *recipes* / [clang\_tidy:examples/full](/recipe_modules/clang_tidy/examples/full.py)
 
 [DEPS](/recipe_modules/clang_tidy/examples/full.py#5): [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
