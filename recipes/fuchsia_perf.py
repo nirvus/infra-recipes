@@ -163,6 +163,17 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   # Log the results of each benchmark.
   api.fuchsia.report_test_results(test_results)
 
+  # Get the LUCI build log URL to attach to the perf data.  This might be empty
+  # or None because of an infra failure.
+  build_id = api.buildbucket.build_id
+
+  # Although it's unusual, BuildBucketApi returns parsed JSON as the step
+  # result's stdout.
+  build_json = api.buildbucket.get_build(build_id).stdout
+  log_url = build_json.get('build', {}).get('url', None)
+  assert log_url, "Couldn't fetch info for build %s. BuildBucket API returned: %s" % (
+      build_id, build_json)
+
   # Analyze all of the benchmarks that ran successfully
   for test_filepath, test_results in test_results.passed_tests.iteritems():
     # Extract the name of the test suite, e.g. "baz_test" in
@@ -189,11 +200,14 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
           test_results=test_results,
           catapult_url=catapult_url,
           upload_to_dashboard=upload_to_dashboard,
+          log_url=log_url,
       )
+
 
 def ProcessTestResults(api, step_name, dashboard_masters_name,
                        dashboard_bots_name, execution_timestamp_ms, test_suite,
-                       test_results, catapult_url, upload_to_dashboard):
+                       test_results, catapult_url, upload_to_dashboard,
+                       log_url):
   """
   Processes test results and uploads them to the Catapult dashboard.
 
@@ -205,6 +219,8 @@ def ProcessTestResults(api, step_name, dashboard_masters_name,
     test_suite (str): The name of the test suite that was run.
     test_results (str): The raw test results output.
     catapult_url (str): The URL of the catapult dashboard.
+    upload_to_dashboard (bool): Whether to upload results.
+    log_url (str): Link to this build's log page.
   """
   with api.step.nest(step_name):
     # Generate the histogram set.
@@ -215,6 +231,7 @@ def ProcessTestResults(api, step_name, dashboard_masters_name,
         bots_name=dashboard_bots_name,
         execution_timestamp_ms=execution_timestamp_ms,
         output_file=api.json.output(),
+        log_url=log_url,
     ).json.output
 
     # Upload the file to Catapult using the current build's credentials.
@@ -250,6 +267,26 @@ def GenTests(api):
       'failed.json': '{}',
   }
 
+  # Test API response for a call to the BuildBucket API's `get` method, which
+  # Returns JSON information for a single build.  This information is only
+  # fetched after test results are successfully copied off of the target device,
+  # (otherwise the recipe fails before FuchsiaApi.test() exits) so tests that
+  # fail at this point may omit it.
+  #
+  # TODO(kjharland): This should be amended upstream in BuildbucketTestApi.
+  buildbucket_get_response = api.step_data(
+      'buildbucket.get',
+      stdout=api.raw_io.output_text(
+          api.json.dumps({
+              "build": {
+                  "id": "123",
+                  "status": "SCHEDULED",
+                  "url": "https://ci.chromium.org/p/fuchsia/builds/b123",
+                  "bucket": "luci.fuchsia.ci",
+              }
+          })))
+  buildbucket_test_data = api.buildbucket.ci_build() + buildbucket_get_response
+
   # Test cases for running Fuchsia performance tests as a swarming task.
   yield api.test('successful_run') + api.properties(
       project='topaz',
@@ -259,8 +296,9 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
-  ) + api.fuchsia.task_step_data() + api.step_data(
-      'extract results', api.raw_io.output_dir(extracted_results))
+  ) + (
+      buildbucket_test_data + api.fuchsia.task_step_data() + api.step_data(
+          'extract results', api.raw_io.output_dir(extracted_results)))
 
   # Tests running this recipe with a pending Gerrit change. Note
   # that upload_to_dashboard is false. Be sure to set this when
@@ -277,8 +315,9 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=False,
-  ) + api.fuchsia.task_step_data() + api.step_data(
-      'extract results', api.raw_io.output_dir(extracted_results))
+  ) + (
+      buildbucket_test_data + api.fuchsia.task_step_data() + api.step_data(
+          'extract results', api.raw_io.output_dir(extracted_results)))
 
   # CQ runs should disable certain things like dashboard uploads.
   yield api.test('cq') + api.properties(
@@ -294,8 +333,9 @@ def GenTests(api):
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=True,
       tryjob=True,
-  ) + api.fuchsia.task_step_data() + api.step_data(
-      'extract results', api.raw_io.output_dir(extracted_results))
+  ) + (
+      buildbucket_test_data + api.fuchsia.task_step_data() + api.step_data(
+          'extract results', api.raw_io.output_dir(extracted_results)))
 
   yield api.test('device_tests') + api.properties(
       project='topaz',
@@ -306,8 +346,10 @@ def GenTests(api):
       device_type='Intel NUC Kit NUC6i3SYK',
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
-  ) + api.fuchsia.task_step_data(device=True) + api.step_data(
-      'extract results', api.raw_io.output_dir(extracted_results))
+  ) + (
+      buildbucket_test_data +
+      api.fuchsia.task_step_data(device=True) + api.step_data(
+          'extract results', api.raw_io.output_dir(extracted_results)))
 
   yield api.test('missing test results') + api.properties(
       project='topaz',
@@ -317,5 +359,6 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
-  ) + api.fuchsia.task_step_data() + api.step_data('extract results',
-                                                   api.raw_io.output_dir({}))
+  ) + (
+      api.fuchsia.task_step_data() +
+      api.step_data('extract results', api.raw_io.output_dir({})))

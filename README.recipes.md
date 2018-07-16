@@ -159,7 +159,7 @@ Return a catapult command step.
 
 &mdash; **def [ensure\_catapult](/recipe_modules/catapult/api.py#26)(self, version=None):**
 
-&mdash; **def [make\_histogram](/recipe_modules/catapult/api.py#38)(self, input_file, test_suite, masters_name, bots_name, execution_timestamp_ms, output_file, \*\*kwargs):**
+&mdash; **def [make\_histogram](/recipe_modules/catapult/api.py#38)(self, input_file, test_suite, masters_name, bots_name, execution_timestamp_ms, output_file, log_url=None, \*\*kwargs):**
 
 Generates a HistogramSet from performance test output.
 
@@ -171,12 +171,14 @@ Args:
   input_file (Path): Full path to the input file containing test results.
   output_file (Path): Full path to the file to write results to.
   input_file (string): Full path to the input file containing test results.
+  log_url (string): URL to the LUCI build page, gets attached to the sample
+    point in the dashboard to help users find build information.
   kwargs: Keyword argments passed to the returned step.
 
 Returns:
   The step result of executing the make_histogram subcommand.
 
-&mdash; **def [upload](/recipe_modules/catapult/api.py#73)(self, input_file, url, timeout=None, \*\*kwargs):**
+&mdash; **def [upload](/recipe_modules/catapult/api.py#80)(self, input_file, url, timeout=None, \*\*kwargs):**
 
 Uploads performance JSON data to a dashboard.
 
@@ -1266,7 +1268,7 @@ This differs from the fuchsia recipe in the following ways:
 * Tests are always run (this recipe is not used to verify builds).
 * Test results are uploaded to the catapult dashboard after execution.
 
-&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#194)(api, step_name, dashboard_masters_name, dashboard_bots_name, execution_timestamp_ms, test_suite, test_results, catapult_url, upload_to_dashboard):**
+&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#207)(api, step_name, dashboard_masters_name, dashboard_bots_name, execution_timestamp_ms, test_suite, test_results, catapult_url, upload_to_dashboard, log_url):**
 
 Processes test results and uploads them to the Catapult dashboard.
 
@@ -1278,6 +1280,8 @@ Args:
   test_suite (str): The name of the test suite that was run.
   test_results (str): The raw test results output.
   catapult_url (str): The URL of the catapult dashboard.
+  upload_to_dashboard (bool): Whether to upload results.
+  log_url (str): Link to this build's log page.
 
 &mdash; **def [RunSteps](/recipes/fuchsia_perf.py#118)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url, device_type, dashboard_masters_name, dashboard_bots_name, patch_ref, patch_gerrit_url, patch_project, snapshot_gcs_bucket, upload_to_dashboard):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)

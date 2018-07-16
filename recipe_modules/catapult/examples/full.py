@@ -24,6 +24,7 @@ def RunSteps(api):
       bots_name='dashboard_bots_name',
       execution_timestamp_ms=123456789,
       output_file=api.json.output(name='histogram_set'),
+      log_url="https://ci.chromium.org/logs",
   )
 
   histogram_set_data = api.file.read_text(

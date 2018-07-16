@@ -764,6 +764,29 @@
     ]
   },
   {
+    "cmd": [
+      "buildbucket",
+      "get",
+      "-host",
+      "cr-buildbucket.appspot.com",
+      "8945511751514863184"
+    ],
+    "infra_step": true,
+    "name": "buildbucket.get",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"build\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"bucket\": \"luci.fuchsia.ci\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"id\": \"123\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"status\": \"SCHEDULED\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"url\": \"https://ci.chromium.org/p/fuchsia/builds/b123\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "analyze_passed"
   },
@@ -783,6 +806,8 @@
       "fuchsia.passed",
       "-output",
       "/path/to/tmp/json",
+      "-log-url",
+      "https://ci.chromium.org/p/fuchsia/builds/b123",
       "{\"test_name\": \"a\", \"units\": \"b\", \"samples\": [1, 2, 3]}"
     ],
     "name": "analyze_passed.catapult make_histogram",

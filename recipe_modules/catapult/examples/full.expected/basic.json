@@ -52,6 +52,8 @@
       "example.suite",
       "-output",
       "/path/to/tmp/json",
+      "-log-url",
+      "https://ci.chromium.org/logs",
       "{}"
     ],
     "name": "catapult make_histogram",

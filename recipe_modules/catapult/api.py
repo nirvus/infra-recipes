@@ -36,7 +36,7 @@ class CatapultApi(recipe_api.RecipeApi):
         return self._catapult
 
   def make_histogram(self, input_file, test_suite, masters_name, bots_name,
-                     execution_timestamp_ms, output_file, **kwargs):
+                     execution_timestamp_ms, output_file, log_url=None, **kwargs):
     """
     Generates a HistogramSet from performance test output.
 
@@ -48,12 +48,14 @@ class CatapultApi(recipe_api.RecipeApi):
       input_file (Path): Full path to the input file containing test results.
       output_file (Path): Full path to the file to write results to.
       input_file (string): Full path to the input file containing test results.
+      log_url (string): URL to the LUCI build page, gets attached to the sample
+        point in the dashboard to help users find build information.
       kwargs: Keyword argments passed to the returned step.
 
     Returns:
       The step result of executing the make_histogram subcommand.
     """
-    return self(
+    args = [
         'make_histogram',
         '-test-suite',
         test_suite,
@@ -67,8 +69,13 @@ class CatapultApi(recipe_api.RecipeApi):
         test_suite,
         '-output',
         output_file,
-        input_file,
-        **kwargs)
+    ]
+
+    if log_url:
+      args += ['-log-url', log_url]
+
+    args += [input_file]
+    return self(*args, **kwargs)
 
   def upload(self, input_file, url, timeout=None, **kwargs):
     """
