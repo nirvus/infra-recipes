@@ -1,0 +1,9 @@
+# vpython VirtualEnv installation package for "clang-tidy".
+#
+# See:
+# https://chromium.googlesource.com/infra/luci/luci-go/+/master/vpython/api/vpython/spec.proto
+
+wheel <
+  name: "infra/python/wheels/pyyaml/${platform}_${py_python}_${py_abi}"
+  version: "version:3.12"
+>

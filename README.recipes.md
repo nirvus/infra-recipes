@@ -7,6 +7,7 @@
   * [auto_roller](#recipe_modules-auto_roller)
   * [catapult](#recipe_modules-catapult)
   * [cipd](#recipe_modules-cipd)
+  * [clang_tidy](#recipe_modules-clang_tidy)
   * [cloudkms](#recipe_modules-cloudkms)
   * [fuchsia](#recipe_modules-fuchsia)
   * [gerrit](#recipe_modules-gerrit)
@@ -32,6 +33,7 @@
   * [catapult:examples/full](#recipes-catapult_examples_full)
   * [cipd:examples/full](#recipes-cipd_examples_full)
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
+  * [clang_tidy:examples/full](#recipes-clang_tidy_examples_full)
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
   * [cloudkms:examples/full](#recipes-cloudkms_examples_full)
   * [cobalt](#recipes-cobalt) &mdash; Recipe for building and testing Cobalt.
@@ -282,6 +284,29 @@ parameters will be used.
 &mdash; **def [set\_ref](/recipe_modules/cipd/api.py#391)(self, package_name, version, refs):**
 
 &mdash; **def [set\_tag](/recipe_modules/cipd/api.py#373)(self, package_name, version, tags):**
+### *recipe_modules* / [clang\_tidy](/recipe_modules/clang_tidy)
+
+[DEPS](/recipe_modules/clang_tidy/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [ClangTidyApi](/recipe_modules/clang_tidy/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+ClangTidyApi provides support for ClangTidy.
+
+&mdash; **def [ensure\_clang](/recipe_modules/clang_tidy/api.py#15)(self):**
+
+&mdash; **def [gen\_compile\_commands](/recipe_modules/clang_tidy/api.py#24)(self, checkout):**
+
+&mdash; **def [run](/recipe_modules/clang_tidy/api.py#37)(self, step_name, filename, compile_commands, checks=['\*']):**
+
+Runs clang-tidy on the specified file and returns parsed json output.
+
+TODO(juliehockett): Consider packaging and using the run_clang_tidy script.
+
+Args:
+  filename (str): Path to file on which clang-tidy should be run.
+  compile_commands (str): Path to dir containing compile_commands.json.
+  checks (List): List of checks to run for clang-tidy (default is whatever
+    is specified in the .clang-tidy file).
 ### *recipe_modules* / [cloudkms](/recipe_modules/cloudkms)
 
 [DEPS](/recipe_modules/cloudkms/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1164,6 +1189,11 @@ Recipe for building some Breakpad tools.
 [DEPS](/recipe_modules/cipd/examples/platform_suffix.py#9): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 &mdash; **def [RunSteps](/recipe_modules/cipd/examples/platform_suffix.py#24)(api, arch_override, bits_override, expect_error):**
+### *recipes* / [clang\_tidy:examples/full](/recipe_modules/clang_tidy/examples/full.py)
+
+[DEPS](/recipe_modules/clang_tidy/examples/full.py#5): [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+&mdash; **def [RunSteps](/recipe_modules/clang_tidy/examples/full.py#14)(api):**
 ### *recipes* / [clang\_toolchain](/recipes/clang_toolchain.py)
 
 [DEPS](/recipes/clang_toolchain.py#13): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
