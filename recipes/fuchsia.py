@@ -231,9 +231,16 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         )
     ]
 
+  # TODO(INTK-292): Delete the following block once json_validator is a
+  # prebuilt.
   if project:
     # Add the tool required to validate build packages.
     packages.append('build/packages/json_validator')
+    if len(ninja_targets) > 0:
+      # If ninja targets are specified, only those targets will be built; in
+      # that case, ensure that json_validator is also built.
+      ninja_targets.append('tools/json_validator')
+
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
@@ -304,9 +311,11 @@ def GenTests(api):
   ) + api.fuchsia.task_step_data(device=True) + api.fuchsia.test_step_data()
 
   yield api.test('host_tests') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
+      manifest='fuchsia/topaz',
+      project='topaz',
+      remote='https://fuchsia.googlesource.com/topaz',
       target='x64',
+      ninja_targets=['build/gn:host_tests'],
       packages=['topaz/packages/default'],
       run_host_tests=True,
   ) + api.fuchsia.test_step_data(host_results=True)
