@@ -134,6 +134,8 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       snapshot_gcs_bucket=snapshot_gcs_bucket,
   )
 
+  execution_timestamp_ms = api.time.ms_since_epoch()
+
   # Each project should have a Fuchsia package named ${project}_benchmarks
   # containing a single script called "benchmarks.sh" that runs all benchmarks
   # in the project.  Its only argument should be the directory where output is
@@ -182,6 +184,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
           api=api,
           dashboard_masters_name=dashboard_masters_name,
           dashboard_bots_name=dashboard_bots_name,
+          execution_timestamp_ms=execution_timestamp_ms,
           test_suite=dashboard_test_suite,
           test_results=test_results,
           catapult_url=catapult_url,
@@ -189,8 +192,8 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       )
 
 def ProcessTestResults(api, step_name, dashboard_masters_name,
-                       dashboard_bots_name, test_suite, test_results,
-                       catapult_url, upload_to_dashboard):
+                       dashboard_bots_name, execution_timestamp_ms, test_suite,
+                       test_results, catapult_url, upload_to_dashboard):
   """
   Processes test results and uploads them to the Catapult dashboard.
 
@@ -210,7 +213,7 @@ def ProcessTestResults(api, step_name, dashboard_masters_name,
         test_suite=test_suite,
         masters_name=dashboard_masters_name,
         bots_name=dashboard_bots_name,
-        execution_timestamp_ms=api.time.ms_since_epoch(),
+        execution_timestamp_ms=execution_timestamp_ms,
         output_file=api.json.output(),
     ).json.output
 
