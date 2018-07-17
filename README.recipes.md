@@ -1266,7 +1266,7 @@ This differs from the fuchsia recipe in the following ways:
 * Tests are always run (this recipe is not used to verify builds).
 * Test results are uploaded to the catapult dashboard after execution.
 
-&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#185)(api, step_name, dashboard_masters_name, dashboard_bots_name, test_suite, test_results, catapult_url, upload_to_dashboard):**
+&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#191)(api, step_name, dashboard_masters_name, dashboard_bots_name, test_suite, test_results, catapult_url, upload_to_dashboard):**
 
 Processes test results and uploads them to the Catapult dashboard.
 
