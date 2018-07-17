@@ -165,22 +165,28 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   for test_filepath, test_results in test_results.passed_tests.iteritems():
     # Extract the name of the test suite, e.g. "baz_test" in
     # "foo/bar/baz_test.json".
-    test_suite = api.path.splitext(api.path.basename(test_filepath))[0]
-    # Prepend "fuchsia." to make test results easier to find in the
-    # dashboard.
-    dashboard_test_suite = "fuchsia." + test_suite
+    test_suite, extension = api.path.splitext(api.path.basename(test_filepath))
 
-    ProcessTestResults(
-        # Prevent corrupting the step name with extra dots.
-        step_name="analyze_%s" % test_suite.replace('.', '_'),
-        api=api,
-        dashboard_masters_name=dashboard_masters_name,
-        dashboard_bots_name=dashboard_bots_name,
-        test_suite=dashboard_test_suite,
-        test_results=test_results,
-        catapult_url=catapult_url,
-        upload_to_dashboard=upload_to_dashboard,
-    )
+    # Only look at files with a ".json" extension, which we take to be
+    # Fuchsia perf test results files.  This allows the Fuchsia side to
+    # output other file types -- in particular, Catapult Histogram files,
+    # which we skip for now, but will later switch to using (see IN-444).
+    if extension == '.json':
+      # Prepend "fuchsia." to make test results easier to find in the
+      # dashboard.
+      dashboard_test_suite = "fuchsia." + test_suite
+
+      ProcessTestResults(
+          # Prevent corrupting the step name with extra dots.
+          step_name="analyze_%s" % test_suite.replace('.', '_'),
+          api=api,
+          dashboard_masters_name=dashboard_masters_name,
+          dashboard_bots_name=dashboard_bots_name,
+          test_suite=dashboard_test_suite,
+          test_results=test_results,
+          catapult_url=catapult_url,
+          upload_to_dashboard=upload_to_dashboard,
+      )
 
 def ProcessTestResults(api, step_name, dashboard_masters_name,
                        dashboard_bots_name, test_suite, test_results,
