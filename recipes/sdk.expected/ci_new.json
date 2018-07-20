@@ -112,9 +112,9 @@
       "-v",
       "-time",
       "-name",
-      "garnet",
-      "manifest/garnet",
-      "https://fuchsia.googlesource.com/garnet"
+      "topaz",
+      "manifest/topaz",
+      "https://fuchsia.googlesource.com/topaz"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -218,7 +218,7 @@
       "-time",
       "-json-output",
       "/path/to/tmp/json",
-      "garnet"
+      "topaz"
     ],
     "infra_step": true,
     "name": "jiri project",
@@ -229,9 +229,9 @@
       "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"garnet\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/garnet\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/garnet\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"topaz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/topaz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/topaz\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",
@@ -355,7 +355,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/base\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -512,7 +512,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/base\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -587,7 +587,7 @@
       "-u",
       "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--manifest",
-      "[START_DIR]/out/release-arm64/sdk-manifests/garnet",
+      "[START_DIR]/out/release-arm64/sdk-manifests/topaz",
       "--output",
       "[CLEANUP]/sdk-fuchsia"
     ],
@@ -599,7 +599,7 @@
       "-u",
       "[START_DIR]/scripts/sdk/foundation/generate.py",
       "--manifest",
-      "[START_DIR]/out/release-x64/sdk-manifests/garnet",
+      "[START_DIR]/out/release-x64/sdk-manifests/topaz",
       "--output",
       "[CLEANUP]/sdk-fuchsia",
       "--overlay"
@@ -662,7 +662,7 @@
       "-ref",
       "latest",
       "-tag",
-      "git_repository:https://fuchsia.googlesource.com/garnet",
+      "git_repository:https://fuchsia.googlesource.com/topaz",
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
@@ -704,7 +704,7 @@
       "-u",
       "[START_DIR]/scripts/sdk/bazel/generate.py",
       "--manifest",
-      "[START_DIR]/out/release-arm64/sdk-manifests/garnet",
+      "[START_DIR]/out/release-arm64/sdk-manifests/topaz",
       "--output",
       "[CLEANUP]/sdk-bazel"
     ],
@@ -716,7 +716,7 @@
       "-u",
       "[START_DIR]/scripts/sdk/bazel/generate.py",
       "--manifest",
-      "[START_DIR]/out/release-x64/sdk-manifests/garnet",
+      "[START_DIR]/out/release-x64/sdk-manifests/topaz",
       "--output",
       "[CLEANUP]/sdk-bazel",
       "--overlay"
@@ -779,7 +779,7 @@
       "-ref",
       "latest",
       "-tag",
-      "git_repository:https://fuchsia.googlesource.com/garnet",
+      "git_repository:https://fuchsia.googlesource.com/topaz",
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
@@ -978,7 +978,7 @@
       "-ref",
       "latest",
       "-tag",
-      "git_repository:https://fuchsia.googlesource.com/garnet",
+      "git_repository:https://fuchsia.googlesource.com/topaz",
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-tag",

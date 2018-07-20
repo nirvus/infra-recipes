@@ -87,7 +87,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     if not revision:
       # api.fuchsia.checkout() will have ensured that jiri exists.
-      revision = api.jiri.project(['garnet']).json.output[0]['revision']
+      revision = api.jiri.project(['topaz']).json.output[0]['revision']
       api.step.active_result.presentation.properties['got_revision'] = revision
 
   # Build fuchsia for each target.
@@ -97,7 +97,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
       builds[target] = api.fuchsia.build(
           target=target,
           build_type=BUILD_TYPE,
-          packages=['garnet/packages/sdk/base'])
+          packages=['topaz/packages/sdk/topaz'])
 
   # For each SDK type, per target, invoke the corresponding script that creates
   # the layout of artifacts and upload these to CIPD and GCS.
@@ -114,7 +114,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
             script_path,
             args=[
               '--manifest',
-              builds[target].fuchsia_build_dir.join('sdk-manifests', 'garnet'),
+              builds[target].fuchsia_build_dir.join('sdk-manifests', 'topaz'),
               '--output',
               sdk_dir,
             ] + (['--overlay'] if overlay else []),
@@ -170,7 +170,7 @@ def UploadPackage(api, sdk_name, staging_dir, revision):
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'git_repository': 'https://fuchsia.googlesource.com/garnet',
+        'git_repository': 'https://fuchsia.googlesource.com/topaz',
         'git_revision': revision,
       }
   )
@@ -236,7 +236,7 @@ def UploadArchive(api, sdk, out_dir, revision):
       pkg_def=pkg_def,
       refs=['latest'],
       tags={
-        'git_repository': 'https://fuchsia.googlesource.com/garnet',
+        'git_repository': 'https://fuchsia.googlesource.com/topaz',
         'git_revision': revision,
         'jiri_snapshot': digest,
       }
@@ -247,17 +247,17 @@ def UploadArchive(api, sdk, out_dir, revision):
 def GenTests(api):
   yield (api.test('ci') +
       api.properties(
-          project='garnet',
-          manifest='manifest/garnet',
-          remote='https://fuchsia.googlesource.com/garnet',
+          project='topaz',
+          manifest='manifest/topaz',
+          remote='https://fuchsia.googlesource.com/topaz',
           revision=api.jiri.example_revision) +
       api.step_data('upload chromium sdk.hash archive',
                     api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
   yield (api.test('ci_new') +
       api.properties(
-          project='garnet',
-          manifest='manifest/garnet',
-          remote='https://fuchsia.googlesource.com/garnet') +
+          project='topaz',
+          manifest='manifest/topaz',
+          remote='https://fuchsia.googlesource.com/topaz') +
       api.step_data('upload fuchsia sdk.cipd search fuchsia/sdk/linux-amd64 ' +
                     'git_revision:' + api.jiri.example_revision,
                      api.json.output({'result': []})) +
@@ -271,9 +271,9 @@ def GenTests(api):
                     api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
   yield (api.test('cq_try') +
       api.properties.tryserver(
-          project='garnet',
-          manifest='manifest/garnet',
-          remote='https://fuchsia.googlesource.com/garnet',
+          project='topaz',
+          manifest='manifest/topaz',
+          remote='https://fuchsia.googlesource.com/topaz',
           patch_gerrit_url='fuchsia-review.googlesource.com',
           tryjob=True))
 # yapf: enable
