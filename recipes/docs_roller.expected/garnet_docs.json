@@ -378,7 +378,7 @@
       "git",
       "commit",
       "-m",
-      "[gndoc] Update GN build arguments documentation\\Test: CQ\n\nChange-Id: Iabc123\n",
+      "[gndoc] Update GN build arguments documentation\n\nTest: CQ\n\nChange-Id: Iabc123\n",
       "-a"
     ],
     "cwd": "[START_DIR]/garnet",
