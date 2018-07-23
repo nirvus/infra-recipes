@@ -222,7 +222,7 @@
       "[START_DIR]/cipd/gn",
       "gen",
       "[CLEANUP]/out/Default",
-      "--export_compile_commands"
+      "--export-compile-commands"
     ],
     "name": "generate compile_commands.json.gn gen",
     "~followup_annotations": [
@@ -307,6 +307,34 @@
       "@@@STEP_LOG_LINE@json.output@\"\"@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "path/to/file",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read path/to/file"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "other/path/to/file",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read other/path/to/file"
   },
   {
     "name": "$result",

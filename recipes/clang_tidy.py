@@ -59,7 +59,7 @@ def RunSteps(api, manifest, remote, project, revision, patch_gerrit_url,
   api.goma.ensure_goma()
   api.clang_tidy.ensure_clang()
 
-  checkout_result = api.fuchsia.checkout(
+  checkout_dir = api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
       project=project,
@@ -67,8 +67,8 @@ def RunSteps(api, manifest, remote, project, revision, patch_gerrit_url,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project,
       patch_ref=patch_ref,
-  )
-  compile_commands = api.clang_tidy.gen_compile_commands(checkout_result)
+  ).root_dir
+  compile_commands = api.clang_tidy.gen_compile_commands(checkout_dir)
 
   with api.step.nest('clang-tidy'):
     show_step_result = api.git(

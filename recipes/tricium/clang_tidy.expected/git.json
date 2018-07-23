@@ -67,153 +67,101 @@
     ]
   },
   {
-    "cmd": [],
-    "infra_step": true,
-    "name": "ensure_jiri"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/jiri",
-      "-ensure-file",
-      "fuchsia/tools/jiri/linux-amd64 stable",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "init",
-      "-v",
-      "-time",
-      "-analytics-opt=false",
-      "-rewrite-sso-to-https=true",
-      "-cache",
-      "[CACHE]/git",
-      "-shared"
-    ],
-    "infra_step": true,
-    "name": "jiri init"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "import",
-      "-v",
-      "-time",
-      "fuchsia",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "infra_step": true,
-    "name": "jiri import"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update",
-    "timeout": 1200
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks",
-      "-v",
-      "-time",
-      "-attempts=3"
-    ],
-    "infra_step": true,
-    "name": "jiri run-hooks"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "source-manifest",
-      "-v",
-      "-time",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "jiri source-manifest",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
-      "@@@STEP_LOG_END@json.output[source manifest]@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "snapshot",
-      "-v",
-      "-time",
-      "[CLEANUP]/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "jiri snapshot"
-  },
-  {
     "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "copy",
-      "[CLEANUP]/jiri.snapshot",
-      "/path/to/tmp/"
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tools"
     ],
     "infra_step": true,
-    "name": "read snapshot",
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/tools",
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/tools"
+    ],
+    "cwd": "[START_DIR]/tools",
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/tools",
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/tools",
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/tools",
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@snapshot_contents@@@@",
-      "@@@STEP_LOG_END@snapshot_contents@@@"
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
     ]
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/jiri.snapshot"
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
     ],
-    "infra_step": true,
-    "name": "hash snapshot",
-    "stdout": "/path/to/tmp/"
+    "cwd": "[START_DIR]/tools",
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/tools",
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/tools",
+    "name": "submodule update"
   },
   {
     "cmd": [],
@@ -226,6 +174,7 @@
       "[CLEANUP]/out/Default",
       "--export-compile-commands"
     ],
+    "cwd": "[START_DIR]/tools",
     "name": "generate compile_commands.json.gn gen",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
@@ -234,19 +183,6 @@
   {
     "cmd": [],
     "name": "clang-tidy"
-  },
-  {
-    "cmd": [
-      "git",
-      "show",
-      "--name-only",
-      "--pretty="
-    ],
-    "name": "clang-tidy.get changed files",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
   },
   {
     "cmd": [],
@@ -324,7 +260,7 @@
       "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@[@@@",
       "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"DiagnosticName\": \"check\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"DiagnosticName\": \"fuchsia-default\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"FileOffset\": 1, @@@",
       "@@@STEP_LOG_LINE@json.output@    \"FilePath\": \"path/to/file\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"Message\": \"error\"@@@",
@@ -334,9 +270,29 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "path/to/file",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read path/to/file"
+  },
+  {
+    "cmd": [],
+    "name": "write results",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@tricium@{\"comments\": [{\"category\": \"ClangTidy/fuchsia-default\", \"end_char\": 0, \"end_line\": 0, \"message\": \"fuchsia-default: error\", \"path\": \"path/to/file\", \"start_char\": 1, \"start_line\": 1, \"suggestion\": [], \"url\": \"\"}]}@@@"
+    ]
+  },
+  {
     "name": "$result",
-    "reason": "clang-tidy errors found for checks: check",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

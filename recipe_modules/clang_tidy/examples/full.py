@@ -13,20 +13,26 @@ DEPS = [
 
 def RunSteps(api):
   api.clang_tidy.ensure_clang()
-  checkout_result = api.fuchsia.checkout(
+  checkout_dir = api.fuchsia.checkout(
       manifest='manifest/minimal',
       remote='tools',
       patch_ref='abcdef0123456789abcdef0123456789abcdef01',
-  )
-  compile_commands = api.clang_tidy.gen_compile_commands(checkout_result)
+  ).root_dir
+  compile_commands = api.clang_tidy.gen_compile_commands(checkout_dir)
 
   all_checks = api.clang_tidy.run('step one', 'path/to/file', compile_commands)
   one_check = api.clang_tidy.run('step two', 'other/path/to/file',
                                  compile_commands,
                                  ['-*', 'fuchsia-default-arguments'])
 
+  api.clang_tidy.get_line_from_offset('path/to/file', 12)
+  api.clang_tidy.get_line_from_offset('other/path/to/file', 65)
+
 
 def GenTests(api):
+  read_output = '''test
+newline output
+'''
 
   has_errors = '''- DiagnosticName:  'check'
   Message:         'error'

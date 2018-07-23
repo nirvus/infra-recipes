@@ -79,6 +79,7 @@
   * [third_party_rust_crates](#recipes-third_party_rust_crates) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [tools](#recipes-tools) &mdash; Recipe for building and publishing tools.
   * [tricium/clang_format](#recipes-tricium_clang_format) &mdash; Recipe for running Tricium clang-format analyzer.
+  * [tricium/clang_tidy](#recipes-tricium_clang_tidy) &mdash; Recipe for running Tricium clang-format analyzer.
   * [web_view](#recipes-web_view) &mdash; Recipe for building libwebkit.
   * [zbi:examples/full](#recipes-zbi_examples_full)
   * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
@@ -289,7 +290,7 @@ parameters will be used.
 &mdash; **def [set\_tag](/recipe_modules/cipd/api.py#373)(self, package_name, version, tags):**
 ### *recipe_modules* / [clang\_tidy](/recipe_modules/clang_tidy)
 
-[DEPS](/recipe_modules/clang_tidy/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/clang_tidy/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [ClangTidyApi](/recipe_modules/clang_tidy/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -297,9 +298,21 @@ ClangTidyApi provides support for ClangTidy.
 
 &mdash; **def [ensure\_clang](/recipe_modules/clang_tidy/api.py#15)(self):**
 
-&mdash; **def [gen\_compile\_commands](/recipe_modules/clang_tidy/api.py#24)(self, checkout):**
+&mdash; **def [gen\_compile\_commands](/recipe_modules/clang_tidy/api.py#24)(self, checkout_dir):**
 
-&mdash; **def [run](/recipe_modules/clang_tidy/api.py#37)(self, step_name, filename, compile_commands, checks=['\*']):**
+&mdash; **def [get\_line\_from\_offset](/recipe_modules/clang_tidy/api.py#38)(self, f, offset):**
+
+Get the file line and char number from a file offset.
+
+Clang-Tidy emits warnings that mark the location of the error by the char
+offset from the beginning of the file. This converts that number into a line
+and char position.
+
+Args:
+  filename (str): Path to file.
+  offset (int): Offset to convert.
+
+&mdash; **def [run](/recipe_modules/clang_tidy/api.py#64)(self, step_name, filename, compile_commands, checks=['\*']):**
 
 Runs clang-tidy on the specified file and returns parsed json output.
 
@@ -1582,6 +1595,13 @@ Recipe for building and publishing tools.
 Recipe for running Tricium clang-format analyzer.
 
 &mdash; **def [RunSteps](/recipes/tricium/clang_format.py#31)(api, project, manifest):**
+### *recipes* / [tricium/clang\_tidy](/recipes/tricium/clang_tidy.py)
+
+[DEPS](/recipes/tricium/clang_tidy.py#10): [cipd](#recipe_modules-cipd), [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
+
+Recipe for running Tricium clang-format analyzer.
+
+&mdash; **def [RunSteps](/recipes/tricium/clang_tidy.py#41)(api, project, manifest, checks):**
 ### *recipes* / [web\_view](/recipes/web_view.py)
 
 [DEPS](/recipes/web_view.py#11): [fuchsia](#recipe_modules-fuchsia), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

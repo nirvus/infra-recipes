@@ -21,18 +21,45 @@ class ClangTidyApi(recipe_api.RecipeApi):
       pkgs.add_package('gn/gn/${platform}', 'latest')
       self.m.cipd.ensure(cipd_dir, pkgs)
 
-  def gen_compile_commands(self, checkout):
+  def gen_compile_commands(self, checkout_dir):
     build_dir = self.m.path['cleanup'].join('out', 'Default')
     compile_commands = build_dir.join('compile_commands.json')
     with self.m.step.nest('generate compile_commands.json'):
-      self.m.step('gn gen', [
-          checkout.root_dir.join('cipd', 'gn'),
-          'gen',
-          build_dir,
-          '--export_compile_commands',
-      ])
+      with self.m.context(cwd=checkout_dir):
+        self.m.step('gn gen', [
+            self.m.path['start_dir'].join('cipd', 'gn'),
+            'gen',
+            build_dir,
+            '--export-compile-commands',
+        ])
 
     return compile_commands
+
+  def get_line_from_offset(self, f, offset):
+    """Get the file line and char number from a file offset.
+
+    Clang-Tidy emits warnings that mark the location of the error by the char
+    offset from the beginning of the file. This converts that number into a line
+    and char position.
+
+    Args:
+      filename (str): Path to file.
+      offset (int): Offset to convert.
+    """
+    file_data = self.m.file.read_text(
+        'read %s' % f, f, test_data='''test
+newlineoutput''')
+    line = 1
+    char = 1
+    for i, c in enumerate(file_data):
+      if i + 1 == offset:
+        return line, char
+      if c == '\n':
+        line += 1
+        char = 1
+      else:
+        char += 1
+    return 0, 0
 
   def run(self, step_name, filename, compile_commands, checks=['*']):
     """Runs clang-tidy on the specified file and returns parsed json output.
@@ -116,5 +143,7 @@ class ClangTidyApi(recipe_api.RecipeApi):
       return {}
     all_warnings = {}
     for warning in parsed_results:
-      all_warnings[warning['DiagnosticName']] = warning
+      if warning['DiagnosticName'] not in all_warnings:
+        all_warnings[warning['DiagnosticName']] = []
+      all_warnings[warning['DiagnosticName']].append(warning)
     return all_warnings
