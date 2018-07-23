@@ -31,7 +31,7 @@ DEPS = [
 ]
 
 BINUTILS_GIT = 'https://gnu.googlesource.com/binutils-gdb'
-BINUTILS_REF = 'refs/heads/binutils-2_30-branch'
+BINUTILS_REF = 'refs/tags/binutils-2_31_1'
 
 GCC_GIT = 'https://gnu.googlesource.com/gcc'
 GCC_REF = 'refs/heads/gcc-8-branch'
