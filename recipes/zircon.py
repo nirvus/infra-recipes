@@ -655,7 +655,10 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
   if run_tests:
     api.qemu.ensure_qemu()
-    api.swarming.ensure_swarming(version='latest')
+    # TODO(IN-518): Once the Swarming tool has been updated, fix this recipe and
+    # once again un-pin this version.
+    api.swarming.ensure_swarming(
+        version='0f22871c977c6cf49eee6e2401e16ad58997c366')
     api.isolated.ensure_isolated(version='latest')
     if device_type == 'QEMU':
       # The MinFS tool is generated during the Zircon build, so only after we

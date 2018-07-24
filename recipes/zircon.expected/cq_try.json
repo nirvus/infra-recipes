@@ -364,7 +364,7 @@
       "-root",
       "[START_DIR]/cipd/luci/swarming",
       "-ensure-file",
-      "infra/tools/luci/swarming/linux-amd64 latest",
+      "infra/tools/luci/swarming/linux-amd64 0f22871c977c6cf49eee6e2401e16ad58997c366",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -375,7 +375,7 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"0f22871c977c6cf49eee6e2401e16ad58997c366\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/swarming/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
