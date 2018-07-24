@@ -597,7 +597,7 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
       'make',
       target,
       'GOMACC=%s' % api.goma.goma_dir.join('gomacc'),
-      '-j', api.goma.recommended_goma_jobs,
+      '-j', api.goma.jobs,
       'HOST_USE_ASAN=true',
       'BUILDROOT=%s' % src_dir,
     ] + make_args + tc_args

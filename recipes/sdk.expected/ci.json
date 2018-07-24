@@ -235,9 +235,9 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/goma",
+      "[CACHE]/goma/client",
       "-ensure-file",
-      "infra_internal/goma/client/linux-amd64 release",
+      "infra_internal/goma/client/${platform} release",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -246,29 +246,21 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@3@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "restart"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
-    },
-    "infra_step": true,
-    "name": "build arm64.build.start_goma",
+    "cmd": [],
+    "name": "build arm64.build.pre_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
     ]
@@ -277,28 +269,17 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
+      "[CACHE]/goma/client/goma_ctl.py",
+      "restart"
     ],
-    "name": "build arm64.build.calculate the number of recommended jobs",
-    "stdout": "/path/to/tmp/",
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "infra_step": true,
+    "name": "build arm64.build.pre_goma.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
-      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
-      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -307,8 +288,8 @@
       "-t",
       "arm64",
       "-j",
-      "50",
-      "GOMACC=[START_DIR]/cipd/goma/gomacc"
+      "20",
+      "GOMACC=[CACHE]/goma/client/gomacc"
     ],
     "name": "build arm64.build.zircon",
     "~followup_annotations": [
@@ -328,7 +309,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -341,9 +322,60 @@
       "-C",
       "[START_DIR]/out/release-arm64",
       "-j",
-      "50"
+      "20"
     ],
     "name": "build arm64.build.build fuchsia.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build arm64.build.post_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "jsonstatus",
+      "[CACHE]/goma/client/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build arm64.build.post_goma.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"notice\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"infra_status\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"num_user_error\": 0, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ping_status_code\": 200@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build arm64.build.post_goma.goma_stat",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@3@@@"
     ]
@@ -352,49 +384,16 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
-    },
-    "name": "build arm64.build.goma_jsonstatus",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stat"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
-    },
-    "name": "build arm64.build.goma_stat",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "stop"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
-    "name": "build arm64.build.stop_goma",
+    "name": "build arm64.build.post_goma.stop_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -420,9 +419,9 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/goma",
+      "[CACHE]/goma/client",
       "-ensure-file",
-      "infra_internal/goma/client/linux-amd64 release",
+      "infra_internal/goma/client/${platform} release",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -431,21 +430,30 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@3@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.build.pre_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "restart"
     ],
     "env": {
@@ -453,9 +461,9 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "infra_step": true,
-    "name": "build x64.build.start_goma",
+    "name": "build x64.build.pre_goma.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {
@@ -464,8 +472,8 @@
       "-t",
       "x64",
       "-j",
-      "50",
-      "GOMACC=[START_DIR]/cipd/goma/gomacc"
+      "20",
+      "GOMACC=[CACHE]/goma/client/gomacc"
     ],
     "name": "build x64.build.zircon",
     "~followup_annotations": [
@@ -485,7 +493,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[START_DIR]/cipd/goma\" is_debug=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -498,9 +506,60 @@
       "-C",
       "[START_DIR]/out/release-x64",
       "-j",
-      "50"
+      "20"
     ],
     "name": "build x64.build.build fuchsia.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build x64.build.post_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "jsonstatus",
+      "[CACHE]/goma/client/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build x64.build.post_goma.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@3@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"notice\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"infra_status\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"num_user_error\": 0, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ping_status_code\": 200@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build x64.build.post_goma.goma_stat",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@3@@@"
     ]
@@ -509,49 +568,16 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
-    },
-    "name": "build x64.build.goma_jsonstatus",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "stat"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
-    },
-    "name": "build x64.build.goma_stat",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "stop"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
-    "name": "build x64.build.stop_goma",
+    "name": "build x64.build.post_goma.stop_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@"
+      "@@@STEP_NEST_LEVEL@3@@@"
     ]
   },
   {

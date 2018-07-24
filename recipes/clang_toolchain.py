@@ -143,7 +143,7 @@ def RunSteps(api, repository, branch, revision, platform):
           '--prefix=',
           '--static',
         ])
-        api.step('build', ['make', '-j%d' % api.goma.recommended_goma_jobs])
+        api.step('build', ['make', '-j%d' % api.goma.jobs])
         api.step('install', ['make', 'install', 'DESTDIR=%s' % lib_install_dir])
 
     # build libxml2
@@ -165,7 +165,7 @@ def RunSteps(api, repository, branch, revision, platform):
           '--without-lzma',
           '--without-python',
         ] + ['%s=%s' % (k, v) for k, v in vars.iteritems()])
-        api.step('build', ['make', '-j%d' % api.goma.recommended_goma_jobs])
+        api.step('build', ['make', '-j%d' % api.goma.jobs])
         api.step('install', ['make', 'install', 'DESTDIR=%s' % lib_install_dir])
 
     # build clang+llvm

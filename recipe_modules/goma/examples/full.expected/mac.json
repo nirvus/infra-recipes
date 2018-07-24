@@ -8,9 +8,9 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/goma",
+      "[CACHE]/goma/client",
       "-ensure-file",
-      "infra_internal/goma/client/mac-amd64 release",
+      "infra_internal/goma/client/${platform} release",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -19,12 +19,14 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/mac-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -38,9 +40,9 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/goma",
+      "[CACHE]/goma/client",
       "-ensure-file",
-      "infra_internal/goma/client/mac-amd64 candidate",
+      "infra_internal/goma/client/${platform} candidate",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -49,12 +51,14 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-candidate-------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/mac-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-candidate-------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -64,9 +68,13 @@
       "gn",
       "gen",
       "out/Release",
-      "--args=use_goma=true goma_dir=[START_DIR]/cipd/goma"
+      "--args=use_goma=true goma_dir=[CACHE]/goma/client"
     ],
     "name": "gn"
+  },
+  {
+    "cmd": [],
+    "name": "pre_goma"
   },
   {
     "cmd": [
@@ -76,7 +84,10 @@
       "/b/s/w/itOi5hUE/luci_context.475597099",
       "/path/to/tmp/json"
     ],
-    "name": "read context"
+    "name": "pre_goma.read context",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -90,13 +101,16 @@
       "[TMP_BASE]/luci_context._tmp_1"
     ],
     "infra_step": true,
-    "name": "write context"
+    "name": "pre_goma.write context",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "restart"
     ],
     "env": {
@@ -105,69 +119,63 @@
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "infra_step": true,
-    "name": "start_goma"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
-    ],
-    "name": "calculate the number of recommended jobs",
-    "stdout": "/path/to/tmp/",
+    "name": "pre_goma.start_goma",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
-      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
-      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "cmd": [
       "echo",
-      "50"
+      "20"
     ],
     "name": "echo goma jobs"
   },
   {
     "cmd": [
       "echo",
-      "50"
+      "20"
     ],
     "name": "echo goma jobs second"
+  },
+  {
+    "cmd": [],
+    "name": "post_goma"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
+      "[CACHE]/goma/client/jsonstatus"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
-    "name": "goma_jsonstatus"
+    "name": "post_goma.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"notice\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"infra_status\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"num_user_error\": 0, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ping_status_code\": 200@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "stat"
     ],
     "env": {
@@ -175,13 +183,16 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
-    "name": "goma_stat"
+    "name": "post_goma.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "stop"
     ],
     "env": {
@@ -189,7 +200,10 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
-    "name": "stop_goma"
+    "name": "post_goma.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result",

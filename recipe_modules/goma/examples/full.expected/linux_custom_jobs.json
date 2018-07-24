@@ -33,112 +33,78 @@
   },
   {
     "cmd": [],
-    "name": "ensure_jiri"
+    "name": "ensure_goma (2)"
   },
   {
     "cmd": [
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/jiri",
+      "[CACHE]/goma/client",
       "-ensure-file",
-      "fuchsia/tools/jiri/linux-amd64 stable",
+      "infra_internal/goma/client/${platform} candidate",
       "-json-output",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
+    "name": "ensure_goma.ensure_installed (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-candidate-------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "init",
-      "-v",
-      "-time",
-      "-analytics-opt=false",
-      "-rewrite-sso-to-https=true",
-      "-cache",
-      "[CACHE]/git",
-      "-shared"
+      "gn",
+      "gen",
+      "out/Release",
+      "--args=use_goma=true goma_dir=[CACHE]/goma/client"
     ],
-    "infra_step": true,
-    "name": "jiri init"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "import",
-      "-v",
-      "-time",
-      "fuchsia",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "infra_step": true,
-    "name": "jiri import"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks",
-      "-v",
-      "-time",
-      "-attempts=3"
-    ],
-    "infra_step": true,
-    "name": "jiri run-hooks"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "source-manifest",
-      "-v",
-      "-time",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "jiri source-manifest",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
-      "@@@STEP_LOG_END@json.output[source manifest]@@@"
-    ]
+    "name": "gn"
   },
   {
     "cmd": [],
     "name": "pre_goma"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "/b/s/w/itOi5hUE/luci_context.475597099",
+      "/path/to/tmp/json"
+    ],
+    "name": "pre_goma.read context",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "{\"local_auth\": {\"accounts\": [{\"email\": \"some@example.com\", \"id\": \"test\"}], \"default_account_id\": \"system\"}}",
+      "[TMP_BASE]/luci_context._tmp_1"
+    ],
+    "infra_step": true,
+    "name": "pre_goma.write context",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -149,7 +115,8 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "infra_step": true,
     "name": "pre_goma.start_goma",
@@ -159,18 +126,17 @@
   },
   {
     "cmd": [
-      "make",
-      "presubmit-cq"
+      "echo",
+      "80"
     ],
-    "env": {
-      "GOMA": "1",
-      "GOMA_DIR": "[CACHE]/goma/client",
-      "MINIMAL": "1",
-      "NO_ENSURE_GOMA": "1",
-      "PUB_CACHE": "[CACHE]/pub",
-      "fuchsia_root": "[START_DIR]"
-    },
-    "name": "build and run presubmit tests"
+    "name": "echo goma jobs"
+  },
+  {
+    "cmd": [
+      "echo",
+      "80"
+    ],
+    "name": "echo goma jobs second"
   },
   {
     "cmd": [],
@@ -186,7 +152,8 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "post_goma.goma_jsonstatus",
     "~followup_annotations": [
@@ -213,7 +180,8 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "post_goma.goma_stat",
     "~followup_annotations": [
@@ -229,7 +197,8 @@
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
+      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
     "name": "post_goma.stop_goma",
     "~followup_annotations": [

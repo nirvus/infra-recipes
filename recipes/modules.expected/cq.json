@@ -8,9 +8,9 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/goma",
+      "[CACHE]/goma/client",
       "-ensure-file",
-      "infra_internal/goma/client/linux-amd64 release",
+      "infra_internal/goma/client/${platform} release",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -19,12 +19,14 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -168,10 +170,14 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "pre_goma"
+  },
+  {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "restart"
     ],
     "env": {
@@ -179,7 +185,10 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "infra_step": true,
-    "name": "start_goma"
+    "name": "pre_goma.start_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -189,7 +198,7 @@
     "cwd": "[START_DIR]/apps/modules/common",
     "env": {
       "GOMA": "1",
-      "GOMA_DIR": "[START_DIR]/cipd/goma",
+      "GOMA_DIR": "[CACHE]/goma/client",
       "MINIMAL": "1",
       "NO_ENSURE_GOMA": "1",
       "PUB_CACHE": "[CACHE]/pub",
@@ -198,44 +207,68 @@
     "name": "build and run presubmit tests"
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
-    },
-    "name": "goma_jsonstatus"
+    "cmd": [],
+    "name": "post_goma"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "jsonstatus",
+      "[CACHE]/goma/client/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "post_goma.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"notice\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"infra_status\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"num_user_error\": 0, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ping_status_code\": 200@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
       "stat"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
-    "name": "goma_stat"
+    "name": "post_goma.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "stop"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
-    "name": "stop_goma"
+    "name": "post_goma.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result",

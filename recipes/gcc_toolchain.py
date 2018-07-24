@@ -198,7 +198,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
           '--enable-deterministic-archives', # more deterministic builds
           '--enable-targets=%s' % enable_targets,
         ] + common_args)
-        binutils_make_step('build', 'all', api.goma.recommended_goma_jobs)
+        binutils_make_step('build', 'all', api.goma.jobs)
         try:
           binutils_make_step('test', 'check', api.platform.cpu_count, ['-k'])
         except StepFailure as error:
@@ -241,7 +241,7 @@ def RunSteps(api, binutils_revision, gcc_revision):
           '--disable-libssp', # we don't need libssp either
           '--disable-libquadmath', # and nor do we need libquadmath
         ] + common_args)
-        gcc_make_step('build', api.goma.recommended_goma_jobs,
+        gcc_make_step('build', api.goma.jobs,
                       ['all-%s' % goal for goal in gcc_goals])
         try:
           gcc_make_step('test', api.platform.cpu_count, ['check-gcc'])

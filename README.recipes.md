@@ -640,43 +640,53 @@ Run an inline Go program as a step.
 Program is output to a temp file and run when this step executes.
 ### *recipe_modules* / [goma](/recipe_modules/goma)
 
-[DEPS](/recipe_modules/goma/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/goma/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [GomaApi](/recipe_modules/goma/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 GomaApi contains helper functions for using goma.
 
-&emsp; **@contextmanager**<br>&mdash; **def [build\_with\_goma](/recipe_modules/goma/api.py#172)(self, env={}):**
+&emsp; **@contextmanager**<br>&mdash; **def [build\_with\_goma](/recipe_modules/goma/api.py#193)(self, env={}):**
 
 Make context wrapping goma start/stop.
 
 Raises:
     StepFailure or InfraFailure if it fails to build.
 
-&mdash; **def [ensure\_goma](/recipe_modules/goma/api.py#74)(self, canary=False):**
+&mdash; **def [ensure\_goma](/recipe_modules/goma/api.py#73)(self, canary=False):**
 
-&emsp; **@property**<br>&mdash; **def [goma\_ctl](/recipe_modules/goma/api.py#65)(self):**
+&emsp; **@property**<br>&mdash; **def [goma\_ctl](/recipe_modules/goma/api.py#64)(self):**
 
-&emsp; **@property**<br>&mdash; **def [goma\_dir](/recipe_modules/goma/api.py#69)(self):**
+&emsp; **@property**<br>&mdash; **def [goma\_dir](/recipe_modules/goma/api.py#68)(self):**
 
-&emsp; **@contextmanager**<br>&mdash; **def [goma\_env](/recipe_modules/goma/api.py#88)(self, env):**
+&emsp; **@property**<br>&mdash; **def [jobs](/recipe_modules/goma/api.py#35)(self):**
 
-&emsp; **@property**<br>&mdash; **def [json\_path](/recipe_modules/goma/api.py#23)(self):**
+Returns number of jobs for parallel build using Goma.
 
-&emsp; **@property**<br>&mdash; **def [recommended\_goma\_jobs](/recipe_modules/goma/api.py#28)(self):**
+Uses value from property "$infra/goma:{"jobs": JOBS}" if configured
+(typically in cr-buildbucket.cfg), else defaults to `recommended_goma_jobs`.
+
+&emsp; **@property**<br>&mdash; **def [json\_path](/recipe_modules/goma/api.py#26)(self):**
+
+&emsp; **@property**<br>&mdash; **def [jsonstatus](/recipe_modules/goma/api.py#31)(self):**
+
+&emsp; **@property**<br>&mdash; **def [recommended\_goma\_jobs](/recipe_modules/goma/api.py#44)(self):**
 
 Return the recommended number of jobs for parallel build using Goma.
 
-This function caches the _goma_jobs.
+Prefer to use just `goma.jobs` and configure it through default builder
+properties in cr-buildbucket.cfg.
 
-&mdash; **def [start](/recipe_modules/goma/api.py#116)(self, env={}, \*\*kwargs):**
+This function caches the _recommended_jobs.
+
+&mdash; **def [start](/recipe_modules/goma/api.py#104)(self, env={}, \*\*kwargs):**
 
 Start goma compiler_proxy.
 
 A user MUST execute ensure_goma beforehand.
 It is user's responsibility to handle failure of starting compiler_proxy.
 
-&mdash; **def [stop](/recipe_modules/goma/api.py#147)(self, env={}, \*\*kwargs):**
+&mdash; **def [stop](/recipe_modules/goma/api.py#164)(self, \*\*kwargs):**
 
 Stop goma compiler_proxy.
 
@@ -1295,9 +1305,9 @@ Recipe for building Go toolchain.
 &mdash; **def [RunSteps](/recipes/go_toolchain.py#34)(api, repository, revision):**
 ### *recipes* / [goma:examples/full](/recipe_modules/goma/examples/full.py)
 
-[DEPS](/recipe_modules/goma/examples/full.py#5): [goma](#recipe_modules-goma), [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/goma/examples/full.py#5): [goma](#recipe_modules-goma), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-&mdash; **def [RunSteps](/recipe_modules/goma/examples/full.py#13)(api):**
+&mdash; **def [RunSteps](/recipe_modules/goma/examples/full.py#14)(api):**
 ### *recipes* / [gsutil:examples/full](/recipe_modules/gsutil/examples/full.py)
 
 [DEPS](/recipe_modules/gsutil/examples/full.py#5): [gsutil](#recipe_modules-gsutil), [recipe\_engine/path][recipe_engine/recipe_modules/path]

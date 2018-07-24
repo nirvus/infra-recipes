@@ -471,7 +471,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         cmd.append(switch)
     cmd += [
         '-j',
-        self.m.goma.recommended_goma_jobs,
+        self.m.goma.jobs,
         'GOMACC=%s' % self.m.goma.goma_dir.join('gomacc'),
     ]
     self.m.step('zircon', cmd)
@@ -529,7 +529,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           '-C',
           build.fuchsia_build_dir,
           '-j',
-          self.m.goma.recommended_goma_jobs,
+          self.m.goma.jobs,
       ] + list(ninja_targets))
 
   def build(self,

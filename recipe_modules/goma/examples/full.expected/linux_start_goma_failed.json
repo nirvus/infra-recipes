@@ -74,7 +74,10 @@
   },
   {
     "cmd": [],
-    "name": "pre_goma"
+    "name": "pre_goma",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
   },
   {
     "cmd": [
@@ -121,26 +124,10 @@
     "infra_step": true,
     "name": "pre_goma.start_goma",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "step returned non-zero exit code: 1",
+      "@@@STEP_EXCEPTION@@@"
     ]
-  },
-  {
-    "cmd": [
-      "echo",
-      "20"
-    ],
-    "name": "echo goma jobs"
-  },
-  {
-    "cmd": [
-      "echo",
-      "20"
-    ],
-    "name": "echo goma jobs second"
-  },
-  {
-    "cmd": [],
-    "name": "post_goma"
   },
   {
     "cmd": [
@@ -155,7 +142,7 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
-    "name": "post_goma.goma_jsonstatus",
+    "name": "pre_goma.goma_jsonstatus",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -176,23 +163,6 @@
       "python",
       "-u",
       "[CACHE]/goma/client/goma_ctl.py",
-      "stat"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
-      "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
-    },
-    "name": "post_goma.goma_stat",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[CACHE]/goma/client/goma_ctl.py",
       "stop"
     ],
     "env": {
@@ -200,14 +170,15 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache",
       "LUCI_CONTEXT": "[TMP_BASE]/luci_context._tmp_1"
     },
-    "name": "post_goma.stop_goma",
+    "name": "pre_goma.stop_goma (start failure)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
     "name": "$result",
+    "reason": "Infra Failure: Step('pre_goma.start_goma') returned 1",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]

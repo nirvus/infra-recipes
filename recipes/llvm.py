@@ -119,7 +119,7 @@ def RunSteps(api, repository, branch, revision):
         ])
         api.step('build %s llvm' % target,
                  [cipd_dir.join('ninja'), 'distribution',
-                  '-j%s' % api.goma.recommended_goma_jobs])
+                  '-j%s' % api.goma.jobs])
 
         with api.context(env={'DESTDIR': install_dir}):
           api.step('install %s llvm' % target,

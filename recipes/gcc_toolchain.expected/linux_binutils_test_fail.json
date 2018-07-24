@@ -38,9 +38,9 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/goma",
+      "[CACHE]/goma/client",
       "-ensure-file",
-      "infra_internal/goma/client/linux-amd64 release",
+      "infra_internal/goma/client/${platform} release",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -49,12 +49,14 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra_internal/goma/client/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -479,10 +481,14 @@
     "name": "create pkg dir"
   },
   {
+    "cmd": [],
+    "name": "pre_goma"
+  },
+  {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "restart"
     ],
     "env": {
@@ -490,7 +496,10 @@
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
     "infra_step": true,
-    "name": "start_goma"
+    "name": "pre_goma.start_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -512,9 +521,9 @@
       "[START_DIR]/binutils-gdb/configure",
       "--enable-deterministic-archives",
       "--enable-targets=arm-eabi",
-      "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CC=[CACHE]/goma/client/gomacc [START_DIR]/cipd/bin/clang",
       "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
-      "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
+      "CXX=[CACHE]/goma/client/gomacc [START_DIR]/cipd/bin/clang++",
       "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto -lpthread -ldl",
       "--prefix=",
       "--target=aarch64-elf",
@@ -531,36 +540,8 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport multiprocessing\nimport sys\n\njob_limit = 200\nif sys.platform.startswith('linux'):\n  # Use 80 for linux not to load goma backend.\n  job_limit = 80\n\ntry:\n  jobs = min(job_limit, multiprocessing.cpu_count() * 10)\nexcept NotImplementedError:\n  jobs = 50\n\nprint jobs\n"
-    ],
-    "cwd": "[TMP_BASE]/gcc_tmp_1/binutils_aarch64_build_dir",
-    "name": "calculate the number of recommended jobs",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import multiprocessing@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@job_limit = 200@@@",
-      "@@@STEP_LOG_LINE@python.inline@if sys.platform.startswith('linux'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Use 80 for linux not to load goma backend.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  job_limit = 80@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = min(job_limit, multiprocessing.cpu_count() * 10)@@@",
-      "@@@STEP_LOG_LINE@python.inline@except NotImplementedError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  jobs = 50@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@print jobs@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
       "make",
-      "-j50",
+      "-j20",
       "all-binutils",
       "all-gas",
       "all-ld",
@@ -617,9 +598,9 @@
       "--disable-libstdcxx",
       "--disable-libssp",
       "--disable-libquadmath",
-      "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CC=[CACHE]/goma/client/gomacc [START_DIR]/cipd/bin/clang",
       "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
-      "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
+      "CXX=[CACHE]/goma/client/gomacc [START_DIR]/cipd/bin/clang++",
       "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto -lpthread -ldl",
       "--prefix=",
       "--target=aarch64-elf",
@@ -642,7 +623,7 @@
   {
     "cmd": [
       "make",
-      "-j50",
+      "-j20",
       "MAKEOVERRIDES=USE_GCC_STDINT=provide",
       "all-gcc",
       "all-target-libgcc"
@@ -761,9 +742,9 @@
       "[START_DIR]/binutils-gdb/configure",
       "--enable-deterministic-archives",
       "--enable-targets=x86_64-pep",
-      "CC=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang",
+      "CC=[CACHE]/goma/client/gomacc [START_DIR]/cipd/bin/clang",
       "CFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto",
-      "CXX=[START_DIR]/cipd/goma/gomacc [START_DIR]/cipd/bin/clang++",
+      "CXX=[CACHE]/goma/client/gomacc [START_DIR]/cipd/bin/clang++",
       "CXXFLAGS=-O3 --sysroot=[START_DIR]/cipd -flto -lpthread -ldl",
       "--prefix=",
       "--target=x86_64-elf",
@@ -781,7 +762,7 @@
   {
     "cmd": [
       "make",
-      "-j50",
+      "-j20",
       "all-binutils",
       "all-gas",
       "all-ld",
@@ -879,44 +860,68 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
-      "jsonstatus",
-      "[START_DIR]/cipd/goma/jsonstatus"
-    ],
-    "env": {
-      "GOMA_CACHE_DIR": "[CACHE]/goma",
-      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
-    },
-    "name": "goma_jsonstatus"
+    "cmd": [],
+    "name": "post_goma"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "jsonstatus",
+      "[CACHE]/goma/client/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "post_goma.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"notice\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"infra_status\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"num_user_error\": 0, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ping_status_code\": 200@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
       "stat"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
-    "name": "goma_stat"
+    "name": "post_goma.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cipd/goma/goma_ctl.py",
+      "[CACHE]/goma/client/goma_ctl.py",
       "stop"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
       "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
     },
-    "name": "stop_goma"
+    "name": "post_goma.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result",
