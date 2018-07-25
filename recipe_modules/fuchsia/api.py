@@ -945,7 +945,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         '-ramdisk', ramdisk_name,
         '-test', self.results_dir_on_target,
         '-out', output_archive_name,
-        'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds',
+        'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
     ] # yapf: disable
 
     # Isolate the Fuchsia build artifacts.
