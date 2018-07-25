@@ -303,11 +303,11 @@ parameters will be used.
 
 [DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#157)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#156)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1026)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1025)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -321,7 +321,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1069)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1068)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -332,7 +332,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#533)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#532)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -354,7 +354,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#234)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#233)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -376,7 +376,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [checkout\_patched\_snapshot](/recipe_modules/fuchsia/api.py#326)(self, patch_gerrit_url, patch_issue, patch_project, patch_ref, patch_repository_url, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout\_patched\_snapshot](/recipe_modules/fuchsia/api.py#325)(self, patch_gerrit_url, patch_issue, patch_project, patch_ref, patch_repository_url, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out Fuchsia from a Jiri snapshot from a Gerrit patch.
 
@@ -394,7 +394,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/fuchsia/api.py#281)(self, repository, revision, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/fuchsia/api.py#280)(self, repository, revision, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out Fuchsia from a Jiri snapshot.
 
@@ -411,14 +411,14 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1092)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1091)(self, test_results):**
 
 Logs individual test results in separate steps.
 
 Args:
   test_results (FuchsiaTestResults): The test results.
 
-&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_host](/recipe_modules/fuchsia/api.py#698)(self):**
+&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_host](/recipe_modules/fuchsia/api.py#697)(self):**
 
 The directory on host to which host and target test results will be written.
 
@@ -426,11 +426,11 @@ Target test results will be copied over to this location and host test
 results will be written here. Host and target tests on should write to
 separate subdirectories so as not to collide.
 
-&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_target](/recipe_modules/fuchsia/api.py#693)(self):**
+&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_target](/recipe_modules/fuchsia/api.py#692)(self):**
 
 The directory on target to which target test results will be written.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#998)(self, build, timeout_secs=(40 \* 60), external_network=False):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#997)(self, build, timeout_secs=(40 \* 60), external_network=False):**
 
 Tests a Fuchsia build on the specified device.
 
@@ -448,7 +448,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [test\_on\_host](/recipe_modules/fuchsia/api.py#708)(self, build):**
+&mdash; **def [test\_on\_host](/recipe_modules/fuchsia/api.py#707)(self, build):**
 
 Tests a Fuchsia build from the host machine.
 
@@ -458,7 +458,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1316)(self, build_results, bucket, upload_breakpad_symbols=False):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1315)(self, build_results, bucket, upload_breakpad_symbols=False):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 

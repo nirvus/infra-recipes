@@ -54,14 +54,16 @@ TEST_FS_PCI_ADDR = '06.0'
 TEST_IO_TIMEOUT_SECS = 60
 
 # This is a GN scope; see //build/gn/packages.gni about `synthesize_packages`.
+# TODO(IN-528): Using the zbi tool to add a runcmds entry to the ramdisk instead
+# of pkgfs, as we will eventually no longer have priveleges to run the latter
+# out of a package directly from the shell.
 RUNCMDS_PACKAGE_SPEC = '''
 {
   name = "infra_runcmds"
-  deprecated_system_image = true
   resources = [
     {
       path = "%s"
-      dest = "infra/runcmds"
+      dest = "runcmds"
     },
   ]
 }
@@ -779,7 +781,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     }[build.target]
 
     cmdline = [
-        'zircon.autorun.system=/boot/bin/sh+/system/data/infra/runcmds',
+        'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
         'kernel.halt-on-panic=true',
         # Print a message if `dm poweroff` times out.
         'devmgr.suspend-timeout-debug=true',
