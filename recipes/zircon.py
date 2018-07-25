@@ -485,7 +485,7 @@ def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output='',
 
   with api.context(infra_steps=True):
     # Trigger task.
-    return api.swarming.trigger(
+    trigger_result = api.swarming.trigger(
         name,
         cmd,
         isolated=isolated_hash,
@@ -494,7 +494,9 @@ def TriggerTestsTask(api, name, cmd, arch, use_kvm, isolated_hash, output='',
         io_timeout=TEST_IO_TIMEOUT_SECS,
         cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch, 'latest')],
         outputs=[output] if output else None,
-    ).json.output['TaskID']
+    ).json.output
+    assert 'tasks' in trigger_result and len(trigger_result['tasks']) == 1
+    return trigger_result['tasks'][0]['task_id']
 
 
 def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
@@ -655,10 +657,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
   if run_tests:
     api.qemu.ensure_qemu()
-    # TODO(IN-518): Once the Swarming tool has been updated, fix this recipe and
-    # once again un-pin this version.
-    api.swarming.ensure_swarming(
-        version='0f22871c977c6cf49eee6e2401e16ad58997c366')
+    api.swarming.ensure_swarming(version='latest')
     api.isolated.ensure_isolated(version='latest')
     if device_type == 'QEMU':
       # The MinFS tool is generated during the Zircon build, so only after we

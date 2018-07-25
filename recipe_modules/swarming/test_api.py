@@ -27,36 +27,41 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
       Step test data in the form of JSON output intended to mock a swarming API
       trigger method call.
     """
+    # TODO(mknyszek): Create instructions for updating this if the output format
+    # changes.
     return self.m.json.output({
-      'TaskID': task_id,
-      'ViewURL': 'https://chromium-swarm.appspot.com/user/task/39c188c09955c210',
-      'Request': {
-        'expiration_secs': '3600',
-        'name': name,
-        'priority': '100',
-        'properties': {
-          'cipd_input': {
-            'packages': [
-              {
-                'package_name': pkg,
-                'path': path,
-                'version': version,
-              }  for path, pkg, version in cipd_packages
-            ]
+      'tasks': [
+        {
+          'task_id': task_id,
+          'request': {
+            'expiration_secs': '3600',
+            'name': name,
+            'priority': '100',
+            'properties': {
+              'cipd_input': {
+                'packages': [
+                  {
+                    'package_name': pkg,
+                    'path': path,
+                    'version': version,
+                  }  for path, pkg, version in cipd_packages
+                ]
+              },
+              'command': raw_cmd,
+              'dimensions': [
+                {
+                  'key': k,
+                  'value': v,
+                } for k, v in sorted(dimensions.iteritems())
+              ],
+              'execution_timeout_secs': '3600',
+              'grace_period_secs': '30',
+              'io_timeout_secs': '1200'
+            },
+            'user': 'luci'
           },
-          'command': raw_cmd,
-          'dimensions': [
-            {
-              'key': k,
-              'value': v,
-            } for k, v in sorted(dimensions.iteritems())
-          ],
-          'execution_timeout_secs': '3600',
-          'grace_period_secs': '30',
-          'io_timeout_secs': '1200'
         },
-        'user': 'luci'
-      }
+      ],
     })
 
   def _collect_result_data(self):
