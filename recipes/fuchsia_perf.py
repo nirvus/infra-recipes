@@ -146,15 +146,29 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
 
   execution_timestamp_ms = api.time.ms_since_epoch()
 
+  # Get the LUCI build log URL to attach to the perf data.  This might be empty
+  # or None because of an infra failure.
+  build_id = api.buildbucket.build_id
+
+  # Although it's unusual, BuildBucketApi returns parsed JSON as the step
+  # result's stdout.
+  build_json = api.buildbucket.get_build(build_id).stdout
+  log_url = build_json.get('build', {}).get('url', None)
+  assert log_url, "Couldn't fetch info for build %s. BuildBucket API returned: %s" % (
+      build_id, build_json)
+
   # TODO(kjharland): Specify benchmarks_package in existing configs and delete this.
   if not benchmarks_package:
     benchmarks_package = project + '_benchmarks'
 
   test_cmds = [
-      '/pkgfs/packages/%s/0/bin/benchmarks.sh %s' % (
-          benchmarks_package,
-          api.fuchsia.results_dir_on_target,
-      )
+      ' '.join(['/pkgfs/packages/%s/0/bin/benchmarks.sh' % benchmarks_package,
+                api.fuchsia.results_dir_on_target,
+                '--catapult-converter-args',
+                '--bots', dashboard_bots_name,
+                '--masters', dashboard_masters_name,
+                '--execution-timestamp-ms', '%d' % execution_timestamp_ms,
+                '--log-url', log_url])
   ]
 
   build = api.fuchsia.build(
@@ -170,17 +184,6 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
 
   # Log the results of each benchmark.
   api.fuchsia.report_test_results(test_results)
-
-  # Get the LUCI build log URL to attach to the perf data.  This might be empty
-  # or None because of an infra failure.
-  build_id = api.buildbucket.build_id
-
-  # Although it's unusual, BuildBucketApi returns parsed JSON as the step
-  # result's stdout.
-  build_json = api.buildbucket.get_build(build_id).stdout
-  log_url = build_json.get('build', {}).get('url', None)
-  assert log_url, "Couldn't fetch info for build %s. BuildBucket API returned: %s" % (
-      build_id, build_json)
 
   # Analyze all of the benchmarks that ran successfully
   for test_filepath, test_results in test_results.passed_tests.iteritems():
@@ -276,10 +279,7 @@ def GenTests(api):
   }
 
   # Test API response for a call to the BuildBucket API's `get` method, which
-  # Returns JSON information for a single build.  This information is only
-  # fetched after test results are successfully copied off of the target device,
-  # (otherwise the recipe fails before FuchsiaApi.test() exits) so tests that
-  # fail at this point may omit it.
+  # Returns JSON information for a single build.
   #
   # TODO(kjharland): This should be amended upstream in BuildbucketTestApi.
   buildbucket_get_response = api.step_data(
@@ -369,5 +369,5 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
   ) + (
-      api.fuchsia.task_step_data() +
+      buildbucket_test_data + api.fuchsia.task_step_data() +
       api.step_data('extract results', api.raw_io.output_dir({})))

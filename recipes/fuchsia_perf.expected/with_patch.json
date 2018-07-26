@@ -266,13 +266,36 @@
   },
   {
     "cmd": [
+      "buildbucket",
+      "get",
+      "-host",
+      "cr-buildbucket.appspot.com",
+      "8945511751514863184"
+    ],
+    "infra_step": true,
+    "name": "buildbucket.get",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"build\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"bucket\": \"luci.fuchsia.ci\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"id\": \"123\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"status\": \"SCHEDULED\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"url\": \"https://ci.chromium.org/p/fuchsia/builds/b123\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output\numount /tmp/infra-test-output\ndm poweroff",
+      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output --catapult-converter-args --bots topaz-builder --masters fuchsia.ci --execution-timestamp-ms 1337000001500 --log-url https://ci.chromium.org/p/fuchsia/builds/b123\numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/runcmds"
     ],
     "infra_step": true,
@@ -281,7 +304,7 @@
       "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output --catapult-converter-args --bots topaz-builder --masters fuchsia.ci --execution-timestamp-ms 1337000001500 --log-url https://ci.chromium.org/p/fuchsia/builds/b123@@@",
       "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@",
@@ -810,29 +833,6 @@
       "@@@STEP_LOG_LINE@stdio@{}@@@",
       "@@@STEP_LOG_END@stdio@@@",
       "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "buildbucket",
-      "get",
-      "-host",
-      "cr-buildbucket.appspot.com",
-      "8945511751514863184"
-    ],
-    "infra_step": true,
-    "name": "buildbucket.get",
-    "stdout": "/path/to/tmp/json",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"build\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"bucket\": \"luci.fuchsia.ci\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"id\": \"123\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"status\": \"SCHEDULED\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"url\": \"https://ci.chromium.org/p/fuchsia/builds/b123\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
