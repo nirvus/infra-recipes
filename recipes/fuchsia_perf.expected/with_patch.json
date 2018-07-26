@@ -112,7 +112,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-project",
-      "garnet",
+      "topaz",
       "-rebase=true",
       "refs/changes/96/147496/10"
     ],

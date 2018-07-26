@@ -87,10 +87,7 @@ PROPERTIES = {
     # https://fuchsia.googlesource.com/docs/+/master/development/benchmarking/running_on_ci.md
     'benchmarks_package':
         Property(
-            kind=str,
-            help='The name of the package containing benchmarks.sh',
-            default=None,
-        ),
+            kind=str, help='The name of the package containing benchmarks.sh'),
 
     # Performance dashboard information.
     #
@@ -157,10 +154,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   assert log_url, "Couldn't fetch info for build %s. BuildBucket API returned: %s" % (
       build_id, build_json)
 
-  # TODO(kjharland): Specify benchmarks_package in existing configs and delete this.
-  if not benchmarks_package:
-    benchmarks_package = project + '_benchmarks'
-
+  # yapf: disable
   test_cmds = [
       ' '.join(['/pkgfs/packages/%s/0/bin/benchmarks.sh' % benchmarks_package,
                 api.fuchsia.results_dir_on_target,
@@ -170,6 +164,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
                 '--execution-timestamp-ms', '%d' % execution_timestamp_ms,
                 '--log-url', log_url])
   ]
+  # yapf: enable
 
   build = api.fuchsia.build(
       target=target,
@@ -313,7 +308,7 @@ def GenTests(api):
   # that upload_to_dashboard is false. Be sure to set this when
   # testing patches.
   yield api.test('with_patch') + api.properties(
-      patch_project='garnet',
+      patch_project='topaz',
       patch_ref='refs/changes/96/147496/10',
       patch_gerrit_url='https://fuchsia-review.googlesource.com',
       project='topaz',
@@ -324,13 +319,14 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=False,
+      benchmarks_package='topaz_benchmarks',
   ) + (
       buildbucket_test_data + api.fuchsia.task_step_data() + api.step_data(
           'extract results', api.raw_io.output_dir(extracted_results)))
 
   # CQ runs should disable certain things like dashboard uploads.
   yield api.test('cq') + api.properties(
-      patch_project='garnet',
+      patch_project='topaz',
       patch_ref='refs/changes/96/147496/10',
       patch_gerrit_url='https://fuchsia-review.googlesource.com',
       project='topaz',
@@ -341,6 +337,7 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.try',
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=True,
+      benchmarks_package='topaz_benchmarks',
       tryjob=True,
   ) + (
       buildbucket_test_data + api.fuchsia.task_step_data() + api.step_data(
@@ -355,6 +352,7 @@ def GenTests(api):
       device_type='Intel NUC Kit NUC6i3SYK',
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
+      benchmarks_package='topaz_benchmarks',
   ) + (
       buildbucket_test_data +
       api.fuchsia.task_step_data(device=True) + api.step_data(
@@ -368,6 +366,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
+      benchmarks_package='topaz_benchmarks',
   ) + (
       buildbucket_test_data + api.fuchsia.task_step_data() +
       api.step_data('extract results', api.raw_io.output_dir({})))
