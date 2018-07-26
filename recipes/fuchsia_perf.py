@@ -82,6 +82,16 @@ PROPERTIES = {
             ' dimension',
             default='QEMU'),
 
+    # Each layer should have a Fuchsia package containing a single benchmarks.sh which
+    # runs all benchmarks.  For more information, see the following documentation:
+    # https://fuchsia.googlesource.com/docs/+/master/development/benchmarking/running_on_ci.md
+    'benchmarks_package':
+        Property(
+            kind=str,
+            help='The name of the package containing benchmarks.sh',
+            default=None,
+        ),
+
     # Performance dashboard information.
     #
     # These values are the search terms that will be used when finding graphs in
@@ -119,7 +129,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
              variant, gn_args, catapult_url, device_type,
              dashboard_masters_name, dashboard_bots_name, patch_ref,
              patch_gerrit_url, patch_project, snapshot_gcs_bucket,
-             upload_to_dashboard):
+             upload_to_dashboard, benchmarks_package):
   api.catapult.ensure_catapult()
 
   if api.properties.get('tryjob'):
@@ -136,15 +146,13 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
 
   execution_timestamp_ms = api.time.ms_since_epoch()
 
-  # Each project should have a Fuchsia package named ${project}_benchmarks
-  # containing a single script called "benchmarks.sh" that runs all benchmarks
-  # in the project.  Its only argument should be the directory where output is
-  # written.
-  #
-  # TODO(IN-197): Add link to documentation explaining why and how this works.
+  # TODO(kjharland): Specify benchmarks_package in existing configs and delete this.
+  if not benchmarks_package:
+    benchmarks_package = project + '_benchmarks'
+
   test_cmds = [
-      '/pkgfs/packages/%s_benchmarks/0/bin/benchmarks.sh %s' % (
-          project,
+      '/pkgfs/packages/%s/0/bin/benchmarks.sh %s' % (
+          benchmarks_package,
           api.fuchsia.results_dir_on_target,
       )
   ]
@@ -296,6 +304,7 @@ def GenTests(api):
       packages=['topaz/packages/default'],
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
+      benchmarks_package='topaz_benchmarks',
   ) + (
       buildbucket_test_data + api.fuchsia.task_step_data() + api.step_data(
           'extract results', api.raw_io.output_dir(extracted_results)))

@@ -1268,7 +1268,7 @@ This differs from the fuchsia recipe in the following ways:
 * Tests are always run (this recipe is not used to verify builds).
 * Test results are uploaded to the catapult dashboard after execution.
 
-&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#207)(api, step_name, dashboard_masters_name, dashboard_bots_name, execution_timestamp_ms, test_suite, test_results, catapult_url, upload_to_dashboard, log_url):**
+&mdash; **def [ProcessTestResults](/recipes/fuchsia_perf.py#215)(api, step_name, dashboard_masters_name, dashboard_bots_name, execution_timestamp_ms, test_suite, test_results, catapult_url, upload_to_dashboard, log_url):**
 
 Processes test results and uploads them to the Catapult dashboard.
 
@@ -1283,7 +1283,7 @@ Args:
   upload_to_dashboard (bool): Whether to upload results.
   log_url (str): Link to this build's log page.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#118)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url, device_type, dashboard_masters_name, dashboard_bots_name, patch_ref, patch_gerrit_url, patch_project, snapshot_gcs_bucket, upload_to_dashboard):**
+&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#128)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, catapult_url, device_type, dashboard_masters_name, dashboard_bots_name, patch_ref, patch_gerrit_url, patch_project, snapshot_gcs_bucket, upload_to_dashboard, benchmarks_package):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#14): [auto\_roller](#recipe_modules-auto_roller), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
