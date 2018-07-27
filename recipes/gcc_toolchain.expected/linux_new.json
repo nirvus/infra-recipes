@@ -103,7 +103,7 @@
     "name": "binutils refs",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"refs/tags/binutils-2_31_1\": \"3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/binutils-2_31-branch\": \"3d861fdb826c2f5cf270dd5f585d0e6057e1bf4f\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -120,7 +120,7 @@
     "name": "gcc refs",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/gcc-8-branch\": \"4b5e15daff8b54440e3fda451c318ad31e532fab\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/tags/gcc-8_2_0-release\": \"4b5e15daff8b54440e3fda451c318ad31e532fab\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]

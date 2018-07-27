@@ -31,10 +31,10 @@ DEPS = [
 ]
 
 BINUTILS_GIT = 'https://gnu.googlesource.com/binutils-gdb'
-BINUTILS_REF = 'refs/tags/binutils-2_31_1'
+BINUTILS_REF = 'refs/heads/binutils-2_31-branch'
 
 GCC_GIT = 'https://gnu.googlesource.com/gcc'
-GCC_REF = 'refs/heads/gcc-8-branch'
+GCC_REF = 'refs/tags/gcc-8_2_0-release'
 
 PROPERTIES = {
   'binutils_revision': Property(kind=str, help='Revision in binutils repo',
