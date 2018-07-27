@@ -812,6 +812,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "upload passed.catapult_json"
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/catapult/catapult",
       "upload",
@@ -819,7 +823,10 @@
       "https://chromeperf.appspot.com",
       "[\"dummy_catapult_data\"]"
     ],
-    "name": "catapult upload"
+    "name": "upload passed.catapult_json.catapult upload",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result",

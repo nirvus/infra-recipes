@@ -182,6 +182,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
 
   # Upload results for all of the benchmarks that ran successfully.
   for test_filepath, file_data in test_results.passed_tests.iteritems():
+    step_name = 'upload %s' % api.path.basename(test_filepath)
     _, extension = api.path.splitext(api.path.basename(test_filepath))
 
     # Only look at the Catapult HistogramSet JSON files.
@@ -192,8 +193,9 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
     if (extension == '.catapult_json'
         and not api.properties.get('tryjob')
         and upload_to_dashboard):
-      api.catapult.upload(
-          input_file=api.raw_io.input_text(file_data), url=catapult_url)
+      with api.step.nest(step_name):
+        api.catapult.upload(
+            input_file=api.raw_io.input_text(file_data), url=catapult_url)
 
 
 def GenTests(api):
