@@ -30,6 +30,7 @@
 **[Recipes](#Recipes)**
   * [authutil:examples/full](#recipes-authutil_examples_full)
   * [auto_roller:examples/full](#recipes-auto_roller_examples_full) &mdash; Example recipe for auto-rolling.
+  * [bloaty](#recipes-bloaty) &mdash; Recipe for building Bloaty.
   * [breakpad_tools](#recipes-breakpad_tools) &mdash; Recipe for building some Breakpad tools.
   * [catapult:examples/full](#recipes-catapult_examples_full)
   * [cipd:examples/full](#recipes-cipd_examples_full)
@@ -1212,6 +1213,19 @@ Sets the path to the zbi tool.
 Example recipe for auto-rolling.
 
 &mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#31)(api, project, remote, commit_untracked_files, dry_run):**
+### *recipes* / [bloaty](/recipes/bloaty.py)
+
+[DEPS](/recipes/bloaty.py#9): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [go](#recipe_modules-go), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
+
+Recipe for building Bloaty.
+
+&mdash; **def [RunSteps](/recipes/bloaty.py#125)(api, repository, branch, revision, platform):**
+
+&mdash; **def [cmake](/recipes/bloaty.py#62)(api, cipd_dir, src_dir, platform, options=[], step_name='cmake'):**
+
+&mdash; **def [platform\_sysroot](/recipes/bloaty.py#49)(api, cipd_dir, platform):**
+
+&mdash; **def [upload\_package](/recipes/bloaty.py#90)(api, pkg_name, pkg_file, pkg_dir, repository, revision):**
 ### *recipes* / [breakpad\_tools](/recipes/breakpad_tools.py)
 
 [DEPS](/recipes/breakpad_tools.py#9): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

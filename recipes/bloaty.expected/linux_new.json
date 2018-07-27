@@ -1,0 +1,459 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_goma"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[CACHE]/goma/client",
+      "-ensure-file",
+      "infra_internal/goma/client/${platform} release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/bloaty_src"
+    ],
+    "infra_step": true,
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/bloaty_src",
+    "infra_step": true,
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/bloaty"
+    ],
+    "cwd": "[START_DIR]/bloaty_src",
+    "infra_step": true,
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "master"
+    ],
+    "cwd": "[START_DIR]/bloaty_src",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/bloaty_src",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/bloaty_src",
+    "infra_step": true,
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/bloaty_src",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/bloaty_src",
+    "infra_step": true,
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/bloaty_src",
+    "infra_step": true,
+    "name": "submodule update"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/bloaty_build"
+    ],
+    "infra_step": true,
+    "name": "ensure build dir"
+  },
+  {
+    "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "infra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\nfuchsia/clang/${platform} goma\n@Subdir sysroot\nfuchsia/sysroot/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/clang/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:3.9.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/cmake/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/ninja/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"sysroot\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/sysroot/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "pre_goma"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "restart"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "infra_step": true,
+    "name": "pre_goma.start_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bin/cmake",
+      "-GNinja",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
+      "-DCMAKE_C_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
+      "-DCMAKE_C_COMPILER=[START_DIR]/cipd/bin/clang",
+      "-DCMAKE_C_COMPILER_TARGET=x86_64-linux-gnu",
+      "-DCMAKE_CXX_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
+      "-DCMAKE_CXX_COMPILER=[START_DIR]/cipd/bin/clang++",
+      "-DCMAKE_CXX_COMPILER_TARGET=x86_64-linux-gnu",
+      "-DCMAKE_LINKER=[START_DIR]/cipd/bin/ld.lld",
+      "-DCMAKE_NM=[START_DIR]/cipd/bin/llvm-nm",
+      "-DCMAKE_OBJCOPY=[START_DIR]/cipd/bin/llvm-objcopy",
+      "-DCMAKE_OBJDUMP=[START_DIR]/cipd/bin/llvm-objdump",
+      "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
+      "-DCMAKE_STRIP=[START_DIR]/cipd/bin/llvm-strip",
+      "-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -ldl -lpthread",
+      "[START_DIR]/bloaty_src"
+    ],
+    "cwd": "[START_DIR]/bloaty_build",
+    "name": "cmake"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja",
+      "-j20"
+    ],
+    "cwd": "[START_DIR]/bloaty_build",
+    "name": "build"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja",
+      "test"
+    ],
+    "cwd": "[START_DIR]/bloaty_build",
+    "name": "test"
+  },
+  {
+    "cmd": [],
+    "name": "post_goma"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "jsonstatus",
+      "[CACHE]/goma/client/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "post_goma.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"notice\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"infra_status\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"num_user_error\": 0, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ping_status_code\": 200@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "post_goma.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "stop"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "post_goma.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CLEANUP]/fuchsia/third_party/bloaty"
+    ],
+    "infra_step": true,
+    "name": "ensure cipd dir"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-build",
+      "-pkg-def",
+      "{\"data\": [{\"file\": \"bloaty\"}, {\"version_file\": \".versions/fuchsia/third_party/bloaty/linux-amd64.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/third_party/bloaty/linux-amd64\", \"root\": \"[START_DIR]/bloaty_build\"}",
+      "-out",
+      "[CLEANUP]/fuchsia/third_party/bloaty/linux-amd64",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "build fuchsia/third_party/bloaty/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/third_party/bloaty/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/third_party/bloaty/linux-amd64",
+      "-tag",
+      "git_revision:deadbeef",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "cipd search fuchsia/third_party/bloaty/linux-amd64 git_revision:deadbeef",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "[CLEANUP]/fuchsia/third_party/bloaty/linux-amd64",
+      "-ref",
+      "latest",
+      "-tag",
+      "git_repository:https://fuchsia.googlesource.com/third_party/bloaty",
+      "-tag",
+      "git_revision:deadbeef",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "register fuchsia/third_party/bloaty/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/third_party/bloaty/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/fuchsia/third_party/bloaty/linux-amd64",
+      "gs://fuchsia/fuchsia/third_party/bloaty/linux-amd64/40-chars-fake-of-the-package-instance_id"
+    ],
+    "infra_step": true,
+    "name": "gsutil cp",
+    "~followup_annotations": [
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/fuchsia/third_party/bloaty/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
