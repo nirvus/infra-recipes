@@ -340,7 +340,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n[llvm]\noptimize = true\nstatic-libstdcpp = true\nninja = true\ntargets = \"X86;AArch64\"\n\n[build]\ntarget = [\"x86_64-unknown-fuchsia\", \"aarch64-unknown-fuchsia\"]\ndocs = false\nextended = true\nopenssl-static = true\n\n[install]\nprefix = \"[TMP_BASE]/rust_tmp_1/rust\"\nsysconfdir = \"etc\"\n\n[rust]\noptimize = true\n\n[target.x86_64-unknown-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[target.aarch64-unknown-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[dist]\n",
+      "\n[llvm]\noptimize = true\nstatic-libstdcpp = true\nninja = true\ntargets = \"X86;AArch64\"\n\n[build]\ntarget = [\"x86_64-fuchsia\", \"aarch64-fuchsia\"]\ndocs = false\nextended = true\nopenssl-static = true\n\n[install]\nprefix = \"[TMP_BASE]/rust_tmp_1/rust\"\nsysconfdir = \"etc\"\n\n[rust]\noptimize = true\n\n[target.x86_64-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[target.aarch64-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[dist]\n",
       "[TMP_BASE]/rust_tmp_1/build/config.toml"
     ],
     "infra_step": true,
@@ -369,7 +369,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n[target.x86_64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\n  \"-C\", \"link-arg=--target=x86_64-unknown-fuchsia\",\n  \"-C\", \"link-arg=--sysroot=[START_DIR]/sdk/arch/x64/sysroot\",\n  \"-C\", \"link-arg=-L[START_DIR]/sdk/arch/x64/lib\",\n]\n\n[target.aarch64-unknown-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\n  \"-C\", \"link-arg=--target=aarch64-unknown-fuchsia\",\n  \"-C\", \"link-arg=--sysroot=[START_DIR]/sdk/arch/arm64/sysroot\",\n  \"-C\", \"link-arg=-L[START_DIR]/sdk/arch/arm64/lib\",\n]\n",
+      "\n[target.x86_64-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\n  \"-C\", \"link-arg=--target=x86_64-fuchsia\",\n  \"-C\", \"link-arg=--sysroot=[START_DIR]/sdk/arch/x64/sysroot\",\n  \"-C\", \"link-arg=-L[START_DIR]/sdk/arch/x64/lib\",\n]\n\n[target.aarch64-fuchsia]\nlinker = \"[START_DIR]/cipd/bin/clang\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nrustflags = [\n  \"-C\", \"link-arg=--target=aarch64-fuchsia\",\n  \"-C\", \"link-arg=--sysroot=[START_DIR]/sdk/arch/arm64/sysroot\",\n  \"-C\", \"link-arg=-L[START_DIR]/sdk/arch/arm64/lib\",\n]\n",
       "[TMP_BASE]/rust_tmp_1/.cargo/config"
     ],
     "infra_step": true,
@@ -387,10 +387,10 @@
     "cwd": "[TMP_BASE]/rust_tmp_1/build",
     "env": {
       "CARGO_HOME": "[TMP_BASE]/rust_tmp_1/.cargo",
-      "CFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -I[START_DIR]/sdk/pkg/fdio/include",
-      "CFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/x64/sysroot -I[START_DIR]/sdk/pkg/fdio/include",
-      "LDFLAGS_aarch64-unknown-fuchsia": "--target=aarch64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -L[START_DIR]/sdk/arch/arm64/lib",
-      "LDFLAGS_x86_64-unknown-fuchsia": "--target=x86_64-unknown-fuchsia --sysroot=[START_DIR]/sdk/arch/x64/sysroot -L[START_DIR]/sdk/arch/x64/lib"
+      "CFLAGS_aarch64-fuchsia": "--target=aarch64-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -I[START_DIR]/sdk/pkg/fdio/include",
+      "CFLAGS_x86_64-fuchsia": "--target=x86_64-fuchsia --sysroot=[START_DIR]/sdk/arch/x64/sysroot -I[START_DIR]/sdk/pkg/fdio/include",
+      "LDFLAGS_aarch64-fuchsia": "--target=aarch64-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -L[START_DIR]/sdk/arch/arm64/lib",
+      "LDFLAGS_x86_64-fuchsia": "--target=x86_64-fuchsia --sysroot=[START_DIR]/sdk/arch/x64/sysroot -L[START_DIR]/sdk/arch/x64/lib"
     },
     "env_prefixes": {
       "PATH": [

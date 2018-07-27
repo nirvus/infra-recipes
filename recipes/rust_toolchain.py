@@ -50,7 +50,7 @@ ninja = true
 targets = "X86;AArch64"
 
 [build]
-target = ["x86_64-unknown-fuchsia", "aarch64-unknown-fuchsia"]
+target = ["x86_64-fuchsia", "aarch64-fuchsia"]
 docs = false
 extended = true
 openssl-static = true
@@ -62,13 +62,13 @@ sysconfdir = "etc"
 [rust]
 optimize = true
 
-[target.x86_64-unknown-fuchsia]
+[target.x86_64-fuchsia]
 cc = "{cc}"
 cxx = "{cxx}"
 ar = "{ar}"
 linker = "{cc}"
 
-[target.aarch64-unknown-fuchsia]
+[target.aarch64-fuchsia]
 cc = "{cc}"
 cxx = "{cxx}"
 ar = "{ar}"
@@ -78,20 +78,20 @@ linker = "{cc}"
 '''
 
 CARGO_CONFIG = '''
-[target.x86_64-unknown-fuchsia]
+[target.x86_64-fuchsia]
 linker = "{linker}"
 ar = "{ar}"
 rustflags = [
-  "-C", "link-arg=--target=x86_64-unknown-fuchsia",
+  "-C", "link-arg=--target=x86_64-fuchsia",
   "-C", "link-arg=--sysroot={x86_64_sysroot}",
   "-C", "link-arg=-L{x86_64_lib}",
 ]
 
-[target.aarch64-unknown-fuchsia]
+[target.aarch64-fuchsia]
 linker = "{linker}"
 ar = "{ar}"
 rustflags = [
-  "-C", "link-arg=--target=aarch64-unknown-fuchsia",
+  "-C", "link-arg=--target=aarch64-fuchsia",
   "-C", "link-arg=--sysroot={aarch64_sysroot}",
   "-C", "link-arg=-L{aarch64_lib}",
 ]
@@ -167,15 +167,15 @@ def RunSteps(api, url, ref, revision):
 
   env = {}
   for tc_arch, gn_arch in TARGETS:
-    env['CFLAGS_%s-unknown-fuchsia' % tc_arch] = (
-      '--target=%s-unknown-fuchsia --sysroot=%s -I%s' % (
+    env['CFLAGS_%s-fuchsia' % tc_arch] = (
+      '--target=%s-fuchsia --sysroot=%s -I%s' % (
         tc_arch,
         sdk_dir.join('arch', gn_arch, 'sysroot'),
         sdk_dir.join('pkg', 'fdio', 'include'),
       )
     )
-    env['LDFLAGS_%s-unknown-fuchsia' % tc_arch] = (
-      '--target=%s-unknown-fuchsia --sysroot=%s -L%s' % (
+    env['LDFLAGS_%s-fuchsia' % tc_arch] = (
+      '--target=%s-fuchsia --sysroot=%s -L%s' % (
         tc_arch,
         sdk_dir.join('arch', gn_arch, 'sysroot'),
         sdk_dir.join('arch', gn_arch, 'lib'),
