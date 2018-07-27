@@ -1,74 +1,10 @@
 [
   {
-    "cmd": [],
-    "name": "ensure_goma"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[CACHE]/goma/client",
-      "-ensure-file",
-      "infra_internal/goma/client/${platform} release",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_goma.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/resolved-platform\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      }@@@",
-      "@@@STEP_LOG_LINE@json.output@    ]@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_goma (2)"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[CACHE]/goma/client",
-      "-ensure-file",
-      "infra_internal/goma/client/${platform} candidate",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_goma.ensure_installed (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      {@@@",
-      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-candidate-------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/resolved-platform\"@@@",
-      "@@@STEP_LOG_LINE@json.output@      }@@@",
-      "@@@STEP_LOG_LINE@json.output@    ]@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [
       "gn",
       "gen",
       "out/Release",
-      "--args=use_goma=true goma_dir=[CACHE]/goma/client"
+      "--args=use_goma=true goma_dir=path/to/goma"
     ],
     "name": "gn"
   },
@@ -110,7 +46,7 @@
     "cmd": [
       "python",
       "-u",
-      "[CACHE]/goma/client/goma_ctl.py",
+      "path/to/goma/goma_ctl.py",
       "restart"
     ],
     "env": {
@@ -127,14 +63,14 @@
   {
     "cmd": [
       "echo",
-      "80"
+      "20"
     ],
     "name": "echo goma jobs"
   },
   {
     "cmd": [
       "echo",
-      "80"
+      "20"
     ],
     "name": "echo goma jobs second"
   },
@@ -146,9 +82,9 @@
     "cmd": [
       "python",
       "-u",
-      "[CACHE]/goma/client/goma_ctl.py",
+      "path/to/goma/goma_ctl.py",
       "jsonstatus",
-      "[CACHE]/goma/client/jsonstatus"
+      "path/to/goma/jsonstatus"
     ],
     "env": {
       "GOMA_CACHE_DIR": "[CACHE]/goma",
@@ -175,7 +111,7 @@
     "cmd": [
       "python",
       "-u",
-      "[CACHE]/goma/client/goma_ctl.py",
+      "path/to/goma/goma_ctl.py",
       "stat"
     ],
     "env": {
@@ -192,7 +128,7 @@
     "cmd": [
       "python",
       "-u",
-      "[CACHE]/goma/client/goma_ctl.py",
+      "path/to/goma/goma_ctl.py",
       "stop"
     ],
     "env": {

@@ -16,12 +16,17 @@ class GomaApi(recipe_api.RecipeApi):
     self._luci_context = luci_context
     self._goma_context = None
 
-    self._goma_dir = None
     self._goma_started = False
+
     self._goma_ctl_env = {}
+    self._is_local = 'goma_dir' in goma_properties
+    self._goma_dir = goma_properties.get('goma_dir', None)
     self._jobs = goma_properties.get('jobs', None)
     self._recommended_jobs = None
     self._jsonstatus = None
+
+    self._deps_cache = goma_properties.get('deps_cache', True)
+    self._local_output_cache = goma_properties.get('local_output_cache', False)
 
   @property
   def json_path(self):
@@ -29,7 +34,7 @@ class GomaApi(recipe_api.RecipeApi):
     return self.m.path.join(self._goma_dir, 'jsonstatus')
 
   @property
-  def jsonstatus(self): # pragma: no cover
+  def jsonstatus(self):  # pragma: no cover
     return self._jsonstatus
 
   @property
@@ -71,12 +76,19 @@ class GomaApi(recipe_api.RecipeApi):
     return self._goma_dir
 
   def ensure_goma(self, canary=False):
-    with self.m.step.nest('ensure_goma'):
+    if self._is_local:
+      return self._goma_dir
+
+    with self.m.step.nest('ensure_goma') as step_result:
+      if canary:
+        step_result.presentation.step_text = 'using canary goma client'
+        step_result.presentation.status = self.m.step.WARNING
+
       with self.m.context(infra_steps=True):
         pkgs = self.m.cipd.EnsureFile()
-        ref='release'
+        ref = 'release'
         if canary:
-          ref='candidate'
+          ref = 'candidate'
         pkgs.add_package('infra_internal/goma/client/${platform}', ref)
         self._goma_dir = self.m.path['cache'].join('goma', 'client')
 
@@ -90,7 +102,7 @@ class GomaApi(recipe_api.RecipeApi):
           args=['jsonstatus',
                 self.m.json.output(leak_to=self.json_path)],
           step_test_data=lambda: self.m.json.test_api.output(
-              data={'notice':[{
+              data={'notice': [{
                   'infra_status': {
                       'ping_status_code': 200,
                       'num_user_error': 0,
@@ -111,10 +123,15 @@ class GomaApi(recipe_api.RecipeApi):
     assert not self._goma_started
 
     with self.m.step.nest('pre_goma') as nested_result:
-      if 'GOMA_DEPS_CACHE_FILE' not in env:
-        self._goma_ctl_env['GOMA_DEPS_CACHE_FILE'] = 'goma_deps_cache'
       if 'GOMA_CACHE_DIR' not in env:
         self._goma_ctl_env['GOMA_CACHE_DIR'] = self.m.path['cache'].join('goma')
+      if self._deps_cache:
+        if 'GOMA_DEPS_CACHE_FILE' not in env:
+          self._goma_ctl_env['GOMA_DEPS_CACHE_FILE'] = 'goma_deps_cache'
+      if self._local_output_cache:
+        if 'GOMA_LOCAL_OUTPUT_CACHE_DIR' not in env:
+          self._goma_ctl_env['GOMA_LOCAL_OUTPUT_CACHE_DIR'] = (
+              self.m.path['cache'].join('goma', 'localoutputcache'))
       if self._luci_context:
         if not self._goma_context:
           step_result = self.m.json.read(
@@ -127,7 +144,7 @@ class GomaApi(recipe_api.RecipeApi):
               })
           )
           ctx = step_result.json.output.copy()
-          if 'local_auth' not in ctx: # pragma: no cover
+          if 'local_auth' not in ctx:  # pragma: no cover
             raise self.m.step.InfraFailure('local_auth missing in LUCI_CONTEXT')
           ctx['local_auth']['default_account_id'] = 'system'
           self._goma_context = self.m.path.mkstemp('luci_context.')
@@ -137,7 +154,7 @@ class GomaApi(recipe_api.RecipeApi):
 
       # GLOG_log_dir should not be set.
       assert 'GLOG_log_dir' not in self.m.context.env, (
-        'GLOG_log_dir must not be set in env during goma.start()')
+          'GLOG_log_dir must not be set in env during goma.start()')
 
       goma_ctl_env = self._goma_ctl_env.copy()
       goma_ctl_env.update(env)
@@ -147,9 +164,11 @@ class GomaApi(recipe_api.RecipeApi):
           self.m.python(
               name='start_goma',
               script=self.goma_ctl,
-              args=['restart'], infra_step=True, **kwargs)
+              args=['restart'],
+              infra_step=True,
+              **kwargs)
         self._goma_started = True
-      except self.m.step.InfraFailure as e: # pragma: no cover
+      except self.m.step.InfraFailure as e:  # pragma: no cover
         with self.m.step.defer_results():
           self._run_jsonstatus()
 
@@ -157,7 +176,8 @@ class GomaApi(recipe_api.RecipeApi):
             self.m.python(
                 name='stop_goma (start failure)',
                 script=self.goma_ctl,
-                args=['stop'], **kwargs)
+                args=['stop'],
+                **kwargs)
         nested_result.presentation.status = self.m.step.EXCEPTION
         raise e
 
@@ -179,11 +199,10 @@ class GomaApi(recipe_api.RecipeApi):
           self._run_jsonstatus()
 
           with self.m.context(env=self._goma_ctl_env):
-            self.m.python(name='goma_stat', script=self.goma_ctl,
-                          args=['stat'],
-                          **kwargs)
-            self.m.python(name='stop_goma', script=self.goma_ctl,
-                          args=['stop'], **kwargs)
+            self.m.python(
+                name='goma_stat', script=self.goma_ctl, args=['stat'], **kwargs)
+            self.m.python(
+                name='stop_goma', script=self.goma_ctl, args=['stop'], **kwargs)
 
         self._goma_started = False
       except self.m.step.StepFailure:

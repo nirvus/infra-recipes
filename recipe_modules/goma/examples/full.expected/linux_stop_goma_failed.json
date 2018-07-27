@@ -33,7 +33,11 @@
   },
   {
     "cmd": [],
-    "name": "ensure_goma (2)"
+    "name": "ensure_goma (2)",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@using canary goma client@@@",
+      "@@@STEP_WARNINGS@@@"
+    ]
   },
   {
     "cmd": [

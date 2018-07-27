@@ -423,17 +423,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     ]
     self.m.step('zircon', cmd)
 
-  def _setup_goma(self):
-    """Sets up goma directory and returns an environment for goma."""
-    self.m.goma.ensure_goma()
-
-    goma_env = {}
-    if self.m.properties.get('goma_local_cache', False):
-      goma_env['GOMA_LOCAL_OUTPUT_CACHE_DIR'] = self.m.path['cache'].join(
-          'goma', 'localoutputcache')
-
-    return goma_env
-
   def _build_fuchsia(self, build, build_type, packages, variants, gn_args,
                      ninja_targets):
     """Builds fuchsia given a FuchsiaBuildResults and other GN options."""
@@ -523,7 +512,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         fuchsia_build_dir=out_dir.join('%s-%s' % (build_dir, target)),
     )
     with self.m.step.nest('build'):
-      with self.m.goma.build_with_goma(env=self._setup_goma()):
+      self.m.goma.ensure_goma()
+      with self.m.goma.build_with_goma():
         self._build_zircon(target, variants)
         self._build_fuchsia(
             build=build,

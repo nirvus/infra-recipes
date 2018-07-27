@@ -30,13 +30,6 @@ from recipe_engine.recipe_api import Property
 from recipe_engine.config import ConfigGroup, Single
 
 PROPERTIES = {
-    'goma_dir':
-        Property(kind=str, help='Path to goma', default=None),
-    'goma_local_cache':
-        Property(
-            kind=bool,
-            help='Whether to use a local cache for goma',
-            default=False),
     '$infra/fuchsia': Property(
         help='Properties specifically for the fuchsia module',
         param_name='fuchsia_properties',

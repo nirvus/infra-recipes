@@ -131,14 +131,14 @@
   {
     "cmd": [
       "echo",
-      "20"
+      "80"
     ],
     "name": "echo goma jobs"
   },
   {
     "cmd": [
       "echo",
-      "20"
+      "80"
     ],
     "name": "echo goma jobs second"
   },

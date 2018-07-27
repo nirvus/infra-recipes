@@ -20,8 +20,14 @@ PROPERTIES = {
     help='Properties specifically for the goma module',
     param_name='goma_properties',
     kind=ConfigGroup(
+      # Path to goma directory.
+      goma_dir=Single(str),
       # How many jobs to run in parallel.
       jobs=Single(int),
+      # Whether or not to use deps cache.
+      deps_cache=Single(bool),
+      # Whether or not to use local cache.
+      local_output_cache=Single(bool),
     ), default={},
   ),
 }

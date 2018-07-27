@@ -36,8 +36,21 @@ def GenTests(api):
     yield (api.test(platform) + api.platform.name(platform) +
            api.properties.generic(**properties))
 
-  yield (api.test('linux_custom_jobs') + api.platform.name('linux') +
-           api.properties.generic(**properties) + api.goma(jobs=80))
+  yield (api.test('linux_goma_dir') + api.platform.name('linux') +
+         api.properties.generic(**properties) +
+         api.goma(goma_dir='path/to/goma'))
+
+  yield (api.test('linux_jobs') + api.platform.name('linux') +
+         api.properties.generic(**properties) +
+         api.goma(jobs=80))
+
+  yield (api.test('linux_deps_cache') + api.platform.name('linux') +
+         api.properties.generic(**properties) +
+         api.goma(deps_cache=True))
+
+  yield (api.test('linux_local_output_cache') + api.platform.name('linux') +
+         api.properties.generic(**properties) +
+         api.goma(local_output_cache=True))
 
   yield (api.test('linux_start_goma_failed') + api.platform.name('linux') +
          api.step_data('pre_goma.start_goma', retcode=1) +
