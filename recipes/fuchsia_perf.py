@@ -180,70 +180,20 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   # Log the results of each benchmark.
   api.fuchsia.report_test_results(test_results)
 
-  # Analyze all of the benchmarks that ran successfully
-  for test_filepath, test_results in test_results.passed_tests.iteritems():
-    # Extract the name of the test suite, e.g. "baz_test" in
-    # "foo/bar/baz_test.json".
-    test_suite, extension = api.path.splitext(api.path.basename(test_filepath))
+  # Upload results for all of the benchmarks that ran successfully.
+  for test_filepath, file_data in test_results.passed_tests.iteritems():
+    _, extension = api.path.splitext(api.path.basename(test_filepath))
 
-    # Only look at files with a ".json" extension, which we take to be
-    # Fuchsia perf test results files.  This allows the Fuchsia side to
-    # output other file types -- in particular, Catapult Histogram files,
-    # which we skip for now, but will later switch to using (see IN-444).
-    if extension == '.json':
-      # Prepend "fuchsia." to make test results easier to find in the
-      # dashboard.
-      dashboard_test_suite = "fuchsia." + test_suite
-
-      ProcessTestResults(
-          # Prevent corrupting the step name with extra dots.
-          step_name="analyze_%s" % test_suite.replace('.', '_'),
-          api=api,
-          dashboard_masters_name=dashboard_masters_name,
-          dashboard_bots_name=dashboard_bots_name,
-          execution_timestamp_ms=execution_timestamp_ms,
-          test_suite=dashboard_test_suite,
-          test_results=test_results,
-          catapult_url=catapult_url,
-          upload_to_dashboard=upload_to_dashboard,
-          log_url=log_url,
-      )
-
-
-def ProcessTestResults(api, step_name, dashboard_masters_name,
-                       dashboard_bots_name, execution_timestamp_ms, test_suite,
-                       test_results, catapult_url, upload_to_dashboard,
-                       log_url):
-  """
-  Processes test results and uploads them to the Catapult dashboard.
-
-  Args:
-    step_name (str): The name of the step under which to test the processing
-      steps.
-    dashboard_masters_name (str): The masters name to use in the perf dashboard.
-    dashboard_bots_name (str): The bots name to use in the perf dashboard.
-    test_suite (str): The name of the test suite that was run.
-    test_results (str): The raw test results output.
-    catapult_url (str): The URL of the catapult dashboard.
-    upload_to_dashboard (bool): Whether to upload results.
-    log_url (str): Link to this build's log page.
-  """
-  with api.step.nest(step_name):
-    # Generate the histogram set.
-    histogram_output = api.catapult.make_histogram(
-        input_file=api.raw_io.input_text(test_results),
-        test_suite=test_suite,
-        masters_name=dashboard_masters_name,
-        bots_name=dashboard_bots_name,
-        execution_timestamp_ms=execution_timestamp_ms,
-        output_file=api.json.output(),
-        log_url=log_url,
-    ).json.output
-
-    # Upload the file to Catapult using the current build's credentials.
-    if upload_to_dashboard and not api.properties.get('tryjob'):
+    # Only look at the Catapult HistogramSet JSON files.
+    #
+    # The other files are the raw Fuchsia perf test results files (in
+    # JSON format), which are returned as test results so that they
+    # get archived, but which we skip here.
+    if (extension == '.catapult_json'
+        and not api.properties.get('tryjob')
+        and upload_to_dashboard):
       api.catapult.upload(
-          input_file=api.json.input(histogram_output), url=catapult_url)
+          input_file=api.raw_io.input_text(file_data), url=catapult_url)
 
 
 def GenTests(api):
@@ -253,6 +203,11 @@ def GenTests(api):
           {
               "name": "passed.json",
               "output_file": "passed.json",
+              "result": "PASS",
+          },
+          {
+              "name": "passed.catapult_json",
+              "output_file": "passed.catapult_json",
               "result": "PASS",
           },
           {
@@ -269,6 +224,7 @@ def GenTests(api):
   extracted_results = {
       'summary.json': summary_json,
       'passed.json': '{"test_name": "a", "units": "b", "samples": [1, 2, 3]}',
+      'passed.catapult_json': '["dummy_catapult_data"]',
       # No output for failed benchmark.
       'failed.json': '{}',
   }

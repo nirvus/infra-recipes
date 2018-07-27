@@ -35,48 +35,6 @@ class CatapultApi(recipe_api.RecipeApi):
 
         return self._catapult
 
-  def make_histogram(self, input_file, test_suite, masters_name, bots_name,
-                     execution_timestamp_ms, output_file, log_url=None, **kwargs):
-    """
-    Generates a HistogramSet from performance test output.
-
-    Args:
-      test_suite (string): The name of the test suite
-      masters_name (str): The masters name to use in the perf dashboard.
-      bots_name (str): The bots name to use in the perf dashboard.
-      execution_timestamp_ms (uint): Ms since epoch when tests were executed.
-      input_file (Path): Full path to the input file containing test results.
-      output_file (Path): Full path to the file to write results to.
-      input_file (string): Full path to the input file containing test results.
-      log_url (string): URL to the LUCI build page, gets attached to the sample
-        point in the dashboard to help users find build information.
-      kwargs: Keyword argments passed to the returned step.
-
-    Returns:
-      The step result of executing the make_histogram subcommand.
-    """
-    args = [
-        'make_histogram',
-        '-test-suite',
-        test_suite,
-        '-bots',
-        bots_name,
-        '-masters',
-        masters_name,
-        '-execution-timestamp-ms',
-        execution_timestamp_ms,
-        '-logdog-stream-name',
-        test_suite,
-        '-output',
-        output_file,
-    ]
-
-    if log_url:
-      args += ['-log-url', log_url]
-
-    args += [input_file]
-    return self(*args, **kwargs)
-
   def upload(self, input_file, url, timeout=None, **kwargs):
     """
     Uploads performance JSON data to a dashboard.

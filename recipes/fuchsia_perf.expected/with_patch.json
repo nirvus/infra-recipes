@@ -817,7 +817,7 @@
     "infra_step": true,
     "name": "extract results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@summary.json@{\"tests\": [{\"name\": \"passed.json\", \"output_file\": \"passed.json\", \"result\": \"PASS\"}, {\"name\": \"failed.json\", \"output_file\": \"failed.json\", \"result\": \"FAIL\"}]}@@@",
+      "@@@STEP_LOG_LINE@summary.json@{\"tests\": [{\"name\": \"passed.json\", \"output_file\": \"passed.json\", \"result\": \"PASS\"}, {\"name\": \"passed.catapult_json\", \"output_file\": \"passed.catapult_json\", \"result\": \"PASS\"}, {\"name\": \"failed.json\", \"output_file\": \"failed.json\", \"result\": \"FAIL\"}]}@@@",
       "@@@STEP_LOG_END@summary.json@@@"
     ]
   },
@@ -831,43 +831,19 @@
   },
   {
     "cmd": [],
+    "name": "passed.catapult_json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@stdio@[\"dummy_catapult_data\"]@@@",
+      "@@@STEP_LOG_END@stdio@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "failed.json",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@stdio@{}@@@",
       "@@@STEP_LOG_END@stdio@@@",
       "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "analyze_passed"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/catapult/catapult",
-      "make_histogram",
-      "-test-suite",
-      "fuchsia.passed",
-      "-bots",
-      "topaz-builder",
-      "-masters",
-      "fuchsia.ci",
-      "-execution-timestamp-ms",
-      "1337000001500",
-      "-logdog-stream-name",
-      "fuchsia.passed",
-      "-output",
-      "/path/to/tmp/json",
-      "-log-url",
-      "https://ci.chromium.org/p/fuchsia/builds/b123",
-      "{\"test_name\": \"a\", \"units\": \"b\", \"samples\": [1, 2, 3]}"
-    ],
-    "name": "analyze_passed.catapult make_histogram",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_END@json.output (invalid)@@@",
-      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
-      "@@@STEP_LOG_END@json.output (exception)@@@"
     ]
   },
   {
