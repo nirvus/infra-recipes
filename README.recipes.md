@@ -25,6 +25,7 @@
   * [service_account](#recipe_modules-service_account)
   * [swarming](#recipe_modules-swarming)
   * [tar](#recipe_modules-tar)
+  * [zbi](#recipe_modules-zbi)
 
 **[Recipes](#Recipes)**
   * [authutil:examples/full](#recipes-authutil_examples_full)
@@ -79,6 +80,7 @@
   * [tools](#recipes-tools) &mdash; Recipe for building and publishing tools.
   * [tricium/clang-format](#recipes-tricium_clang-format) &mdash; Recipe for running Tricium clang-format analyzer.
   * [web_view](#recipes-web_view) &mdash; Recipe for building libwebkit.
+  * [zbi:examples/full](#recipes-zbi_examples_full)
   * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
 ## Recipe Modules
 
@@ -1154,6 +1156,35 @@ Args:
   path: absolute path to archive file.
   directory: directory to extract the archive in.
   strip_components: strip number of leading components from file names.
+### *recipe_modules* / [zbi](/recipe_modules/zbi)
+
+[DEPS](/recipe_modules/zbi/__init__.py#1): [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [ZbiApi](/recipe_modules/zbi/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+ZbiApi provides support for Zircon's ZBI tool.
+
+&mdash; **def [copy\_and\_extend](/recipe_modules/zbi/api.py#26)(self, step_name, input_image, output_image, manifest):**
+
+Creates a copy of a ZBI and extends its bootFS manifest.
+
+A copy of |input_image| is made at |output_image|, and the files
+given in |manifest| are added to the latter's bootFS manifest.
+
+Args:
+  step_name (str): The name of the step.
+  input_image (Path): The path to the input image.
+  output_image (Path): The path to the output image.
+  manifest (dict[str]Path): a dictionary of destination-to-source
+    mappings, where destination/source are paths to files or
+    directories on target/host, respectively.
+
+Returns:
+  A step to perform the operation.
+
+&emsp; **@zbi_path.setter**<br>&mdash; **def [zbi\_path](/recipe_modules/zbi/api.py#21)(self, path):**
+
+Sets the path to the zbi tool.
 ## Recipes
 
 ### *recipes* / [authutil:examples/full](/recipe_modules/authutil/examples/full.py)
@@ -1558,6 +1589,11 @@ Recipe for running Tricium clang-format analyzer.
 Recipe for building libwebkit.so.
 
 &mdash; **def [RunSteps](/recipes/web_view.py#45)(api, repository, branch, revision, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, snapshot_gcs_bucket):**
+### *recipes* / [zbi:examples/full](/recipe_modules/zbi/examples/full.py)
+
+[DEPS](/recipe_modules/zbi/examples/full.py#5): [zbi](#recipe_modules-zbi), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+&mdash; **def [RunSteps](/recipe_modules/zbi/examples/full.py#13)(api):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
 [DEPS](/recipes/zircon.py#15): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]

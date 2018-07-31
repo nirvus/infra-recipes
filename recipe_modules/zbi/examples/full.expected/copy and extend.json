@@ -1,0 +1,22 @@
+[
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/zbi",
+      "-o",
+      "[START_DIR]/output.zbi",
+      "[START_DIR]/input.zbi",
+      "-e",
+      "path/to/dest/1",
+      "[START_DIR]/src/1",
+      "-e",
+      "path/to/dest/2",
+      "[START_DIR]/src/2"
+    ],
+    "name": "copy and extend"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
