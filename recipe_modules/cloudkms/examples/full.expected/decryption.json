@@ -1,0 +1,49 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_cloudkms"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/cloudkms",
+      "-ensure-file",
+      "infra/tools/luci/cloudkms/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_cloudkms.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/cloudkms/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/cloudkms/cloudkms",
+      "decrypt",
+      "-input",
+      "[START_DIR]/ciphertext.txt",
+      "-output",
+      "[START_DIR]/plaintext.txt",
+      "crypto/key/path"
+    ],
+    "name": "decrypt secret"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

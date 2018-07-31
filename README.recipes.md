@@ -7,6 +7,7 @@
   * [auto_roller](#recipe_modules-auto_roller)
   * [catapult](#recipe_modules-catapult)
   * [cipd](#recipe_modules-cipd)
+  * [cloudkms](#recipe_modules-cloudkms)
   * [fuchsia](#recipe_modules-fuchsia)
   * [gerrit](#recipe_modules-gerrit)
   * [git](#recipe_modules-git)
@@ -32,6 +33,7 @@
   * [cipd:examples/full](#recipes-cipd_examples_full)
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
   * [clang_toolchain](#recipes-clang_toolchain) &mdash; Recipe for building Clang toolchain.
+  * [cloudkms:examples/full](#recipes-cloudkms_examples_full)
   * [cobalt](#recipes-cobalt) &mdash; Recipe for building and testing Cobalt.
   * [cut_release](#recipes-cut_release) &mdash; Recipe for automatically cutting new release branches.
   * [dart_flutter_roller](#recipes-dart_flutter_roller) &mdash; Recipe for automatically updating Flutter, flutter/engine, and Dart.
@@ -280,6 +282,35 @@ parameters will be used.
 &mdash; **def [set\_ref](/recipe_modules/cipd/api.py#391)(self, package_name, version, refs):**
 
 &mdash; **def [set\_tag](/recipe_modules/cipd/api.py#373)(self, package_name, version, tags):**
+### *recipe_modules* / [cloudkms](/recipe_modules/cloudkms)
+
+[DEPS](/recipe_modules/cloudkms/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [CloudKmsApi](/recipe_modules/cloudkms/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+Module for interacting with CloudKMS.
+
+This is a thin wrapper of the CloudKMS Go client at
+https://github.com/luci/luci-go/client/cmd/cloudkms
+
+&mdash; **def [decrypt](/recipe_modules/cloudkms/api.py#32)(self, step_name, crypto_key_path, ciphertext_file, plaintext_file):**
+
+Decrypts a ciphertext encrypted with a CloudKMS crypto key.
+
+Args:
+  step_name (str): name of the step.
+  crypto_key_path (str): path in CloudKMS to the crypto key, generically
+    of the form `<project>/<location>/<key ring>/<crypto key name>`, where
+    the infixes are CloudKMS concepts detailed at
+    https://cloud.google.com/kms/docs/object-hierarchy.
+  ciphertext_file (Path): path to a file containing the ciphertext.
+  plaintext_file (Path): path to a file to which the plaintext will be
+    written.
+
+Returns:
+  A step to perform the decryption.
+
+&mdash; **def [ensure\_cloudkms](/recipe_modules/cloudkms/api.py#19)(self, version=None):**
 ### *recipe_modules* / [fuchsia](/recipe_modules/fuchsia)
 
 [DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1140,6 +1171,11 @@ Recipe for building some Breakpad tools.
 Recipe for building Clang toolchain.
 
 &mdash; **def [RunSteps](/recipes/clang_toolchain.py#62)(api, repository, branch, revision, platform):**
+### *recipes* / [cloudkms:examples/full](/recipe_modules/cloudkms/examples/full.py)
+
+[DEPS](/recipe_modules/cloudkms/examples/full.py#5): [cloudkms](#recipe_modules-cloudkms), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
+
+&mdash; **def [RunSteps](/recipe_modules/cloudkms/examples/full.py#11)(api):**
 ### *recipes* / [cobalt](/recipes/cobalt.py)
 
 [DEPS](/recipes/cobalt.py#10): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
