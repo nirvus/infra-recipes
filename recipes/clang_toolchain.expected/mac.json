@@ -842,6 +842,34 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "symlink",
+      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/x86_64-fuchsia",
+      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/x86_64-unknown-fuchsia"
+    ],
+    "infra_step": true,
+    "name": "create x86_64-unknown-fuchsia symlink"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "symlink",
+      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/aarch64-fuchsia",
+      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/aarch64-unknown-fuchsia"
+    ],
+    "infra_step": true,
+    "name": "create aarch64-unknown-fuchsia symlink"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "copy",
       "lib/libclang_rt.asan.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.asan.so\nlib/libclang_rt.ubsan_standalone.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.ubsan_standalone.so\nlib/libclang_rt.scudo.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.scudo.so\nlib/libc++.so.2=clang/5.0.0/x86_64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=clang/5.0.0/x86_64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=clang/5.0.0/x86_64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=clang/5.0.0/x86_64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=clang/5.0.0/x86_64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=clang/5.0.0/x86_64-fuchsia/lib/asan/libunwind.so.1\n",
       "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/x86_64-fuchsia.manifest"
