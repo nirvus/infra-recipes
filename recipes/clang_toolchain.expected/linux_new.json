@@ -863,7 +863,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "symlink",
-      "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/x86_64-fuchsia",
+      "x86_64-fuchsia",
       "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/x86_64-unknown-fuchsia"
     ],
     "infra_step": true,
@@ -877,7 +877,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "symlink",
-      "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/aarch64-fuchsia",
+      "aarch64-fuchsia",
       "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/aarch64-unknown-fuchsia"
     ],
     "infra_step": true,
@@ -891,7 +891,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "symlink",
-      "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/aarch64-linux-gnu",
+      "aarch64-linux-gnu",
       "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/aarch64-unknown-linux-gnu"
     ],
     "infra_step": true,
@@ -905,7 +905,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "symlink",
-      "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/x86_64-linux-gnu",
+      "x86_64-linux-gnu",
       "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/x86_64-unknown-linux-gnu"
     ],
     "infra_step": true,

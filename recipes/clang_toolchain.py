@@ -240,14 +240,14 @@ def RunSteps(api, repository, branch, revision, platform):
   clang_libdir = pkg_dir.join('lib', 'clang', clang_version)
   for _, arch in TARGET_TO_ARCH.iteritems():
     api.file.symlink('create %s-unknown-fuchsia symlink' % arch,
-                      clang_libdir.join('%s-fuchsia' % arch),
-                      clang_libdir.join('%s-unknown-fuchsia' % arch))
+                     '%s-fuchsia' % arch,
+                     clang_libdir.join('%s-unknown-fuchsia' % arch))
 
   if api.platform.name == 'linux':
     for arch in ['aarch64', 'x86_64']:
       api.file.symlink('create %s-unknown-linux-gnu symlink' % arch,
-                        clang_libdir.join('%s-linux-gnu' % arch),
-                        clang_libdir.join('%s-unknown-linux-gnu' % arch))
+                       '%s-linux-gnu' % arch,
+                       clang_libdir.join('%s-unknown-linux-gnu' % arch))
 
 
   # TODO(TO-471): Ideally this would be done by the cmake build itself.

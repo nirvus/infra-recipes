@@ -843,7 +843,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "symlink",
-      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/x86_64-fuchsia",
+      "x86_64-fuchsia",
       "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/x86_64-unknown-fuchsia"
     ],
     "infra_step": true,
@@ -857,7 +857,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "symlink",
-      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/aarch64-fuchsia",
+      "aarch64-fuchsia",
       "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/aarch64-unknown-fuchsia"
     ],
     "infra_step": true,
