@@ -859,56 +859,40 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "symlink",
+      "RECIPE[infra::clang_toolchain].resources/create_symlink.py",
       "x86_64-fuchsia",
       "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/x86_64-unknown-fuchsia"
     ],
-    "infra_step": true,
     "name": "create x86_64-unknown-fuchsia symlink"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "symlink",
+      "RECIPE[infra::clang_toolchain].resources/create_symlink.py",
       "aarch64-fuchsia",
       "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/aarch64-unknown-fuchsia"
     ],
-    "infra_step": true,
     "name": "create aarch64-unknown-fuchsia symlink"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "symlink",
+      "RECIPE[infra::clang_toolchain].resources/create_symlink.py",
       "aarch64-linux-gnu",
       "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/aarch64-unknown-linux-gnu"
     ],
-    "infra_step": true,
     "name": "create aarch64-unknown-linux-gnu symlink"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "symlink",
+      "RECIPE[infra::clang_toolchain].resources/create_symlink.py",
       "x86_64-linux-gnu",
       "[TMP_BASE]/clang_tmp_1/clang-linux/lib/clang/5.0.0/x86_64-unknown-linux-gnu"
     ],
-    "infra_step": true,
     "name": "create x86_64-unknown-linux-gnu symlink"
   },
   {
