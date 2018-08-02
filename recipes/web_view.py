@@ -42,8 +42,8 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
-      manifest='manifest/topaz',
-      remote='https://fuchsia.googlesource.com/topaz',
+      manifest='manifest/webkit',
+      remote='https://fuchsia.googlesource.com/third_party/webkit',
       project=project,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
@@ -64,9 +64,8 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       builds[target] = api.fuchsia.build(
           target=target,
           build_type='release',
-          packages=['topaz/packages/prod/webkit'],
-          gn_args=['use_prebuilt_webkit=false'],
-          ninja_targets=['topaz/runtime/web_view:webkit'],
+          packages=['third_party/webkit/packages/webkit'],
+          ninja_targets=['third_party/webkit'],
       )
 
   # If this isn't a real run, don't pollute the storage.

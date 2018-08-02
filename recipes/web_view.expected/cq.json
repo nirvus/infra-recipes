@@ -51,8 +51,8 @@
       "import",
       "-v",
       "-time",
-      "manifest/topaz",
-      "https://fuchsia.googlesource.com/topaz"
+      "manifest/webkit",
+      "https://fuchsia.googlesource.com/third_party/webkit"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -308,7 +308,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/prod/webkit\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false use_prebuilt_webkit=false"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"third_party/webkit/packages/webkit\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -322,7 +322,7 @@
       "[START_DIR]/out/release-arm64",
       "-j",
       "20",
-      "topaz/runtime/web_view:webkit"
+      "third_party/webkit"
     ],
     "name": "build arm64.build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -493,7 +493,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/prod/webkit\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false use_prebuilt_webkit=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"third_party/webkit/packages/webkit\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -507,7 +507,7 @@
       "[START_DIR]/out/release-x64",
       "-j",
       "20",
-      "topaz/runtime/web_view:webkit"
+      "third_party/webkit"
     ],
     "name": "build x64.build.build fuchsia.ninja",
     "~followup_annotations": [
