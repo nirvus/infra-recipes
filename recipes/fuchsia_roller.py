@@ -34,12 +34,9 @@ PROPERTIES = {
             kind=Enum(*ROLL_TYPES),
             help='The type of roll to perform',
             default='import'),
-    # TODO(kjharland): Rename to 'manifest_to_edit' since "import" is misleading
-    # if we are not actually rolling an <import> tag in the manifest.
     'import_in':
         Property(
             kind=str, help='Path to the manifest to edit relative to $project'),
-    # TODO(kjharland): Rename to 'element_name' because "import" is misleading.
     'import_from':
         Property(
             kind=str,
