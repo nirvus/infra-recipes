@@ -51,6 +51,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "third_party/webkit",
       "manifest/webkit",
       "https://fuchsia.googlesource.com/third_party/webkit"
     ],

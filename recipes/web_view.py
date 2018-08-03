@@ -26,8 +26,6 @@ PROPERTIES = {
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
-  'project': Property(kind=str, help='Jiri remote manifest project',
-                      default=None),
   'revision': Property(kind=str, help='Revision', default=None),
   'snapshot_gcs_bucket': Property(kind=str,
                                   help='The GCS bucket to upload a jiri snapshot of the build'
@@ -38,13 +36,13 @@ PROPERTIES = {
 
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, project, revision, snapshot_gcs_bucket):
+             patch_repository_url, revision, snapshot_gcs_bucket):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
       manifest='manifest/webkit',
       remote='https://fuchsia.googlesource.com/third_party/webkit',
-      project=project,
+      project='third_party/webkit',
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project,
