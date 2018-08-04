@@ -10,6 +10,7 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
   'infra/fuchsia',
+  'infra/gitiles',
   'infra/gsutil',
   'infra/jiri',
   'recipe_engine/context',
@@ -20,13 +21,19 @@ DEPS = [
 TARGETS = ['arm64', 'x64']
 
 PROPERTIES = {
+  'repository':
+      Property(
+          kind=str, help='Git repository URL',
+          default='https://fuchsia.googlesource.com/manifest'),
+  'branch':
+      Property(kind=str, help='Git branch', default='refs/heads/master'),
+  'revision': Property(kind=str, help='Revision', default=None),
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
   'patch_project': Property(kind=str, help='Gerrit project', default=None),
   'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
   'patch_storage': Property(kind=str, help='Patch location', default=None),
   'patch_repository_url': Property(kind=str, help='URL to a Git repository',
                                    default=None),
-  'revision': Property(kind=str, help='Revision', default=None),
   'snapshot_gcs_bucket': Property(kind=str,
                                   help='The GCS bucket to upload a jiri snapshot of the build'
                                        ' to. Will not upload a snapshot if this property is'
@@ -35,14 +42,19 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, revision, snapshot_gcs_bucket):
+def RunSteps(api, repository, branch, revision, patch_gerrit_url, patch_project,
+             patch_ref, patch_storage, patch_repository_url, snapshot_gcs_bucket):
+  api.gitiles.ensure_gitiles()
+
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
+
+  if not revision:
+    revision = api.gitiles.refs(repository).get(branch, None)
+
   checkout = api.fuchsia.checkout(
-      manifest='manifest/webkit',
-      remote='https://fuchsia.googlesource.com/third_party/webkit',
-      project='third_party/webkit',
+      manifest='webkit',
+      remote=repository,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
       patch_project=patch_project,
@@ -98,19 +110,24 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
 
 def GenTests(api):
-  yield api.test('default')
+  yield api.test('default') + api.gitiles.refs(
+      'refs', ('refs/heads/master', api.jiri.example_revision)
+  )
   yield api.test('cq') + api.properties.tryserver(
+      revision=api.jiri.example_revision,
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
       tryjob=True,
   )
   yield api.test('cq_no_snapshot') + api.properties.tryserver(
+      revision=api.jiri.example_revision,
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
       tryjob=True,
       snapshot_gcs_bucket=None,
   )
   yield api.test('ci_no_snapshot') + api.properties.tryserver(
+      revision=api.jiri.example_revision,
       patch_project='fuchsia',
       patch_gerrit_url='fuchsia-review.googlesource.com',
       snapshot_gcs_bucket=None,
