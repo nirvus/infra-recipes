@@ -1563,11 +1563,27 @@ Args:
   remote: The git remote where code for the tool binary lives
 ### *recipes* / [qemu](/recipes/qemu.py)
 
-[DEPS](/recipes/qemu.py#13): [cipd](#recipe_modules-cipd), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/qemu.py#11): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building QEMU.
 
-&mdash; **def [RunSteps](/recipes/qemu.py#44)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, platform):**
+&mdash; **def [RunSteps](/recipes/qemu.py#282)(api, repository, branch, revision, platform):**
+
+&mdash; **def [build\_glib](/recipes/qemu.py#187)(api, cipd_dir, pkg_dir, platform):**
+
+&mdash; **def [build\_pixman](/recipes/qemu.py#151)(api, cipd_dir, pkg_dir, platform):**
+
+&mdash; **def [build\_qemu](/recipes/qemu.py#213)(api, cipd_dir, pkg_dir, platform):**
+
+&mdash; **def [build\_sdl](/recipes/qemu.py#168)(api, cipd_dir, pkg_dir, platform, env={}):**
+
+&mdash; **def [cmake](/recipes/qemu.py#87)(api, cipd_dir, src_dir, platform, options=[], step_name='cmake'):**
+
+&mdash; **def [configure](/recipes/qemu.py#63)(api, cipd_dir, src_dir, platform, flags=[], step_name='configure'):**
+
+&mdash; **def [platform\_sysroot](/recipes/qemu.py#50)(api, cipd_dir, platform):**
+
+&mdash; **def [upload\_package](/recipes/qemu.py#113)(api, pkg_name, pkg_dir, repository, revision):**
 ### *recipes* / [qemu:examples/full](/recipe_modules/qemu/examples/full.py)
 
 [DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]

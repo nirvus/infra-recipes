@@ -1,6 +1,68 @@
 [
   {
     "cmd": [],
+    "name": "ensure_gitiles"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gitiles",
+      "-ensure-file",
+      "infra/tools/luci/gitiles/mac-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gitiles.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_goma"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[CACHE]/goma/client",
+      "-ensure-file",
+      "infra_internal/goma/client/${platform} release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "ensure_gsutil"
   },
   {
@@ -30,137 +92,20 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_jiri"
-  },
-  {
     "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/jiri",
-      "-ensure-file",
-      "fuchsia/tools/jiri/mac-amd64 stable",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/mac-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "init",
-      "-v",
-      "-time",
-      "-analytics-opt=false",
-      "-rewrite-sso-to-https=true",
-      "-cache",
-      "[CACHE]/git",
-      "-shared"
-    ],
-    "infra_step": true,
-    "name": "jiri init"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "import",
-      "-v",
-      "-time",
-      "qemu",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "infra_step": true,
-    "name": "jiri import"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks",
-      "-v",
-      "-time",
-      "-attempts=3"
-    ],
-    "infra_step": true,
-    "name": "jiri run-hooks"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "source-manifest",
-      "-v",
-      "-time",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "jiri source-manifest",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
-      "@@@STEP_LOG_END@json.output[source manifest]@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-v",
-      "-time",
+      "[START_DIR]/cipd/gitiles/gitiles",
+      "refs",
       "-json-output",
       "/path/to/tmp/json",
-      "third_party/qemu"
+      "https://fuchsia.googlesource.com/third_party/qemu",
+      "refs"
     ],
-    "infra_step": true,
-    "name": "jiri project",
+    "name": "refs",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"third_party/qemu\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/third_party/qemu\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/third_party/qemu\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"refs/heads/master\": \"75b05681239cb309a23fcb4f8864f177e5aa62da\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
@@ -174,7 +119,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/clang/${platform} goma",
+      "infra/cmake/${platform} version:3.9.2\ninfra/ninja/${platform} version:1.8.2\nfuchsia/clang/${platform} goma",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -183,12 +128,22 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/clang/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:3.9.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/cmake/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-version:1.8.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/ninja/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -203,10 +158,18 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/qemu_tmp_1/qemu"
+      "[START_DIR]/pkgconfig"
     ],
     "infra_step": true,
     "name": "create pkg dir"
+  },
+  {
+    "cmd": [],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman"
   },
   {
     "cmd": [
@@ -218,14 +181,589 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/qemu_tmp_1/qemu_build_dir"
+      "[TMP_BASE]/pixman_src_tmp_1"
     ],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
     "infra_step": true,
-    "name": "create qemu build dir"
+    "name": "pixman.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
-      "[START_DIR]/third_party/qemu/configure",
+      "git",
+      "init"
+    ],
+    "cwd": "[TMP_BASE]/pixman_src_tmp_1",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/pixman"
+    ],
+    "cwd": "[TMP_BASE]/pixman_src_tmp_1",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/tags/pixman-0.34.0"
+    ],
+    "cwd": "[TMP_BASE]/pixman_src_tmp_1",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[TMP_BASE]/pixman_src_tmp_1",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[TMP_BASE]/pixman_src_tmp_1",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[TMP_BASE]/pixman_src_tmp_1",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "cwd": "[TMP_BASE]/pixman_build_tmp_2",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.xcrun",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@raw_io.output[sdk-path]@/some/xcode/path@@@",
+      "@@@STEP_LOG_END@raw_io.output[sdk-path]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/pixman_src_tmp_1/configure",
+      "--prefix=",
+      "--enable-static",
+      "--disable-shared",
+      "--with-pic",
+      "CC=[START_DIR]/cipd/bin/clang",
+      "CXX=[START_DIR]/cipd/bin/clang++",
+      "CXXFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path",
+      "LDFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path",
+      "CFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    ],
+    "cwd": "[TMP_BASE]/pixman_build_tmp_2",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.configure",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "-j20"
+    ],
+    "cwd": "[TMP_BASE]/pixman_build_tmp_2",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "install",
+      "DESTDIR=[START_DIR]/pkgconfig"
+    ],
+    "cwd": "[TMP_BASE]/pixman_build_tmp_2",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/glib_src_tmp_3"
+    ],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "infra_step": true,
+    "name": "glib.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[TMP_BASE]/glib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://github.googlesource.com/GNOME/glib"
+    ],
+    "cwd": "[TMP_BASE]/glib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/tags/2.57.2"
+    ],
+    "cwd": "[TMP_BASE]/glib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[TMP_BASE]/glib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[TMP_BASE]/glib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[TMP_BASE]/glib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/glib_src_tmp_3/autogen.sh"
+    ],
+    "cwd": "[TMP_BASE]/glib_src_tmp_3",
+    "env": {
+      "NOCONFIGURE": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.autogen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "cwd": "[TMP_BASE]/glib_build_tmp_4",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.xcrun",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@raw_io.output[sdk-path]@/some/xcode/path@@@",
+      "@@@STEP_LOG_END@raw_io.output[sdk-path]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/glib_src_tmp_3/configure",
+      "[TMP_BASE]/glib_src_tmp_3/configure",
+      "--prefix=",
+      "--enable-static",
+      "--disable-shared",
+      "--with-pic",
+      "--disable-libmount",
+      "--disable-maintainer-mode",
+      "--disable-dependency-tracking",
+      "--disable-silent-rules",
+      "--disable-dtrace",
+      "--disable-libelf",
+      "CC=[START_DIR]/cipd/bin/clang",
+      "CXX=[START_DIR]/cipd/bin/clang++",
+      "CXXFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path",
+      "LDFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path",
+      "CFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    ],
+    "cwd": "[TMP_BASE]/glib_build_tmp_4",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.configure",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "-j20"
+    ],
+    "cwd": "[TMP_BASE]/glib_build_tmp_4",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "install",
+      "DESTDIR=[START_DIR]/pkgconfig"
+    ],
+    "cwd": "[TMP_BASE]/glib_build_tmp_4",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "glib.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/qemu_src_tmp_5"
+    ],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "infra_step": true,
+    "name": "qemu.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[TMP_BASE]/qemu_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/qemu"
+    ],
+    "cwd": "[TMP_BASE]/qemu_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "master"
+    ],
+    "cwd": "[TMP_BASE]/qemu_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[TMP_BASE]/qemu_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[TMP_BASE]/qemu_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[TMP_BASE]/qemu_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[TMP_BASE]/qemu_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.submodule sync",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[TMP_BASE]/qemu_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.submodule update",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/qemu_src_tmp_5/configure",
       "--prefix=",
       "--target-list=aarch64-softmmu,x86_64-softmmu",
       "--without-system-pixman",
@@ -254,27 +792,46 @@
       "--disable-werror",
       "--enable-cocoa"
     ],
-    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
-    "name": "configure qemu"
+    "cwd": "[TMP_BASE]/qemu_build_tmp_6",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.configure qemu",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "make",
       "-j2"
     ],
-    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
-    "name": "build qemu"
+    "cwd": "[TMP_BASE]/qemu_build_tmp_6",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "make",
-      "install"
+      "install",
+      "DESTDIR=[START_DIR]/pkgconfig"
     ],
-    "cwd": "[TMP_BASE]/qemu_tmp_1/qemu_build_dir",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_6",
     "env": {
-      "DESTDIR": "[TMP_BASE]/qemu_tmp_1/qemu"
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
-    "name": "install qemu"
+    "name": "qemu.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -284,29 +841,68 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/third_party/qemu/VERSION",
+      "[TMP_BASE]/qemu_src_tmp_5/VERSION",
       "/path/to/tmp/"
     ],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
     "infra_step": true,
-    "name": "qemu version"
+    "name": "qemu.version",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-build",
+      "-pkg-def",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/fuchsia/third_party/qemu/mac-amd64.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/third_party/qemu/mac-amd64\", \"root\": \"[START_DIR]/pkgconfig\"}",
+      "-out",
+      "[CLEANUP]/fuchsia/third_party/qemu/mac-amd64",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.build fuchsia/third_party/qemu/mac-amd64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/third_party/qemu/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/qemu/mac-amd64",
+      "fuchsia/third_party/qemu/mac-amd64",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "git_revision:deadbeef",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/qemu/mac-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.cipd search fuchsia/third_party/qemu/mac-amd64 git_revision:deadbeef",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/qemu/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/third_party/qemu/mac-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -315,7 +911,14 @@
   },
   {
     "cmd": [],
-    "name": "Package is up-to-date"
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "qemu.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result",

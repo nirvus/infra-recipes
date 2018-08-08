@@ -7,13 +7,13 @@
 from recipe_engine.config import Enum, ReturnSchema, Single
 from recipe_engine.recipe_api import Property
 
-import re
-
 
 DEPS = [
-  'infra/cipd',
+  'infra/git',
+  'infra/gitiles',
+  'infra/goma',
   'infra/gsutil',
-  'infra/jiri',
+  'recipe_engine/cipd',
   'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/file',
@@ -25,131 +25,210 @@ DEPS = [
   'recipe_engine/tempfile',
 ]
 
+PLATFORM_TO_TRIPLE = {
+  'linux-amd64': 'x86_64-linux-gnu',
+  'linux-arm64': 'aarch64-linux-gnu',
+  'mac-amd64': 'x86_64-apple-darwin',
+}
+PLATFORMS = PLATFORM_TO_TRIPLE.keys()
+
 PROPERTIES = {
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'patch_storage': Property(kind=str, help='Patch location', default=None),
-  'patch_repository_url': Property(kind=str, help='URL to a Git repository',
-                                   default=None),
-  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
-  'manifest': Property(kind=str, help='Jiri manifest to use'),
-  'remote': Property(kind=str, help='Remote manifest repository'),
-  'revision': Property(kind=str, help='Revision', default=None),
-  'platform': Property(kind=str, help='Cross-compile to run on platform',
-                       default=None),
+  'repository':
+      Property(
+          kind=str, help='Git repository URL',
+          default='https://fuchsia.googlesource.com/third_party/qemu'),
+  'branch':
+      Property(kind=str, help='Git branch', default='refs/heads/master'),
+  'revision':
+      Property(kind=str, help='Revision', default=None),
+  'platform':
+      Property(
+          kind=str, help='CIPD platform for the target', default=None),
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, project, manifest, remote, revision,
-             platform):
-  api.gsutil.ensure_gsutil()
-  api.jiri.ensure_jiri()
+def platform_sysroot(api, cipd_dir, platform):
+  if platform.startswith('linux'):
+    return cipd_dir.join('sysroot')
+  elif platform.startswith('mac'): # pragma: no cover
+    # TODO(IN-148): Eventually use our own hermetic sysroot as for Linux.
+    step_result = api.step(
+        'xcrun', ['xcrun', '--show-sdk-path'],
+        stdout=api.raw_io.output(name='sdk-path', add_output_log=True),
+        step_test_data=lambda: api.raw_io.test_api.stream_output(
+            '/some/xcode/path'))
+    return step_result.stdout.strip()
 
-  with api.context(infra_steps=True):
-    api.jiri.checkout(manifest=manifest,
-                      remote=remote,
-                      project=project,
-                      revision=revision,
-                      patch_ref=patch_ref,
-                      patch_gerrit_url=patch_gerrit_url,
-                      patch_project=patch_project)
-    if not revision:
-      revision = api.jiri.project(['third_party/qemu']).json.output[0]['revision']
-      api.step.active_result.presentation.properties['got_revision'] = revision
 
-  if not platform:
-    platform = api.cipd.platform_suffix()
+def configure(api, cipd_dir, src_dir, platform, flags=[], step_name='configure'):
+  target = PLATFORM_TO_TRIPLE[platform]
+  sysroot = platform_sysroot(api, cipd_dir, platform)
 
-  with api.step.nest('ensure_packages'):
-    with api.context(infra_steps=True):
-      cipd_dir = api.path['start_dir'].join('cipd')
-      packages = {
-        'fuchsia/clang/${platform}': 'goma',
-      }
-      if api.platform.name == 'linux':
-        packages.update({
-          'fuchsia/sysroot/' + platform: 'latest',
-          'infra/cmake/${platform}': 'version:3.9.2',
-          'infra/ninja/${platform}': 'version:1.8.2',
-        })
-      api.cipd.ensure(cipd_dir, packages)
+  variables = {
+    'CC': cipd_dir.join('bin', 'clang'),
+    'CXX': cipd_dir.join('bin', 'clang++'),
+    'CFLAGS': '--target=%s --sysroot=%s' % (target, sysroot),
+    'CXXFLAGS': '--target=%s --sysroot=%s' % (target, sysroot),
+    'LDFLAGS': '--target=%s --sysroot=%s' % (target, sysroot),
+  }
+  if platform.startswith('linux'):
+    variables.update({
+      'AR': cipd_dir.join('bin', 'llvm-ar'),
+      'RANLIB': cipd_dir.join('bin', 'llvm-ranlib'),
+      'NM': cipd_dir.join('bin', 'llvm-nm'),
+      'STRIP': cipd_dir.join('bin', 'llvm-strip'),
+      'OBJCOPY': cipd_dir.join('bin', 'llvm-objcopy'),
+    })
+  return api.step(step_name, [
+    src_dir.join('configure')
+  ] + flags + ['%s=%s' % (k, v) for k, v in variables.iteritems()])
 
-  staging_dir = api.path.mkdtemp('qemu')
-  pkg_dir = staging_dir.join('qemu')
-  api.file.ensure_directory('create pkg dir', pkg_dir)
 
-  target = {
-    'linux-amd64': 'x86_64-linux-gnu',
-    'linux-arm64': 'aarch64-linux-gnu',
-    'mac-amd64': 'x86_64-apple-darwin',
-  }[platform]
+def cmake(api, cipd_dir, src_dir, platform, options=[], step_name='cmake'):
+  if platform.startswith('linux'):
+    options.extend([
+      '-DCMAKE_LINKER=%s' % cipd_dir.join('bin', 'ld.lld'),
+      '-DCMAKE_NM=%s' % cipd_dir.join('bin', 'llvm-nm'),
+      '-DCMAKE_OBJCOPY=%s' % cipd_dir.join('bin', 'llvm-objcopy'),
+      '-DCMAKE_OBJDUMP=%s' % cipd_dir.join('bin', 'llvm-objdump'),
+      '-DCMAKE_RANLIB=%s' % cipd_dir.join('bin', 'llvm-ranlib'),
+      '-DCMAKE_STRIP=%s' % cipd_dir.join('bin', 'llvm-strip'),
+    ])
 
-  # build SDL2
+  target = PLATFORM_TO_TRIPLE[platform]
+  return api.step(step_name, [
+    cipd_dir.join('bin', 'cmake'),
+    '-GNinja',
+    '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
+    '-DCMAKE_C_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
+    '-DCMAKE_C_COMPILER_TARGET=%s' % target,
+    '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
+    '-DCMAKE_CXX_COMPILER_TARGET=%s' % target,
+    '-DCMAKE_SYSROOT=%s' % platform_sysroot(api, cipd_dir, platform),
+  ] + options + [
+    src_dir
+  ])
 
-  if api.platform.name == 'linux':
-    sdl_dir = api.path['start_dir'].join('third_party', 'qemu', 'sdl')
 
-    build_dir = staging_dir.join('sdl_build_dir')
-    api.file.ensure_directory('create sdl build dir', build_dir)
+def upload_package(api, pkg_name, pkg_dir, repository, revision):
+  cipd_pkg_name = 'fuchsia/' + pkg_name
+  pkg_def = api.cipd.PackageDefinition(
+      package_name=cipd_pkg_name,
+      package_root=pkg_dir,
+      install_mode='copy')
+  pkg_def.add_dir(pkg_dir)
+  pkg_def.add_version_file('.versions/%s.cipd_version' % cipd_pkg_name)
 
-    install_dir = staging_dir.join('sdl_install_dir')
+  cipd_pkg_file = api.path['cleanup'].join(cipd_pkg_name)
+  api.cipd.build_from_pkg(
+      pkg_def=pkg_def,
+      output_package=cipd_pkg_file,
+  )
 
-    env = {
-      'CFLAGS': '--target=%s --sysroot=%s' % (target, cipd_dir),
-      'CXXFLAGS': '--target=%s --sysroot=%s' % (target, cipd_dir),
-      'LDFLAGS': '--target=%s --sysroot=%s' % (target, cipd_dir),
-    }
+  cipd_pins = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if cipd_pins:
+    api.step('Package is up-to-date', cmd=None)
+    return
 
-    with api.context(cwd=build_dir, env=env):
-      api.step('configure sdl', [
-        cipd_dir.join('bin', 'cmake'),
-        '-GNinja',
-        '-DCMAKE_C_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
-        '-DCMAKE_AR=%s' % cipd_dir.join('bin', 'llvm-ar'),
-        '-DCMAKE_RANLIB=%s' % cipd_dir.join('bin', 'llvm-ranlib'),
-        '-DCMAKE_NM=%s' % cipd_dir.join('bin', 'llvm-nm'),
-        '-DCMAKE_CXX_COMPILER=%s' % cipd_dir.join('bin', 'clang++'),
-        '-DCMAKE_ASM_COMPILER=%s' % cipd_dir.join('bin', 'clang'),
-        '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
-        '-DCMAKE_SYSROOT=%s' % cipd_dir,
-        '-DCMAKE_INSTALL_PREFIX=%s' % install_dir,
-        '-DPKG_CONFIG_EXECUTABLE=',
-        '-DVIDEO_WAYLAND=OFF',
-        '-DSDL_SHARED=OFF',
-        '-DSDL_STATIC_PIC=ON',
-        '-DGCC_ATOMICS=ON',
-        sdl_dir,
-      ])
-      api.step('build sdl', [cipd_dir.join('ninja')])
-      api.step('install sdl', [cipd_dir.join('ninja'), 'install'])
+  cipd_pin = api.cipd.register(
+      package_name=cipd_pkg_name,
+      package_path=cipd_pkg_file,
+      refs=['latest'],
+      tags={
+        'git_repository': repository,
+        'git_revision': revision,
+      },
+  )
 
-    env = {
-      'PKG_CONFIG_SYSROOT_DIR': cipd_dir,
-      'PKG_CONFIG_PATH': cipd_dir.join('usr', 'lib', target, 'pkgconfig'),
-      'SDL2_CONFIG': install_dir.join('bin', 'sdl2-config'),
-    }
-  else:
-    env = {}
+  api.gsutil.upload(
+      'fuchsia',
+      cipd_pkg_file,
+      api.gsutil.join(pkg_name, cipd_pin.instance_id),
+      unauthenticated_url=True
+  )
 
-  # build QEMU
 
-  qemu_dir = api.path['start_dir'].join('third_party', 'qemu')
-  build_dir = staging_dir.join('qemu_build_dir')
-  api.file.ensure_directory('create qemu build dir', build_dir)
+def build_pixman(api, cipd_dir, pkg_dir, platform):
+  src_dir = api.path.mkdtemp('pixman_src')
+  api.git.checkout('https://fuchsia.googlesource.com/third_party/pixman',
+                   src_dir, ref='refs/tags/pixman-0.34.0', submodules=False)
+  build_dir = api.path.mkdtemp('pixman_build')
+
+  with api.context(cwd=build_dir):
+    configure(api, cipd_dir, src_dir, platform, [
+      '--prefix=',
+      '--enable-static',
+      '--disable-shared',
+      '--with-pic',
+    ])
+    api.step('build', ['make', '-j%d' % api.goma.jobs])
+    api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
+
+
+def build_sdl(api, cipd_dir, pkg_dir, platform, env={}):
+  src_dir = api.path.mkdtemp('sdl_src')
+  api.git.checkout('https://fuchsia.googlesource.com/third_party/sdl',
+                   src_dir, ref='refs/tags/release-2.0.5', submodules=False)
+  build_dir = api.path.mkdtemp('sdl_build')
+
+  with api.context(cwd=build_dir):
+    cmake(api, cipd_dir, src_dir, platform, [
+      '-DCMAKE_INSTALL_PREFIX=',
+      '-DVIDEO_WAYLAND=OFF',
+      '-DSDL_SHARED=OFF',
+      '-DSDL_STATIC_PIC=ON',
+      '-DGCC_ATOMICS=ON',
+    ])
+    api.step('build', [cipd_dir.join('ninja')])
+    with api.context(env={'DESTDIR': pkg_dir}):
+      api.step('install', [cipd_dir.join('ninja'), 'install'])
+
+
+def build_glib(api, cipd_dir, pkg_dir, platform):
+  src_dir = api.path.mkdtemp('glib_src')
+  api.git.checkout('https://github.googlesource.com/GNOME/glib',
+                   src_dir, ref='refs/tags/2.57.2', submodules=False)
+  build_dir = api.path.mkdtemp('glib_build')
+
+  with api.context(cwd=src_dir, env={'NOCONFIGURE': '1'}):
+    api.step('autogen', [src_dir.join('autogen.sh')])
+  with api.context(cwd=build_dir):
+    configure(api, cipd_dir, src_dir, platform, [
+      src_dir.join('configure'),
+      '--prefix=',
+      '--enable-static',
+      '--disable-shared',
+      '--with-pic',
+      '--disable-libmount',
+      '--disable-maintainer-mode',
+      '--disable-dependency-tracking',
+      '--disable-silent-rules',
+      '--disable-dtrace',
+      '--disable-libelf',
+    ])
+    api.step('build', ['make', '-j%d' % api.goma.jobs])
+    api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
+
+
+def build_qemu(api, cipd_dir, pkg_dir, platform):
+  src_dir = api.path.mkdtemp('qemu_src')
+  repository = 'https://fuchsia.googlesource.com/third_party/qemu'
+  revision = api.git.checkout(repository, src_dir, submodules=True)
+  build_dir = api.path.mkdtemp('qemu_build')
+
+  target = PLATFORM_TO_TRIPLE[platform]
 
   extra_options = {
     'linux': [
       '--cc=%s' % cipd_dir.join('bin', 'clang'),
       '--cxx=%s' % cipd_dir.join('bin', 'clang++'),
       '--host=%s' % target,
-      '--extra-cflags=--target=%s --sysroot=%s' % (target, cipd_dir),
-      '--extra-cxxflags=--target=%s --sysroot=%s' % (target, cipd_dir),
+      '--extra-cflags=--target=%s --sysroot=%s' % (target, cipd_dir.join('sysroot')),
+      '--extra-cxxflags=--target=%s --sysroot=%s' % (target, cipd_dir.join('sysroot')),
       # Supress warning about the unused arguments because QEMU ignores
       # --disable-werror at configure time which triggers an error because
       # -static-libstdc++ is unused when linking C code.
-      '--extra-ldflags=--target=%s --sysroot=%s -static-libstdc++ -Qunused-arguments -latomic' % (target, cipd_dir),
+      '--extra-ldflags=--target=%s --sysroot=%s -static-libstdc++ -Qunused-arguments -latomic' % (target, cipd_dir.join('sysroot')),
       '--disable-gtk',
       '--disable-x11',
       '--enable-sdl',
@@ -158,20 +237,11 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
     'mac': [
       '--enable-cocoa',
     ],
-  }[api.platform.name]
+  }[platform.split('-')[0]]
 
-  if api.platform.name == 'linux':
-    env.update({
-      'AR': cipd_dir.join('bin', 'llvm-ar'),
-      'RANLIB': cipd_dir.join('bin', 'llvm-ranlib'),
-      'NM': cipd_dir.join('bin', 'llvm-nm'),
-      'STRIP': cipd_dir.join('bin', 'strip'),
-      'OBJCOPY': cipd_dir.join('bin', 'objcopy'),
-    })
-
-  with api.context(cwd=build_dir, env=env):
+  with api.context(cwd=build_dir):
     api.step('configure qemu', [
-      qemu_dir.join('configure'),
+      src_dir.join('configure'),
       '--prefix=',
       '--target-list=aarch64-softmmu,x86_64-softmmu',
       '--without-system-pixman',
@@ -199,68 +269,102 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
       '--disable-opengl',
       '--disable-werror',
     ] + extra_options)
-    api.step('build qemu', [
-      'make',
-      '-j%s' % api.platform.cpu_count,
-    ])
-    with api.context(env={'DESTDIR': pkg_dir}):
-      api.step('install qemu', ['make', 'install'])
+    api.step('build', ['make', '-j%d' % api.platform.cpu_count])
+    api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
 
-  qemu_version = api.file.read_text('qemu version', qemu_dir.join('VERSION'),
+  qemu_version = api.file.read_text('version', src_dir.join('VERSION'),
                                     test_data='2.10.1')
   assert qemu_version, 'Cannot determine QEMU version'
 
-  cipd_pkg_name = 'fuchsia/qemu/' + platform
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if step.json.output['result']:
-    api.step('Package is up-to-date', cmd=None)
-    return
-  cipd_pkg_file = api.path['cleanup'].join('qemu.cipd')
+  upload_package(api, 'third_party/qemu/' + platform, pkg_dir, repository, revision)
 
-  api.cipd.build(
-      input_dir=pkg_dir,
-      package_name=cipd_pkg_name,
-      output_package=cipd_pkg_file,
-      install_mode='copy',
-  )
-  step_result = api.cipd.register(
-      package_name=cipd_pkg_name,
-      package_path=cipd_pkg_file,
-      refs=['latest'],
-      tags={
-        'version': qemu_version,
-        'git_repository': 'https://fuchsia.googlesource.com/third_party/qemu',
-        'git_revision': revision,
+
+def RunSteps(api, repository, branch, revision, platform):
+  api.gitiles.ensure_gitiles()
+  api.goma.ensure_goma()
+  api.gsutil.ensure_gsutil()
+
+  if not revision:
+    revision = api.gitiles.refs(repository).get(branch, None)
+
+  # TODO: factor this out into a host_build recipe module.
+  host_platform = '%s-%s' % (api.platform.name.replace('win', 'windows'), {
+      'intel': {
+          32: '386',
+          64: 'amd64',
       },
-  )
+      'arm': {
+          32: 'armv6',
+          64: 'arm64',
+      },
+  }[api.platform.arch][api.platform.bits])
+  target_platform = platform or host_platform
 
-  api.gsutil.upload(
-      'fuchsia',
-      cipd_pkg_file,
-      api.gsutil.join('qemu', platform, step_result.json.output['result']['instance_id']),
-      unauthenticated_url=True
-  )
+  with api.step.nest('ensure_packages'):
+    with api.context(infra_steps=True):
+      cipd_dir = api.path['start_dir'].join('cipd')
+      pkgs = api.cipd.EnsureFile()
+      pkgs.add_package('infra/cmake/${platform}', 'version:3.9.2')
+      pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
+      pkgs.add_package('fuchsia/clang/${platform}', 'goma')
+      if target_platform.startswith('linux'):
+        pkgs.add_package('fuchsia/sysroot/%s' % target_platform, 'latest', 'sysroot')
+      api.cipd.ensure(cipd_dir, pkgs)
+
+  pkg_dir = api.path['start_dir'].join('pkgconfig')
+  api.file.ensure_directory('create pkg dir', pkg_dir)
+
+  target = PLATFORM_TO_TRIPLE[target_platform]
+
+  env = {
+    'PKG_CONFIG_SYSROOT_DIR': pkg_dir,
+    'PKG_CONFIG_ALLOW_SYSTEM_LIBS': '1',
+  }
+  if target_platform.startswith('linux'):
+    env.update({
+      'PKG_CONFIG_PATH': cipd_dir.join('usr', 'lib', target, 'pkgconfig'),
+    })
+
+  with api.context(env=env):
+    if target_platform.startswith('linux'):
+      with api.step.nest('sdl'):
+        build_sdl(api, cipd_dir, pkg_dir, target_platform)
+
+    with api.step.nest('pixman'):
+      build_pixman(api, cipd_dir, pkg_dir, target_platform)
+
+    with api.step.nest('glib'):
+      build_glib(api, cipd_dir, pkg_dir, target_platform)
+
+    with api.step.nest('qemu'):
+      build_qemu(api, cipd_dir, pkg_dir, target_platform)
 
 
 def GenTests(api):
+  revision = '75b05681239cb309a23fcb4f8864f177e5aa62da'
   version = 'QEMU emulator version 2.8.0 (v2.8.0-15-g28cd8b6577-dirty)'
-  for platform in ('linux', 'mac'):
+  for platform in ['linux', 'mac']:
     yield (api.test(platform) +
            api.platform.name(platform) +
+           api.gitiles.refs('refs', ('refs/heads/master', revision)) +
            api.properties(manifest='qemu',
-                          remote='https://fuchsia.googlesource.com/manifest') +
-           api.step_data('qemu version', api.raw_io.stream_output(version)))
+                          remote='https://fuchsia.googlesource.com/manifest',
+                          platform=platform + '-amd64') +
+           api.step_data('qemu.version', api.raw_io.stream_output(version)))
     yield (api.test(platform + '_new') +
            api.platform.name(platform) +
+           api.gitiles.refs('refs', ('refs/heads/master', revision)) +
            api.properties(manifest='qemu',
-                          remote='https://fuchsia.googlesource.com/manifest') +
-           api.step_data('qemu version', api.raw_io.stream_output(version)) +
-           api.step_data('cipd search fuchsia/qemu/' + platform + '-amd64 ' +
-                         'git_revision:' + api.jiri.example_revision,
-                         api.json.output({'result': []})))
+                          remote='https://fuchsia.googlesource.com/manifest',
+                          platform=platform + '-amd64') +
+           api.step_data('qemu.version', api.raw_io.stream_output(version)) +
+           api.step_data('qemu.cipd search fuchsia/third_party/qemu/' + platform + '-amd64 ' +
+                         'git_revision:deadbeef',
+                         api.cipd.example_search('fuchsia/qemu/' + platform + '-amd64 ', [])))
   yield (api.test('linux_arm64') +
          api.platform.name('linux') +
+         api.gitiles.refs('refs', ('refs/heads/master', revision)) +
          api.properties(manifest='qemu',
                         remote='https://fuchsia.googlesource.com/manifest',
                         platform='linux-arm64') +
-         api.step_data('qemu version', api.raw_io.stream_output(version)))
+         api.step_data('qemu.version', api.raw_io.stream_output(version)))
