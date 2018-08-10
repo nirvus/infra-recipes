@@ -101,7 +101,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
              snapshot_repository, snapshot_revision, patch_gerrit_url,
              patch_issue, patch_project, patch_ref, patch_repository_url,
              target, build_type, packages, variants, gn_args, ninja_targets,
-             run_tests, runtests_args, device_type, run_host_tests, 
+             run_tests, runtests_args, device_type, run_host_tests,
              networking_for_tests, snapshot_gcs_bucket,
              upload_breakpad_symbols):
   if checkout_snapshot:

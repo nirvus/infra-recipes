@@ -134,14 +134,22 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     Returns:
       RecipeTestApi.step_data for the collect step.
     """
+    task_datum = None
+    outputs = ['out.tar'] if device else ['output.fs']
+    if task_failure:
+      task_datum = self.m.swarming.task_failure(output=output, outputs=outputs)
+    elif infra_failure:
+      # Don't allow setting output because we don't have a use case for it
+      # and we need to maintain full line coverage
+      assert not output
+      task_datum = self.m.swarming.task_infra_failure(outputs=outputs)
+    elif timed_out:
+      task_datum = self.m.swarming.task_timed_out(
+          output=output, outputs=outputs)
+    else:
+      task_datum = self.m.swarming.task_success(output=output, outputs=outputs)
     return self.step_data('collect',
-                          self.m.swarming.collect(
-                              output=output,
-                              outputs=['out.tar'] if device else ['output.fs'],
-                              task_failure=task_failure,
-                              infra_failure=infra_failure,
-                              timed_out=timed_out,
-                          ))
+                          self.m.swarming.collect(task_data=[task_datum]))
 
   def test_step_data(self, failure=False, host_results=False):
     """Returns mock step data for test results.

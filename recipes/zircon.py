@@ -513,9 +513,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
     collect_results = api.swarming.collect(tasks=[core_task, booted_task])
   results_map = {r.id: r for r in collect_results}
 
-  # Analyze core tests results. We don't try to analyze further because we don't
-  # have the core tests output in an easily consumable form, so they act as sort
-  # of a smoke test.
+  # Analyze core tests results.
   api.fuchsia.analyze_collect_result(
       'core tests task results',
       results_map[core_task],
@@ -683,10 +681,11 @@ def GenTests(api):
       ),
   )
   # Step test data for collecting core and booted tasks.
+  core_task_datum = api.swarming.task_success(
+      id='10', outputs=['output.fs'])
+  booted_task_datum = api.swarming.task_success(id='11', outputs=['output.fs'])
   collect_data = api.step_data('collect', api.swarming.collect(
-      task_ids=['10', '11'],
-      outputs=['output.fs'],
-  ))
+      task_data=(core_task_datum, booted_task_datum)))
   # Step test data for triggering the core tests task.
   core_tests_trigger_data = api.step_data(
       'trigger core tests',
@@ -772,7 +771,7 @@ def GenTests(api):
                      device_type='Intel NUC Kit NUC6i3SYK') +
       booted_tests_trigger_data +
       api.step_data('collect', api.swarming.collect(
-          outputs=['out.tar'],
+          task_data=[api.swarming.task_success(outputs=['out.tar'])],
       )))
   yield (api.test('task_failure') +
       api.properties(project='zircon',
@@ -783,8 +782,8 @@ def GenTests(api):
       core_tests_trigger_data +
       booted_tests_trigger_data +
       api.step_data('collect', api.swarming.collect(
-          task_ids=['10', '11'],
-          task_failure=True,
+          task_data=[api.swarming.task_failure(id='10'),
+                     api.swarming.task_failure(id='11')]
       )))
   yield (api.test('asan') +
      api.properties(project='zircon',

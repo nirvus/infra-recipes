@@ -50,8 +50,15 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  yield api.test('basic') + api.step_data('collect', api.swarming.collect(output='hello', outputs=['out/hello.txt']))
-  yield api.test('task_failure') + api.step_data('collect', api.swarming.collect(task_failure=True))
-  yield api.test('task_timeout') + api.step_data('collect', api.swarming.collect(timed_out=True))
-  yield api.test('infra_failure') + api.step_data('collect', api.swarming.collect(infra_failure=True))
-  yield api.test('infra_failure_no_out') + api.step_data('collect', api.json.output({}))
+  yield api.test('basic') + api.step_data(
+      'collect', api.swarming.collect(task_data=[api.swarming.task_success(
+          output='hello', outputs=['out/hello.txt'])]))
+  yield api.test('task_failure') + api.step_data(
+      'collect', api.swarming.collect(task_data=[api.swarming.task_failure()]))
+  yield api.test('task_timeout') + api.step_data(
+      'collect', api.swarming.collect(task_data=[api.swarming.task_timed_out()]))
+  yield api.test('infra_failure') + api.step_data(
+      'collect', api.swarming.collect(task_data=[
+          api.swarming.task_infra_failure(outputs=['output0'])]))
+  yield api.test('infra_failure_no_out') + api.step_data(
+      'collect', api.json.output({}))
