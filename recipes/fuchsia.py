@@ -133,6 +133,12 @@ PROPERTIES = {
             ' (if True, will cause a failure if tryjob is True or'
             ' if device_type != QEMU)',
             default=False),
+    'pave':
+        Property(
+            kind=bool,
+            help='Whether to pave images the device for testing. (Ignored if'
+                 ' device_type == QEMU)',
+            default=True),
     'test_timeout_secs':
         Property(
             kind=int,
@@ -161,7 +167,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              repository, patch_gerrit_url, patch_issue, patch_project,
              patch_ref, patch_repository_url, target, build_type, packages,
              variant, gn_args, test_pool, run_tests, runtests_args, run_host_tests,
-             device_type, networking_for_tests, ninja_targets,
+             device_type, networking_for_tests, pave, ninja_targets,
              test_timeout_secs, archive_gcs_bucket, upload_breakpad_symbols,
              snapshot_gcs_bucket):
   # Don't upload snapshots for tryjobs.
@@ -273,6 +279,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         build=build,
         test_pool=test_pool,
         timeout_secs=test_timeout_secs,
+        pave=pave,
         external_network=networking_for_tests,
     )
     api.fuchsia.analyze_test_results('test results', test_results)

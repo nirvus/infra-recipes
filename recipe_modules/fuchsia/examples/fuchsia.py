@@ -112,6 +112,13 @@ PROPERTIES = {
             kind=bool,
             help='Whether to upload breakpad symbol files',
             default=False),
+    'pave':
+        Property(
+            kind=bool,
+            help='Whether to pave the primary (default) disk on the device.'
+                 ' Has no meaning if device_type == "QEMU".',
+            default=True),
+
     # Misc. additional properties.
     'snapshot_gcs_bucket':
         Property(
@@ -128,7 +135,8 @@ def RunSteps(
     snapshot_revision, patch_gerrit_url, patch_issue, patch_project, patch_ref,
     patch_repository_url, target, build_type, packages, variants, gn_args,
     ninja_targets, run_tests, runtests_args, device_type, run_host_tests,
-    networking_for_tests, snapshot_gcs_bucket, upload_breakpad_symbols):
+    networking_for_tests, snapshot_gcs_bucket, upload_breakpad_symbols,
+    pave):
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       checkout = api.fuchsia.checkout_patched_snapshot(
@@ -171,6 +179,7 @@ def RunSteps(
     test_results = api.fuchsia.test(
         build=build,
         test_pool='fuchsia.tests',
+        pave=pave,
         external_network=networking_for_tests)
     # Ensure failed_test_outputs gets filled out when tests fail.
     if test_results.summary and test_results.failed_test_outputs:
@@ -237,6 +246,15 @@ def GenTests(api):
           target='arm64',
           device_type='Intel NUC Kit NUC6i3SYK',
           run_tests=True,
+      ),
+  )
+  yield api.fuchsia.test(
+      'isolated_test_device_no_pave',
+      properties=dict(
+          target='arm64',
+          device_type='Intel NUC Kit NUC6i3SYK',
+          run_tests=True,
+          pave=False,
       ),
   )
   yield api.fuchsia.test(

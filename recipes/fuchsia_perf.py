@@ -91,6 +91,12 @@ PROPERTIES = {
             ' not QEMU it will be passed to Swarming as the device_type'
             ' dimension',
             default='QEMU'),
+    'pave':
+        Property(
+            kind=bool,
+            help='Whether to pave images the device for testing. (Ignored if'
+                 ' device_type == QEMU)',
+            default=True),
 
     # Each layer should have a Fuchsia package containing a single benchmarks.sh which
     # runs all benchmarks.  For more information, see the following documentation:
@@ -134,7 +140,7 @@ PROPERTIES = {
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
              variant, gn_args, ninja_targets, test_pool, catapult_url,
-             device_type, dashboard_masters_name, dashboard_bots_name,
+             device_type, pave, dashboard_masters_name, dashboard_bots_name,
              patch_ref, patch_gerrit_url, patch_project, snapshot_gcs_bucket,
              upload_to_dashboard, benchmarks_package):
   api.catapult.ensure_catapult()
@@ -186,7 +192,8 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       test_cmds=test_cmds,
       test_device_type=device_type,
   )
-  test_results = api.fuchsia.test(build, test_pool)
+  test_results = api.fuchsia.test(
+      build=build, test_pool=test_pool, pave=pave)
 
   # Log the results of each benchmark.
   api.fuchsia.report_test_results(test_results)

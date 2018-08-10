@@ -873,7 +873,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
-  def _test_on_device(self, build, test_pool, images, timeout_secs):
+  def _test_on_device(self, build, test_pool, images, pave, timeout_secs):
     """Tests a Fuchsia build on a specific device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -885,6 +885,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       images (dict[string]Path): A map between the canonical name of an
         image produced by the Fuchsia build to the path to that image on the
         local disk.
+      pave (bool): Whether or not the build artifacts should be paved.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
 
@@ -893,27 +894,60 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     self.m.swarming.ensure_swarming(version='latest')
 
-    # Isolate the netboot ZBI image which is the only image required to run
-    # tests on a device at the moment.
-    #
-    # This dict key comes from the images.json format which is produced
+    # Use canonical image names to refer to images to extract the path to that
+    # image. These dict keys come from the images.json format which is produced
     # by a Fuchsia build.
     # TODO(BLD-253): Point to the schema once there is one.
-    zircon_a_path = images['netboot']
-    isolated_hash = self._isolate_files_at_isolated_root([zircon_a_path])
+    if pave:
+      zbi_path = images['zircon-a']
+      efi_path = images['efi']
+      storage_sparse_path = images['storage-sparse']
+      data_template_path = images['data-template']
+    else:
+      zbi_path = images['netboot']
+
+    # All the *_name references below act as relative paths to the corresponding
+    # artifacts in the test Swarming task, since we isolate all of the artifacts
+    # into the root directory where the isolate is extracted.
+    zbi_name = self.m.path.basename(zbi_path)
+    if pave:
+      efi_name = self.m.path.basename(efi_path)
+      storage_sparse_name = self.m.path.basename(storage_sparse_path)
+      data_template_name = self.m.path.basename(data_template_path)
 
     # Construct the botanist command.
     output_archive_name = 'out.tar'
-    zircon_a_name = self.m.path.basename(zircon_a_path)
     botanist_cmd = [
       './botanist/botanist',
       'zedboot',
       '-properties', '/etc/botanist/config.json',
-      '-kernel', zircon_a_name,
+      '-kernel', zbi_name,
       '-results-dir', self.results_dir_on_target,
       '-out', output_archive_name,
-      'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
     ] # yapf: disable
+
+    # If we're paving, ensure we add the additional necessary artifacts.
+    if pave:
+      botanist_cmd.extend([
+        '-efi', efi_name,
+        '-fvm', storage_sparse_name,
+        '-fvm', data_template_name,
+      ])
+
+    # Add the kernel command line arg for invoking runcmds.
+    botanist_cmd.append(
+        'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds')
+
+    # Isolate all the necessary artifacts used by the botanist command.
+    if pave:
+      isolated_hash = self._isolate_files_at_isolated_root([
+        zbi_path,
+        efi_path,
+        storage_sparse_path,
+        data_template_path,
+      ])
+    else:
+      isolated_hash = self._isolate_files_at_isolated_root([zbi_path])
 
     with self.m.context(infra_steps=True):
       # Trigger task.
@@ -982,7 +1016,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       for image in raw_images
     }
 
-  def test(self, build, test_pool, timeout_secs=40 * 60, external_network=False):
+  def test(self, build, test_pool, timeout_secs=40 * 60, pave=True,
+           external_network=False):
     """Tests a Fuchsia build on the specified device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -996,6 +1031,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       external_network (bool): Whether to enable access to the external
         network when executing tests. Ignored if
         build.test_device_type != 'QEMU'.
+      pave (bool): Whether to pave the image to disk. Ignored if
+        build.test_device_type == 'QEMU'.
 
     Returns:
       A FuchsiaTestResults representing the completed test.
@@ -1012,7 +1049,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           external_network=external_network,
       )
     else:
-      return self._test_on_device(build, test_pool, images, timeout_secs)
+      return self._test_on_device(build, test_pool, images, pave, timeout_secs)
 
   def analyze_collect_result(self, step_name, result, build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.
