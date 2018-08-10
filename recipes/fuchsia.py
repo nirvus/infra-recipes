@@ -135,6 +135,7 @@ PROPERTIES = {
             kind=bool,
             help='Whether any plaintext needs to be supplied to the tests',
             default=False),
+
     # Properties pertaining to uploading build artifacts.
     'snapshot_gcs_bucket':
         Property(
@@ -274,7 +275,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
         external_network=networking_for_tests,
         requires_secrets=requires_secrets,
     )
-    api.fuchsia.analyze_test_results('test results', test_results)
+    api.fuchsia.analyze_test_results(test_results)
   else:
     # Bloaty is run during the testing phase for performance reasons, but we
     # also want to run it on build-only bots if specified.
@@ -282,7 +283,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
 
   if run_host_tests:
     test_results = api.fuchsia.test_on_host(build)
-    api.fuchsia.analyze_test_results('test results', test_results)
+    api.fuchsia.analyze_test_results(test_results)
 
   # Upload an archive containing build artifacts if the properties say to do so.
   # Note: if we ran tests, this will only execute if the tests passed.

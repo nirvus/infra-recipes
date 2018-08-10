@@ -128,8 +128,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     _TEST_RESULT_PASS = 'PASS'
     _TEST_RESULT_FAIL = 'FAIL'
 
-    def __init__(self, build_dir, results_dir, zircon_kernel_log, outputs,
-                 json_api):
+    def __init__(self, name, build_dir, results_dir, zircon_kernel_log,
+                 outputs, json_api):
+      self._name = name
       self._build_dir = build_dir
       self._results_dir = results_dir
       self._zircon_kernel_log = zircon_kernel_log
@@ -145,6 +146,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
         # TODO(kjharland): Raise explicit step failure when parsing fails so
         # that it's clear that the summary file is malformed.
         self._summary = json_api.loads(outputs['summary.json'])
+
+    @property
+    def name(self):
+      """The unique name for this set of test results."""
+      return self._name
 
     @property
     def build_dir(self):
@@ -734,6 +740,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Extract test results.
     test_results_map = self.m.step.active_result.raw_io.output_dir
     return self.FuchsiaTestResults(
+        name='host',
         build_dir=build.fuchsia_build_dir,
         results_dir=test_results_dir,
         zircon_kernel_log=None,  # We did not run tests on target.
@@ -768,8 +775,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.file.write_text('write runcmds', output_path, '\n'.join(runcmds))
     self.m.step.active_result.presentation.logs['runcmds'] = runcmds
 
-  def _construct_qemu_task_request(self, zbi_path, build, test_pool, images,
-                                   timeout_secs, external_network,
+  def _construct_qemu_task_request(self, task_name, zbi_path, build, test_pool,
+                                   images, timeout_secs, external_network,
                                    secret_bytes):
     """Constructs a Swarming task request which runs Fuchsia tests inside QEMU.
 
@@ -857,7 +864,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     }[build.target]
 
     return self.m.swarming.task_request(
-        name='all tests',
+        name=task_name,
         cmd=botanist_cmd,
         isolated=isolated_hash,
         dimensions={
@@ -877,8 +884,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
         ],
     )
 
-  def _construct_device_task_request(self, device_type, zbi_path, build,
-                                     test_pool, images, pave, timeout_secs):
+  def _construct_device_task_request(self, task_name, device_type, zbi_path,
+                                     build, test_pool, images, pave,
+                                     timeout_secs):
     """Constructs a Swarming task request to run Fuchsia tests on a device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -960,7 +968,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     isolated_hash = self._isolate_files_at_isolated_root(image_paths)
 
     return self.m.swarming.task_request(
-        name='all tests',
+        name=task_name,
         cmd=botanist_cmd,
         isolated=isolated_hash,
         dimensions={
@@ -990,16 +998,17 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A dict mapping a filepath relative to the root of the archive to the
       contents of that file in the archive.
     """
+    step_name = 'extract results'
     if device_type == 'QEMU':
       return self.m.minfs.copy_image(
-          step_name='extract results',
+          step_name=step_name,
           image_path=archive_path,
           out_dir=leak_to,
       ).raw_io.output_dir
     else:
       self.m.tar.ensure_tar()
       return self.m.tar.extract(
-          step_name='extract results',
+          step_name=step_name,
           path=archive_path,
           directory=self.m.raw_io.output_dir(leak_to=leak_to),
       ).raw_io.output_dir
@@ -1121,6 +1130,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       if requires_secrets:
         secret_bytes = self.m.json.dumps(self._decrypt_secrets(build))
       task = self._construct_qemu_task_request(
+          task_name='all tests',
           zbi_path=new_zbi_path,
           build=build,
           test_pool=test_pool,
@@ -1131,6 +1141,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       )
     else:
       task = self._construct_device_task_request(
+          task_name='all tests',
           device_type=device_type,
           zbi_path=new_zbi_path,
           build=build,
@@ -1175,6 +1186,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       )
 
     return self.FuchsiaTestResults(
+        name='all',
         build_dir=build.fuchsia_build_dir,
         results_dir=test_results_dir,
         zircon_kernel_log=result.output,
@@ -1230,17 +1242,16 @@ class FuchsiaApi(recipe_api.RecipeApi):
         raise self.m.step.StepFailure(
             'Found kernel panic. See symbolized output for details.')
 
-  def analyze_test_results(self, step_name, test_results):
+  def analyze_test_results(self, test_results):
     """Analyzes test results represented by a FuchsiaTestResults.
 
     Args:
-      step_name (str): The name of the step under which to test the analysis steps.
       test_results (FuchsiaTestResults): The test results.
 
     Raises:
       A StepFailure if any of the discovered tests failed.
     """
-    with self.m.step.nest(step_name):
+    with self.m.step.nest('%s test results' % test_results.name):
       # Log the results of each test.
       self.report_test_results(test_results)
 

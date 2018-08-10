@@ -78,6 +78,8 @@ def RunSteps(api, spawn_tasks):
       path = results[0]['out/hello.txt']
     if results[0].is_failure() and results[0].timed_out():
       raise api.step.StepTimeout('Timed out!')
+    # You can grab the task's name.
+    results[0].name
     # You can also grab the outputs of the Swarming task as a map.
     results[0].outputs
   except:

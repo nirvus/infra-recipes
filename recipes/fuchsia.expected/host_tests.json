@@ -464,7 +464,7 @@
   },
   {
     "cmd": [],
-    "name": "test results",
+    "name": "host test results",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"[START_DIR]/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"PASS\"}]}@@@",
       "@@@STEP_LOG_END@summary.json@@@",
@@ -474,7 +474,7 @@
   },
   {
     "cmd": [],
-    "name": "test results.//hello",
+    "name": "host test results.//hello",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@stdio@hello@@@",
@@ -483,7 +483,7 @@
   },
   {
     "cmd": [],
-    "name": "test results.benchmark.catapult_json",
+    "name": "host test results.benchmark.catapult_json",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@stdio@[\"dummy_catapult_data\"]@@@",

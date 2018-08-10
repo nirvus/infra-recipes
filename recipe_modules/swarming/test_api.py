@@ -68,6 +68,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
 
   @staticmethod
   def task_success(id='39927049b6ee7010',
+                   name='test',
                    output=None,
                    outputs=()):
     output = output or 'hello world!'
@@ -92,7 +93,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'modified_ts':
                 '2017-11-01T22:06:11.538070',
             'name':
-                'test',
+                name,
             'run_id':
                 '39927049b6ee7011',
             'started_ts':
@@ -114,6 +115,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
 
   @staticmethod
   def task_failure(id='39927049b6ae7011',
+                   name='test',
                    output=None,
                    outputs=None):
     output = output or 'hello world!'
@@ -141,7 +143,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'modified_ts':
                 '2017-12-01T22:06:11.538070',
             'name':
-                'test',
+                name,
             'run_id':
                 '39927049b6ae7011',
             'started_ts':
@@ -170,8 +172,9 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
 
   @staticmethod
   def task_timed_out(id='39927049b6ae7013',
-                    output=None,
-                    outputs=None):
+                     name='test',
+                     output=None,
+                     outputs=None):
     output = output or 'hello world!'
     outputs = outputs or ['out/hello.txt']
     # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
@@ -197,7 +200,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'modified_ts':
                 '2017-12-01T22:06:11.538070',
             'name':
-                'test',
+                name,
             'run_id':
                 '39927049b6ae7011',
             'started_ts':
@@ -218,7 +221,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
     }
 
   @staticmethod
-  def task_expired(id='39927049b6ae7013'):
+  def task_expired(id='39927049b6ae7013', name='test'):
     # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
     return {
         'output': '',
@@ -240,7 +243,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'modified_ts':
                 '2017-12-01T22:06:11.538070',
             'name':
-                'test',
+                name,
             'run_id':
                 '39927049b6ae7011',
             'started_ts':
@@ -261,7 +264,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
     }
 
   @staticmethod
-  def task_no_resource(id='39927049b6ae7013'):
+  def task_no_resource(id='39927049b6ae7013', name='test'):
     # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
     return {
         'output': '',
@@ -283,7 +286,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'modified_ts':
                 '2017-12-01T22:06:11.538070',
             'name':
-                'test',
+                name,
             'run_id':
                 '39927049b6ae7011',
             'started_ts':

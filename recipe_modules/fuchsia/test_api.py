@@ -137,7 +137,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       if run_tests:
         extra_steps.append(self.images_step_data())
         if not expect_failure:
-          extra_steps.append(self.task_step_data(device=on_device))
+          extra_steps.append(
+              self.tasks_step_data(self.task_mock_data(device=on_device)))
           extra_steps.append(self.test_step_data())
       if run_host_tests and not expect_failure:
         extra_steps.append(self.test_step_data(host_results=True))
@@ -224,7 +225,9 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       return self.step_data('read image manifest',
                             self.m.json.output(mock_image_manifest))
 
-  def task_step_data(self,
+  def task_mock_data(self,
+                     id='39927049b6ee7010',
+                     name='test',
                      output='',
                      device=False,
                      task_failure=False,
@@ -232,9 +235,10 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
                      expired=False,
                      no_resource=False,
                      timed_out=False):
-    """Returns mock step data for task results.
+    """Returns mock data for task results.
 
-    This should be used by any test which calls api.fuchsia.test*().
+    This should be used by any test which calls api.fuchsia.test*() and passed
+    to tasks_step_data.
 
     Args:
       output (str): The mock task's stdout/stderr.
@@ -249,30 +253,45 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
         available to run the task.
 
     Returns:
-      RecipeTestApi.step_data for the collect step.
+      Mock data for a Swarming task result which ran Fuchsia tests.
     """
     task_datum = None
     outputs = ['out.tar'] if device else ['output.fs']
     if task_failure:
-      task_datum = self.m.swarming.task_failure(output=output, outputs=outputs)
+      return self.m.swarming.task_failure(
+          id=id, name=name, output=output, outputs=outputs)
     elif infra_failure:
       # Don't allow setting output because we don't have a use case for it
       # and we need to maintain full line coverage
       assert not output
-      task_datum = self.m.swarming.task_infra_failure(outputs=outputs)
+      return self.m.swarming.task_infra_failure(id=id, outputs=outputs)
     elif timed_out:
-      task_datum = self.m.swarming.task_timed_out(
-          output=output, outputs=outputs)
+      return self.m.swarming.task_timed_out(
+          id=id, name=name, output=output, outputs=outputs)
     elif expired:
-      task_datum = self.m.swarming.task_expired()
+      return self.m.swarming.task_expired(id=id, name=name)
     elif no_resource:
-      task_datum = self.m.swarming.task_no_resource()
+      return self.m.swarming.task_no_resource(id=id, name=name)
     else:
-      task_datum = self.m.swarming.task_success(output=output, outputs=outputs)
-    return self.step_data(
-        'collect', self.m.swarming.collect(task_data=[task_datum]))
+      return self.m.swarming.task_success(
+          id=id, name=name, output=output, outputs=outputs)
 
-  def test_step_data(self, failure=False, host_results=False):
+  def tasks_step_data(self, *task_data):
+    """Returns mock step data for collecting Swarming test tasks.
+
+    This should be used by any test which calls api.fuchsia.test*().
+
+    Args:
+      task_data (seq[StepTestData]): step test data to be used for the collect
+        step.
+
+    Returns:
+      RecipeTestApi.step_data for the collect step.
+    """
+    return self.step_data(
+        'collect', self.m.swarming.collect(task_data=task_data))
+
+  def test_step_data(self, failure=False, host_results=False, shard_name=''):
     """Returns mock step data for test results.
 
     This should be used by any test which calls api.fuchsia.test*() and expects
@@ -288,7 +307,10 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     result = 'FAIL' if failure else 'PASS'
 
     # Host Results locally and do not require an 'extract results' step.
-    step_name = 'run host tests' if host_results else 'extract results'
+    if host_results:
+      step_name = 'run host tests'
+    else:
+      step_name = 'extract results'
 
     test_name_prefix = '[START_DIR]' if host_results else ''
     summary_json = self.m.json.dumps({

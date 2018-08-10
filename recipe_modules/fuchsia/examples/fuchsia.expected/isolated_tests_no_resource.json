@@ -609,7 +609,7 @@
     "name": "collect",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae7013\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ee7010\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"output\": \"\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": null, @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
@@ -628,7 +628,7 @@
       "@@@STEP_LOG_LINE@json.output@        \"os:Debian\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"pool:Fuchsia\"@@@",
       "@@@STEP_LOG_LINE@json.output@      ], @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ae7013\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ee7010\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"try_number\": \"1\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"user\": \"luci\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",

@@ -17,8 +17,9 @@ BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 DEPS = [
     'infra/fuchsia',
     'infra/goma',
-    'infra/swarming',
     'infra/jiri',
+    'infra/swarming',
+    'infra/testsharder',
     'recipe_engine/buildbucket',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -175,7 +176,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
     # Ensure passed_test_outputs gets filled out when tests pass.
     if test_results.summary and test_results.passed_test_outputs:
       assert test_results.passed_test_outputs['/hello']
-    api.fuchsia.analyze_test_results('test results', test_results)
+    api.fuchsia.analyze_test_results(test_results)
 
   if run_host_tests:
     test_results = api.fuchsia.test_on_host(build)
@@ -185,7 +186,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
     # Ensure passed_test_outputs gets filled out when tests pass.
     if test_results.summary and test_results.passed_test_outputs:
       assert test_results.passed_test_outputs['[START_DIR]/hello']
-    api.fuchsia.analyze_test_results('test results', test_results)
+    api.fuchsia.analyze_test_results(test_results)
 
   api.fuchsia.upload_build_artifacts(
       build_results=build,
@@ -234,7 +235,7 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.images_step_data(),
-          api.fuchsia.task_step_data(),
+          api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()),
       ])
   yield api.fuchsia.test(
       'isolated_tests_device',
@@ -258,7 +259,7 @@ def GenTests(api):
       expect_failure=True,  # Failure steps injected below.
       properties=dict(run_tests=True),
       steps=[
-          api.fuchsia.task_step_data(),
+          api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()),
           api.fuchsia.test_step_data(failure=True),
           api.step_data('task results.symbolize',
                         api.raw_io.stream_output('bt1\nbt2\n'))
@@ -272,32 +273,50 @@ def GenTests(api):
       'isolated_tests_task_failure',
       expect_failure=True,  # Failure step injected below.
       properties=dict(run_tests=True),
-      steps=[api.fuchsia.task_step_data(task_failure=True)])
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(task_failure=True)),
+      ])
   yield api.fuchsia.test(
       'isolated_tests_task_timed_out',
       expect_failure=True,  # Failure step injected below.
       properties=dict(run_tests=True),
-      steps=[api.fuchsia.task_step_data(timed_out=True)])
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(timed_out=True)),
+      ])
   yield api.fuchsia.test(
       'isolated_tests_task_expired',
       expect_failure=True,  # Failure step injected below.
       properties=dict(run_tests=True),
-      steps=[api.fuchsia.task_step_data(expired=True)])
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(expired=True)),
+      ])
   yield api.fuchsia.test(
       'isolated_tests_no_resource',
       expect_failure=True,  # Failure step injected below.
       properties=dict(run_tests=True),
-      steps=[api.fuchsia.task_step_data(no_resource=True)])
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(no_resource=True)),
+      ])
   yield api.fuchsia.test(
       'isolated_tests_kernel_panic',
       expect_failure=True,  # Failure step injected below.
       properties=dict(run_tests=True),
-      steps=[api.fuchsia.task_step_data(output='KERNEL PANIC')])
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(output='KERNEL PANIC')),
+      ])
   yield api.fuchsia.test(
       'isolated_tests_infra_failure',
       expect_failure=True,  # Failure step injected below.
       properties=dict(run_tests=True),
-      steps=[api.fuchsia.task_step_data(infra_failure=True)])
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(infra_failure=True)),
+      ])
 
   # Test cases that run no tests.
   yield api.fuchsia.test('default', properties={})

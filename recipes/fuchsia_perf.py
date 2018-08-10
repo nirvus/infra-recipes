@@ -241,87 +241,127 @@ def GenTests(api):
           })))
 
   # Test cases for running Fuchsia performance tests as a swarming task.
-  yield (api.test('successful_run') + api.buildbucket.ci_build(
-      git_repo='https://fuchsia.googlesource.com/topaz') + api.properties(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          dashboard_masters_name='fuchsia.ci',
-          dashboard_bots_name='topaz-builder',
-          benchmarks_package='topaz_benchmarks') + buildbucket_get_response +
-         api.fuchsia.images_step_data() + api.fuchsia.task_step_data() +
-         api.fuchsia.test_step_data())
+  yield (api.test('successful_run') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
+      benchmarks_package='topaz_benchmarks'
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
+    api.fuchsia.test_step_data()
+  )
 
-  yield (
-      api.test('failed_run') + api.buildbucket.ci_build(
-          git_repo='https://fuchsia.googlesource.com/topaz',) + api.properties(
-              manifest='fuchsia',
-              remote='https://fuchsia.googlesource.com/manifest',
-              target='x64',
-              packages=['topaz/packages/default'],
-              dashboard_masters_name='fuchsia.ci',
-              dashboard_bots_name='topaz-builder',
-              benchmarks_package='topaz_benchmarks',
-          ) + buildbucket_get_response + api.fuchsia.task_step_data() +
-      api.fuchsia.images_step_data() + api.fuchsia.test_step_data(failure=True))
+  yield (api.test('failed_run') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz',
+    ) +
+    api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
+      benchmarks_package='topaz_benchmarks',
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.test_step_data(failure=True)
+  )
 
   # Tests running this recipe with a pending Gerrit change. Note
   # that upload_to_dashboard is false. Be sure to set this when
   # testing patches.
-  yield (api.test('with_patch') + api.buildbucket.try_build(
-      git_repo='https://fuchsia.googlesource.com/topaz') + api.properties(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          dashboard_masters_name='fuchsia.try',
-          dashboard_bots_name='topaz-builder',
-          upload_to_dashboard=False,
-          benchmarks_package='topaz_benchmarks',
-          tryjob=True,
-      ) + buildbucket_get_response + api.fuchsia.images_step_data() +
-         api.fuchsia.task_step_data() + api.fuchsia.test_step_data())
+  yield (api.test('with_patch') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.try',
+      dashboard_bots_name='topaz-builder',
+      upload_to_dashboard=False,
+      benchmarks_package='topaz_benchmarks',
+      tryjob=True,
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
+    api.fuchsia.test_step_data()
+  )
 
   # CQ runs should disable certain things like dashboard uploads.
-  yield (api.test('cq') + api.buildbucket.try_build(
-      git_repo='https://fuchsia.googlesource.com/topaz') + api.properties(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          dashboard_masters_name='fuchsia.try',
-          dashboard_bots_name='topaz-builder',
-          upload_to_dashboard=True,
-          benchmarks_package='topaz_benchmarks',
-          tryjob=True,
-      ) + buildbucket_get_response + api.fuchsia.images_step_data() +
-         api.fuchsia.task_step_data() + api.fuchsia.test_step_data())
+  yield (api.test('cq') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.try',
+      dashboard_bots_name='topaz-builder',
+      upload_to_dashboard=True,
+      benchmarks_package='topaz_benchmarks',
+      tryjob=True,
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
+    api.fuchsia.test_step_data()
+  )
 
-  yield (api.test('device_tests') + api.buildbucket.ci_build(
-      git_repo='https://fuchsia.googlesource.com/topaz') + api.properties(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          device_type='Intel NUC Kit NUC6i3SYK',
-          dashboard_masters_name='fuchsia.ci',
-          dashboard_bots_name='topaz-builder',
-          benchmarks_package='topaz_benchmarks',
-          upload_to_dashboard=True,
-          tryjob=False,
-      ) + buildbucket_get_response + api.fuchsia.images_step_data() +
-         api.fuchsia.task_step_data(device=True) + api.fuchsia.test_step_data())
+  yield (api.test('device_tests') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      device_type='Intel NUC Kit NUC6i3SYK',
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
+      benchmarks_package='topaz_benchmarks',
+      upload_to_dashboard=True,
+      tryjob=False,
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data(device=True)) +
+    api.fuchsia.test_step_data()
+  )
 
-  yield (api.test('missing test results') + api.buildbucket.ci_build(
-      git_repo='https://fuchsia.googlesource.com/topaz') + api.properties(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          dashboard_masters_name='fuchsia.ci',
-          dashboard_bots_name='topaz-builder',
-          benchmarks_package='topaz_benchmarks',
-      ) + buildbucket_get_response + api.fuchsia.task_step_data() +
-         api.fuchsia.images_step_data() + api.step_data(
-             'extract results', api.raw_io.output_dir({})))
+  yield (api.test('missing test results') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
+      benchmarks_package='topaz_benchmarks',
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
+    api.fuchsia.images_step_data() +
+    api.step_data('extract results', api.raw_io.output_dir({}))
+  )

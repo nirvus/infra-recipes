@@ -159,8 +159,8 @@ def RunTestsOnHost(api, build_dir):
   # Extract test results.
   test_results_map = api.step.active_result.raw_io.output_dir
   api.fuchsia.analyze_test_results(
-      'host test results',
       api.fuchsia.FuchsiaTestResults(
+          name='host',
           build_dir=build_dir,
           results_dir=test_results_dir,
           zircon_kernel_log=None,  # We did not run tests on target.
@@ -229,8 +229,8 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
 
   # Analyze the test results and report them in the presentation.
   api.fuchsia.analyze_test_results(
-    'booted test results',
     api.fuchsia.FuchsiaTestResults(
+        name='booted',
         build_dir=build_dir,
         results_dir=test_results_dir,
         zircon_kernel_log=result.output,
@@ -435,8 +435,8 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
 
   # Analyze the test results and report them in the presentation.
   api.fuchsia.analyze_test_results(
-    'booted test results',
     api.fuchsia.FuchsiaTestResults(
+        name='booted',
         build_dir=build_dir,
         results_dir=test_results_dir,
         zircon_kernel_log=booted_result.output,

@@ -49,6 +49,10 @@ class CollectResult(object):
     return self._outputs[key]
 
   @property
+  def name(self):
+    return self._raw_results['results']['name'] if not self._is_error else None
+
+  @property
   def id(self):
     return self._id
 
