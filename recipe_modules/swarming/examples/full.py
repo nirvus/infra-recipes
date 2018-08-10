@@ -2,14 +2,27 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from recipe_engine.recipe_api import Property
+
+
 DEPS = [
   'swarming',
   'recipe_engine/json',
   'recipe_engine/path',
+  'recipe_engine/properties',
 ]
 
 
-def RunSteps(api):
+PROPERTIES = {
+  'spawn_tasks':
+      Property(
+          kind=bool,
+          help='Whether to use spawn_tasks or trigger',
+          default=True),
+}
+
+
+def RunSteps(api, spawn_tasks):
   api.swarming.ensure_swarming()
   assert api.swarming.swarming_client
 
@@ -17,19 +30,40 @@ def RunSteps(api):
 
   json = api.path['cleanup'].join('task.json')
 
-  # Trigger a new Swarming task.
-  api.swarming.trigger('recipes-go',
-      ['recipes', 'run', '"example"'],
-      isolated='606d94add94223636ee516c6bc9918f937823ccc',
-      dump_json=json,
-      dimensions={'pool': 'Fuchsia', 'os': 'Debian'},
-      expiration=3600,
-      io_timeout=600,
-      hard_timeout=3600,
-      idempotent=True,
-      outputs=['out/hello.txt'],
-      cipd_packages=[('cipd_bin_packages', 'infra/git/${platform}', 'version:2.14.1.chromium10')],
-  )
+  if spawn_tasks:
+    # Create a new Swarming task request.
+    request = api.swarming.task_request(
+        name='recipes-go',
+        cmd=['recipes', 'run', '"example"'],
+        dimensions={'pool': 'Fuchsia', 'os': 'Debian'},
+        isolated='606d94add94223636ee516c6bc9918f937823ccc',
+        expiration_secs=3600,
+        io_timeout_secs=600,
+        hard_timeout_secs=3600,
+        idempotent=True,
+        outputs=['out/hello.txt'],
+        cipd_packages=[('cipd_bin_packages', 'infra/git/${platform}', 'version:2.14.1.chromium10')],
+    )
+
+    # Spawn the task request. This is equivalent to trigger.
+    api.swarming.spawn_tasks(
+        tasks=[request],
+        json_output=json,
+    )
+  else:
+    # Trigger a new Swarming task.
+    api.swarming.trigger('recipes-go',
+        ['recipes', 'run', '"example"'],
+        isolated='606d94add94223636ee516c6bc9918f937823ccc',
+        dump_json=json,
+        dimensions={'pool': 'Fuchsia', 'os': 'Debian'},
+        expiration=3600,
+        io_timeout=600,
+        hard_timeout=3600,
+        idempotent=True,
+        outputs=['out/hello.txt'],
+        cipd_packages=[('cipd_bin_packages', 'infra/git/${platform}', 'version:2.14.1.chromium10')],
+    )
 
   # Wait for its results.
   try:
@@ -43,6 +77,8 @@ def RunSteps(api):
       path = results[0]['out/hello.txt']
     if results[0].is_failure() and results[0].timed_out():
       raise api.step.StepTimeout('Timed out!')
+    # You can also grab the outputs of the Swarming task as a map.
+    results[0].outputs
   except:
     pass
 
@@ -70,3 +106,7 @@ def GenTests(api):
       'collect', api.swarming.collect(task_data=[api.swarming.task_no_resource()]))
   yield api.test('infra_failure_no_out') + api.step_data(
       'collect', api.json.output({}))
+  yield api.test('basic_trigger') + api.step_data(
+      'collect', api.swarming.collect(task_data=[api.swarming.task_success(
+          output='hello', outputs=['out/hello.txt'])])) + api.properties(
+              spawn_tasks=False)

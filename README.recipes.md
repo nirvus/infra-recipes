@@ -1100,15 +1100,15 @@ ServiceAccountApi provides access to service account keys.
 
 [DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolated](#recipe_modules-isolated), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [SwarmingApi](/recipe_modules/swarming/api.py#58)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [SwarmingApi](/recipe_modules/swarming/api.py#167)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for interacting with swarming.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#66)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#175)(self, \*args, \*\*kwargs):**
 
 Return a swarming command step.
 
-&mdash; **def [collect](/recipe_modules/swarming/api.py#163)(self, timeout=None, requests_json=None, tasks=[]):**
+&mdash; **def [collect](/recipe_modules/swarming/api.py#308)(self, timeout=None, requests_json=None, tasks=[]):**
 
 Waits on a set of Swarming tasks.
 
@@ -1119,17 +1119,38 @@ Args:
   requests_json: load details about the task(s) from the json file.
   tasks: list of task ids to wait on.
 
-&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#72)(self, version=None):**
+&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#181)(self, version=None):**
 
 Ensures that swarming client is installed.
 
-&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#86)(self):**
+&mdash; **def [spawn\_tasks](/recipe_modules/swarming/api.py#281)(self, tasks=(), json_output=None):**
 
-&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#95)(self, value):**
+Spawns a set of Swarming tasks.
+
+Args:
+  tasks (seq[TaskRequest]): A sequence of task request objects representing
+    the tasks we want to spawn.
+  json_output (Path): Optional filepath to leak a JSON file containing
+    the return value of this method.
+
+Returns:
+  A Python dict representing the tasks spawned as a JSON file that may be
+  passed into collect().
+
+&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#195)(self):**
+
+&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#204)(self, value):**
 
 Changes URL of Swarming server to use.
 
-&mdash; **def [trigger](/recipe_modules/swarming/api.py#100)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, hard_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
+&mdash; **def [task\_request](/recipe_modules/swarming/api.py#272)(self, \*args, \*\*kwargs):**
+
+Creates a new TaskRequest object.
+
+Passes down all arguments to the TaskRequest constructor with the exception
+of isolate_server, which is provided by the isolated recipe module.
+
+&mdash; **def [trigger](/recipe_modules/swarming/api.py#209)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, hard_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
 
 Triggers a Swarming task.
 
@@ -1638,9 +1659,9 @@ Recipe for building Fuchsia SDKs.
 &mdash; **def [RunSteps](/recipe_modules/service_account/examples/full.py#10)(api):**
 ### *recipes* / [swarming:examples/full](/recipe_modules/swarming/examples/full.py)
 
-[DEPS](/recipe_modules/swarming/examples/full.py#5): [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path]
+[DEPS](/recipe_modules/swarming/examples/full.py#8): [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
-&mdash; **def [RunSteps](/recipe_modules/swarming/examples/full.py#12)(api):**
+&mdash; **def [RunSteps](/recipe_modules/swarming/examples/full.py#25)(api, spawn_tasks):**
 ### *recipes* / [swift\_toolchain](/recipes/swift_toolchain.py)
 
 [DEPS](/recipes/swift_toolchain.py#19): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]

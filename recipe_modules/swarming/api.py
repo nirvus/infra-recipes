@@ -43,6 +43,7 @@ class CollectResult(object):
     return ((not self._is_error) and
             self._raw_results['results']['state'] == 'NO_RESOURCE')
 
+  # TODO(mknyszek): Remove this in favor of using outputs directly.
   def __getitem__(self, key):
     return self._outputs[key]
 
@@ -53,6 +54,114 @@ class CollectResult(object):
   @property
   def output(self):
     return self._output
+
+  @property
+  def outputs(self):
+    return self._outputs
+
+
+class TaskRequest(object):
+  """Wrapper object for constructing a Swarming task request."""
+
+  def __init__(self, name, cmd, dimensions, isolated='', isolate_server='',
+               expiration_secs=300, io_timeout_secs=60, hard_timeout_secs=1200,
+               idempotent=False, cipd_packages=(), outputs=()):
+    """Creates a Swarming task request object.
+
+    For more details on what goes into a Swarming task, see the user guide:
+    https://github.com/luci/luci-py/blob/master/appengine/swarming/doc/User-Guide.md#task
+
+    Args:
+      name (str): Name of the task.
+      cmd (list[str]): The command that will be executed by the swarming_bot in
+        the task.
+      isolated (str): Hash of isolated on isolate server.
+      isolate_server (str): Base URL of the isolate server.
+      dimensions (dict[str]str): Dimensions to filter swarming bots on.
+      expiration_secs (int): Seconds before this task request expires.
+      io_timeout_secs (int): Seconds to allow the task to be silent.
+      hard_timeout_secs (int): Seconds before swarming should kill the task.
+      idempotent (bool): Whether this task is considered idempotent. Idempotent
+        tasks are such that if another task is executed with identical
+        properties, we can short-circuit execution and just return the other
+        task's results.
+      cipd_packages (list[(str,str,str)]: List of 3-tuples corresponding to
+        CIPD packages needed for the task: ('path', 'package_name', 'version'),
+        defined as follows:
+          path: Path relative to the Swarming root dir in which to install
+            the package.
+          package_name: Name of the package to install,
+            eg. "infra/tools/authutil/${platform}"
+          version: Version of the package, either a package instance ID,
+            ref, or tag key/value pair.
+      outputs (list[str]): List of paths to files which can be downloaded via
+        collect().
+    """
+    assert len(dimensions) >= 1 and dimensions['pool']
+    self.name = name
+    self.cmd = cmd
+    self.isolate_server = isolate_server
+    self.isolated = isolated
+    self.dimensions = dimensions
+    self.expiration_secs = expiration_secs
+    self.io_timeout_secs = io_timeout_secs
+    self.hard_timeout_secs = hard_timeout_secs
+    self.idempotent = idempotent
+    self.cipd_packages = cipd_packages
+    self.outputs = outputs
+
+  def render_to_json(self):
+    """Renders the task request as a JSON-serializable dict.
+
+    The format follows the Swarming task request API, which may be found here:
+    https://chromium.googlesource.com/infra/luci/luci-go/+/819bad947699d6a3168d476281528b73abfe32d0/common/api/swarming/swarming/v1/swarming-api.json#1313
+    """
+    properties = {
+      'command': self.cmd,
+      'dimensions': [
+        {
+          'key': k,
+          'value': v,
+        }
+        for k, v in self.dimensions.iteritems()
+      ],
+      'execution_timeout_secs': str(self.hard_timeout_secs),
+      'io_timeout_secs': str(self.io_timeout_secs),
+      # When a Swarming task is killed, the grace period is the amount of time
+      # to wait before a SIGKILL is issued to the process, allowing it to
+      # perform any clean-up operations.
+      'grace_period_secs': str(30),
+      'idempotent': self.idempotent,
+      'outputs': self.outputs,
+    }
+    if self.isolate_server and self.isolated:
+      properties['inputs_ref'] = {
+        'isolated': self.isolated,
+        'namespace': 'default-gzip',
+        'isolatedserver': self.isolate_server,
+      }
+    if self.cipd_packages:
+      properties['cipd_input'] = {
+        'packages': [
+          {
+            'package_name': name,
+            'path': path,
+            'version': version,
+          }
+          for path, name, version in self.cipd_packages
+        ],
+      }
+    return {
+      'name': self.name,
+      'expiration_secs': str(self.expiration_secs),
+      # Priority is a numerical priority between 0 and 255 where a higher
+      # number corresponds to a lower priority. Tasks are scheduled by swarming
+      # in order of their priority (e.g. if both a task of priority 1 and a task
+      # of priority 2 are waiting for resources to free up for execution, the
+      # task with priority 1 will take precedence).
+      'priority': str(200),
+      'properties': properties,
+    }
 
 
 class SwarmingApi(recipe_api.RecipeApi):
@@ -159,6 +268,42 @@ class SwarmingApi(recipe_api.RecipeApi):
         step_test_data=lambda: self.test_api.trigger(name, raw_cmd,
             dimensions=dimensions, cipd_packages=cipd_packages)
     )
+
+  def task_request(self, *args, **kwargs):
+    """Creates a new TaskRequest object.
+
+    Passes down all arguments to the TaskRequest constructor with the exception
+    of isolate_server, which is provided by the isolated recipe module.
+    """
+    return TaskRequest(*args, **dict(
+        kwargs, isolate_server=self.m.isolated.isolate_server))
+
+  def spawn_tasks(self, tasks=(), json_output=None):
+    """Spawns a set of Swarming tasks.
+
+    Args:
+      tasks (seq[TaskRequest]): A sequence of task request objects representing
+        the tasks we want to spawn.
+      json_output (Path): Optional filepath to leak a JSON file containing
+        the return value of this method.
+
+    Returns:
+      A Python dict representing the tasks spawned as a JSON file that may be
+      passed into collect().
+    """
+    assert len(tasks) > 0
+
+    requests = []
+    for task in tasks:
+      requests.append(task.render_to_json())
+
+    return self.m.step('spawn %d tasks' % len(tasks), [
+      self._swarming_client,
+      'spawn-tasks',
+      '-server', self.swarming_server,
+      '-json-input', self.m.json.input({'requests': requests}),
+      '-json-output', self.m.json.output(leak_to=json_output),
+    ]).json.output
 
   def collect(self, timeout=None, requests_json=None, tasks=[]):
     """Waits on a set of Swarming tasks.
