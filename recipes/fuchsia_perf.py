@@ -189,11 +189,14 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       variants=variant,
       gn_args=gn_args,
       ninja_targets=ninja_targets,
-      test_cmds=test_cmds,
-      test_device_type=device_type,
   )
   test_results = api.fuchsia.test(
-      build=build, test_pool=test_pool, pave=pave)
+      build=build,
+      test_pool=test_pool,
+      pave=pave,
+      test_cmds=test_cmds,
+      device_type=device_type,
+  )
 
   # Log the results of each benchmark.
   api.fuchsia.report_test_results(test_results)

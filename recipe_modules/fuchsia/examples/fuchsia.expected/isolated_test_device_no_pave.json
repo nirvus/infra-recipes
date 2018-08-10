@@ -220,36 +220,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "mkdir /tmp/infra-test-output\nruntests",
-      "[CLEANUP]/runcmds"
-    ],
-    "infra_step": true,
-    "name": "write runcmds",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
-      "@@@STEP_LOG_END@runcmds@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@{@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@  name = \"infra_runcmds\"@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@  resources = [@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@    {@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@      path = \"[CLEANUP]/runcmds\"@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@      dest = \"runcmds\"@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@    },@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@  ]@@@",
-      "@@@STEP_LOG_LINE@runcmds_package_spec@}@@@",
-      "@@@STEP_LOG_END@runcmds_package_spec@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "build"
   },
@@ -339,7 +309,7 @@
       "gen",
       "[START_DIR]/out/debug-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true synthesize_packages = [ \n{\n  name = \"infra_runcmds\"\n  resources = [\n    {\n      path = \"[CLEANUP]/runcmds\"\n      dest = \"runcmds\"\n    },\n  ]\n}\n ]"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -430,6 +400,25 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "mkdir /tmp/infra-test-output\nruntests",
+      "[CLEANUP]/runcmds"
+    ],
+    "infra_step": true,
+    "name": "write runcmds",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
+      "@@@STEP_LOG_END@runcmds@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "[START_DIR]/out/debug-arm64/images.json",
       "/path/to/tmp/json"
@@ -475,6 +464,17 @@
       "@@@STEP_LOG_LINE@json.output@]@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/zbi",
+      "-o",
+      "[START_DIR]/out/debug-arm64/test-infra.zbi",
+      "[START_DIR]/out/debug-arm64/netboot.zbi",
+      "-e",
+      "infra/runcmds=[CLEANUP]/runcmds"
+    ],
+    "name": "create test zbi"
   },
   {
     "cmd": [],
@@ -547,7 +547,7 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/out/debug-arm64:netboot.zbi"
+      "[START_DIR]/out/debug-arm64:test-infra.zbi"
     ],
     "name": "archive"
   },
@@ -558,7 +558,7 @@
       "-server",
       "https://chromium-swarm.appspot.com",
       "-json-input",
-      "{\"requests\": [{\"expiration_secs\": \"300\", \"name\": \"all tests\", \"priority\": \"200\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"zedboot\", \"-properties\", \"/etc/botanist/config.json\", \"-kernel\", \"netboot.zbi\", \"-results-dir\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"Intel NUC Kit NUC6i3SYK\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"2400\", \"grace_period_secs\": \"30\", \"idempotent\": false, \"inputs_ref\": {\"isolated\": \"[dummy hash]\", \"isolatedserver\": \"https://isolateserver.appspot.com\", \"namespace\": \"default-gzip\"}, \"io_timeout_secs\": \"60\", \"outputs\": [\"out.tar\"]}}]}",
+      "{\"requests\": [{\"expiration_secs\": \"300\", \"name\": \"all tests\", \"priority\": \"200\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"zedboot\", \"-properties\", \"/etc/botanist/config.json\", \"-kernel\", \"test-infra.zbi\", \"-results-dir\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/boot/bin/sh+/boot/infra/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"Intel NUC Kit NUC6i3SYK\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"2400\", \"grace_period_secs\": \"30\", \"idempotent\": false, \"inputs_ref\": {\"isolated\": \"[dummy hash]\", \"isolatedserver\": \"https://isolateserver.appspot.com\", \"namespace\": \"default-gzip\"}, \"io_timeout_secs\": \"60\", \"outputs\": [\"out.tar\"]}}]}",
       "-json-output",
       "/path/to/tmp/json"
     ],

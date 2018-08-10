@@ -254,15 +254,6 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
             validator,
         ])
 
-  test_cmds = None
-  if run_tests:
-    test_cmds = [
-        'runtests -o %s %s' % (
-            api.fuchsia.results_dir_on_target,
-            runtests_args,
-        )
-    ]
-
   build = api.fuchsia.build(
       target=target,
       build_type=build_type,
@@ -270,8 +261,6 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
       variants=variant,
       gn_args=gn_args,
       ninja_targets=ninja_targets,
-      test_cmds=test_cmds,
-      test_device_type=device_type,
   )
 
   if run_tests:
@@ -280,6 +269,13 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         test_pool=test_pool,
         timeout_secs=test_timeout_secs,
         pave=pave,
+        test_cmds=[
+            'runtests -o %s %s' % (
+                api.fuchsia.results_dir_on_target,
+                runtests_args,
+            ),
+        ],
+        device_type=device_type,
         external_network=networking_for_tests,
     )
     api.fuchsia.analyze_test_results('test results', test_results)

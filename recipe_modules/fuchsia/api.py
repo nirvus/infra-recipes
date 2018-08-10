@@ -44,21 +44,8 @@ TEST_FS_PCI_ADDR = '06.0'
 # no output being produced.
 TEST_IO_TIMEOUT_SECS = 60
 
-# This is a GN scope; see //build/gn/packages.gni about `synthesize_packages`.
-# TODO(IN-528): Using the zbi tool to add a runcmds entry to the ramdisk instead
-# of pkgfs, as we will eventually no longer have priveleges to run the latter
-# out of a package directly from the shell.
-RUNCMDS_PACKAGE_SPEC = '''
-{
-  name = "infra_runcmds"
-  resources = [
-    {
-      path = "%s"
-      dest = "runcmds"
-    },
-  ]
-}
-'''
+# The path in the BootFS manifest that we want runcmds to show up at.
+RUNCMDS_BOOTFS_PATH = 'infra/runcmds'
 
 # (variant_name, switch) mapping Fuchsia GN variant names (as used in the
 # variant property) to build-zircon.sh switches.
@@ -98,14 +85,11 @@ class FuchsiaCheckoutResults(object):
 class FuchsiaBuildResults(object):
   """Represents a completed build of Fuchsia."""
 
-  def __init__(self, target, zircon_build_dir, fuchsia_build_dir,
-               has_target_tests, test_device_type):
+  def __init__(self, target, zircon_build_dir, fuchsia_build_dir):
     assert target in TARGETS
     self._zircon_build_dir = zircon_build_dir
     self._fuchsia_build_dir = fuchsia_build_dir
     self._target = target
-    self._has_target_tests = has_target_tests
-    self._test_device_type = test_device_type
 
   @property
   def target(self):
@@ -128,22 +112,9 @@ class FuchsiaBuildResults(object):
     return self._fuchsia_build_dir
 
   @property
-  def has_target_tests(self):
-    """Whether this build has the necessary additions to be tested on target."""
-    return self._has_target_tests
-
-  @property
-  def test_device_type(self):
-    """The type of device that this build is created to run tests on.
-
-    This will be passed to Swarming as the device_type dimension in testing
-    if its value is not 'QEMU'.
-    """
-    return self._test_device_type
-
-  @property
   def ids(self):
     return self._fuchsia_build_dir.join('ids.txt')
+
 
 class FuchsiaApi(recipe_api.RecipeApi):
   """APIs for checking out, building, and testing Fuchsia."""
@@ -435,40 +406,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
         snapshot_file=snapshot_file,
         snapshot_file_sha1=digest)
 
-  def _create_runcmds_package(self, test_cmds, test_in_qemu=True):
-    """Creates a Fuchsia package which contains a script for running tests automatically."""
-    # The device topological path is the toplogical path to the block device
-    # which will contain test output.
-    device_topological_path = '/dev/sys/pci/00:%s/virtio-block/block' % (
-        TEST_FS_PCI_ADDR)
-
-    # Script that mounts the block device to contain test output and runs tests,
-    # dropping test output into the block device.
-    results_dir = self.results_dir_on_target
-    runcmds = [
-        'mkdir %s' % results_dir,
-    ]
-    if test_in_qemu:
-      runcmds.extend([
-          # Wait until the MinFS test image shows up (max <timeout> ms).
-          'waitfor class=block topo=%s timeout=60000' % device_topological_path,
-          'mount %s %s' % (device_topological_path, results_dir),
-      ] + test_cmds + [
-          'umount %s' % results_dir,
-          'dm poweroff',
-      ])
-    else:
-      runcmds.extend(test_cmds)
-    runcmds_path = self.m.path['cleanup'].join('runcmds')
-    self.m.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
-    self.m.step.active_result.presentation.logs['runcmds'] = runcmds
-
-    runcmds_package_spec = RUNCMDS_PACKAGE_SPEC % runcmds_path
-    self.m.step.active_result.presentation.logs['runcmds_package_spec'] = (
-        runcmds_package_spec.splitlines())
-
-    return runcmds_package_spec
-
   def _build_zircon(self, target, variants):
     """Builds zircon for the specified target."""
     cmd = [
@@ -555,9 +492,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             packages,
             variants=(),
             gn_args=[],
-            ninja_targets=(),
-            test_cmds=(),
-            test_device_type='QEMU'):
+            ninja_targets=()):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -570,21 +505,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
         to GN in `select_variant`
       gn_args (sequence[str]): Additional arguments to pass to GN
       ninja_targets (sequence[str]): Additional target args to pass to ninja
-      test_cmds (sequence[str]): A sequence of commands to run on the device
-        during testing. If empty, no test package will be added to the build.
-      test_device_type (str): The type of device that tests will be executed
-        on.
 
     Returns:
       A FuchsiaBuildResults, representing the recently completed build.
     """
     assert target in TARGETS
     assert build_type in BUILD_TYPES
-
-    if test_cmds:
-      gn_args.append(
-          'synthesize_packages = [ %s ]' % self._create_runcmds_package(
-              test_cmds=test_cmds, test_in_qemu=(test_device_type == 'QEMU')))
 
     if build_type == 'debug':
       build_dir = 'debug'
@@ -595,8 +521,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
         target=target,
         zircon_build_dir=out_dir.join('build-zircon', 'build-%s' % target),
         fuchsia_build_dir=out_dir.join('%s-%s' % (build_dir, target)),
-        has_target_tests=bool(test_cmds),
-        test_device_type=test_device_type,
     )
     with self.m.step.nest('build'):
       with self.m.goma.build_with_goma(env=self._setup_goma()):
@@ -609,6 +533,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             gn_args=gn_args,
             ninja_targets=ninja_targets)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
+    self.m.zbi.zbi_path = out_dir.join('build-zircon', 'tools', 'zbi')
 
     return build
 
@@ -753,8 +678,35 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
-  def _construct_qemu_task_request(self, build, test_pool, images, timeout_secs,
-                                   external_network):
+  def _create_runcmds_script(self, device_type, test_cmds, output_path):
+    """Creates a script for running tests on boot."""
+    # The device topological path is the toplogical path to the block device
+    # which will contain test output.
+    device_topological_path = '/dev/sys/pci/00:%s/virtio-block/block' % (
+        TEST_FS_PCI_ADDR)
+
+    # Script that mounts the block device to contain test output and runs tests,
+    # dropping test output into the block device.
+    results_dir = self.results_dir_on_target
+    runcmds = [
+        'mkdir %s' % results_dir,
+    ]
+    if device_type == 'QEMU':
+      runcmds.extend([
+          # Wait until the MinFS test image shows up (max <timeout> ms).
+          'waitfor class=block topo=%s timeout=60000' % device_topological_path,
+          'mount %s %s' % (device_topological_path, results_dir),
+      ] + test_cmds + [
+          'umount %s' % results_dir,
+          'dm poweroff',
+      ])
+    else:
+      runcmds.extend(test_cmds)
+    self.m.file.write_text('write runcmds', output_path, '\n'.join(runcmds))
+    self.m.step.active_result.presentation.logs['runcmds'] = runcmds
+
+  def _construct_qemu_task_request(self, zbi_path, build, test_pool, images,
+                                   timeout_secs, external_network):
     """Constructs a Swarming task request which runs Fuchsia tests inside QEMU.
 
     Expects the build and artifacts to be at the same place they were at
@@ -780,14 +732,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # image. These dict keys come from the images.json format which is produced
     # by a Fuchsia build.
     # TODO(BLD-253): Point to the schema once there is one.
-    zircon_a_path = images['zircon-a']
     storage_full_path = images['storage-full']
     qemu_kernel_path = images['qemu-kernel']
 
     # All the *_name references below act as relative paths to the corresponding
     # artifacts in the test Swarming task, since we isolate all of the artifacts
     # into the root directory where the isolate is extracted.
-    zircon_a_name = self.m.path.basename(zircon_a_path)
+    zbi_name = self.m.path.basename(zbi_path)
     storage_full_name = self.m.path.basename(storage_full_path)
     qemu_kernel_name = self.m.path.basename(qemu_kernel_path)
 
@@ -807,7 +758,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       'qemu',
       '-qemu-dir', './qemu/bin',
       '-qemu-kernel', qemu_kernel_name,
-      '-zircon-a', zircon_a_name,
+      '-zircon-a', zbi_name,
       '-storage-full', storage_full_name,
       '-arch', build.target,
       '-minfs', minfs_image_name,
@@ -819,12 +770,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
       botanist_cmd.append('-enable-networking')
 
     botanist_cmd.append(
-      'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds')
+        'zircon.autorun.system=/boot/bin/sh+/boot/%s' % RUNCMDS_BOOTFS_PATH)
 
     # Isolate the Fuchsia build artifacts in addition to the test image and the
     # qemu runner.
     isolated_hash = self._isolate_files_at_isolated_root([
-        zircon_a_path,
+        zbi_path,
         storage_full_path,
         qemu_kernel_path,
         minfs_image_path,
@@ -860,7 +811,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 		      ],
     )
 
-  def _construct_device_task_request(self, build, test_pool, images, pave, timeout_secs):
+  def _construct_device_task_request(self, device_type, zbi_path, build,
+                                     test_pool, images, pave, timeout_secs):
     """Constructs a Swarming task request to run Fuchsia tests on a device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -886,12 +838,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # by a Fuchsia build.
     # TODO(BLD-253): Point to the schema once there is one.
     if pave:
-      zbi_path = images['zircon-a']
       efi_path = images['efi']
       storage_sparse_path = images['storage-sparse']
       data_template_path = images['data-template']
-    else:
-      zbi_path = images['netboot']
 
     # All the *_name references below act as relative paths to the corresponding
     # artifacts in the test Swarming task, since we isolate all of the artifacts
@@ -923,7 +872,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Add the kernel command line arg for invoking runcmds.
     botanist_cmd.append(
-        'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds')
+        'zircon.autorun.system=/boot/bin/sh+/boot/%s' % RUNCMDS_BOOTFS_PATH)
 
     # Isolate all the necessary artifacts used by the botanist command.
     if pave:
@@ -942,7 +891,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         isolated=isolated_hash,
         dimensions={
             'pool': test_pool,
-            'device_type': build.test_device_type,
+            'device_type': device_type,
         },
         io_timeout_secs=TEST_IO_TIMEOUT_SECS,
         hard_timeout_secs=timeout_secs,
@@ -1004,8 +953,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       for image in raw_images
     }
 
-  def test(self, build, test_pool, timeout_secs=40 * 60, pave=True,
-           external_network=False):
+  def test(self, build, test_pool, test_cmds, device_type, timeout_secs=40 * 60,
+           pave=True, external_network=False):
     """Tests a Fuchsia build on the specified device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -1017,19 +966,37 @@ class FuchsiaApi(recipe_api.RecipeApi):
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
       external_network (bool): Whether to enable access to the external
-        network when executing tests. Ignored if
-        build.test_device_type != 'QEMU'.
+        network when executing tests. Ignored if device_type != 'QEMU'.
       pave (bool): Whether to pave the image to disk. Ignored if
-        build.test_device_type == 'QEMU'.
+        device_type == 'QEMU'.
 
     Returns:
       A FuchsiaTestResults representing the completed test.
     """
-    assert build.has_target_tests
+    assert bool(test_cmds)
+    assert bool(device_type)
+
+    runcmds_path = self.m.path['cleanup'].join('runcmds')
+    self._create_runcmds_script(device_type, test_cmds, runcmds_path)
+
     images = self._image_paths(build)
 
-    if build.test_device_type == 'QEMU':
+    # Inject the runcmds script into the bootfs image.
+    if not pave and device_type != 'QEMU':
+      zbi_path = images['netboot']
+    else:
+      zbi_path = images['zircon-a']
+    new_zbi_path = build.fuchsia_build_dir.join('test-infra.zbi')
+    self.m.zbi.copy_and_extend(
+      step_name='create test zbi',
+      input_image=zbi_path,
+      output_image=new_zbi_path,
+      manifest={RUNCMDS_BOOTFS_PATH: runcmds_path},
+    )
+
+    if device_type == 'QEMU':
       task = self._construct_qemu_task_request(
+          zbi_path=new_zbi_path,
           build=build,
           test_pool=test_pool,
           images=images,
@@ -1038,6 +1005,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       )
     else:
       task = self._construct_device_task_request(
+          device_type=device_type,
+          zbi_path=new_zbi_path,
           build=build,
           test_pool=test_pool,
           images=images,
@@ -1072,7 +1041,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       test_results_dir = self.results_dir_on_host.join('target', result.id)
       test_results_map = self._extract_test_results(
-          device_type=build.test_device_type,
+          device_type=device_type,
           archive_path=result.outputs[archive_name],
           # Write test results to a subdirectory of |results_dir_on_host|
           # so as not to collide with host test results.
