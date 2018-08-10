@@ -95,7 +95,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
 
     # Add implicit steps.
     extra_steps = []
-    if not (expect_failure or clear_default_steps):
+    if not clear_default_steps:
       # Don't add these if the test is expected to raise an exception;
       # the recipes engine will complain that these steps aren't consumed.
       run_tests = final_properties.get('run_tests', False)
@@ -103,9 +103,11 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       on_device = final_properties.get('device_type', 'QEMU') != 'QEMU'
 
       if run_tests:
-        extra_steps.append(self.task_step_data(device=on_device))
-        extra_steps.append(self.test_step_data())
-      if run_host_tests:
+        extra_steps.append(self.images_step_data())
+        if not expect_failure:
+          extra_steps.append(self.task_step_data(device=on_device))
+          extra_steps.append(self.test_step_data())
+      if run_host_tests and not expect_failure:
         extra_steps.append(self.test_step_data(host_results=True))
 
     # Assemble the return value.
@@ -137,6 +139,23 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     """
     return self.step_data('read symbol file summary',
                           self.m.json.output(summary_json))
+
+  def images_step_data(self):
+    """Returns mock step data for the image manifest."""
+    return self.step_data('read image manifest', self.m.json.output([
+        {'name': 'zircon-a',
+         'type': 'zbi',
+         'path': 'fuchsia.zbi'},
+        {'name': 'storage-full',
+         'type': 'blk',
+         'path': 'fvm.blk'},
+        {'name': 'qemu-kernel',
+         'type': 'bin',
+         'path': 'boot.bin'},
+        {'name': 'netboot',
+         'type': 'zbi',
+         'path': 'netboot.zbi'},
+    ]))
 
   def task_step_data(self,
                      output='',

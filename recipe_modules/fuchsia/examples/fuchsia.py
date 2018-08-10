@@ -226,6 +226,7 @@ def GenTests(api):
       clear_default_steps=True,
       properties=dict(run_tests=True),
       steps=[
+          api.fuchsia.images_step_data(),
           api.fuchsia.task_step_data(),
       ])
   yield api.fuchsia.test(

@@ -233,8 +233,11 @@ def GenTests(api):
       dashboard_bots_name='topaz-builder',
       benchmarks_package='topaz_benchmarks',
   ) + (
-      buildbucket_test_data + api.fuchsia.task_step_data() +
-      api.fuchsia.test_step_data())
+      buildbucket_test_data +
+      api.fuchsia.images_step_data() +
+      api.fuchsia.task_step_data() + 
+      api.fuchsia.test_step_data()
+  )
 
   yield api.test('failed_run') + api.properties(
       project='topaz',
@@ -246,7 +249,9 @@ def GenTests(api):
       dashboard_bots_name='topaz-builder',
       benchmarks_package='topaz_benchmarks',
   ) + (
-      buildbucket_test_data + api.fuchsia.task_step_data() +
+      buildbucket_test_data +
+      api.fuchsia.task_step_data() +
+      api.fuchsia.images_step_data() +
       api.fuchsia.test_step_data(failure=True))
 
   # Tests running this recipe with a pending Gerrit change. Note
@@ -266,8 +271,11 @@ def GenTests(api):
       upload_to_dashboard=False,
       benchmarks_package='topaz_benchmarks',
   ) + (
-      buildbucket_test_data + api.fuchsia.task_step_data() +
-      api.fuchsia.test_step_data())
+      buildbucket_test_data +
+      api.fuchsia.images_step_data() +
+      api.fuchsia.task_step_data() +
+      api.fuchsia.test_step_data()
+  )
 
   # CQ runs should disable certain things like dashboard uploads.
   yield api.test('cq') + api.properties(
@@ -285,8 +293,11 @@ def GenTests(api):
       benchmarks_package='topaz_benchmarks',
       tryjob=True,
   ) + (
-      buildbucket_test_data + api.fuchsia.task_step_data() +
-      api.fuchsia.test_step_data())
+      buildbucket_test_data +
+      api.fuchsia.images_step_data() +
+      api.fuchsia.task_step_data() +
+      api.fuchsia.test_step_data()
+  )
 
   yield api.test('device_tests') + api.properties(
       project='topaz',
@@ -301,8 +312,11 @@ def GenTests(api):
       upload_to_dashboard=True,
       tryjob=False,
   ) + (
-      buildbucket_test_data + api.fuchsia.task_step_data(device=True) +
-      api.fuchsia.test_step_data())
+      buildbucket_test_data +
+      api.fuchsia.images_step_data() +
+      api.fuchsia.task_step_data(device=True) +
+      api.fuchsia.test_step_data()
+  )
 
   yield api.test('missing test results') + api.properties(
       project='topaz',
@@ -314,5 +328,7 @@ def GenTests(api):
       dashboard_bots_name='topaz-builder',
       benchmarks_package='topaz_benchmarks',
   ) + (
-      buildbucket_test_data + api.fuchsia.task_step_data() +
+      buildbucket_test_data +
+      api.fuchsia.task_step_data() +
+      api.fuchsia.images_step_data() +
       api.step_data('extract results', api.raw_io.output_dir({})))

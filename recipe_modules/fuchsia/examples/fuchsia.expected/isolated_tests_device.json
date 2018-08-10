@@ -427,6 +427,41 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/out/debug-arm64/images.json",
+      "/path/to/tmp/json"
+    ],
+    "name": "read image manifest",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"zircon-a\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fuchsia.zbi\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"storage-full\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fvm.blk\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"blk\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"qemu-kernel\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"boot.bin\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"bin\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"netboot\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"netboot.zbi\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "ensure_swarming"
   },
@@ -487,49 +522,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_qemu"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/qemu",
-      "-ensure-file",
-      "fuchsia/qemu/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_qemu.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/qemu/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/qemu/bin/qemu-img",
-      "create",
-      "-f",
-      "qcow2",
-      "-b",
-      "fvm.blk",
-      "fuchsia.qcow2"
-    ],
-    "cwd": "[START_DIR]/out/debug-arm64/images",
-    "name": "qemu-img create fuchsia.qcow2"
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/luci/isolate/isolated",
       "archive",
@@ -540,13 +532,7 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/out/debug-arm64:netboot.bin",
-      "-files",
-      "[START_DIR]/out/build-zircon/build-arm64:qemu-zircon.bin",
-      "-files",
-      "[START_DIR]/out/debug-arm64/images:fvm.blk",
-      "-files",
-      "[START_DIR]/out/debug-arm64/images:fuchsia.qcow2"
+      "[START_DIR]/out/debug-arm64:netboot.zbi"
     ],
     "name": "archive"
   },
@@ -584,9 +570,7 @@
       "-config",
       "/etc/botanist/config.json",
       "-kernel",
-      "qemu-zircon.bin",
-      "-ramdisk",
-      "netboot.bin",
+      "netboot.zbi",
       "-test",
       "/tmp/infra-test-output",
       "-out",
@@ -618,9 +602,7 @@
       "@@@STEP_LOG_LINE@json.output@            \"-config\", @@@",
       "@@@STEP_LOG_LINE@json.output@            \"/etc/botanist/config.json\", @@@",
       "@@@STEP_LOG_LINE@json.output@            \"-kernel\", @@@",
-      "@@@STEP_LOG_LINE@json.output@            \"qemu-zircon.bin\", @@@",
-      "@@@STEP_LOG_LINE@json.output@            \"-ramdisk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@            \"netboot.bin\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"netboot.zbi\", @@@",
       "@@@STEP_LOG_LINE@json.output@            \"-test\", @@@",
       "@@@STEP_LOG_LINE@json.output@            \"/tmp/infra-test-output\", @@@",
       "@@@STEP_LOG_LINE@json.output@            \"-out\", @@@",
@@ -663,7 +645,7 @@
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
-      "{\"tasks\": [{\"request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"-config\", \"/etc/botanist/config.json\", \"-kernel\", \"qemu-zircon.bin\", \"-ramdisk\", \"netboot.bin\", \"-test\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"Intel NUC Kit NUC6i3SYK\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"task_id\": \"397418be219814a0\"}]}"
+      "{\"tasks\": [{\"request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"-config\", \"/etc/botanist/config.json\", \"-kernel\", \"netboot.zbi\", \"-test\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"Intel NUC Kit NUC6i3SYK\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"task_id\": \"397418be219814a0\"}]}"
     ],
     "infra_step": true,
     "name": "collect",

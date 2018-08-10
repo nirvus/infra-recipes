@@ -431,6 +431,41 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/out/debug-x64/images.json",
+      "/path/to/tmp/json"
+    ],
+    "name": "read image manifest",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"zircon-a\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fuchsia.zbi\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"storage-full\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fvm.blk\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"blk\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"qemu-kernel\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"boot.bin\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"bin\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"netboot\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"netboot.zbi\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "ensure_swarming"
   },
@@ -454,64 +489,6 @@
       "@@@STEP_LOG_LINE@json.output@    {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/swarming/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
-      "[START_DIR]/run-qemu.sh"
-    ],
-    "infra_step": true,
-    "name": "write qemu runner",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel zircon.bin -serial stdio -monitor none -initrd bootdata-blob-pc.bin -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0@@@",
-      "@@@STEP_LOG_END@run-qemu.sh@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/out/build-zircon/tools/minfs",
-      "[START_DIR]/input.fs@16M",
-      "create"
-    ],
-    "name": "create test image"
-  },
-  {
-    "cmd": [],
-    "name": "ensure_isolated"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/luci/isolate",
-      "-ensure-file",
-      "infra/tools/luci/isolated/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_isolated.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/isolated/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
@@ -558,8 +535,68 @@
       "fvm.blk",
       "fuchsia.qcow2"
     ],
-    "cwd": "[START_DIR]/out/debug-x64/images",
+    "cwd": "[START_DIR]/out/debug-x64",
     "name": "qemu-img create fuchsia.qcow2"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[START_DIR]/input.fs@16M",
+      "create"
+    ],
+    "name": "create test image"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/bin/sh\ncp input.fs output.fs\nmkdir empty-qemu-exec\ncd empty-qemu-exec\n../qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel ../boot.bin -serial stdio -monitor none -initrd ../fuchsia.zbi -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=../fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=../output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
+      "[START_DIR]/run-qemu.sh"
+    ],
+    "infra_step": true,
+    "name": "write qemu runner",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@mkdir empty-qemu-exec@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@cd empty-qemu-exec@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@../qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel ../boot.bin -serial stdio -monitor none -initrd ../fuchsia.zbi -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=../fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=../output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0@@@",
+      "@@@STEP_LOG_END@run-qemu.sh@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_isolated"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/luci/isolate",
+      "-ensure-file",
+      "infra/tools/luci/isolated/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_isolated.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/isolated/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [
@@ -572,17 +609,17 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/out/debug-x64/images:fvm.blk",
-      "-files",
-      "[START_DIR]/out/debug-x64/images:fuchsia.qcow2",
-      "-files",
-      "[START_DIR]/out/build-zircon/build-x64:zircon.bin",
-      "-files",
       "[START_DIR]:input.fs",
       "-files",
       "[START_DIR]:run-qemu.sh",
       "-files",
-      "[START_DIR]/out/debug-x64:bootdata-blob-pc.bin"
+      "[START_DIR]/out/debug-x64:fuchsia.zbi",
+      "-files",
+      "[START_DIR]/out/debug-x64:fvm.blk",
+      "-files",
+      "[START_DIR]/out/debug-x64:boot.bin",
+      "-files",
+      "[START_DIR]/out/debug-x64:fuchsia.qcow2"
     ],
     "name": "archive"
   },

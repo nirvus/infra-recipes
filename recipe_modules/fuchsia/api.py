@@ -80,12 +80,6 @@ VARIANTS_ZIRCON = [
 ]
 
 
-# TODO(mknyszek): Figure out whether its safe to derive this from target.
-def _board_name(target):
-  """Returns the name of the matching "board name" given a target."""
-  return {'arm64': 'qemu', 'x64': 'pc'}[target]
-
-
 class FuchsiaCheckoutResults(object):
   """Represents a Fuchsia source checkout."""
 
@@ -666,52 +660,29 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self._symbolize_compat(build_dir, data)
     self._symbolize_filter(build_dir, data)
 
-  def _isolate_artifacts(self,
-                         kernel_name,
-                         ramdisk_name,
-                         zircon_build_dir,
-                         fuchsia_build_dir,
-                         extra_files=()):
-    """Isolates known Fuchia build artifacts necessary for testing.
+  def _isolate_files_at_isolated_root(self, files):
+    """Isolates a set of files such that they all appear at the top-level.
 
     Args:
-      kernel_name (str): The name of the zircon kernel image.
-      ramdisk_name (str): The name of the zircon ramdisk image.
-      zircon_build_dir (Path): A path to the build artifacts produced by
-        building Zircon.
-      fuchsia_build_dir (Path): A path to the build artifacts produced by
-        building Fuchsia.
-      extra_files (seq[Path]): A list of paths which point to additional files
-        which will be isolated together with the Fuchsia and Zircon build
-        artifacts.
+      files (seq[Path]): A list of paths which point to files to be isolated.
 
     Returns:
       The isolated hash that may be used to reference and download the
       artifacts.
     """
+    assert files
+
     self.m.isolated.ensure_isolated(version='latest')
+
     isolated = self.m.isolated.isolated()
 
-    # Add zircon image to isolated at the top-level.
-    isolated.add_file(zircon_build_dir.join(kernel_name), wd=zircon_build_dir)
-
-    # Add ramdisk binary blob to isolated at the top-level.
-    isolated.add_file(
-        fuchsia_build_dir.join(ramdisk_name), wd=fuchsia_build_dir)
-
-    # Create qcow2 image from FVM_BLOCK_NAME and add to isolated at the top-level.
-    self.m.qemu.ensure_qemu(version='latest')
-    with self.m.context(cwd=fuchsia_build_dir.join('images')):
-      self.m.qemu.create_image(
-          image=FUCHSIA_IMAGE_NAME,
-          backing_file=FVM_BLOCK_NAME,
-          fmt='qcow2',
-      )
-      isolated.add_file(self.m.context.cwd.join(FVM_BLOCK_NAME))
-      isolated.add_file(self.m.context.cwd.join(FUCHSIA_IMAGE_NAME))
-
     # Add the extra files to isolated at the top-level.
-    for path in extra_files:
+    names = set()
+    for path in files:
+      # Ensure we don't have duplicate names at the top-level.
+      name = self.m.path.basename(path)
+      assert name not in names
+      names.add(name)
       isolated.add_file(
           path, wd=self.m.path.abs_to_path(self.m.path.dirname(path)))
 
@@ -783,7 +754,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
-  def _test_in_qemu(self, build, timeout_secs, external_network):
+  def _test_in_qemu(self, build, images, timeout_secs, external_network):
     """Tests a Fuchsia build inside of QEMU.
 
     Expects the build and artifacts to be at the same place they were at
@@ -791,6 +762,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     Args:
       build (FuchsiaBuildResults): The Fuchsia build to test.
+      images (dict[string]Path): A map between the canonical name of an
+        image produced by the Fuchsia build to the path to that image on the
+        local disk.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
       external_network (bool): Whether to give Fuchsia inside QEMU access
@@ -801,19 +775,38 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     self.m.swarming.ensure_swarming(version='latest')
 
-    kernel_name = build.zircon_kernel_image
-    ramdisk_name = 'bootdata-blob-%s.bin' % _board_name(build.target)
-    qemu_arch = {
-        'arm64': 'aarch64',
-        'x64': 'x86_64',
-    }[build.target]
+    # Use canonical image names to refer to images to extract the path to that
+    # image. These dict keys come from the images.json format which is produced
+    # by a Fuchsia build.
+    # TODO(BLD-253): Point to the schema once there is one.
+    zircon_a_path = images['zircon-a']
+    storage_full_path = images['storage-full']
+    qemu_kernel_path = images['qemu-kernel']
 
-    cmdline = [
-        'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
-        'kernel.halt-on-panic=true',
-        # Print a message if `dm poweroff` times out.
-        'devmgr.suspend-timeout-debug=true',
-    ] + TARGET_CMDLINE[build.target]
+    # All the *_name references below act as relative paths to the corresponding
+    # artifacts in the test Swarming task, since we isolate all of the artifacts
+    # into the root directory where the isolate is extracted.
+    zircon_a_name = self.m.path.basename(zircon_a_path)
+    storage_full_name = self.m.path.basename(storage_full_path)
+    qemu_kernel_name = self.m.path.basename(qemu_kernel_path)
+
+    # Generate the copy-on-write (CoW) image for QEMU which acts as a frontend
+    # to the complete Fuchsia storage image. This copy-on-write image is used as
+    # a layer to prevent writes from within QEMU to the original underlying
+    # image and instead stores those edits in the CoW image.
+    cow_image_name = 'fuchsia.qcow2'
+    self.m.qemu.ensure_qemu()
+    fvmblk_dir = self.m.path.abs_to_path(self.m.path.dirname(storage_full_path))
+    with self.m.context(cwd=fvmblk_dir):
+      # We must be operating with this CWD because the QEMU tool encodes
+      # a relative path between the CoW image and its backing file
+      # inside the CoW image.
+      self.m.qemu.create_image(
+          image=cow_image_name,
+          backing_file=storage_full_name,
+          fmt='qcow2',
+      )
+      cow_image_path = fvmblk_dir.join(cow_image_name)
 
     # As part of running tests, we'll send a MinFS image over to another machine
     # which will be declared as a block device in QEMU, at which point
@@ -824,23 +817,53 @@ class FuchsiaApi(recipe_api.RecipeApi):
     input_image_name = 'input.fs'
     output_image_name = 'output.fs'
 
+    # Create MinFS image (which will hold test output). We choose 16MB for the
+    # MinFS image arbitrarily, and it appears it can hold our test output
+    # comfortably without going overboard on size.
+    input_image_path = self.m.path['start_dir'].join(input_image_name)
+    self.m.minfs.create(input_image_path, '16M', name='create test image')
+
+    cmdline = [
+        'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
+        'kernel.halt-on-panic=true',
+        # Print a message if `dm poweroff` times out.
+        'devmgr.suspend-timeout-debug=true',
+    ] + TARGET_CMDLINE[build.target]
+
+    qemu_arch = {
+        'arm64': 'aarch64',
+        'x64': 'x86_64',
+    }[build.target]
+
+    # This variable is a directory we create in the test task so that QEMU runs
+    # in a clean working directory. The reason we want to do this is frequently
+    # QEMU will attempt to pick up files from its working directory, one
+    # notable culprit being multiboot.bin. As a result, sometimes QEMU will then
+    # use a file for an unintended purpose resulting in strange behavior and
+    # often a failure to boot. For more information, see ZX-2523.
+    qemu_working_dir = 'empty-qemu-exec'
+
+    # In this QEMU command, most paths to images are prefixed with '..'. This is
+    # because we'll be executing QEMU with an empty working directory, but we
+    # will still drop all the necessary images and QEMU itself such into that
+    # empty directory's parent directory.
     qemu_cmd = [
-      './qemu/bin/qemu-system-' + qemu_arch, # Dropped in by CIPD.
+      '../qemu/bin/qemu-system-' + qemu_arch, # Dropped in by CIPD.
       '-m', '4096',
       '-smp', '4',
       '-nographic',
       '-machine', {'aarch64': 'virt,gic_version=host', 'x86_64': 'q35'}[qemu_arch],
-      '-kernel', kernel_name,
+      '-kernel', '../%s' % qemu_kernel_name,
       '-serial', 'stdio',
       '-monitor', 'none',
-      '-initrd', ramdisk_name,
+      '-initrd', '../%s' % zircon_a_name,
       '-enable-kvm', '-cpu', 'host',
       '-append', ' '.join(cmdline),
 
-      '-drive', 'file=%s,format=qcow2,if=none,id=maindisk' % FUCHSIA_IMAGE_NAME,
+      '-drive', 'file=../%s,format=qcow2,if=none,id=maindisk' % cow_image_name,
       '-device', 'virtio-blk-pci,drive=maindisk',
 
-      '-drive', 'file=%s,format=raw,if=none,id=testdisk' % output_image_name,
+      '-drive', 'file=../%s,format=raw,if=none,id=testdisk' % output_image_name,
       '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
     ] # yapf: disable
 
@@ -858,39 +881,32 @@ class FuchsiaApi(recipe_api.RecipeApi):
     qemu_runner_script = [
         '#!/bin/sh',
         'cp %s %s' % (input_image_name, output_image_name),
+        'mkdir %s' % qemu_working_dir,
+        'cd %s' % qemu_working_dir,
         ' '.join(map(pipes.quote, qemu_cmd)),
     ]
 
     # Write the QEMU runner to disk so that we can isolate it.
     qemu_runner_name = 'run-qemu.sh'
-    qemu_runner = self.m.path['start_dir'].join(qemu_runner_name)
+    qemu_runner_path = self.m.path['start_dir'].join(qemu_runner_name)
     self.m.file.write_text(
         'write qemu runner',
-        qemu_runner,
+        qemu_runner_path,
         '\n'.join(qemu_runner_script),
     )
     self.m.step.active_result.presentation.logs[
         qemu_runner_name] = qemu_runner_script
 
-    # Create MinFS image (which will hold test output). We choose to make the
-    # MinFS image 16M because our current test output takes up ~1.5 MB in an
-    # absolute worst case (holding all Topaz + Zircon tests), so 16M is chosen
-    # because it is ~10x more space than we need.
-    test_image = self.m.path['start_dir'].join(input_image_name)
-    self.m.minfs.create(test_image, '16M', name='create test image')
-
     # Isolate the Fuchsia build artifacts in addition to the test image and the
     # qemu runner.
-    isolated_hash = self._isolate_artifacts(
-        kernel_name,
-        ramdisk_name,
-        build.zircon_build_dir,
-        build.fuchsia_build_dir,
-        extra_files=[
-            test_image,
-            qemu_runner,
-        ],
-    )
+    isolated_hash = self._isolate_files_at_isolated_root([
+        zircon_a_path,
+        storage_full_path,
+        qemu_kernel_path,
+        cow_image_path,
+        input_image_path,
+        qemu_runner_path,
+    ])
 
     qemu_cipd_arch = {
         'arm64': 'arm64',
@@ -946,7 +962,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
-  def _test_on_device(self, build, timeout_secs):
+  def _test_on_device(self, build, images, timeout_secs):
     """Tests a Fuchsia build on a specific device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -954,6 +970,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     Args:
       build (FuchsiaBuildResults): The Fuchsia build to test.
+      images (dict[string]Path): A map between the canonical name of an
+        image produced by the Fuchsia build to the path to that image on the
+        local disk.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
 
@@ -962,27 +981,26 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     self.m.swarming.ensure_swarming(version='latest')
 
-    # Construct the botanist command.
-    kernel_name = build.zircon_kernel_image
-    ramdisk_name = 'netboot.bin'
-    output_archive_name = 'out.tar'
-    botanist_cmd = [
-        './botanist/botanist',
-        '-config', '/etc/botanist/config.json',
-        '-kernel', kernel_name,
-        '-ramdisk', ramdisk_name,
-        '-test', self.results_dir_on_target,
-        '-out', output_archive_name,
-        'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
-    ] # yapf: disable
+    # Isolate the netboot ZBI image which is the only image required to run
+    # tests on a device at the moment.
+    #
+    # This dict key comes from the images.json format which is produced
+    # by a Fuchsia build.
+    # TODO(BLD-253): Point to the schema once there is one.
+    zircon_a_path = images['netboot']
+    isolated_hash = self._isolate_files_at_isolated_root([zircon_a_path])
 
-    # Isolate the Fuchsia build artifacts.
-    isolated_hash = self._isolate_artifacts(
-        kernel_name,
-        ramdisk_name,
-        build.zircon_build_dir,
-        build.fuchsia_build_dir,
-    )
+    # Construct the botanist command.
+    output_archive_name = 'out.tar'
+    zircon_a_name = self.m.path.basename(zircon_a_path)
+    botanist_cmd = [
+      './botanist/botanist',
+      '-config', '/etc/botanist/config.json',
+      '-kernel', zircon_a_name,
+      '-test', self.results_dir_on_target,
+      '-out', output_archive_name,
+      'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
+    ] # yapf: disable
 
     with self.m.context(infra_steps=True):
       # Trigger task.
@@ -1025,6 +1043,29 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
+  def _image_paths(self, build):
+    """Produces a mapping of image name to Path in the build.
+
+    Args:
+      build (FuchsiaBuildResults): The build for which we want to get image
+        paths from.
+
+    Returns:
+      A dict mapping a canonical name for the image to its Path in the build
+        directory.
+    """
+    raw_images = self.m.json.read(
+        'read image manifest',
+        build.fuchsia_build_dir.join('images.json'),
+    ).json.output
+
+    return {
+      image['name']:
+        self.m.path.abs_to_path(
+            self.m.path.realpath(build.fuchsia_build_dir.join(image['path'])))
+      for image in raw_images
+    }
+
   def test(self, build, timeout_secs=40 * 60, external_network=False):
     """Tests a Fuchsia build on the specified device.
 
@@ -1043,15 +1084,17 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A FuchsiaTestResults representing the completed test.
     """
     assert build.has_target_tests
+    images = self._image_paths(build)
 
     if build.test_device_type == 'QEMU':
       return self._test_in_qemu(
           build=build,
+          images=images,
           timeout_secs=timeout_secs,
           external_network=external_network,
       )
     else:
-      return self._test_on_device(build, timeout_secs)
+      return self._test_on_device(build, images, timeout_secs)
 
   def analyze_collect_result(self, step_name, result, zircon_build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.

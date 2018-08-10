@@ -328,6 +328,7 @@ def GenTests(api):
       'device_tests_with_networking',
       # Networking is only supported for QEMU, so this test should fail.
       expect_failure=True,
+      clear_default_steps=True,
       properties=dict(
           run_tests=True,
           networking_for_tests=True,
@@ -339,6 +340,7 @@ def GenTests(api):
       tryjob=True,
       # Networking is not supported for tryjobs, so this test should fail.
       expect_failure=True,
+      clear_default_steps=True,
       properties=dict(
           run_tests=True,
           networking_for_tests=True,
