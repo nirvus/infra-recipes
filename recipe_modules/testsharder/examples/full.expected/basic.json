@@ -1,0 +1,77 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_testsharder"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/testsharder",
+      "-ensure-file",
+      "fuchsia/infra/testsharder/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_testsharder.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/infra/testsharder/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/testsharder/testsharder",
+      "-target-arch",
+      "x64",
+      "-platforms-file",
+      "[START_DIR]/platforms.json",
+      "-fuchsia-build-dir",
+      "[START_DIR]/out",
+      "-output-file",
+      "[START_DIR]/leak_output_here"
+    ],
+    "name": "shard test specs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/testsharder/testsharder",
+      "-target-arch",
+      "x64",
+      "-platforms-file",
+      "[START_DIR]/platforms.json",
+      "-fuchsia-build-dir",
+      "[START_DIR]/out",
+      "-output-file",
+      "[START_DIR]/leak_output_here",
+      "-shard-prefix",
+      "garnet"
+    ],
+    "name": "shard test specs with shard prefix",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

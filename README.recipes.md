@@ -26,6 +26,7 @@
   * [service_account](#recipe_modules-service_account)
   * [swarming](#recipe_modules-swarming)
   * [tar](#recipe_modules-tar)
+  * [testsharder](#recipe_modules-testsharder) &mdash; Recipe module that wraps the testsharder tool, which searches a Fuchsia build for test specifications and groups them into shards.
   * [zbi](#recipe_modules-zbi)
 
 **[Recipes](#Recipes)**
@@ -82,6 +83,7 @@
   * [service_account:examples/full](#recipes-service_account_examples_full)
   * [swarming:examples/full](#recipes-swarming_examples_full)
   * [tar:examples/full](#recipes-tar_examples_full)
+  * [testsharder:examples/full](#recipes-testsharder_examples_full)
   * [third_party_rust_licenses](#recipes-third_party_rust_licenses) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [tools](#recipes-tools) &mdash; Recipe for building and publishing tools.
   * [tricium/clang_tidy](#recipes-tricium_clang_tidy) &mdash; Recipe for running Tricium clang-format analyzer.
@@ -1233,6 +1235,51 @@ Args:
   path: absolute path to archive file.
   directory: directory to extract the archive in.
   strip_components: strip number of leading components from file names.
+### *recipe_modules* / [testsharder](/recipe_modules/testsharder)
+
+[DEPS](/recipe_modules/testsharder/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe module that wraps the testsharder tool, which searches a Fuchsia
+build for test specifications and groups them into shards.
+
+The tool accepts a platforms file, which it uses for policy checking, and
+assigns a unique name to each produced shard.
+
+Platforms file definition:
+https://fuchsia.googlesource.com/infra/infra/+/master/fuchsia/testexec/test_platforms.go
+
+Testsharder tool:
+https://fuchsia.googlesource.com/infra/infra/+/master/cmd/testsharder/
+
+#### **class [TestsharderApi](/recipe_modules/testsharder/api.py#22)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+Module for interacting with the Testsharder tool.
+
+The testsharder tool accepts a set of test specifications and produces
+a file containing shards of execution.
+
+&mdash; **def [ensure\_testsharder](/recipe_modules/testsharder/api.py#33)(self, version='latest'):**
+
+&mdash; **def [execute](/recipe_modules/testsharder/api.py#46)(self, step_name, target_arch, platforms_file, fuchsia_build_dir, output_file=None, shard_prefix=None):**
+
+Executes the testsharder tool.
+
+Args:
+  step_name (str): name of the step.
+  target_arch (str): the target architecture which Fuchsia tests were built
+    for.
+  platforms_file (Path): path to a file containing the set of valid
+    platforms for testing Fuchsia. See
+    https://fuchsia.googlesource.com/infra/infra/+/master/fuchsia/testexec/test_platforms.go
+  fuchsia_build_dir (Path): path to a Fuchsia build output directory for
+    which GN has been run (ninja need not have been executed).
+  output_file (Path): optional file path to leak output to.
+  shard_prefix (str): optional prefix for shard names.
+
+Returns:
+  A dict representing a JSON-encoded set of shards. The format for said
+  shards may be found here:
+  https://fuchsia.googlesource.com/infra/infra/+/master/fuchsia/testexec/shard.go
 ### *recipe_modules* / [zbi](/recipe_modules/zbi)
 
 [DEPS](/recipe_modules/zbi/__init__.py#1): [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1733,6 +1780,11 @@ Recipe for building Fuchsia SDKs.
 [DEPS](/recipe_modules/tar/examples/full.py#5): [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 &mdash; **def [RunSteps](/recipe_modules/tar/examples/full.py#15)(api):**
+### *recipes* / [testsharder:examples/full](/recipe_modules/testsharder/examples/full.py)
+
+[DEPS](/recipe_modules/testsharder/examples/full.py#5): [testsharder](#recipe_modules-testsharder), [recipe\_engine/path][recipe_engine/recipe_modules/path]
+
+&mdash; **def [RunSteps](/recipe_modules/testsharder/examples/full.py#10)(api):**
 ### *recipes* / [third\_party\_rust\_licenses](/recipes/third_party_rust_licenses.py)
 
 [DEPS](/recipes/third_party_rust_licenses.py#11): [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
