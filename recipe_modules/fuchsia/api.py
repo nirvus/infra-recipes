@@ -342,7 +342,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
                                 patch_repository_url,
                                 timeout_secs=20 * 60):
     """Uses Jiri to check out Fuchsia from a Jiri snapshot from a Gerrit patch.
-
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
     Args:
@@ -754,8 +753,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
-  def _test_in_qemu(self, build, test_pool, images, timeout_secs, external_network):
-    """Tests a Fuchsia build inside of QEMU.
+  def _construct_qemu_task_request(self, build, test_pool, images, timeout_secs,
+                                   external_network):
+    """Constructs a Swarming task request which runs Fuchsia tests inside QEMU.
 
     Expects the build and artifacts to be at the same place they were at
     the end of the build.
@@ -772,7 +772,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         to the external network.
 
     Returns:
-      A FuchsiaTestResults representing the completed test.
+      An api.swarming.TaskRequest representing the swarming task request.
     """
     self.m.swarming.ensure_swarming(version='latest')
 
@@ -840,61 +840,28 @@ class FuchsiaApi(recipe_api.RecipeApi):
         'x64': 'x86-64',
     }[build.target]
 
-    with self.m.context(infra_steps=True):
-      # Trigger task.
-      trigger_result = self.m.swarming.trigger(
-          'all tests',
-          botanist_cmd,
-          isolated=isolated_hash,
-          dump_json=self.m.path.join(self.m.path['cleanup'],
-                                     'qemu_test_results.json'),
-          dimensions={
-              'pool': test_pool,
-              'os': 'Debian',
-              'cpu': dimension_cpu,
-              'kvm': '1',
-          },
-          io_timeout=TEST_IO_TIMEOUT_SECS,
-          hard_timeout=timeout_secs,
-          outputs=[minfs_image_name],
-          cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % cipd_arch,
-                          'latest'),
-                         ('botanist', 'fuchsia/infra/botanist/linux-%s' % cipd_arch,
-                          'latest'),
-                        ],
-      )
-
-      # Run and upload bloaty data (will run only if specified).
-      self.run_bloaty(build)
-
-      # Collect results.
-      results = self.m.swarming.collect(
-          requests_json=self.m.json.input(trigger_result.json.output))
-      assert len(results) == 1
-      result = results[0]
-    self.analyze_collect_result('task results', result, build.fuchsia_build_dir)
-
-    # Extract test results.
-    with self.m.context(infra_steps=True):
-      # Write test results to the 'target' subdirectory of |results_dir_on_host|
-      # so as not to collide with host test results.
-      test_results_dir = self.results_dir_on_host.join('target')
-      test_results_map = self.m.minfs.copy_image(
-          step_name='extract results',
-          image_path=result[minfs_image_name],
-          out_dir=test_results_dir,
-      ).raw_io.output_dir
-
-    return self.FuchsiaTestResults(
-        build_dir=build.fuchsia_build_dir,
-        results_dir=test_results_dir,
-        zircon_kernel_log=result.output,
-        outputs=test_results_map,
-        json_api=self.m.json,
+    return self.m.swarming.task_request(
+        name='all tests',
+        cmd=botanist_cmd,
+        isolated=isolated_hash,
+        dimensions={
+            'pool': test_pool,
+            'os': 'Debian',
+            'cpu': dimension_cpu,
+            'kvm': '1',
+        },
+        io_timeout_secs=TEST_IO_TIMEOUT_SECS,
+        hard_timeout_secs=timeout_secs,
+        outputs=[minfs_image_name],
+	cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % cipd_arch,
+			'latest'),
+		       ('botanist', 'fuchsia/infra/botanist/linux-%s' % cipd_arch,
+			'latest'),
+		      ],
     )
 
-  def _test_on_device(self, build, test_pool, images, pave, timeout_secs):
-    """Tests a Fuchsia build on a specific device.
+  def _construct_device_task_request(self, build, test_pool, images, pave, timeout_secs):
+    """Constructs a Swarming task request to run Fuchsia tests on a device.
 
     Expects the build and artifacts to be at the same place they were at
     the end of the build.
@@ -910,7 +877,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         execute before giving up.
 
     Returns:
-      A FuchsiaTestResults representing the completed test.
+      An api.swarming.TaskRequest representing the swarming task request.
     """
     self.m.swarming.ensure_swarming(version='latest')
 
@@ -969,51 +936,50 @@ class FuchsiaApi(recipe_api.RecipeApi):
     else:
       isolated_hash = self._isolate_files_at_isolated_root([zbi_path])
 
-    with self.m.context(infra_steps=True):
-      # Trigger task.
-      trigger_result = self.m.swarming.trigger(
-          'all tests',
-          botanist_cmd,
-          isolated=isolated_hash,
-          dimensions={
-              'pool': test_pool,
-              'device_type': build.test_device_type,
-          },
-          io_timeout=TEST_IO_TIMEOUT_SECS,
-          hard_timeout=timeout_secs,
-          outputs=[output_archive_name],
-          cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest')],
-      )
-
-      # Run and upload bloaty data (will run only if specified).
-      self.run_bloaty(build)
-
-      # Collect results.
-      results = self.m.swarming.collect(
-          requests_json=self.m.json.input(trigger_result.json.output))
-      assert len(results) == 1
-      result = results[0]
-    self.analyze_collect_result('task results', result, build.fuchsia_build_dir)
-
-    # Extract test results.
-    with self.m.context(infra_steps=True):
-      self.m.tar.ensure_tar()
-      # Write test results to the 'target' subdirectory of |results_dir_on_host|
-      # so as not to collide with host test results.
-      test_results_dir = self.results_dir_on_host.join('target')
-      test_results_map = self.m.tar.extract(
-          step_name='extract results',
-          path=result[output_archive_name],
-          directory=self.m.raw_io.output_dir(leak_to=test_results_dir),
-      ).raw_io.output_dir
-
-    return self.FuchsiaTestResults(
-        build_dir=build.fuchsia_build_dir,
-        results_dir=test_results_dir,
-        zircon_kernel_log=result.output,
-        outputs=test_results_map,
-        json_api=self.m.json,
+    return self.m.swarming.task_request(
+        name='all tests',
+        cmd=botanist_cmd,
+        isolated=isolated_hash,
+        dimensions={
+            'pool': test_pool,
+            'device_type': build.test_device_type,
+        },
+        io_timeout_secs=TEST_IO_TIMEOUT_SECS,
+        hard_timeout_secs=timeout_secs,
+        outputs=[output_archive_name],
+        cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64',
+                        'latest')],
     )
+
+  def _extract_test_results(self, device_type, archive_path, leak_to=None):
+    """Extracts test results from an archive.
+
+    The format of the archive depends on device_type, so that is used to
+    determine the method we use to extract test results.
+
+    Args:
+      device_type (str): The type of device tests were run on.
+      archive_path (Path): The path to the archive which contains test results.
+      leak_to (Path): Optionally leak the contents of the archive to a
+        directory.
+
+    Returns:
+      A dict mapping a filepath relative to the root of the archive to the
+      contents of that file in the archive.
+    """
+    if device_type == 'QEMU':
+      return self.m.minfs.copy_image(
+          step_name='extract results',
+          image_path=archive_path,
+          out_dir=leak_to,
+      ).raw_io.output_dir
+    else:
+      self.m.tar.ensure_tar()
+      return self.m.tar.extract(
+          step_name='extract results',
+          path=archive_path,
+          directory=self.m.raw_io.output_dir(leak_to=leak_to),
+      ).raw_io.output_dir
 
   def _image_paths(self, build):
     """Produces a mapping of image name to Path in the build.
@@ -1063,7 +1029,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     images = self._image_paths(build)
 
     if build.test_device_type == 'QEMU':
-      return self._test_in_qemu(
+      task = self._construct_qemu_task_request(
           build=build,
           test_pool=test_pool,
           images=images,
@@ -1071,7 +1037,55 @@ class FuchsiaApi(recipe_api.RecipeApi):
           external_network=external_network,
       )
     else:
-      return self._test_on_device(build, test_pool, images, pave, timeout_secs)
+      task = self._construct_device_task_request(
+          build=build,
+          test_pool=test_pool,
+          images=images,
+          pave=pave,
+          timeout_secs=timeout_secs,
+      )
+
+    with self.m.context(infra_steps=True):
+      # Spawn task.
+      requests_json = self.m.swarming.spawn_tasks(tasks=[task])
+
+      # Run and upload bloaty data (will run only if specified). Note that
+      # we run this before calling collect so that run_bloaty runs in parallel
+      # with tests to speed up overall execution a little bit.
+      self.run_bloaty(build)
+
+      # Collect results.
+      results = self.m.swarming.collect(
+          requests_json=self.m.json.input(requests_json))
+      assert len(results) == 1, 'len(%s) != 1' % repr(results)
+      result = results[0]
+    self.analyze_collect_result('task results', result, build.fuchsia_build_dir)
+
+    with self.m.context(infra_steps=True):
+      # result.outputs contains the file outputs produced by the Swarming task,
+      # returned via isolate. It's a mapping of the 'name' of the output,
+      # represented as its relative path within the isolated it was returned in,
+      # to a Path object pointing to its location on the local disk. For each of
+      # the above tasks, there should be exactly one output.
+      assert len(result.outputs) == 1, 'len(%s) != 1' % repr(result.outputs)
+      archive_name = result.outputs.keys()[0]
+
+      test_results_dir = self.results_dir_on_host.join('target', result.id)
+      test_results_map = self._extract_test_results(
+          device_type=build.test_device_type,
+          archive_path=result.outputs[archive_name],
+          # Write test results to a subdirectory of |results_dir_on_host|
+          # so as not to collide with host test results.
+          leak_to=test_results_dir,
+      )
+
+    return self.FuchsiaTestResults(
+        build_dir=build.fuchsia_build_dir,
+        results_dir=test_results_dir,
+        zircon_kernel_log=result.output,
+        outputs=test_results_map,
+        json_api=self.m.json,
+    )
 
   def analyze_collect_result(self, step_name, result, build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.
