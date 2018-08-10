@@ -301,12 +301,26 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         upload_breakpad_symbols=upload_breakpad_symbols)
 
 
-def _FuchsiaTest(api, name, properties=None, steps=()):
+def _FuchsiaTest(api,
+                 name,
+                 clear_default_properties=False,
+                 tryjob=False,
+                 expect_failure=False,
+                 properties=None,
+                 steps=()):
   """Returns a test case appropriate for yielding from GenTests().
+
+  Provides default property values for the common cases.
 
   Args:
     api: RecipeTestApi object.
     name: Test name.
+    clear_default_properties: If true, does not provide default values.
+        However, setting tryjob=True does still add the tryjob-related
+        properties.
+    tryjob: If true, adds tryjob-related properties.
+    expect_failure: If true, the test is expected to fail before
+        completion, so certain common steps shouldn't be expected to happen.
     properties: A required dict of properties to override for this test.
     steps: An optional sequence of RecipeTestApi.step_data objects to append to
         the output of this function.
@@ -314,100 +328,115 @@ def _FuchsiaTest(api, name, properties=None, steps=()):
   Returns:
     TestData object.
   """
-  if properties.get('tryjob', False):
-    api_props = api.properties.tryserver
-  else:
-    api_props = api.properties
+  # Tests shouldn't try to create their own tryjob environment, in the same way
+  # that cr-buildbucket builders shouldn't specify tryjob-related properties.
+  if 'tryjob' in properties:
+    # TODO(dbort): Maybe check for patch_ properties, too.
+    raise ValueError('Test "%s": Do not specify a "tryjob" property; '
+                     'use the tryjob arg.' % name)  # pragma: no cover
 
-  ret = api.test(name) + api_props(**properties)
+  if clear_default_properties:
+    final_properties = {}
+  else:
+    final_properties = dict(
+        manifest='fuchsia',
+        remote='https://fuchsia.googlesource.com/manifest',
+        project='topaz',
+        target='x64',
+        packages=['topaz/packages/default'],
+        revision=api.jiri.example_revision,
+    )
+
+  if tryjob:
+    gerrit_project = (
+        properties.get('project', None) or
+        final_properties.get('project', 'topaz'))
+    final_properties.update(
+        dict(
+            # api.properties.tryserver will add patch_* properties based on
+            # these gerrit_* properties.
+            gerrit_url='https://fuchsia-review.googlesource.com',
+            gerrit_project=gerrit_project,
+            tryjob=True,
+        ))
+
+  # Provided properties override the defaults.
+  final_properties.update(properties)
+
+  # Add implicit steps.
+  extra_steps = []
+  if not expect_failure:
+    # Don't add these if the test is expected to raise an exception;
+    # the recipes engine will complain that these steps aren't consumed.
+    run_tests = final_properties.get('run_tests', False)
+    run_host_tests = final_properties.get('run_host_tests', False)
+    on_device = final_properties.get('device_type', 'QEMU') != 'QEMU'
+
+    if run_tests:
+      extra_steps.append(api.fuchsia.task_step_data(device=on_device))
+      extra_steps.append(api.fuchsia.test_step_data())
+    if run_host_tests:
+      extra_steps.append(api.fuchsia.test_step_data(host_results=True))
+
+  # Assemble the return value.
+  ret = api.test(name)
+
+  if tryjob:
+    ret += api.properties.tryserver(**final_properties)
+  else:
+    ret += api.properties(**final_properties)
+
+  for s in extra_steps:
+    ret += s
   for s in steps:
+    # Provided steps override implicit steps.
     ret += s
   return ret
 
 
 def GenTests(api):
-
-  # Closure that lets callers skip the 'api' param.
+  # Closure that lets callers skip the 'api' arg.
   def FuchsiaTest(*args, **kwargs):
     return _FuchsiaTest(api, *args, **kwargs)
 
-  # Test cases for running Fuchsia tests as a swarming task.
-  yield FuchsiaTest(
-      'isolated_tests',
-      properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          run_tests=True,
-      ),
-      steps=[api.fuchsia.task_step_data(),
-             api.fuchsia.test_step_data()])
+  # Tests using the defaults provided by FuchsiaTest.
+  yield FuchsiaTest('default', properties={})
+  yield FuchsiaTest('cq', tryjob=True, properties={})
+
+  # Test cases for running tests.
+  yield FuchsiaTest('isolated_tests', properties=dict(run_tests=True))
   yield FuchsiaTest(
       'device_tests',
       properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
           run_tests=True,
           device_type='Intel NUC Kit NUC6i3SYK',
-      ),
-      steps=[
-          api.fuchsia.task_step_data(device=True),
-          api.fuchsia.test_step_data()
-      ])
-
+      ))
   yield FuchsiaTest(
       'host_tests',
       properties=dict(
-          manifest='fuchsia/topaz',
-          project='topaz',
-          remote='https://fuchsia.googlesource.com/topaz',
-          target='x64',
           ninja_targets=['build/gn:host_tests'],
-          packages=['topaz/packages/default'],
           run_host_tests=True,
-      ),
-      steps=[api.fuchsia.test_step_data(host_results=True)])
-
+      ))
   yield FuchsiaTest(
       'host_and_device_tests',
       properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
           run_tests=True,
           device_type='Intel NUC Kit NUC6i3SYK',
           run_host_tests=True,
-      ),
-      steps=[
-          api.fuchsia.task_step_data(device=True),
-          api.fuchsia.test_step_data(host_results=False),
-          api.fuchsia.test_step_data(host_results=True)
-      ])
+      ))
 
   # Test cases for tests with networking.
   yield FuchsiaTest(
       'isolated_tests_with_networking',
       properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
           run_tests=True,
           networking_for_tests=True,
-      ),
-      steps=[api.fuchsia.task_step_data(),
-             api.fuchsia.test_step_data()])
+      ))
   yield FuchsiaTest(
       'device_tests_with_networking',
+      # Networking is only supported for QEMU, so this test should fail.
+      expect_failure=True,
       properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
           run_tests=True,
           networking_for_tests=True,
           device_type='Intel NUC Kit NUC6i3SYK',
@@ -415,56 +444,28 @@ def GenTests(api):
   )
   yield FuchsiaTest(
       'cq_with_networking',
+      tryjob=True,
+      # Networking is not supported for tryjobs, so this test should fail.
+      expect_failure=True,
       properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
           run_tests=True,
           networking_for_tests=True,
-          tryjob=True,
       ),
   )
 
-  # Test cases for skipping Fuchsia tests.
-  yield FuchsiaTest(
-      'default',
-      properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          revision=api.jiri.example_revision,
-      ),
-  )
+  # Test non-uploading CI job.
   yield FuchsiaTest(
       'staging',
       properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
           upload_snapshot=False,
           upload_archive=False,
-      ),
-  )
-  yield FuchsiaTest(
-      'cq',
-      properties=dict(
-          patch_project='fuchsia',
-          patch_gerrit_url='https://fuchsia-review.googlesource.com',
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          upload_archive=True,
-          tryjob=True,
       ),
   )
 
   # Test cases for checking out Fuchsia from a snapshot.
   yield FuchsiaTest(
       'checkout_from_snapshot',
+      clear_default_properties=True,
       properties=dict(
           checkout_snapshot=True,
           repository='https://fuchsia.googlesource.com/snapshots',
@@ -475,114 +476,57 @@ def GenTests(api):
   )
   yield FuchsiaTest(
       'cq_checkout_from_snapshot',
+      clear_default_properties=True,
+      tryjob=True,
       properties=dict(
-          patch_gerrit_url='https://fuchsia-review.googlesource.com',
-          patch_issue=23,
-          patch_project='fuchsia',
-          patch_ref='refs/changes/23/123/1',
-          patch_repository_url='https://fuchsia.googlesource.com/snapshots',
           checkout_snapshot=True,
+          gerrit_project='snapshots',
           target='x64',
           packages=['topaz/packages/default'],
-          tryjob=True,
       ),
   )
 
-  # Test cases for verifying build packages.
-  yield FuchsiaTest(
-      'build-packages',
-      properties=dict(
-          manifest='manifest/topaz',
-          project='topaz',
-          remote='https://fuchsia.googlesource.com/topaz',
-          target='x64',
-          packages=['topaz/packages/default'],
-      ),
-  )
+  # Test the 'vendor/x' case of verifying build packages.
+  # The non-vendor case is tested by most other tests.
   yield FuchsiaTest(
       'build-packages-vendor',
-      properties=dict(
-          manifest='manifest/foobar',
-          project='vendor/foobar',
-          remote='https://fuchsia.googlesource.com/foobar',
-          target='x64',
-          packages=['vendor/foobar/packages/default'],
-      ),
+      properties=dict(project='vendor/foobar'),
   )
 
   # Test cases for uploading snapshots.
   yield FuchsiaTest(
       'cq_no_snapshot',
-      properties=dict(
-          patch_project='fuchsia',
-          patch_gerrit_url='https://fuchsia-review.googlesource.com',
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          snapshot_gcs_bucket=None,
-          tryjob=True,
-      ),
+      tryjob=True,
+      properties=dict(snapshot_gcs_bucket=None),
   )
   yield FuchsiaTest(
       'ci_no_snapshot',
-      properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          snapshot_gcs_bucket=None,
-      ),
+      properties=dict(snapshot_gcs_bucket=None),
   )
 
   # Test cases for archiving artifacts.
   yield FuchsiaTest(
       'cq_no_archive',
-      properties=dict(
-          patch_project='fuchsia',
-          patch_gerrit_url='fuchsia-review.googlesource.com',
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          archive_gcs_bucket='',
-          tryjob=True,
-      ),
+      tryjob=True,
+      properties=dict(archive_gcs_bucket=''),
   )
   yield FuchsiaTest(
       'ci_no_archive',
-      properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          archive_gcs_bucket='',
-      ),
+      properties=dict(archive_gcs_bucket=''),
   )
   yield FuchsiaTest(
       'ci_override_archive',
-      properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          target='x64',
-          packages=['topaz/packages/default'],
-          archive_gcs_bucket='different-archive-bucket',
-      ),
+      properties=dict(archive_gcs_bucket='different-archive-bucket'),
   )
 
   # Test cases for generating symbol files as part of the build
   yield FuchsiaTest(
       'upload_breakpad_symbols',
       properties=dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
           # build_type and target determine the path used in the key of
           # fuchsia.breakpad_symbol_summary below.
           build_type='release',
           target='x64',
-          packages=['topaz/packages/default'],
-          revision=api.jiri.example_revision,
-          upload_archive=True,
           upload_breakpad_symbols=True,
           ninja_targets=['build/gn:breakpad_symbols']),
       steps=[

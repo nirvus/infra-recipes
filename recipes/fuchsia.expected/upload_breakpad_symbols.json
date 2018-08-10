@@ -51,6 +51,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "topaz",
       "-revision",
       "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "fuchsia",
@@ -201,6 +203,16 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/style/verify-fidl-libraries.py",
+      "--layer",
+      "topaz"
+    ],
+    "name": "verify FIDL namespaces"
+  },
+  {
     "cmd": [],
     "name": "build"
   },
@@ -290,7 +302,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\",\"build/packages/json_validator\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -304,7 +316,8 @@
       "[START_DIR]/out/release-x64",
       "-j",
       "20",
-      "build/gn:breakpad_symbols"
+      "build/gn:breakpad_symbols",
+      "tools/json_validator"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -377,6 +390,18 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
     ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/packages/verify_layer.py",
+      "--layer",
+      "topaz",
+      "--json-validator",
+      "[START_DIR]/out/release-x64/tools/json_validator"
+    ],
+    "name": "verify build packages"
   },
   {
     "cmd": [],
