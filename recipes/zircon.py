@@ -48,7 +48,7 @@ TARGET_TO_KERNEL_IMAGE = dict(zip(
 ARCHS = ('x86_64', 'aarch64')
 
 # Supported device types for testing.
-DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK']
+DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'HiKey 960']
 
 # Per-target kernel command line.
 TARGET_CMDLINE = dict(zip(
