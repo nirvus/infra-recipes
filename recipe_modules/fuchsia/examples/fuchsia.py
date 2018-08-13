@@ -386,11 +386,11 @@ def GenTests(api):
       ),
       steps=[api.fuchsia.breakpad_symbol_summary({})])
 
-  # Test case for generating build traces
+  # Test case for generating build traces and bloaty analysis
   yield api.fuchsia.test(
-      'upload_traces',
+      'upload_build_metrics',
       build_metrics_gcs_bucket="###fake-bucket###",
-      properties=dict(
+          properties=dict(
           build_type='release',
           target='x64',
           run_tests=True,

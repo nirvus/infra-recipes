@@ -933,6 +933,107 @@
   },
   {
     "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/tools/bloatalyzer/${platform} latest\nfuchsia/third_party/bloaty/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/third_party/bloaty/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/tools/bloatalyzer/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bloatalyzer",
+      "-bloaty",
+      "[START_DIR]/cipd/bloaty",
+      "-input",
+      "[START_DIR]/out/release-x64/ids.txt",
+      "-output",
+      "[CLEANUP]/bloaty.html",
+      "-top-files",
+      "50",
+      "-top-syms",
+      "50",
+      "-format",
+      "html"
+    ],
+    "infra_step": true,
+    "name": "bloaty"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/bloaty.html",
+      "gs://###fake-bucket###/builds/5555555555/bloaty.html"
+    ],
+    "infra_step": true,
+    "name": "upload bloaty.html",
+    "~followup_annotations": [
+      "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/bloaty.html@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[CLEANUP]/bloaty.html"
+    ],
+    "infra_step": true,
+    "name": "hash bloaty.html",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/bloaty.html",
+      "gs://###fake-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+    ],
+    "infra_step": true,
+    "name": "upload bloaty.html (hash)",
+    "~followup_annotations": [
+      "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fake-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/luci/swarming/swarming",
       "collect",
       "-server",

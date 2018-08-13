@@ -276,6 +276,10 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         external_network=networking_for_tests,
     )
     api.fuchsia.analyze_test_results('test results', test_results)
+  else:
+    # Bloaty is run during the testing phase for performance reasons, but we
+    # also want to run it on build-only bots if specified.
+    api.fuchsia.run_bloaty(build)
 
   if run_host_tests:
     test_results = api.fuchsia.test_on_host(build)
