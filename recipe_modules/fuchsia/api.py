@@ -162,6 +162,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
   class FuchsiaTestResults(object):
     """Represents the result of testing of a Fuchsia build."""
 
+    # Constants representing the result of running a test. These enumerate the
+    # values of the 'results' field of the entries in the summary.json file
+    # obtained from the target device.
+    _TEST_RESULT_PASS = 'PASS'
+    _TEST_RESULT_FAIL = 'FAIL'
+
     def __init__(self, build_dir, zircon_kernel_log, outputs, json_api):
       self._build_dir = build_dir
       self._zircon_kernel_log = zircon_kernel_log
@@ -190,7 +196,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     @property
     def outputs(self):
-      """A mapping between relative paths for output files to their contents."""
+      """A dict that maps test outputs to their contents.
+
+      The output paths are relative paths to files containing stdout+stderr data
+      and the values are strings containing those contents.
+      """
       return self._outputs
 
     @property
@@ -204,28 +214,35 @@ class FuchsiaApi(recipe_api.RecipeApi):
       return self._summary
 
     @property
-    def passed_tests(self):
-      return self._filter_by_result(passing=True)
+    def passed_test_outputs(self):
+      """All entries in |self.outputs| for tests that passed."""
+      return self._filter_outputs_by_test_result(self._TEST_RESULT_PASS)
 
     @property
-    def failed_tests(self):
-      return self._filter_by_result(passing=False)
+    def failed_test_outputs(self):
+      """All entries in |self.outputs| for tests that failed."""
+      return self._filter_outputs_by_test_result(self._TEST_RESULT_FAIL)
 
-    def _filter_by_result(self, passing):
-      """Returns all test results that are either passing or failing.
+    def _filter_outputs_by_test_result(self, result):
+      """Returns all entries in |self.outputs| whose result is |result|.
 
       Args:
-        passing (bool): Whether to get only tests that are passing.
+        result (String): one of the _TEST_RESULT_* constants from this class.
 
       Returns:
-        An OrderedDict containing the matched test results. Each key is
-        a test name and each value is the test's output.
+        A dict whose keys are paths to the files containing each test's
+        stderr+stdout data and whose values are strings containing those
+        contents.
       """
       matches = collections.OrderedDict()
 
       # TODO(kjharland): Sort test names first.
       for test in self.summary['tests']:
-        if (test['result'] == 'PASS') == passing:
+        if test['result'] == result:
+          # By convention we use the full path to the test binary as the 'name'
+          # field in the summary.  The 'output_file' field is a path to the file
+          # containing the stderr+stdout data for the test, and we inline the
+          # contents of that file as the value in the returned dict.
           matches[test['name']] = self.outputs[test['output_file']]
 
       return matches
@@ -1082,14 +1099,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
       # Log the results of each test.
       self.report_test_results(test_results)
 
-      if test_results.failed_tests:
+      if test_results.failed_test_outputs:
         # If a Zircon kernel log is present, it may contain stack traces which
         # we want to symbolize.
         if test_results.zircon_kernel_log:
           self._symbolize(test_results.build_dir, test_results.zircon_kernel_log)
         # Halt with a step failure.
         raise self.m.step.StepFailure(
-          'Test failure(s): ' + ', '.join(test_results.failed_tests.keys()))
+          'Test failure(s): ' + ', '.join(test_results.failed_test_outputs.keys()))
 
   def report_test_results(self, test_results):
     """Logs individual test results in separate steps.

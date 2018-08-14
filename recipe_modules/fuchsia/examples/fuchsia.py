@@ -145,22 +145,22 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
   if run_tests:
     test_results = api.fuchsia.test(
         build=build, external_network=networking_for_tests)
-    # Ensure failed_tests gets filled out when tests fail.
-    if test_results.summary and test_results.failed_tests:
-        assert test_results.failed_tests['/hello']
-    # Ensure passed_tests gets filled out when tests pass.
-    if test_results.summary and test_results.passed_tests:
-        assert test_results.passed_tests['/hello']
+    # Ensure failed_test_outputs gets filled out when tests fail.
+    if test_results.summary and test_results.failed_test_outputs:
+        assert test_results.failed_test_outputs['/hello']
+    # Ensure passed_test_outputs gets filled out when tests pass.
+    if test_results.summary and test_results.passed_test_outputs:
+        assert test_results.passed_test_outputs['/hello']
     api.fuchsia.analyze_test_results('test results', test_results)
 
   if run_host_tests:
     test_results = api.fuchsia.test_on_host(build)
-    # Ensure failed_tests gets filled out when tests fail.
-    if test_results.summary and test_results.failed_tests:
-        assert test_results.failed_tests['[START_DIR]/hello']
-    # Ensure passed_tests gets filled out when tests pass.
-    if test_results.summary and test_results.passed_tests:
-        assert test_results.passed_tests['[START_DIR]/hello']
+    # Ensure failed_test_outputs gets filled out when tests fail.
+    if test_results.summary and test_results.failed_test_outputs:
+        assert test_results.failed_test_outputs['[START_DIR]/hello']
+    # Ensure passed_test_outputs gets filled out when tests pass.
+    if test_results.summary and test_results.passed_test_outputs:
+        assert test_results.passed_test_outputs['[START_DIR]/hello']
     api.fuchsia.analyze_test_results('test results', test_results)
 
   api.fuchsia.upload_build_artifacts(

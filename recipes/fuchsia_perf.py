@@ -181,7 +181,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   api.fuchsia.report_test_results(test_results)
 
   # Upload results for all of the benchmarks that ran successfully.
-  for test_filepath, file_data in test_results.passed_tests.iteritems():
+  for test_filepath, file_data in test_results.passed_test_outputs.iteritems():
     step_name = 'upload %s' % api.path.basename(test_filepath)
     _, extension = api.path.splitext(api.path.basename(test_filepath))
 
