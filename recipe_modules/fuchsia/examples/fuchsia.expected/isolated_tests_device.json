@@ -51,6 +51,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "topaz",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -546,7 +548,7 @@
       "-isolated",
       "[dummy hash]",
       "-dimension",
-      "device_type=NUC",
+      "device_type=Intel NUC Kit NUC6i3SYK",
       "-dimension",
       "pool=fuchsia.tests",
       "-io-timeout",
@@ -609,7 +611,7 @@
       "@@@STEP_LOG_LINE@json.output@          \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@            {@@@",
       "@@@STEP_LOG_LINE@json.output@              \"key\": \"device_type\", @@@",
-      "@@@STEP_LOG_LINE@json.output@              \"value\": \"NUC\"@@@",
+      "@@@STEP_LOG_LINE@json.output@              \"value\": \"Intel NUC Kit NUC6i3SYK\"@@@",
       "@@@STEP_LOG_LINE@json.output@            }, @@@",
       "@@@STEP_LOG_LINE@json.output@            {@@@",
       "@@@STEP_LOG_LINE@json.output@              \"key\": \"pool\", @@@",
@@ -642,7 +644,7 @@
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
-      "{\"tasks\": [{\"request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"-config\", \"/etc/botanist/config.json\", \"-kernel\", \"qemu-zircon.bin\", \"-ramdisk\", \"netboot.bin\", \"-test\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"NUC\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"task_id\": \"397418be219814a0\"}]}"
+      "{\"tasks\": [{\"request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"-config\", \"/etc/botanist/config.json\", \"-kernel\", \"qemu-zircon.bin\", \"-ramdisk\", \"netboot.bin\", \"-test\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"Intel NUC Kit NUC6i3SYK\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"task_id\": \"397418be219814a0\"}]}"
     ],
     "infra_step": true,
     "name": "collect",

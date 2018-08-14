@@ -194,267 +194,193 @@ def RunSteps(
       upload_breakpad_symbols=upload_breakpad_symbols)
 
 
-# yapf: disable
 def GenTests(api):
   # Test cases for running Fuchsia tests as a swarming task.
-  yield api.test('isolated_tests_x64') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
-  yield api.test('isolated_tests_x64_networking') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-      networking_for_tests=True,
-  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
-  yield api.test('host_tests') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_host_tests=True,
-  ) + api.fuchsia.test_step_data(host_results=True)
-  yield api.test('isolated_tests_arm64') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='arm64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data()
-  yield api.test('isolated_tests_no_json') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-  ) + api.fuchsia.task_step_data()
-  yield api.test('isolated_tests_device') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='arm64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-      device_type='NUC',
-  ) + api.fuchsia.task_step_data(device=True) + api.fuchsia.test_step_data()
-  yield api.test('isolated_tests_test_failure') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-  ) + api.fuchsia.task_step_data() + api.fuchsia.test_step_data(
-      failure=True,
-  ) + api.step_data('test results.symbolize', api.raw_io.stream_output('bt1\nbt2\n'))
-  yield api.test('host_tests_failure') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_host_tests=True,
-  ) + api.fuchsia.test_step_data(failure=True, host_results=True)
-  yield api.test('isolated_tests_task_failure') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-  ) + api.fuchsia.task_step_data(task_failure=True)
-  yield api.test('isolated_tests_task_timed_out') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-  ) + api.fuchsia.task_step_data(timed_out=True)
-  yield api.test('isolated_tests_kernel_panic') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-  ) + api.fuchsia.task_step_data(output='KERNEL PANIC')
-  yield api.test('isolated_tests_infra_failure') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      run_tests=True,
-  ) + api.fuchsia.task_step_data(infra_failure=True)
+  yield api.fuchsia.test(
+      'isolated_tests_x64',
+      properties=dict(run_tests=True),
+  )
+  yield api.fuchsia.test(
+      'isolated_tests_x64_networking',
+      properties=dict(
+          run_tests=True,
+          networking_for_tests=True,
+      ),
+  )
+  yield api.fuchsia.test(
+      'host_tests',
+      properties=dict(run_host_tests=True),
+  )
+  yield api.fuchsia.test(
+      'isolated_tests_arm64',
+      properties=dict(
+          target='arm64',
+          run_tests=True,
+      ),
+  )
+  yield api.fuchsia.test(
+      'isolated_tests_no_json',
+      # Test a missing summary.json file. Clear the default steps and manage
+      # them manually to avoid providing the file, which is usually done by the
+      # auto-included test_step_data step.
+      clear_default_steps=True,
+      properties=dict(run_tests=True),
+      steps=[
+          api.fuchsia.task_step_data(),
+      ])
+  yield api.fuchsia.test(
+      'isolated_tests_device',
+      properties=dict(
+          target='arm64',
+          device_type='Intel NUC Kit NUC6i3SYK',
+          run_tests=True,
+      ),
+  )
+  yield api.fuchsia.test(
+      'isolated_tests_test_failure',
+      expect_failure=True,  # Failure steps injected below.
+      properties=dict(run_tests=True),
+      steps=[
+          api.fuchsia.task_step_data(),
+          api.fuchsia.test_step_data(failure=True),
+          api.step_data('test results.symbolize',
+                        api.raw_io.stream_output('bt1\nbt2\n'))
+      ])
+  yield api.fuchsia.test(
+      'host_tests_failure',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_host_tests=True),
+      steps=[api.fuchsia.test_step_data(failure=True, host_results=True)])
+  yield api.fuchsia.test(
+      'isolated_tests_task_failure',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_tests=True),
+      steps=[api.fuchsia.task_step_data(task_failure=True)])
+  yield api.fuchsia.test(
+      'isolated_tests_task_timed_out',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_tests=True),
+      steps=[api.fuchsia.task_step_data(timed_out=True)])
+  yield api.fuchsia.test(
+      'isolated_tests_kernel_panic',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_tests=True),
+      steps=[api.fuchsia.task_step_data(output='KERNEL PANIC')])
+  yield api.fuchsia.test(
+      'isolated_tests_infra_failure',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_tests=True),
+      steps=[api.fuchsia.task_step_data(infra_failure=True)])
 
-  # Test cases for skipping Fuchsia tests.
-  yield api.test('default') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
+  # Test cases that run no tests.
+  yield api.fuchsia.test('default', properties={})
+  yield api.fuchsia.test('cq', tryjob=True, properties={})
+
+  # Various property edge cases.
+  yield api.fuchsia.test(
+      'goma_local_cache',
+      properties=dict(goma_local_cache=True),
   )
-  yield api.test('garnet') + api.properties(
-      project='garnet',
-      manifest='manifest/garnet',
-      remote='https://fuchsia.googlesource.com/garnet',
-      target='x64',
-      packages=['topaz/packages/default'],
+  yield api.fuchsia.test(
+      'release',
+      properties=dict(build_type='release'),
   )
-  yield api.test('peridot') + api.properties(
-      manifest='peridot',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
+  yield api.fuchsia.test(
+      'lto',
+      properties=dict(build_type='lto'),
   )
-  yield api.test('goma_local_cache') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      goma_local_cache=True,
+  yield api.fuchsia.test(
+      'thinlto',
+      properties=dict(build_type='thinlto'),
   )
-  yield api.test('release') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      build_type='release',
+  yield api.fuchsia.test(
+      'host_asan',
+      properties=dict(variants=['host_asan']),
   )
-  yield api.test('lto') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      build_type='lto',
+  yield api.fuchsia.test(
+      'asan',
+      properties=dict(
+          target='arm64',
+          variants=['host_asan', 'asan'],
+      ),
   )
-  yield api.test('thinlto') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      build_type='thinlto',
+
+  yield api.fuchsia.test(
+      'ci_no_snapshot',
+      properties=dict(snapshot_gcs_bucket=None),
   )
-  yield api.test('host_asan') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      variants=['host_asan'],
-  )
-  yield api.test('asan') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='arm64',
-      packages=['topaz/packages/default'],
-      variants=['host_asan', 'asan'],
-  )
-  yield api.test('cq') + api.properties.tryserver(
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
-      patch_ref='refs/changes/23/123/12',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
+  yield api.fuchsia.test(
+      'cq_no_snapshot',
       tryjob=True,
+      properties=dict(snapshot_gcs_bucket=None),
   )
-  yield api.test('ci_no_snapshot') + api.properties.tryserver(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      snapshot_gcs_bucket=None,
+  yield api.fuchsia.test(
+      'gn_args',
+      properties=dict(gn_args=['super_arg=false', 'less_super_arg=true']),
   )
-  yield api.test('cq_no_snapshot') + api.properties.tryserver(
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
-      patch_ref='refs/changes/23/123/12',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      tryjob=True,
-      snapshot_gcs_bucket=None,
-  )
-  yield api.test('gn_args') + api.properties.tryserver(
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
-      patch_ref='refs/changes/23/123/12',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default',],
-      tryjob=True,
-      gn_args=['super_arg=false', 'less_super_arg=true'],
-  )
-  yield api.test('ninja_targets') + api.properties.tryserver(
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
-      patch_ref='refs/changes/23/123/12',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      tryjob=True,
-      ninja_targets=['//target:one', '//target:two'],
-  )
-  yield api.test('manifest') + api.properties.tryserver(
-      patch_project='manifest',
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
-      patch_ref='refs/changes/23/123/12',
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      target='x64',
-      packages=['topaz/packages/default'],
-      tryjob=True,
+  yield api.fuchsia.test(
+      'ninja_targets',
+      properties=dict(ninja_targets=['//target:one', '//target:two']),
   )
 
   # Test cases for checking out Fuchsia from a snapshot.
-  yield api.test('checkout_snapshot') + api.properties(
-      checkout_snapshot=True,
-      snapshot_repository='https://fuchsia.googlesource.com/snapshots',
-      snapshot_revision='69acf9677ff075e15329cc860d968c1f70be5e6a',
-      target='x64',
-      packages=['topaz/packages/default'],
+  yield api.fuchsia.test(
+      'checkout_snapshot',
+      clear_default_properties=True,
+      properties=dict(
+          checkout_snapshot=True,
+          snapshot_repository='https://fuchsia.googlesource.com/snapshots',
+          snapshot_revision='69acf9677ff075e15329cc860d968c1f70be5e6a',
+          gerrit_project='snapshots',
+          target='x64',
+          packages=['topaz/packages/default'],
+      ),
   )
-  yield api.test('cq_checkout_snapshot') + api.properties(
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
-      patch_issue=23,
-      patch_project='snapshots',
-      patch_ref='refs/changes/23/123/12',
-      patch_repository_url='https://fuchsia.googlesource.com/snapshots',
-      checkout_snapshot=True,
-      target='x64',
-      packages=['topaz/packages/default'],
+  yield api.fuchsia.test(
+      'cq_checkout_snapshot',
+      clear_default_properties=True,
       tryjob=True,
+      properties=dict(
+          checkout_snapshot=True,
+          gerrit_project='snapshots',
+          target='x64',
+          packages=['topaz/packages/default'],
+      ),
   )
 
   # Test cases for generating symbol files during the build.
-  yield api.test('upload_breakpad_symbols') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      # build_type and target determine the path used in the key of
-      # fuchsia.breakpad_symbol_summary below.
-      build_type='release',
-      target='x64',
-      packages=['topaz/packages/default'],
-      upload_breakpad_symbols=True,
-      ninja_targets=['//build/gn:breakpad_symbols'],
-  ) + api.fuchsia.breakpad_symbol_summary({'/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'})
+  yield api.fuchsia.test(
+      'upload_breakpad_symbols',
+      properties=dict(
+          # build_type and target determine the path used in the key of
+          # fuchsia.breakpad_symbol_summary below.
+          build_type='release',
+          target='x64',
+          upload_breakpad_symbols=True,
+          ninja_targets=['//build/gn:breakpad_symbols'],
+      ),
+      steps=[
+          api.fuchsia.breakpad_symbol_summary({
+              '/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'
+          })
+      ])
 
-  yield api.test('dont_upload_breakpad_symbols') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      build_type='release',
-      target='x64',
-      packages=['topaz/packages/default'],
-      upload_breakpad_symbols=False,
-      ninja_targets=['//build/gn:breakpad_symbols'],
+  yield api.fuchsia.test(
+      'dont_upload_breakpad_symbols',
+      properties=dict(
+          build_type='release',
+          target='x64',
+          upload_breakpad_symbols=False,
+          ninja_targets=['//build/gn:breakpad_symbols'],
+      ),
   )
 
-  yield api.test('upload_but_symbol_files_missing') + api.properties(
-      manifest='fuchsia',
-      remote='https://fuchsia.googlesource.com/manifest',
-      build_type='release',
-      target='x64',
-      packages=['topaz/packages/default'],
-      upload_breakpad_symbols=True,
-      ninja_targets=['//build/gn:breakpad_symbols'],
-  ) + api.fuchsia.breakpad_symbol_summary({})
-# yapf: enable
+  yield api.fuchsia.test(
+      'upload_but_symbol_files_missing',
+      properties=dict(
+          build_type='release',
+          target='x64',
+          upload_breakpad_symbols=True,
+          ninja_targets=['//build/gn:breakpad_symbols'],
+      ),
+      steps=[api.fuchsia.breakpad_symbol_summary({})])

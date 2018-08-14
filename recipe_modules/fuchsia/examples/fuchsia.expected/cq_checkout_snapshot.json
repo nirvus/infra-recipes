@@ -40,7 +40,7 @@
       "git",
       "fetch",
       "origin",
-      "refs/changes/23/123/12"
+      "refs/changes/89/456789/12"
     ],
     "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
     "infra_step": true,
@@ -142,7 +142,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"snapshots~23\"}",
+      "{\"change_id\": \"snapshots~456789\"}",
       "-output",
       "/path/to/tmp/json"
     ],

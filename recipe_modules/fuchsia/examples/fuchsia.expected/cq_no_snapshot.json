@@ -51,6 +51,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "topaz",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -80,9 +82,9 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-project",
-      "chromium/src",
+      "topaz",
       "-rebase=true",
-      "refs/changes/23/123/12"
+      "refs/changes/89/456789/12"
     ],
     "infra_step": true,
     "name": "jiri patch"

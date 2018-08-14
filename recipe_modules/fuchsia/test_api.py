@@ -10,6 +10,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
   def test(self,
            name,
            clear_default_properties=False,
+           clear_default_steps=False,
            tryjob=False,
            expect_failure=False,
            properties=None,
@@ -23,6 +24,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       clear_default_properties: If true, does not provide default values.
           However, setting tryjob=True does still add the tryjob-related
           properties.
+      clear_default_steps: If true, does not automatically add steps
+          based on the input properties.
       tryjob: If true, adds tryjob-related properties.
       expect_failure: If true, the test is expected to fail before
           completion, so certain common steps shouldn't be expected to happen.
@@ -70,7 +73,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
 
     # Add implicit steps.
     extra_steps = []
-    if not expect_failure:
+    if not (expect_failure or clear_default_steps):
       # Don't add these if the test is expected to raise an exception;
       # the recipes engine will complain that these steps aren't consumed.
       run_tests = final_properties.get('run_tests', False)

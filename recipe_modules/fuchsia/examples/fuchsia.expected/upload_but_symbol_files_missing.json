@@ -51,6 +51,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "topaz",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
