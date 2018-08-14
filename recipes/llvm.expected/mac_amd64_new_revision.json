@@ -322,7 +322,6 @@
       "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
       "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
       "-DCMAKE_INSTALL_PREFIX=",
-      "-DCMAKE_SYSTEM_NAME=Darwin",
       "-DCMAKE_C_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_CXX_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_ASM_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
@@ -338,6 +337,7 @@
       "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
       "-DLLVM_BUILD_LLVM_DYLIB=ON",
       "-DLLVM_EXTERNALIZE_DEBUGINFO=ON",
+      "-DCMAKE_SYSTEM_NAME=Darwin",
       "[START_DIR]/llvm-project/llvm"
     ],
     "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x86_64_apple_darwin_build_dir",

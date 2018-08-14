@@ -123,8 +123,8 @@ def RunSteps(api, repository, branch, revision, platform):
         step_result = api.step(
             'xcrun', ['xcrun', '--show-sdk-path'],
             stdout=api.raw_io.output(name='sdk-path', add_output_log=True),
-            step_test_data=lambda: api.raw_io.test_api.stream_output(
-                '/some/xcode/path'))
+            step_test_data=
+            lambda: api.raw_io.test_api.stream_output('/some/xcode/path'))
         sysroot = step_result.stdout.strip()
 
       if not platform.startswith('mac'):
@@ -141,6 +141,10 @@ def RunSteps(api, repository, branch, revision, platform):
       else:
         extra_options = []
 
+      if platform != host_platform:
+        system = platform.split('-')[0].replace('mac', 'darwin').capitalize()
+        extra_options.append('-DCMAKE_SYSTEM_NAME=%s' % system)
+
       with api.context(cwd=build_dir):
         api.step('configure %s llvm' % triple, [
             cipd_dir.join('bin', 'cmake'),
@@ -148,7 +152,6 @@ def RunSteps(api, repository, branch, revision, platform):
             '-DCMAKE_MAKE_PROGRAM=%s' % cipd_dir.join('ninja'),
             '-DCMAKE_BUILD_TYPE=RelWithDebInfo',
             '-DCMAKE_INSTALL_PREFIX=',
-            '-DCMAKE_SYSTEM_NAME=%s' % platform.split('-')[0].replace('mac', 'darwin').capitalize(),
             '-DCMAKE_C_COMPILER_LAUNCHER=%s' % api.goma.goma_dir.join('gomacc'),
             '-DCMAKE_CXX_COMPILER_LAUNCHER=%s' %
             api.goma.goma_dir.join('gomacc'),

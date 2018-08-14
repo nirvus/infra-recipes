@@ -331,7 +331,6 @@
       "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
       "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
       "-DCMAKE_INSTALL_PREFIX=",
-      "-DCMAKE_SYSTEM_NAME=Fuchsia",
       "-DCMAKE_C_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_CXX_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_ASM_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
@@ -355,6 +354,7 @@
       "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
       "-DCMAKE_STRIP=[START_DIR]/cipd/bin/llvm-strip",
       "-DLLVM_ENABLE_LLD=ON",
+      "-DCMAKE_SYSTEM_NAME=Fuchsia",
       "[START_DIR]/llvm-project/llvm"
     ],
     "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_x86_64_fuchsia_build_dir",
@@ -431,7 +431,6 @@
       "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
       "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
       "-DCMAKE_INSTALL_PREFIX=",
-      "-DCMAKE_SYSTEM_NAME=Fuchsia",
       "-DCMAKE_C_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_CXX_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
       "-DCMAKE_ASM_COMPILER_LAUNCHER=[CACHE]/goma/client/gomacc",
@@ -455,6 +454,7 @@
       "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
       "-DCMAKE_STRIP=[START_DIR]/cipd/bin/llvm-strip",
       "-DLLVM_ENABLE_LLD=ON",
+      "-DCMAKE_SYSTEM_NAME=Fuchsia",
       "[START_DIR]/llvm-project/llvm"
     ],
     "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_aarch64_fuchsia_build_dir",
