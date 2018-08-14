@@ -23,7 +23,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       name: Test name.
       clear_default_properties: If true, does not provide default values.
           However, setting tryjob=True does still add the tryjob-related
-          properties.
+          properties. Buildbucket properties are always added.
       clear_default_steps: If true, does not automatically add steps
           based on the input properties.
       tryjob: If true, adds tryjob-related properties.
@@ -54,6 +54,22 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
           packages=['topaz/packages/default'],
           revision=self.m.jiri.example_revision,
       )
+
+    if 'buildbucket' in properties:
+      # Re-evaluate this restriction if a test really needs to specify its
+      # own buildbucket properties.
+      raise ValueError(
+          'Test "%s": Do not specify a "buildbucket" property; '
+          'the test API should provide it.' % name)  # pragma: no cover
+    # Used by api.buildbucket.
+    final_properties['buildbucket'] = {
+        'build': {
+            'bucket': '###buildbucket-bucket###',
+            'id': '5555555555',
+            'project': '###buildbucket-project###',
+            'tags': ['builder:###buildbucket-builder###'],
+        },
+    }
 
     if tryjob:
       gerrit_project = (

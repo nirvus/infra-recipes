@@ -11,6 +11,7 @@ DEPS = [
   'infra/qemu',
   'infra/swarming',
   'infra/tar',
+  'recipe_engine/buildbucket',
   'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/file',

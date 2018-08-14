@@ -1306,9 +1306,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     return archive.path
 
   def _upload_file_to_gcs(self, path, bucket):
-    """Uploads a file to a GCS bucket.
-
-    A SHA1 hash of the file is computed and used for the name of the file.
+    """Uploads a file to a GCS bucket, using the appropriate naming scheme.
 
     Args:
       path (Path): A path to the file to upload.
@@ -1317,19 +1315,32 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       The SHA1 hash of the file.
     """
-    # TODO(mknyszek): Determine if this is more generally useful, and if it's
-    # worth moving this into the gsutil package.
-    name = self.m.path.basename(path)
+    # The destination path is based on the buildbucket ID and the basename
+    # of the local file.
+    if not self.m.buildbucket.build_id: # pragma: no cover
+      raise self.m.step.StepFailure('buildbucket.build_id is not set')
+    basename = self.m.path.basename(path)
+    dst = 'builds/%s/%s' % (self.m.buildbucket.build_id, basename)
+    self.m.gsutil.upload(bucket=bucket,
+                         src=path,
+                         dst=dst,
+                         link_name=basename,
+                         name='upload %s' % basename)
+
+    # TOOD(IN-550): Stop uploading to hash-based paths once all consumers use
+    # buildbucket_id-based paths.
+    # TODO(dbort): As as step towards that, stop returning 'digest' from this
+    # method.
     digest = self.m.hash.sha1(
-        'hash %s' % name,
+        'hash %s' % basename,
         path,
         test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
     self.m.gsutil.upload(
         bucket=bucket,
         src=path,
         dst=digest,
-        link_name=name,
-        name='upload %s' % name)
+        link_name=basename,
+        name='upload %s (hash)' % basename)
     return digest
 
   def upload_build_artifacts(self, build_results, bucket,

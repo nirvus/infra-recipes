@@ -170,6 +170,25 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/jiri.snapshot",
+      "gs://fuchsia-snapshots/builds/5555555555/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/builds/5555555555/jiri.snapshot@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
@@ -195,7 +214,7 @@
       "gs://fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
-    "name": "upload jiri.snapshot",
+    "name": "upload jiri.snapshot (hash)",
     "~followup_annotations": [
       "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
@@ -481,6 +500,25 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/fuchsia.tar.gz",
+      "gs://###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz"
+    ],
+    "infra_step": true,
+    "name": "upload fuchsia.tar.gz",
+    "~followup_annotations": [
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
@@ -506,7 +544,7 @@
       "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
-    "name": "upload fuchsia.tar.gz",
+    "name": "upload fuchsia.tar.gz (hash)",
     "~followup_annotations": [
       "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
@@ -531,6 +569,25 @@
       "blobs"
     ],
     "name": "tar fuchsia packages"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/packages.tar.gz",
+      "gs://###fake-artifact-bucket###/builds/5555555555/packages.tar.gz"
+    ],
+    "infra_step": true,
+    "name": "upload packages.tar.gz",
+    "~followup_annotations": [
+      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/packages.tar.gz@@@"
+    ]
   },
   {
     "cmd": [
@@ -559,7 +616,7 @@
       "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
-    "name": "upload packages.tar.gz",
+    "name": "upload packages.tar.gz (hash)",
     "~followup_annotations": [
       "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
@@ -595,6 +652,25 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/breakpad_symbols.tar.gz",
+      "gs://###fake-artifact-bucket###/builds/5555555555/breakpad_symbols.tar.gz"
+    ],
+    "infra_step": true,
+    "name": "upload breakpad_symbols.tar.gz",
+    "~followup_annotations": [
+      "@@@STEP_LINK@breakpad_symbols.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/breakpad_symbols.tar.gz@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
@@ -620,7 +696,7 @@
       "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
-    "name": "upload breakpad_symbols.tar.gz",
+    "name": "upload breakpad_symbols.tar.gz (hash)",
     "~followup_annotations": [
       "@@@STEP_LINK@breakpad_symbols.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
