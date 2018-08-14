@@ -110,9 +110,9 @@
       "-v",
       "-time",
       "-host",
-      "fuchsia-review.googlesource.com",
+      "https://fuchsia-review.googlesource.com",
       "-project",
-      "fuchsia",
+      "topaz",
       "-rebase=true",
       "refs/changes/89/456789/12"
     ],

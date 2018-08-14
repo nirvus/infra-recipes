@@ -110,25 +110,37 @@ def RunSteps(api, repository, branch, revision, patch_gerrit_url, patch_project,
 
 
 def GenTests(api):
-  yield api.test('default') + api.gitiles.refs(
-      'refs', ('refs/heads/master', api.jiri.example_revision)
+  yield api.fuchsia.test(
+      'ci',
+      clear_default_properties=True,
+      properties=dict(revision=api.jiri.example_revision),
   )
-  yield api.test('cq') + api.properties.tryserver(
-      revision=api.jiri.example_revision,
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+  yield api.fuchsia.test(
+      'cq',
+      clear_default_properties=True,
       tryjob=True,
+      properties=dict(revision=api.jiri.example_revision),
   )
-  yield api.test('cq_no_snapshot') + api.properties.tryserver(
-      revision=api.jiri.example_revision,
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+  yield api.fuchsia.test(
+      'cq_no_snapshot',
+      clear_default_properties=True,
       tryjob=True,
-      snapshot_gcs_bucket=None,
+      properties=dict(
+          revision=api.jiri.example_revision, snapshot_gcs_bucket=''),
   )
-  yield api.test('ci_no_snapshot') + api.properties.tryserver(
-      revision=api.jiri.example_revision,
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      snapshot_gcs_bucket=None,
+  yield api.fuchsia.test(
+      'ci_no_snapshot',
+      clear_default_properties=True,
+      properties=dict(
+          revision=api.jiri.example_revision, snapshot_gcs_bucket=''),
   )
+
+  # Test reading the revision from gitiles
+  yield api.fuchsia.test(
+      'ci_no_revision',
+      clear_default_properties=True,
+      properties={},
+      steps=[
+          api.gitiles.refs('refs',
+                           ('refs/heads/master', api.jiri.example_revision)),
+      ])

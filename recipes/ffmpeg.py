@@ -127,20 +127,25 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
 
 def GenTests(api):
-  yield api.test('default')
-  yield api.test('cq') + api.properties.tryserver(
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      tryjob=True,
+  yield api.fuchsia.test(
+      'default',
+      clear_default_properties=True,
+      properties={},
   )
-  yield api.test('cq_no_snapshot') + api.properties.tryserver(
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
+  yield api.fuchsia.test(
+      'cq',
+      clear_default_properties=True,
       tryjob=True,
-      snapshot_gcs_bucket=None,
+      properties={},
   )
-  yield api.test('ci_no_snapshot') + api.properties.tryserver(
-      patch_project='fuchsia',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      snapshot_gcs_bucket=None,
+  yield api.fuchsia.test(
+      'cq_no_snapshot',
+      clear_default_properties=True,
+      tryjob=True,
+      properties=dict(snapshot_gcs_bucket=''),
+  )
+  yield api.fuchsia.test(
+      'ci_no_snapshot',
+      clear_default_properties=True,
+      properties=dict(snapshot_gcs_bucket=''),
   )
