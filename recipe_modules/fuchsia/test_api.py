@@ -167,14 +167,20 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
             'name': '%s/hello' % test_name_prefix,
             'output_file': 'hello.out',
             'result': result
+        }, {
+            'name': 'benchmark.catapult_json',
+            'output_file': 'benchmark.catapult_json',
+            'result': result
         }],
         'outputs': {
             'goodbye-txt': 'goodbye.txt'
         }
     })
-    return self.step_data(step_name,
-                          self.m.raw_io.output_dir({
-                              'summary.json': summary_json,
-                              'hello.out': 'hello',
-                              'goodbye.txt': 'goodbye',
-                          }))
+    return self.step_data(
+        step_name,
+        self.m.raw_io.output_dir({
+            'summary.json': summary_json,
+            'hello.out': 'hello',
+            'goodbye.txt': 'goodbye',
+            'benchmark.catapult_json': '["dummy_catapult_data"]',
+        }))

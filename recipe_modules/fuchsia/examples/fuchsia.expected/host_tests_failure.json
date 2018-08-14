@@ -390,7 +390,7 @@
     "cmd": [],
     "name": "test results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"[START_DIR]/hello\", \"output_file\": \"hello.out\", \"result\": \"FAIL\"}]}@@@",
+      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"[START_DIR]/hello\", \"output_file\": \"hello.out\", \"result\": \"FAIL\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"FAIL\"}]}@@@",
       "@@@STEP_LOG_END@summary.json@@@",
       "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",
       "@@@STEP_LOG_END@goodbye-txt@@@"
@@ -407,8 +407,18 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "test results.benchmark.catapult_json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@stdio@[\"dummy_catapult_data\"]@@@",
+      "@@@STEP_LOG_END@stdio@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
     "name": "$result",
-    "reason": "Test failure(s): [START_DIR]/hello",
+    "reason": "Test failure(s): [START_DIR]/hello, benchmark.catapult_json",
     "recipe_result": null,
     "status_code": 1
   }

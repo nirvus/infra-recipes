@@ -782,21 +782,23 @@
     "infra_step": true,
     "name": "extract results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@summary.json@{\"tests\": [{\"name\": \"passed.json\", \"output_file\": \"passed.json\", \"result\": \"PASS\"}, {\"name\": \"passed.catapult_json\", \"output_file\": \"passed.catapult_json\", \"result\": \"PASS\"}, {\"name\": \"failed.json\", \"output_file\": \"failed.json\", \"result\": \"FAIL\"}]}@@@",
-      "@@@STEP_LOG_END@summary.json@@@"
+      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"PASS\"}]}@@@",
+      "@@@STEP_LOG_END@summary.json@@@",
+      "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",
+      "@@@STEP_LOG_END@goodbye-txt@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "passed.json",
+    "name": "/hello",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@stdio@{\"test_name\": \"a\", \"units\": \"b\", \"samples\": [1, 2, 3]}@@@",
+      "@@@STEP_LOG_LINE@stdio@hello@@@",
       "@@@STEP_LOG_END@stdio@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "passed.catapult_json",
+    "name": "benchmark.catapult_json",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@stdio@[\"dummy_catapult_data\"]@@@",
       "@@@STEP_LOG_END@stdio@@@"
@@ -804,16 +806,7 @@
   },
   {
     "cmd": [],
-    "name": "failed.json",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@stdio@{}@@@",
-      "@@@STEP_LOG_END@stdio@@@",
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "upload passed.catapult_json"
+    "name": "upload benchmark.catapult_json"
   },
   {
     "cmd": [
@@ -823,7 +816,7 @@
       "https://chromeperf.appspot.com",
       "[\"dummy_catapult_data\"]"
     ],
-    "name": "upload passed.catapult_json.catapult upload",
+    "name": "upload benchmark.catapult_json.catapult upload",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
