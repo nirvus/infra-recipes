@@ -409,9 +409,8 @@ def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
   ]
 
   if arch == 'aarch64':
-    machine = 'virt'
-    if use_kvm:
-      machine += ',gic_version=host'
+    gic_version = 'host' if use_kvm else '3'
+    machine = 'virt,gic_version=%s' % gic_version
   elif arch == 'x86_64':
     machine = 'q35'
     # Necessary for userboot.shutdown to trigger properly, since it writes to
