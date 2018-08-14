@@ -140,13 +140,6 @@ PROPERTIES = {
             ' to. Will not upload a snapshot if this property is'
             ' blank, tryjob is True, or checkout_snapshot is True.',
             default='fuchsia-snapshots'),
-    # TODO(dbort): Remove upload_archive in favor of archive_gcs_bucket.
-    'upload_archive':
-        Property(
-            kind=bool,
-            help='Whether to upload archive of the build artifacts'
-            ' (always False if tryjob is True)',
-            default=True),
     'archive_gcs_bucket':
         Property(
             kind=str,
@@ -162,15 +155,11 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              patch_ref, patch_repository_url, target, build_type, packages,
              variant, gn_args, run_tests, runtests_args, run_host_tests,
              device_type, networking_for_tests, ninja_targets,
-             test_timeout_secs, upload_archive, archive_gcs_bucket,
-             upload_breakpad_symbols, snapshot_gcs_bucket):
+             test_timeout_secs, archive_gcs_bucket, upload_breakpad_symbols,
+             snapshot_gcs_bucket):
   # Don't upload snapshots for tryjobs.
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
-    archive_gcs_bucket = None
-
-  # TODO(dbort): Remove this once upload_archive goes away.
-  if not upload_archive:
     archive_gcs_bucket = None
 
   # Handle illegal setting of networking_for_tests.
@@ -356,15 +345,6 @@ def GenTests(api):
       ),
   )
 
-  # Test non-uploading CI job.
-  yield api.fuchsia.test(
-      'staging',
-      properties=dict(
-          upload_snapshot=False,
-          upload_archive=False,
-      ),
-  )
-
   # Test cases for checking out Fuchsia from a snapshot.
   yield api.fuchsia.test(
       'checkout_from_snapshot',
@@ -420,6 +400,15 @@ def GenTests(api):
   yield api.fuchsia.test(
       'ci_override_archive',
       properties=dict(archive_gcs_bucket='different-archive-bucket'),
+  )
+
+  # Test non-uploading CI job.
+  yield api.fuchsia.test(
+      'ci_no_snapshot_or_archive',
+      properties=dict(
+          snapshot_gcs_bucket='',
+          archive_gcs_bucket='',
+      ),
   )
 
   # Test cases for generating symbol files as part of the build
