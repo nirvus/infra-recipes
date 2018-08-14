@@ -196,6 +196,13 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
         api.catapult.upload(
             input_file=api.raw_io.input_text(file_data), url=catapult_url)
 
+  # Fail if any benchmarks failed.
+  if len(test_results.failed_test_outputs) > 0:
+    raise api.step.StepFailure(
+        "The following benchmarks failed. "
+        "See kernel log and individual steps for details: %s" %
+        test_results.failed_test_outputs.keys())
+
 
 def GenTests(api):
   # Test API response for a call to the BuildBucket API's `get` method, which
@@ -228,6 +235,19 @@ def GenTests(api):
   ) + (
       buildbucket_test_data + api.fuchsia.task_step_data() +
       api.fuchsia.test_step_data())
+
+  yield api.test('failed_run') + api.properties(
+      project='topaz',
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+      target='x64',
+      packages=['topaz/packages/default'],
+      dashboard_masters_name='fuchsia.ci',
+      dashboard_bots_name='topaz-builder',
+      benchmarks_package='topaz_benchmarks',
+  ) + (
+      buildbucket_test_data + api.fuchsia.task_step_data() +
+      api.fuchsia.test_step_data(failure=True))
 
   # Tests running this recipe with a pending Gerrit change. Note
   # that upload_to_dashboard is false. Be sure to set this when
