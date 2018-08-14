@@ -301,123 +301,26 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         upload_breakpad_symbols=upload_breakpad_symbols)
 
 
-def _FuchsiaTest(api,
-                 name,
-                 clear_default_properties=False,
-                 tryjob=False,
-                 expect_failure=False,
-                 properties=None,
-                 steps=()):
-  """Returns a test case appropriate for yielding from GenTests().
-
-  Provides default property values for the common cases.
-
-  Args:
-    api: RecipeTestApi object.
-    name: Test name.
-    clear_default_properties: If true, does not provide default values.
-        However, setting tryjob=True does still add the tryjob-related
-        properties.
-    tryjob: If true, adds tryjob-related properties.
-    expect_failure: If true, the test is expected to fail before
-        completion, so certain common steps shouldn't be expected to happen.
-    properties: A required dict of properties to override for this test.
-    steps: An optional sequence of RecipeTestApi.step_data objects to append to
-        the output of this function.
-
-  Returns:
-    TestData object.
-  """
-  # Tests shouldn't try to create their own tryjob environment, in the same way
-  # that cr-buildbucket builders shouldn't specify tryjob-related properties.
-  if 'tryjob' in properties:
-    # TODO(dbort): Maybe check for patch_ properties, too.
-    raise ValueError('Test "%s": Do not specify a "tryjob" property; '
-                     'use the tryjob arg.' % name)  # pragma: no cover
-
-  if clear_default_properties:
-    final_properties = {}
-  else:
-    final_properties = dict(
-        manifest='fuchsia',
-        remote='https://fuchsia.googlesource.com/manifest',
-        project='topaz',
-        target='x64',
-        packages=['topaz/packages/default'],
-        revision=api.jiri.example_revision,
-    )
-
-  if tryjob:
-    gerrit_project = (
-        properties.get('project', None) or
-        final_properties.get('project', 'topaz'))
-    final_properties.update(
-        dict(
-            # api.properties.tryserver will add patch_* properties based on
-            # these gerrit_* properties.
-            gerrit_url='https://fuchsia-review.googlesource.com',
-            gerrit_project=gerrit_project,
-            tryjob=True,
-        ))
-
-  # Provided properties override the defaults.
-  final_properties.update(properties)
-
-  # Add implicit steps.
-  extra_steps = []
-  if not expect_failure:
-    # Don't add these if the test is expected to raise an exception;
-    # the recipes engine will complain that these steps aren't consumed.
-    run_tests = final_properties.get('run_tests', False)
-    run_host_tests = final_properties.get('run_host_tests', False)
-    on_device = final_properties.get('device_type', 'QEMU') != 'QEMU'
-
-    if run_tests:
-      extra_steps.append(api.fuchsia.task_step_data(device=on_device))
-      extra_steps.append(api.fuchsia.test_step_data())
-    if run_host_tests:
-      extra_steps.append(api.fuchsia.test_step_data(host_results=True))
-
-  # Assemble the return value.
-  ret = api.test(name)
-
-  if tryjob:
-    ret += api.properties.tryserver(**final_properties)
-  else:
-    ret += api.properties(**final_properties)
-
-  for s in extra_steps:
-    ret += s
-  for s in steps:
-    # Provided steps override implicit steps.
-    ret += s
-  return ret
-
-
 def GenTests(api):
-  # Closure that lets callers skip the 'api' arg.
-  def FuchsiaTest(*args, **kwargs):
-    return _FuchsiaTest(api, *args, **kwargs)
-
-  # Tests using the defaults provided by FuchsiaTest.
-  yield FuchsiaTest('default', properties={})
-  yield FuchsiaTest('cq', tryjob=True, properties={})
+  # Tests using the defaults provided by fuchsia.test().
+  yield api.fuchsia.test('default', properties={})
+  yield api.fuchsia.test('cq', tryjob=True, properties={})
 
   # Test cases for running tests.
-  yield FuchsiaTest('isolated_tests', properties=dict(run_tests=True))
-  yield FuchsiaTest(
+  yield api.fuchsia.test('isolated_tests', properties=dict(run_tests=True))
+  yield api.fuchsia.test(
       'device_tests',
       properties=dict(
           run_tests=True,
           device_type='Intel NUC Kit NUC6i3SYK',
       ))
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'host_tests',
       properties=dict(
           ninja_targets=['build/gn:host_tests'],
           run_host_tests=True,
       ))
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'host_and_device_tests',
       properties=dict(
           run_tests=True,
@@ -426,13 +329,13 @@ def GenTests(api):
       ))
 
   # Test cases for tests with networking.
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'isolated_tests_with_networking',
       properties=dict(
           run_tests=True,
           networking_for_tests=True,
       ))
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'device_tests_with_networking',
       # Networking is only supported for QEMU, so this test should fail.
       expect_failure=True,
@@ -442,7 +345,7 @@ def GenTests(api):
           device_type='Intel NUC Kit NUC6i3SYK',
       ),
   )
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'cq_with_networking',
       tryjob=True,
       # Networking is not supported for tryjobs, so this test should fail.
@@ -454,7 +357,7 @@ def GenTests(api):
   )
 
   # Test non-uploading CI job.
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'staging',
       properties=dict(
           upload_snapshot=False,
@@ -463,7 +366,7 @@ def GenTests(api):
   )
 
   # Test cases for checking out Fuchsia from a snapshot.
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'checkout_from_snapshot',
       clear_default_properties=True,
       properties=dict(
@@ -474,7 +377,7 @@ def GenTests(api):
           packages=['topaz/packages/default'],
       ),
   )
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'cq_checkout_from_snapshot',
       clear_default_properties=True,
       tryjob=True,
@@ -488,39 +391,39 @@ def GenTests(api):
 
   # Test the 'vendor/x' case of verifying build packages.
   # The non-vendor case is tested by most other tests.
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'build-packages-vendor',
       properties=dict(project='vendor/foobar'),
   )
 
   # Test cases for uploading snapshots.
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'cq_no_snapshot',
       tryjob=True,
       properties=dict(snapshot_gcs_bucket=None),
   )
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'ci_no_snapshot',
       properties=dict(snapshot_gcs_bucket=None),
   )
 
   # Test cases for archiving artifacts.
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'cq_no_archive',
       tryjob=True,
       properties=dict(archive_gcs_bucket=''),
   )
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'ci_no_archive',
       properties=dict(archive_gcs_bucket=''),
   )
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'ci_override_archive',
       properties=dict(archive_gcs_bucket='different-archive-bucket'),
   )
 
   # Test cases for generating symbol files as part of the build
-  yield FuchsiaTest(
+  yield api.fuchsia.test(
       'upload_breakpad_symbols',
       properties=dict(
           # build_type and target determine the path used in the key of
