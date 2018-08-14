@@ -161,7 +161,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output -L\numount /tmp/infra-test-output\ndm poweroff",
+      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests -o /tmp/infra-test-output \numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/zircon_tmp/runcmds"
     ],
     "infra_step": true,
@@ -170,7 +170,7 @@
       "@@@STEP_LOG_LINE@runcmds.sh@mkdir /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds.sh@runtests -o /tmp/infra-test-output -L@@@",
+      "@@@STEP_LOG_LINE@runcmds.sh@runtests -o /tmp/infra-test-output @@@",
       "@@@STEP_LOG_LINE@runcmds.sh@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds.sh@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds.sh@@@"
@@ -213,6 +213,7 @@
       "20",
       "HOST_USE_ASAN=true",
       "BUILDROOT=[START_DIR]/zircon",
+      "USE_CLANG=true",
       "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"
     ],
     "cwd": "[START_DIR]/zircon",
@@ -380,7 +381,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/zircon/build-x64/tools/minfs",
+      "[START_DIR]/zircon/build-x64-clang/tools/minfs",
       "[START_DIR]/input.fs@16M",
       "create"
     ],
@@ -441,9 +442,9 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/zircon/build-x64:zircon.bin",
+      "[START_DIR]/zircon/build-x64-clang:zircon.bin",
       "-files",
-      "[START_DIR]/zircon/build-x64:bootdata.bin",
+      "[START_DIR]/zircon/build-x64-clang:bootdata.bin",
       "-files",
       "[START_DIR]:input.fs",
       "-files",
@@ -603,10 +604,8 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"10\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"output\": \"core-tests succeeded RZMm59f7zOSs6aZUIXZR\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"output\": \"not success\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_version\": \"f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c47f2\", @@@",
@@ -658,7 +657,7 @@
       "@@@STEP_LOG_END@json.output@@@",
       "@@@STEP_LOG_LINE@11.stdout@hello world!@@@",
       "@@@STEP_LOG_END@11.stdout@@@",
-      "@@@STEP_LOG_LINE@10.stdout@core-tests succeeded RZMm59f7zOSs6aZUIXZR@@@",
+      "@@@STEP_LOG_LINE@10.stdout@not success@@@",
       "@@@STEP_LOG_END@10.stdout@@@"
     ]
   },
@@ -666,65 +665,13 @@
     "cmd": [],
     "name": "core tests task results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@kernel log@core-tests succeeded RZMm59f7zOSs6aZUIXZR@@@",
+      "@@@STEP_LOG_LINE@kernel log@not success@@@",
       "@@@STEP_LOG_END@kernel log@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "booted tests task results",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
-      "@@@STEP_LOG_END@kernel log@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/build-x64/tools/minfs",
-      "[TMP_BASE]/swarming_tmp_1/11/output.fs",
-      "cp",
-      "::",
-      "[START_DIR]/test_results/target"
-    ],
-    "name": "extract results"
-  },
-  {
-    "cmd": [],
-    "name": "booted test results"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "[START_DIR]/zircon/build-x64"
-    ],
-    "name": "booted test results.symbolize",
-    "stdin": "hello world!",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/zircon/build-x64/ids.txt"
-    ],
-    "name": "booted test results.symbolize logs",
-    "stdin": "hello world!",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@",
-      "@@@STEP_FAILURE@@@"
     ]
   },
   {
     "name": "$result",
-    "reason": "Test summary JSON not found, see kernel log for details",
+    "reason": "Did not find string \"core-tests succeeded RZMm59f7zOSs6aZUIXZR\" in kernel log, so assuming core tests failed.",
     "recipe_result": null,
     "status_code": 1
   }

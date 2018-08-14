@@ -599,7 +599,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"10\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"output\": \"core-tests succeeded RZMm59f7zOSs6aZUIXZR\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
       "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
@@ -654,7 +654,7 @@
       "@@@STEP_LOG_END@json.output@@@",
       "@@@STEP_LOG_LINE@11.stdout@hello world!@@@",
       "@@@STEP_LOG_END@11.stdout@@@",
-      "@@@STEP_LOG_LINE@10.stdout@hello world!@@@",
+      "@@@STEP_LOG_LINE@10.stdout@core-tests succeeded RZMm59f7zOSs6aZUIXZR@@@",
       "@@@STEP_LOG_END@10.stdout@@@"
     ]
   },
@@ -662,7 +662,7 @@
     "cmd": [],
     "name": "core tests task results",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
+      "@@@STEP_LOG_LINE@kernel log@core-tests succeeded RZMm59f7zOSs6aZUIXZR@@@",
       "@@@STEP_LOG_END@kernel log@@@"
     ]
   },

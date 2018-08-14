@@ -87,6 +87,9 @@ TEST_IO_TIMEOUT_SECS = 60
 # This magic number of 31 is that computed return code.
 ZIRCON_QEMU_SUCCESS_CODE = 31
 
+# This string matches the one in //zircon/system/utest/core/main.c.
+CORE_TESTS_SUCCESS_STR = 'core-tests succeeded RZMm59f7zOSs6aZUIXZR'
+
 PROPERTIES = {
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
   'patch_project': Property(kind=str, help='Gerrit project', default=None),
@@ -519,6 +522,15 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
       build_dir,
   )
 
+  # Because of the way these tests run (they are the only user-mode process in
+  # the system, and then the system shuts down) we can't collect an exit code or
+  # nicely structured output, so we have to search the output for a hard-coded
+  # string to detect success.
+  if CORE_TESTS_SUCCESS_STR not in results_map[core_task].output:
+    raise StepFailure(
+        'Did not find string "%s" in kernel log, so assuming core tests '
+        'failed.' % CORE_TESTS_SUCCESS_STR)
+
   # Analyze booted tests results just like the fuchsia recipe module does.
   booted_result = results_map[booted_task]
   api.fuchsia.analyze_collect_result(
@@ -681,7 +693,7 @@ def GenTests(api):
   )
   # Step test data for collecting core and booted tasks.
   core_task_datum = api.swarming.task_success(
-      id='10', outputs=['output.fs'])
+      id='10', output=CORE_TESTS_SUCCESS_STR, outputs=['output.fs'])
   booted_task_datum = api.swarming.task_success(id='11', outputs=['output.fs'])
   collect_data = api.step_data('collect', api.swarming.collect(
       task_data=(core_task_datum, booted_task_datum)))
@@ -840,3 +852,21 @@ def GenTests(api):
          toolchain='clang',
          make_args=['DEBUG_HARD=1'],
          run_tests=False))
+
+  # This task should trigger a failure because its output does not contain
+  # CORE_TESTS_SUCCESS_STR
+  failed_core_task_datum = api.swarming.task_success(
+      id='10', output='not success')
+  core_tests_failed_collect_data = api.step_data(
+      'collect',
+      api.swarming.collect(task_data=(failed_core_task_datum, booted_task_datum)
+      ))
+  yield (api.test('ci_core_test_failure') +
+      api.properties(project='zircon',
+                     manifest='manifest',
+                     remote='https://fuchsia.googlesource.com/zircon',
+                     target='x64',
+                     toolchain='clang') +
+      core_tests_trigger_data +
+      booted_tests_trigger_data +
+      core_tests_failed_collect_data)
