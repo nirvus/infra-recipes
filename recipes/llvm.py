@@ -136,6 +136,7 @@ def RunSteps(api, repository, branch, revision, platform):
             '-DCMAKE_OBJDUMP=%s' % cipd_dir.join('bin', 'llvm-objdump'),
             '-DCMAKE_RANLIB=%s' % cipd_dir.join('bin', 'llvm-ranlib'),
             '-DCMAKE_STRIP=%s' % cipd_dir.join('bin', 'llvm-strip'),
+            '-DLLVM_ENABLE_LLD=ON',
         ]
       else:
         extra_options = []
@@ -164,7 +165,6 @@ def RunSteps(api, repository, branch, revision, platform):
             '-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64',
             '-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM',
             '-DLLVM_BUILD_LLVM_DYLIB=ON',
-            '-DLLVM_ENABLE_LLD=ON',
             '-DLLVM_EXTERNALIZE_DEBUGINFO=ON',
         ] + extra_options + [llvm_dir.join('llvm')])
         api.step(

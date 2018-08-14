@@ -337,7 +337,6 @@
       "-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64",
       "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
       "-DLLVM_BUILD_LLVM_DYLIB=ON",
-      "-DLLVM_ENABLE_LLD=ON",
       "-DLLVM_EXTERNALIZE_DEBUGINFO=ON",
       "[START_DIR]/llvm-project/llvm"
     ],

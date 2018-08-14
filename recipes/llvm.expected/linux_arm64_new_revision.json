@@ -331,7 +331,6 @@
       "-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64",
       "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
       "-DLLVM_BUILD_LLVM_DYLIB=ON",
-      "-DLLVM_ENABLE_LLD=ON",
       "-DLLVM_EXTERNALIZE_DEBUGINFO=ON",
       "-DCMAKE_AR=[START_DIR]/cipd/bin/llvm-ar",
       "-DCMAKE_LINKER=[START_DIR]/cipd/bin/ld.lld",
@@ -340,6 +339,7 @@
       "-DCMAKE_OBJDUMP=[START_DIR]/cipd/bin/llvm-objdump",
       "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
       "-DCMAKE_STRIP=[START_DIR]/cipd/bin/llvm-strip",
+      "-DLLVM_ENABLE_LLD=ON",
       "[START_DIR]/llvm-project/llvm"
     ],
     "cwd": "[TMP_BASE]/llvm_tmp_1/llvm_aarch64_linux_gnu_build_dir",
