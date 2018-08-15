@@ -355,11 +355,11 @@ Returns:
 
 [DEPS](/recipe_modules/fuchsia/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#159)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#160)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1045)(self, step_name, result, zircon_build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1047)(self, step_name, result, zircon_build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -373,7 +373,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1088)(self, step_name, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1090)(self, step_name, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -384,7 +384,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#552)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#554)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), test_cmds=(), test_device_type='QEMU'):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -406,7 +406,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#253)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#254)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, snapshot_gcs_bucket=None, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out a Fuchsia project.
 
@@ -428,7 +428,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [checkout\_patched\_snapshot](/recipe_modules/fuchsia/api.py#345)(self, patch_gerrit_url, patch_issue, patch_project, patch_ref, patch_repository_url, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout\_patched\_snapshot](/recipe_modules/fuchsia/api.py#346)(self, patch_gerrit_url, patch_issue, patch_project, patch_ref, patch_repository_url, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out Fuchsia from a Jiri snapshot from a Gerrit patch.
 
@@ -446,7 +446,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/fuchsia/api.py#300)(self, repository, revision, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/fuchsia/api.py#301)(self, repository, revision, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out Fuchsia from a Jiri snapshot.
 
@@ -463,7 +463,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1111)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1114)(self, test_results):**
 
 Logs individual test results in separate steps.
 
@@ -482,7 +482,7 @@ separate subdirectories so as not to collide.
 
 The directory on target to which target test results will be written.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#1017)(self, build, timeout_secs=(40 \* 60), external_network=False):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#1019)(self, build, timeout_secs=(40 \* 60), external_network=False):**
 
 Tests a Fuchsia build on the specified device.
 
@@ -510,7 +510,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1346)(self, build_results, bucket, upload_breakpad_symbols=False):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1352)(self, build_results, bucket, upload_breakpad_symbols=False):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
@@ -1346,11 +1346,11 @@ Recipe for generating docs.
 &mdash; **def [gen\_gndoc](/recipes/docs_roller.py#58)(api, packages, project_dir):**
 ### *recipes* / [ffmpeg](/recipes/ffmpeg.py)
 
-[DEPS](/recipes/ffmpeg.py#11): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/ffmpeg.py#9): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building libffmpeg and uploading it and required source files.
 
-&mdash; **def [RunSteps](/recipes/ffmpeg.py#47)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, revision, project, snapshot_gcs_bucket):**
+&mdash; **def [RunSteps](/recipes/ffmpeg.py#52)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, revision, project, snapshot_gcs_bucket):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#19): [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [tar](#recipe_modules-tar), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1596,11 +1596,11 @@ Recipe for running Tricium clang-format analyzer.
 &mdash; **def [RunSteps](/recipes/tricium/clang_tidy.py#41)(api, project, manifest, checks):**
 ### *recipes* / [web\_view](/recipes/web_view.py)
 
-[DEPS](/recipes/web_view.py#11): [fuchsia](#recipe_modules-fuchsia), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/web_view.py#9): [fuchsia](#recipe_modules-fuchsia), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building libwebkit.so.
 
-&mdash; **def [RunSteps](/recipes/web_view.py#45)(api, repository, branch, revision, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, snapshot_gcs_bucket):**
+&mdash; **def [RunSteps](/recipes/web_view.py#51)(api, repository, branch, revision, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, snapshot_gcs_bucket):**
 ### *recipes* / [zbi:examples/full](/recipe_modules/zbi/examples/full.py)
 
 [DEPS](/recipe_modules/zbi/examples/full.py#5): [zbi](#recipe_modules-zbi), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -167,8 +167,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
           output=output, outputs=outputs)
     else:
       task_datum = self.m.swarming.task_success(output=output, outputs=outputs)
-    return self.step_data('collect',
-                          self.m.swarming.collect(task_data=[task_datum]))
+    return self.step_data(
+        'collect', self.m.swarming.collect(task_data=[task_datum]))
 
   def test_step_data(self, failure=False, host_results=False):
     """Returns mock step data for test results.

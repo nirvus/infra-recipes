@@ -1,49 +1,56 @@
 # Copyright 2017 The Fuchsia Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
 """Recipe for building libwebkit.so."""
 
 from recipe_engine.config import Enum, List
 from recipe_engine.recipe_api import Property
 
-
 DEPS = [
-  'infra/fuchsia',
-  'infra/gitiles',
-  'infra/gsutil',
-  'infra/jiri',
-  'recipe_engine/context',
-  'recipe_engine/properties',
-  'recipe_engine/step',
+    'infra/fuchsia',
+    'infra/gitiles',
+    'infra/gsutil',
+    'infra/jiri',
+    'recipe_engine/context',
+    'recipe_engine/properties',
+    'recipe_engine/step',
 ]
 
 TARGETS = ['arm64', 'x64']
 
 PROPERTIES = {
-  'repository':
-      Property(
-          kind=str, help='Git repository URL',
-          default='https://fuchsia.googlesource.com/manifest'),
-  'branch':
-      Property(kind=str, help='Git branch', default='refs/heads/master'),
-  'revision': Property(kind=str, help='Revision', default=None),
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'patch_storage': Property(kind=str, help='Patch location', default=None),
-  'patch_repository_url': Property(kind=str, help='URL to a Git repository',
-                                   default=None),
-  'snapshot_gcs_bucket': Property(kind=str,
-                                  help='The GCS bucket to upload a jiri snapshot of the build'
-                                       ' to. Will not upload a snapshot if this property is'
-                                       ' blank or tryjob is True',
-                                  default='fuchsia-snapshots'),
+    'repository':
+        Property(
+            kind=str,
+            help='Git repository URL',
+            default='https://fuchsia.googlesource.com/manifest'),
+    'branch':
+        Property(kind=str, help='Git branch', default='refs/heads/master'),
+    'revision':
+        Property(kind=str, help='Revision', default=None),
+    'patch_gerrit_url':
+        Property(kind=str, help='Gerrit host', default=None),
+    'patch_project':
+        Property(kind=str, help='Gerrit project', default=None),
+    'patch_ref':
+        Property(kind=str, help='Gerrit patch ref', default=None),
+    'patch_storage':
+        Property(kind=str, help='Patch location', default=None),
+    'patch_repository_url':
+        Property(kind=str, help='URL to a Git repository', default=None),
+    'snapshot_gcs_bucket':
+        Property(
+            kind=str,
+            help='The GCS bucket to upload a jiri snapshot of the build'
+            ' to. Will not upload a snapshot if this property is'
+            ' blank or tryjob is True',
+            default='fuchsia-snapshots'),
 }
 
 
 def RunSteps(api, repository, branch, revision, patch_gerrit_url, patch_project,
-             patch_ref, patch_storage, patch_repository_url, snapshot_gcs_bucket):
+             patch_ref, patch_storage, patch_repository_url,
+             snapshot_gcs_bucket):
   api.gitiles.ensure_gitiles()
 
   if api.properties.get('tryjob'):
@@ -64,7 +71,8 @@ def RunSteps(api, repository, branch, revision, patch_gerrit_url, patch_project,
 
   with api.context(infra_steps=True):
     # api.fuchsia.checkout() will have ensured that jiri exists.
-    revision = api.jiri.project(['third_party/webkit']).json.output[0]['revision']
+    revision = api.jiri.project(
+        ['third_party/webkit']).json.output[0]['revision']
     api.step.active_result.presentation.properties['got_revision'] = revision
 
   # Build for all targets before uploading any to avoid an incomplete upload.

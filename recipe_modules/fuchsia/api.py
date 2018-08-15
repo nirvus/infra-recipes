@@ -113,8 +113,8 @@ class FuchsiaCheckoutResults(object):
 class FuchsiaBuildResults(object):
   """Represents a completed build of Fuchsia."""
 
-  def __init__(self, target, zircon_build_dir, fuchsia_build_dir, has_target_tests,
-               test_device_type):
+  def __init__(self, target, zircon_build_dir, fuchsia_build_dir,
+               has_target_tests, test_device_type):
     assert target in TARGETS
     self._zircon_build_dir = zircon_build_dir
     self._fuchsia_build_dir = fuchsia_build_dir
@@ -155,6 +155,7 @@ class FuchsiaBuildResults(object):
     if its value is not 'QEMU'.
     """
     return self._test_device_type
+
 
 class FuchsiaApi(recipe_api.RecipeApi):
   """APIs for checking out, building, and testing Fuchsia."""
@@ -390,7 +391,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
           name='get destination branch',
           change_id='%s~%s' % (patch_project, patch_issue),
           gerrit_host=patch_gerrit_url,
-          test_data=self.m.json.test_api.output({'branch': 'master'}),
+          test_data=self.m.json.test_api.output({
+              'branch': 'master'
+          }),
       )
       with self.m.context(cwd=snapshot_repo_dir):
         self.m.git('fetch', patch_repository_url, details['branch'])
@@ -510,8 +513,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     with self.m.step.nest('build fuchsia'):
       args = [
           'target_cpu="%s"' % build.target,
-          'fuchsia_packages=[%s]' %
-          ','.join('"%s"' % pkg for pkg in packages),
+          'fuchsia_packages=[%s]' % ','.join('"%s"' % pkg for pkg in packages),
           'use_goma=true',
           'goma_dir="%s"' % self.m.goma.goma_dir,
           'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
@@ -583,8 +585,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     if test_cmds:
       gn_args.append(
-          'synthesize_packages = [ %s ]' %
-          self._create_runcmds_package(
+          'synthesize_packages = [ %s ]' % self._create_runcmds_package(
               test_cmds=test_cmds, test_in_qemu=(test_device_type == 'QEMU')))
 
     if build_type == 'debug':
@@ -644,12 +645,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
         symbolize_cmd,
         stdin=self.m.raw_io.input(data=data),
         stdout=self.m.raw_io.output(),
-        step_test_data=lambda: self.m.raw_io.test_api.stream_output(
-            'blah\nblah\n'))
+        step_test_data=
+        lambda: self.m.raw_io.test_api.stream_output('blah\nblah\n'))
     symbolized_lines = symbolize_result.stdout.splitlines()
     if symbolized_lines:
-      symbolize_result.presentation.logs[
-          'symbolized logs'] = symbolized_lines
+      symbolize_result.presentation.logs['symbolized logs'] = symbolized_lines
       symbolize_result.presentation.status = self.m.step.FAILURE
 
   def _symbolize(self, build_dir, data):
@@ -747,21 +747,23 @@ class FuchsiaApi(recipe_api.RecipeApi):
     host_platform = HOST_PLATFORMS[self.m.platform.arch][self.m.platform.bits]
     set_vars_and_run_cmd = [
         self.m.path['start_dir'].join('build', 'gn_run_binary.sh'),
-        self.m.path['start_dir'].join(
-            'buildtools', '%s-%s' % (self.m.platform.name, host_platform),
-            'clang', 'bin'),
+        self.m.path['start_dir'].join('buildtools', '%s-%s' %
+                                      (self.m.platform.name,
+                                       host_platform), 'clang', 'bin'),
     ]
 
     # Allow the runtests invocation to fail without resulting in a step failure.
     # The relevant, individual test failures will be reported during the
     # processing of summary.json - and an early step failure will prevent this.
-    self.m.step('run host tests', set_vars_and_run_cmd + [
-        runtests,
-        '-o',
-        self.m.raw_io.output_dir(leak_to=test_results_dir),
-        host_test_dir,
-      ],
-      ok_ret='any')
+    self.m.step(
+        'run host tests',
+        set_vars_and_run_cmd + [
+            runtests,
+            '-o',
+            self.m.raw_io.output_dir(leak_to=test_results_dir),
+            host_test_dir,
+        ],
+        ok_ret='any')
 
     # Extract test results.
     test_results_map = self.m.step.active_result.raw_io.output_dir
@@ -1103,10 +1105,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
         # If a Zircon kernel log is present, it may contain stack traces which
         # we want to symbolize.
         if test_results.zircon_kernel_log:
-          self._symbolize(test_results.build_dir, test_results.zircon_kernel_log)
+          self._symbolize(test_results.build_dir,
+                          test_results.zircon_kernel_log)
         # Halt with a step failure.
-        raise self.m.step.StepFailure(
-          'Test failure(s): ' + ', '.join(test_results.failed_test_outputs.keys()))
+        raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(
+            test_results.failed_test_outputs.keys()))
 
   def report_test_results(self, test_results):
     """Logs individual test results in separate steps.
@@ -1122,15 +1125,15 @@ class FuchsiaApi(recipe_api.RecipeApi):
       raise self.m.step.StepFailure(
           'Test summary JSON not found, see kernel log for details')
 
-
     # Log the summary file's contents.
     raw_summary_log = test_results.raw_summary.split('\n')
-    self.m.step.active_result.presentation.logs['summary.json'] = raw_summary_log
+    self.m.step.active_result.presentation.logs[
+        'summary.json'] = raw_summary_log
 
     # Log the contents of each output file mentioned in the summary.
     # Note this assumes the outputs are all plain text.
-    for output_name, output_path in test_results.summary.get(
-        'outputs', {}).iteritems():
+    for output_name, output_path in test_results.summary.get('outputs',
+                                                             {}).iteritems():
       output_str = test_results.outputs[output_path]
       self.m.step.active_result.presentation.logs[output_name] = (
           output_str.split('\n'))
@@ -1255,10 +1258,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # and host_x64/pm in the fuchsia build output directory. These directories
     # contain host tools and files necessary to push packages to Fuchsia.
     host_build_dir = build_results.fuchsia_build_dir.join('host_x64')
-    archive.add(host_build_dir.join('amber-publish'),
-                directory=build_results.fuchsia_build_dir)
-    archive.add(host_build_dir.join('pm'),
-                directory=build_results.fuchsia_build_dir)
+    archive.add(
+        host_build_dir.join('amber-publish'),
+        directory=build_results.fuchsia_build_dir)
+    archive.add(
+        host_build_dir.join('pm'), directory=build_results.fuchsia_build_dir)
 
     # Add the keys used to sign the OTA metadata.
     # TODO(jmatt): This is a near-term solution for shuffling keys around, we'll
@@ -1293,7 +1297,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     # Create the archive.
     archive = self.m.tar.create(
-      self.m.path['cleanup'].join('breakpad_symbols.tar.gz'), compression='gzip')
+        self.m.path['cleanup'].join('breakpad_symbols.tar.gz'),
+        compression='gzip')
 
     # Add the symbol files.
     for sf in symbol_files:
@@ -1317,15 +1322,16 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     # The destination path is based on the buildbucket ID and the basename
     # of the local file.
-    if not self.m.buildbucket.build_id: # pragma: no cover
+    if not self.m.buildbucket.build_id:  # pragma: no cover
       raise self.m.step.StepFailure('buildbucket.build_id is not set')
     basename = self.m.path.basename(path)
     dst = 'builds/%s/%s' % (self.m.buildbucket.build_id, basename)
-    self.m.gsutil.upload(bucket=bucket,
-                         src=path,
-                         dst=dst,
-                         link_name=basename,
-                         name='upload %s' % basename)
+    self.m.gsutil.upload(
+        bucket=bucket,
+        src=path,
+        dst=dst,
+        link_name=basename,
+        name='upload %s' % basename)
 
     # TOOD(IN-550): Stop uploading to hash-based paths once all consumers use
     # buildbucket_id-based paths.
@@ -1343,7 +1349,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
         name='upload %s (hash)' % basename)
     return digest
 
-  def upload_build_artifacts(self, build_results, bucket,
+  def upload_build_artifacts(self,
+                             build_results,
+                             bucket,
                              upload_breakpad_symbols=False):
     """Uploads artifacts from the build to Google Cloud Storage.
 
@@ -1376,7 +1384,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     if upload_breakpad_symbols:
       symbol_files = self._get_breakpad_symbol_files(build_results)
       if symbol_files:
-        archive = self._tar_breakpad_symbols(symbol_files, build_results.fuchsia_build_dir)
+        archive = self._tar_breakpad_symbols(symbol_files,
+                                             build_results.fuchsia_build_dir)
         self._upload_file_to_gcs(archive, bucket)
 
   def _get_breakpad_symbol_files(self, build_results):
@@ -1398,9 +1407,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # values are absolute paths to the generated breakpad symbol files for
     # those binaries.
     binary_to_symbol_file = self.m.json.read(
-      name='read symbol file summary',
-      path=build_results.fuchsia_build_dir.join(
-        'breakpad_symbols', 'symbol_file_mappings.json'),
+        name='read symbol file summary',
+        path=build_results.fuchsia_build_dir.join('breakpad_symbols',
+                                                  'symbol_file_mappings.json'),
     ).json.output
 
-    return list(map(self.m.path.abs_to_path, binary_to_symbol_file.itervalues()))
+    return list(
+        map(self.m.path.abs_to_path, binary_to_symbol_file.itervalues()))
