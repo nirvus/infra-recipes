@@ -505,8 +505,8 @@
       "__aarch64__",
       "--def2",
       "__x86_64__",
-      "[TMP_BASE]/llvm_tmp_1/llvm_arm64_install_dir/include",
-      "[TMP_BASE]/llvm_tmp_1/llvm_x64_install_dir/include"
+      "[TMP_BASE]/llvm_tmp_1/llvm_x86_64_fuchsia_install_dir/include",
+      "[TMP_BASE]/llvm_tmp_1/llvm_aarch64_fuchsia_install_dir/include"
     ],
     "name": "merge headers"
   },

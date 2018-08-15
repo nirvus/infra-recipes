@@ -195,13 +195,17 @@ def RunSteps(api, repository, branch, revision, platform):
               '__aarch64__',
               '--def2',
               '__x86_64__',
-              staging_dir.join('llvm_arm64_install_dir', 'include'),
-              staging_dir.join('llvm_x64_install_dir', 'include'),
+              staging_dir.join('llvm_x86_64_fuchsia_install_dir', 'include'),
+              staging_dir.join('llvm_aarch64_fuchsia_install_dir', 'include'),
           ])
 
+  if platform == 'fuchsia':
+    include_dir = pkg_dir.join('pkg', 'llvm', 'include')
+  else:
+    include_dir = pkg_dir.join('include')
   step_result = api.file.read_text(
       'llvm-config.h',
-      pkg_dir.join('pkg', 'llvm', 'include', 'llvm', 'Config', 'llvm-config.h'),
+      include_dir.join('llvm', 'Config', 'llvm-config.h'),
       test_data='#define LLVM_VERSION_STRING "7.0.0svn"')
   m = re.search(r'LLVM_VERSION_STRING "([0-9.-]+)', step_result)
   assert m, 'Cannot determine LLVM version'
