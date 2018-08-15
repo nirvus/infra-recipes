@@ -148,7 +148,6 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
     )
   assert checkout.root_dir
   assert checkout.snapshot_file
-  assert checkout.snapshot_file_sha1
 
   build = api.fuchsia.build(
       target=target,

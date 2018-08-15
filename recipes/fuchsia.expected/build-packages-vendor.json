@@ -190,38 +190,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "hash jiri.snapshot",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot (hash)",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "ensure_packages"
   },
@@ -574,38 +542,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/fuchsia.tar.gz"
-    ],
-    "infra_step": true,
-    "name": "hash fuchsia.tar.gz",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/fuchsia.tar.gz",
-      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "upload fuchsia.tar.gz (hash)",
-    "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
-    ]
-  },
-  {
-    "cmd": [
       "[START_DIR]/cipd/bsdtar",
       "--create",
       "-f",
@@ -642,38 +578,6 @@
     "name": "upload packages.tar.gz",
     "~followup_annotations": [
       "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/fuchsia-archive/builds/5555555555/packages.tar.gz@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/packages.tar.gz"
-    ],
-    "infra_step": true,
-    "name": "hash packages.tar.gz",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/packages.tar.gz",
-      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "upload packages.tar.gz (hash)",
-    "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {

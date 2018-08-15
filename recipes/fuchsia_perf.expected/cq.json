@@ -203,19 +203,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "hash snapshot",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
       "buildbucket",
       "get",
       "-host",

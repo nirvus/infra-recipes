@@ -5,10 +5,8 @@
 from recipe_engine import recipe_api
 
 import collections
-import hashlib
 import os
 import pipes
-import re
 
 # Host architecture -> number of bits -> host platform name.
 # Add to this dictionary as we support building on more devices.
@@ -61,10 +59,9 @@ VARIANTS_ZIRCON = [
 class FuchsiaCheckoutResults(object):
   """Represents a Fuchsia source checkout."""
 
-  def __init__(self, root_dir, snapshot_file, snapshot_file_sha1):
+  def __init__(self, root_dir, snapshot_file):
     self._root_dir = root_dir
     self._snapshot_file = snapshot_file
-    self._snapshot_file_sha1 = snapshot_file_sha1
 
   @property
   def root_dir(self):
@@ -75,11 +72,6 @@ class FuchsiaCheckoutResults(object):
   def snapshot_file(self):
     """The path to the jiri snapshot file."""
     return self._snapshot_file
-
-  @property
-  def snapshot_file_sha1(self):
-    """The SHA-1 hash of the contents of snapshot_file."""
-    return self._snapshot_file_sha1
 
 
 class FuchsiaBuildResults(object):
@@ -442,19 +434,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     if snapshot_gcs_bucket:
       self.m.gsutil.ensure_gsutil()
-      digest = self._upload_file_to_gcs(snapshot_file, snapshot_gcs_bucket)
-    else:
-      digest = self.m.hash.sha1(
-          'hash snapshot',
-          snapshot_file,
-          test_data='8ac5404b688b34f2d34d1c8a648413aca30b7a97')
+      self._upload_file_to_gcs(snapshot_file, snapshot_gcs_bucket)
 
     # TODO(dbort): Add some or all of the jiri.checkout() params if they
     # become useful.
     return FuchsiaCheckoutResults(
-        root_dir=self.m.path['start_dir'],
-        snapshot_file=snapshot_file,
-        snapshot_file_sha1=digest)
+        root_dir=self.m.path['start_dir'], snapshot_file=snapshot_file)
 
   def _build_zircon(self, target, variants, zircon_args):
     """Builds zircon for the specified target."""
@@ -1468,7 +1453,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       bucket (str): The name of the GCS bucket to upload to.
 
     Returns:
-      The SHA1 hash of the file.
+      The upload step.
     """
     # The destination path is based on the buildbucket ID and the basename
     # of the local file.
@@ -1476,31 +1461,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
       raise self.m.step.StepFailure('buildbucket.build_id is not set')
     basename = self.m.path.basename(path)
     dst = 'builds/%s/%s' % (self.m.buildbucket.build_id, basename)
-    self.m.gsutil.upload(
+    return self.m.gsutil.upload(
         bucket=bucket,
         src=path,
         dst=dst,
         link_name=basename,
         name='upload %s' % basename)
-
-    if hash:
-      # TOOD(IN-550): Stop uploading to hash-based paths once all consumers use
-      # buildbucket_id-based paths.
-      # TODO(dbort): As as step towards that, stop returning 'digest' from this
-      # method.
-      digest = self.m.hash.sha1(
-          'hash %s' % basename,
-          path,
-          test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
-      self.m.gsutil.upload(
-          bucket=bucket,
-          src=path,
-          dst=digest,
-          link_name=basename,
-          name='upload %s (hash)' % basename)
-      return digest
-    else:
-      return None
 
   def upload_build_artifacts(self,
                              build_results,

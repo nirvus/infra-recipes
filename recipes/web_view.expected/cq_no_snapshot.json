@@ -211,7 +211,7 @@
       "[CLEANUP]/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "hash snapshot",
+    "name": "hash jiri.snapshot",
     "stdout": "/path/to/tmp/"
   },
   {

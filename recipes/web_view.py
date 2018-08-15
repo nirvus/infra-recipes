@@ -10,6 +10,7 @@ DEPS = [
     'infra/fuchsia',
     'infra/gitiles',
     'infra/gsutil',
+    'infra/hash',
     'infra/jiri',
     'recipe_engine/buildbucket',
     'recipe_engine/context',
@@ -43,6 +44,15 @@ def RunSteps(api, snapshot_gcs_bucket):
       build_input=build_input,
       snapshot_gcs_bucket=snapshot_gcs_bucket,
   )
+  # For historical reasons, webview prebuilts use a hash of the snapshot file
+  # as a GCS path component: this ensured that the binaries are versioned by
+  # the code used to build them, even before all manifest entries were pinned.
+  # Now that all manifest entries are pinned, this could be replaced with a
+  # git-revision-based path like ffmpeg.py uses.
+  snapshot_file_sha1 = api.hash.sha1(
+      'hash jiri.snapshot',
+      checkout.snapshot_file,
+      test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
 
   # Build for all targets before uploading any to avoid an incomplete upload.
   builds = {}  # keyed by target string
@@ -82,7 +92,7 @@ def RunSteps(api, snapshot_gcs_bucket):
           bucket='fuchsia',
           src=build_dir.join('%s-shared' % target, 'libwebkit.so'),
           dst=api.gsutil.join(bucket_root, 'webkit', revision,
-                              checkout.snapshot_file_sha1, 'libwebkit.so'),
+                              snapshot_file_sha1, 'libwebkit.so'),
           link_name='libwebkit.so',
           unauthenticated_url=True,
           name='upload libwebkit.so',
