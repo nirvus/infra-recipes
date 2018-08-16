@@ -184,7 +184,7 @@
       "gs://fuchsia-snapshots/builds/5555555555/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "upload jiri.snapshot",
+    "name": "upload jiri.snapshot to fuchsia-snapshots",
     "~followup_annotations": [
       "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/builds/5555555555/jiri.snapshot@@@"
     ]

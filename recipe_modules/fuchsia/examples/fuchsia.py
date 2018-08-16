@@ -149,7 +149,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
         remote=remote,
         project=project,
         build_input=build_input,
-        snapshot_gcs_bucket=snapshot_gcs_bucket,
+        snapshot_gcs_buckets=[snapshot_gcs_bucket],
     )
   assert checkout.root_dir
   assert checkout.snapshot_file

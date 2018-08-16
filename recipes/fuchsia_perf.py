@@ -150,7 +150,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       remote=remote,
       project=project,
       build_input=api.buildbucket.build.input,
-      snapshot_gcs_bucket=snapshot_gcs_bucket,
+      snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
 
   execution_timestamp_ms = api.time.ms_since_epoch()

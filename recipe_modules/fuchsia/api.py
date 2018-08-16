@@ -223,7 +223,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
                patch_ref=None,
                patch_gerrit_url=None,
                patch_project=None,
-               snapshot_gcs_bucket=None,
+               snapshot_gcs_buckets=(),
                timeout_secs=20 * 60):
     """Uses Jiri to check out a Fuchsia project.
 
@@ -240,7 +240,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       patch_ref (str): A reference ID to the patch in Gerrit to apply
       patch_gerrit_url (str): A URL of the patch in Gerrit to apply
       patch_project (str): The name of Gerrit project
-      snapshot_gcs_bucket (str): The GCS bucket to upload a Jiri snapshot to
+      snapshot_gcs_buckets (seq of str): The GCS buckets to upload the Jiri
+          snapshot to. None/empty elements are ignored.
       timeout_secs (int): How long to wait for the checkout to complete
           before failing
 
@@ -263,7 +264,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
       self.m.jiri.snapshot(snapshot_file)
-      return self._finalize_checkout(snapshot_file, snapshot_gcs_bucket)
+      return self._finalize_checkout(
+          snapshot_file=snapshot_file,
+          snapshot_gcs_buckets=snapshot_gcs_buckets)
 
   def checkout_snapshot(self,
                         repository=None,
@@ -417,14 +420,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
         # method, unlike checkout(). This is because the purpose of the
         # patch_* arguments is to patch the snapshot itself (e.g. to CQ a
         # snapshot update).
-        snapshot_gcs_bucket=None,
+        snapshot_gcs_buckets=(),
     )
 
-  def _finalize_checkout(self, snapshot_file, snapshot_gcs_bucket):
+  def _finalize_checkout(self, snapshot_file, snapshot_gcs_buckets):
     """Finalizes a Fuchsia checkout.
 
     Constructs a FuchsiaCheckoutResults to return and optionally uploads the
-    Jiri snapshot of the Fuchsia checkout to a given GCS bucket.
+    Jiri snapshot of the Fuchsia checkout to the given GCS buckets.
     """
     snapshot_contents = self.m.file.read_text('read snapshot', snapshot_file)
     # Always log snapshot contents (even if uploading to GCS) to help debug
@@ -432,9 +435,15 @@ class FuchsiaApi(recipe_api.RecipeApi):
     snapshot_step_logs = self.m.step.active_result.presentation.logs
     snapshot_step_logs['snapshot_contents'] = snapshot_contents.split('\n')
 
-    if snapshot_gcs_bucket:
+    # Upload the snapshot to all specified GCS buckets.
+    # Don't accidentally iterate over each character in a string.
+    assert not isinstance(snapshot_gcs_buckets, basestring)
+    # Ignore None/empty elements.
+    snapshot_gcs_buckets = [b for b in snapshot_gcs_buckets if b]
+    if snapshot_gcs_buckets:
       self.m.gsutil.ensure_gsutil()
-      self._upload_file_to_gcs(snapshot_file, snapshot_gcs_bucket)
+      for bucket in snapshot_gcs_buckets:
+        self._upload_file_to_gcs(snapshot_file, bucket)
 
     # TODO(dbort): Add some or all of the jiri.checkout() params if they
     # become useful.
@@ -1613,7 +1622,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         src=path,
         dst=dst,
         link_name=basename,
-        name='upload %s' % basename)
+        name='upload %s to %s' % (basename, bucket))
 
   def upload_build_artifacts(self,
                              build_results,

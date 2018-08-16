@@ -483,7 +483,7 @@
       "gs://fuchsia-archive/builds/5555555555/fuchsia.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload fuchsia.tar.gz",
+    "name": "upload fuchsia.tar.gz to fuchsia-archive",
     "~followup_annotations": [
       "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/builds/5555555555/fuchsia.tar.gz@@@"
     ]
@@ -523,7 +523,7 @@
       "gs://fuchsia-archive/builds/5555555555/packages.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload packages.tar.gz",
+    "name": "upload packages.tar.gz to fuchsia-archive",
     "~followup_annotations": [
       "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/fuchsia-archive/builds/5555555555/packages.tar.gz@@@"
     ]

@@ -184,7 +184,7 @@
       "gs://fuchsia-snapshots/builds/5555555555/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "upload jiri.snapshot",
+    "name": "upload jiri.snapshot to fuchsia-snapshots",
     "~followup_annotations": [
       "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/builds/5555555555/jiri.snapshot@@@"
     ]
@@ -830,7 +830,7 @@
       "gs://###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload fuchsia.tar.gz",
+    "name": "upload fuchsia.tar.gz to ###fake-artifact-bucket###",
     "~followup_annotations": [
       "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz@@@"
     ]
@@ -870,7 +870,7 @@
       "gs://###fake-artifact-bucket###/builds/5555555555/packages.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload packages.tar.gz",
+    "name": "upload packages.tar.gz to ###fake-artifact-bucket###",
     "~followup_annotations": [
       "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/packages.tar.gz@@@"
     ]

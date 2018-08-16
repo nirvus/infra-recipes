@@ -184,7 +184,7 @@
       "gs://fuchsia-snapshots/builds/5555555555/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "upload jiri.snapshot",
+    "name": "upload jiri.snapshot to fuchsia-snapshots",
     "~followup_annotations": [
       "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/builds/5555555555/jiri.snapshot@@@"
     ]
@@ -417,7 +417,7 @@
       "gs://###fake-bucket###/builds/5555555555/gn_trace.html"
     ],
     "infra_step": true,
-    "name": "build.upload gn_trace.html",
+    "name": "build.upload gn_trace.html to ###fake-bucket###",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@gn_trace.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/gn_trace.html@@@"
@@ -437,7 +437,7 @@
       "gs://###fake-bucket###/builds/5555555555/ninja_trace.html"
     ],
     "infra_step": true,
-    "name": "build.upload ninja_trace.html",
+    "name": "build.upload ninja_trace.html to ###fake-bucket###",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@ninja_trace.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/ninja_trace.html@@@"
@@ -768,7 +768,7 @@
       "gs://###fake-bucket###/builds/5555555555/bloaty.html"
     ],
     "infra_step": true,
-    "name": "upload bloaty.html",
+    "name": "upload bloaty.html to ###fake-bucket###",
     "~followup_annotations": [
       "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/bloaty.html@@@"
     ]
@@ -1030,7 +1030,7 @@
       "gs://###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload fuchsia.tar.gz",
+    "name": "upload fuchsia.tar.gz to ###fake-artifact-bucket###",
     "~followup_annotations": [
       "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz@@@"
     ]
@@ -1070,7 +1070,7 @@
       "gs://###fake-artifact-bucket###/builds/5555555555/packages.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload packages.tar.gz",
+    "name": "upload packages.tar.gz to ###fake-artifact-bucket###",
     "~followup_annotations": [
       "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/packages.tar.gz@@@"
     ]

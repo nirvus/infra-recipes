@@ -204,12 +204,18 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
   else:
     assert manifest
     assert remote
+    # If we're uploading a snapshot, also upload it to the archive bucket.
+    # People downloading a build's artifacts may want to see the corresponding
+    # snapshot.
+    buckets = ()
+    if snapshot_gcs_bucket:
+        buckets = (snapshot_gcs_bucket, archive_gcs_bucket)
     api.fuchsia.checkout(
         manifest=manifest,
         remote=remote,
         project=project,
         build_input=build_input,
-        snapshot_gcs_bucket=snapshot_gcs_bucket,
+        snapshot_gcs_buckets=buckets,
     )
 
   with api.step.nest('ensure_packages'):

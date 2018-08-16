@@ -42,7 +42,7 @@ def RunSteps(api, snapshot_gcs_bucket):
       manifest='webkit',
       remote='https://fuchsia.googlesource.com/third_party/webkit',
       build_input=build_input,
-      snapshot_gcs_bucket=snapshot_gcs_bucket,
+      snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
   # For historical reasons, webview prebuilts use a hash of the snapshot file
   # as a GCS path component: this ensured that the binaries are versioned by

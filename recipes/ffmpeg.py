@@ -48,7 +48,7 @@ def RunSteps(api, project, snapshot_gcs_bucket):
       remote='https://fuchsia.googlesource.com/third_party/ffmpeg',
       project=project,
       build_input=build_input,
-      snapshot_gcs_bucket=snapshot_gcs_bucket,
+      snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
 
   # Build and archive for all targets before uploading any to avoid an
