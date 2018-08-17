@@ -173,6 +173,31 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/boot/bin/sh\nblktest -d /dev/sys/pci/00:17.0/ahci/sata2/block\n\nBLKTEST_EXIT_CODE=\"$?\"\nif [ \"$BLKTEST_EXIT_CODE\" -ne 0 ]; then\n  echo \"lsblk output:\"\n  lsblk\n  exit \"$BLKTEST_EXIT_CODE\"\nfi",
+      "[CLEANUP]/zircon_tmp/blktest.sh"
+    ],
+    "infra_step": true,
+    "name": "write blktest_sh",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@blktest.sh@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@blktest -d /dev/sys/pci/00:17.0/ahci/sata2/block@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@BLKTEST_EXIT_CODE=\"$?\"@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@if [ \"$BLKTEST_EXIT_CODE\" -ne 0 ]; then@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@  echo \"lsblk output:\"@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@  lsblk@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@  exit \"$BLKTEST_EXIT_CODE\"@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@fi@@@",
+      "@@@STEP_LOG_END@blktest.sh@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "build"
   },
@@ -209,7 +234,7 @@
       "20",
       "HOST_USE_ASAN=true",
       "BUILDROOT=[START_DIR]/zircon",
-      "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"
+      "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds test/fs/blktest.sh=[CLEANUP]/zircon_tmp/blktest.sh"
     ],
     "cwd": "[START_DIR]/zircon",
     "name": "build.build",

@@ -90,6 +90,14 @@ ZIRCON_QEMU_SUCCESS_CODE = 31
 # This string matches the one in //zircon/system/utest/core/main.c.
 CORE_TESTS_SUCCESS_STR = 'core-tests succeeded RZMm59f7zOSs6aZUIXZR'
 
+# Key is device_type recipe property.
+# Val is a block device path for use by blktest and other destructive local
+# storage tests. 'Scratch' here means it can be destroyed by the tests.
+# Destructive local storage tests will run on a given device type iff that
+# device type is present in this dict.
+DEVICE_TYPE_TO_SCRATCH_BLOCK_DEVICE_PATH = {
+    'Intel NUC Kit NUC6i3SYK': '/dev/sys/pci/00:17.0/ahci/sata2/block'}
+
 PROPERTIES = {
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
   'patch_project': Property(kind=str, help='Gerrit project', default=None),
@@ -558,7 +566,8 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   ))
 
 
-def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
+def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev,
+          device_type):
   """Builds zircon and returns a path to the build output directory."""
   # Generate runcmds script to drive tests.
   tmp_dir = api.path['cleanup'].join('zircon_tmp')
@@ -599,6 +608,33 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
   api.file.write_text('write runcmds', runcmds_path, '\n'.join(runcmds))
   api.step.active_result.presentation.logs['runcmds.sh'] = runcmds
 
+  # The bootfs manifest is a list of mappings between bootfs paths and local
+  # file paths. The syntax is roughly:
+  # install/path/under/boot=path/to/file/or/dir.
+  extra_user_manifest_lines = ['%s=%s' % (RUNCMDS_BOOTFS_PATH, runcmds_path)]
+
+  # Unfortuantely there's currently no way for the test to discover the block
+  # device to use on its own, so we have to construct this script here, once we
+  # know what device type we're using. See IN-459 for discussion.
+  block_device_path = DEVICE_TYPE_TO_SCRATCH_BLOCK_DEVICE_PATH.get(device_type)
+  if block_device_path:
+    blktest_sh = ['#!/boot/bin/sh',
+                  'blktest -d %s\n' % block_device_path,
+                  'BLKTEST_EXIT_CODE="$?"',
+                  'if [ "$BLKTEST_EXIT_CODE" -ne 0 ]; then',
+                  # lsblk output may be useful to debug.
+                  '  echo "lsblk output:"',
+                  '  lsblk',
+                  '  exit "$BLKTEST_EXIT_CODE"',
+                  'fi']
+    blktest_sh_path = tmp_dir.join('blktest.sh')
+    api.file.write_text(
+        'write blktest_sh', blktest_sh_path, '\n'.join(blktest_sh))
+    api.step.active_result.presentation.logs['blktest.sh'] = blktest_sh
+    # Put it under test/fs/ so that runtests finds it. See kDefaultTestDirs in
+    # runtests.
+    extra_user_manifest_lines.append('test/fs/blktest.sh=%s' % blktest_sh_path)
+
   with api.step.nest('build'):
     # Set up toolchain and build args.
     tc_args, tc_suffix = TOOLCHAINS[toolchain]
@@ -617,14 +653,8 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev):
       build_args.append('THINLTO_CACHE_DIR=' +
                         str(api.path['cache'].join('thinlto')))
 
-    # Declares a runcmds as a dependency for the build image, so it will get
-    # copied into the image at RUNCMDS_BOOTFS_PATH.
-    #
-    # The bootfs manifest is a list of mappings between bootfs paths and local
-    # file paths. The syntax is roughly:
-    # install/path/under/boot=path/to/file/or/dir.
-    build_args.append('EXTRA_USER_MANIFEST_LINES=%s=%s' %
-                      (RUNCMDS_BOOTFS_PATH, runcmds_path))
+    build_args.append('EXTRA_USER_MANIFEST_LINES=%s' %
+                      ' '.join(extra_user_manifest_lines))
 
     # Build zircon.
     with api.goma.build_with_goma(), api.context(cwd=src_dir):
@@ -662,6 +692,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
           runtests_args,
       ),
       needs_blkdev=(device_type == 'QEMU'),
+      device_type=device_type,
   )
 
   if run_tests:
