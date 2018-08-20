@@ -13,6 +13,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
            clear_default_steps=False,
            tryjob=False,
            expect_failure=False,
+           build_metrics_gcs_bucket=None,
            properties=None,
            steps=()):  # pragma: no cover
     """Returns a test case appropriate for yielding from GenTests().
@@ -83,6 +84,11 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
               gerrit_project=gerrit_project,
               tryjob=True,
           ))
+
+    if build_metrics_gcs_bucket:
+      final_properties['$infra/fuchsia'] = {
+          'build_metrics_gcs_bucket': build_metrics_gcs_bucket,
+      }
 
     # Provided properties override the defaults.
     final_properties.update(properties)

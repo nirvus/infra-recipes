@@ -248,8 +248,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       return matches
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, fuchsia_properties, *args, **kwargs):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
+    self._build_metrics_gcs_bucket = fuchsia_properties.get('build_metrics_gcs_bucket')
 
   def checkout(self,
                manifest,
@@ -535,13 +536,19 @@ class FuchsiaApi(recipe_api.RecipeApi):
         args.append(
             'select_variant=[%s]' % ','.join(['"%s"' % v for v in variants]))
 
-      self.m.step('gn gen', [
+      gen_cmd = [
           self.m.path['start_dir'].join('buildtools', 'gn'),
           'gen',
           build.fuchsia_build_dir,
           '--check',
           '--args=%s' % ' '.join(args + list(gn_args)),
-      ])
+      ]
+
+      # Collect gn tracing data if specified.
+      if self._build_metrics_gcs_bucket:
+          gen_cmd.append('--tracelog=' + str(self.m.path['cleanup'].join('gn_trace.json')))
+
+      self.m.step('gn gen', gen_cmd)
 
       self.m.step('ninja', [
           self.m.path['start_dir'].join('buildtools', 'ninja'),
@@ -550,6 +557,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
           '-j',
           self.m.goma.jobs,
       ] + list(ninja_targets))
+
+    self._tracing_data(build)
 
   def build(self,
             target,
@@ -1414,3 +1423,68 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     return list(
         map(self.m.path.abs_to_path, binary_to_symbol_file.itervalues()))
+
+  def _tracing_data(self, build_results):
+    """Uploads GN and ninja tracing results for this build to GCS"""
+    # Only upload if the bucket is specified.
+    if self._build_metrics_gcs_bucket:
+        self.m.gsutil.ensure_gsutil()
+
+        gn_data = self._extract_gn_tracing_data(build_results)
+        ninja_data = self._extract_ninja_tracing_data(build_results)
+        self._upload_file_to_gcs(gn_data, self._build_metrics_gcs_bucket)
+        self._upload_file_to_gcs(ninja_data, self._build_metrics_gcs_bucket)
+
+  def _extract_gn_tracing_data(self, build_results):
+    """Extracts the tracing data from this GN run.
+
+    Args:
+      build_results (FuchsiaBuildResults): The build results.
+
+    Returns:
+      A Path to the file containing the gn tracing data in Chromium's
+      about:tracing html format.
+    """
+    return self._trace2html(
+        self.m.path['cleanup'].join('gn_trace.json'),
+        self.m.path['cleanup'].join('gn_trace.html'))
+
+  def _extract_ninja_tracing_data(self, build_results):
+    """Extracts the tracing data from the .ninja_log.
+
+    Args:
+      build_results (FuchsiaBuildResults): The build results.
+
+    Returns:
+      A Path to the file containing the gn tracing data in Chromium's
+      about:tracing html format.
+    """
+    with self.m.context(infra_steps=True):
+      cipd_dir = self.m.path['start_dir'].join('cipd')
+      pkgs = self.m.cipd.EnsureFile()
+      pkgs.add_package('fuchsia/tools/ninjatrace/${platform}', 'latest')
+      self.m.cipd.ensure(cipd_dir, pkgs)
+
+    trace = self.m.path['cleanup'].join('ninja_trace.json')
+    html = self.m.path['cleanup'].join('ninja_trace.html')
+    self.m.step(
+        'ninja tracing', [
+            self.m.path['start_dir'].join('cipd').join('ninjatrace'),
+            '-filename', build_results.fuchsia_build_dir.join('.ninja_log'),
+            '-trace-json', trace,
+        ],
+        stdout=self.m.raw_io.output(leak_to=trace))
+    return self._trace2html(trace, html)
+
+  def _trace2html(self, trace, html):
+    """Converts an about:tracing file to HTML using the trace2html tool"""
+
+    # Catapult is imported in manifest/garnet, so we abort if it wasn't included
+    # in this checkout.
+    # if self.m.path['third_party'].join('catapult') not in self.m.path:
+    #     return
+    self.m.python(
+        name='trace2html',
+        script=self.m.path['start_dir'].join('third_party', 'catapult', 'tracing', 'bin', 'trace2html'),
+        args=['--output', html, trace])
+    return html

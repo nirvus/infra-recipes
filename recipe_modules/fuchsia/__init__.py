@@ -1,5 +1,4 @@
 DEPS = [
-    'infra/cipd',
     'infra/gerrit',
     'infra/git',
     'infra/goma',
@@ -11,6 +10,7 @@ DEPS = [
     'infra/qemu',
     'infra/swarming',
     'infra/tar',
+    'recipe_engine/cipd',
     'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/json',
@@ -18,12 +18,14 @@ DEPS = [
     'recipe_engine/path',
     'recipe_engine/platform',
     'recipe_engine/properties',
+    'recipe_engine/python',
     'recipe_engine/raw_io',
     'recipe_engine/source_manifest',
     'recipe_engine/step',
 ]
 
 from recipe_engine.recipe_api import Property
+from recipe_engine.config import ConfigGroup, Single
 
 PROPERTIES = {
     'goma_dir':
@@ -33,4 +35,12 @@ PROPERTIES = {
             kind=bool,
             help='Whether to use a local cache for goma',
             default=False),
+    '$infra/fuchsia': Property(
+        help='Properties specifically for the fuchsia module',
+        param_name='fuchsia_properties',
+        kind=ConfigGroup(
+          # Whether to upload tracing data from this build.
+          build_metrics_gcs_bucket=Single(str),
+        ), default={},
+      ),
 }
