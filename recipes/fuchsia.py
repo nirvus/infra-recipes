@@ -17,11 +17,13 @@ BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'HiKey 960']
 
 DEPS = [
+    'infra/cipd',
     'infra/fuchsia',
     'infra/gsutil',
     'infra/hash',
     'infra/jiri',
     'infra/tar',
+    'recipe_engine/context',
     'recipe_engine/file',
     'recipe_engine/path',
     'recipe_engine/properties',
@@ -201,24 +203,42 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
     )
 
   if project:
+    with api.step.nest('ensure_packages'):
+      with api.context(infra_steps=True):
+        json_validator_dir = api.path['start_dir'].join('tools', 'json_validator')
+        api.cipd.ensure(json_validator_dir, {
+          'fuchsia/tools/json_validator/${platform}': 'latest',
+        })
+
+    validator = json_validator_dir.join('json_validator')
+
     if project.startswith('vendor/'):
       vendor = project[len('vendor/'):]
-      args = [
+      layer_args = [
           '--vendor-layer',
           vendor,
           '--namespaces',
           vendor,
       ]
     else:
-      args = [
+      layer_args = [
           '--layer',
           project,
       ]
+
     api.python(
         'verify FIDL namespaces',
         api.path['start_dir'].join('scripts', 'style',
                                    'verify-fidl-libraries.py'),
-        args=args)
+        args=layer_args)
+
+    api.python(
+        'verify build packages',
+        api.path['start_dir'].join('scripts', 'packages', 'verify_layer.py'),
+        args=layer_args + [
+            '--json-validator',
+            validator,
+        ])
 
   test_cmds = None
   if run_tests:
@@ -228,16 +248,6 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
             runtests_args,
         )
     ]
-
-  # TODO(INTK-292): Delete the following block once json_validator is a
-  # prebuilt.
-  if project:
-    # Add the tool required to validate build packages.
-    packages.append('build/packages/json_validator')
-    if len(ninja_targets) > 0:
-      # If ninja targets are specified, only those targets will be built; in
-      # that case, ensure that json_validator is also built.
-      ninja_targets.append('tools/json_validator')
 
   build = api.fuchsia.build(
       target=target,
@@ -249,25 +259,6 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
       test_cmds=test_cmds,
       test_device_type=device_type,
   )
-  if project:
-    validator = build.fuchsia_build_dir.join('tools', 'json_validator')
-    if project.startswith('vendor/'):
-      layer_args = [
-          '--vendor-layer',
-          project[len('vendor/'):],
-      ]
-    else:
-      layer_args = [
-          '--layer',
-          project,
-      ]
-    api.python(
-        'verify build packages',
-        api.path['start_dir'].join('scripts', 'packages', 'verify_layer.py'),
-        args=layer_args + [
-            '--json-validator',
-            validator,
-        ])
 
   if run_tests:
     test_results = api.fuchsia.test(
