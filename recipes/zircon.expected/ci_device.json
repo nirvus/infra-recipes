@@ -385,7 +385,9 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/zircon/build-x64:zircon.zbi"
+      "[START_DIR]/zircon/build-x64:zircon.bin",
+      "-files",
+      "[START_DIR]/zircon/build-x64:bootdata.bin"
     ],
     "name": "archive"
   },
@@ -421,7 +423,9 @@
       "--",
       "./botanist/botanist",
       "-kernel",
-      "zircon.zbi",
+      "zircon.bin",
+      "-ramdisk",
+      "bootdata.bin",
       "-test",
       "/tmp/infra-test-output",
       "-out",

@@ -40,16 +40,12 @@ TARGET_TO_ARCH = dict(zip(
     TARGETS,
     ['x86_64', 'aarch64'],
 ))
+# The kernel image.
+TARGET_TO_KERNEL_IMAGE = dict(zip(
+    TARGETS,
+    ['zircon.bin', 'qemu-zircon.bin'],
+))
 ARCHS = ('x86_64', 'aarch64')
-
-# The QEMU trampoline kernel image.
-TARGET_TO_QEMU_KERNEL = {
-    'arm64': 'qemu-boot-shim.bin',
-    'x64': 'multiboot.bin',
-}
-
-# The ZBI to boot.
-BOOTIMAGE_NAME = 'zircon.zbi'
 
 # Supported device types for testing.
 DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'HiKey 960']
@@ -183,10 +179,13 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     build_dir (Path): Path to the build directory.
     device_type (Enum(*DEVICES)): The type of device to run tests on.
   """
+  kernel_name = TARGET_TO_KERNEL_IMAGE[target]
+  ramdisk_name = 'bootdata.bin'
   output_archive_name = 'out.tar'
   botanist_cmd = [
     './botanist/botanist',
-    '-kernel', BOOTIMAGE_NAME,
+    '-kernel', kernel_name,
+    '-ramdisk', ramdisk_name,
     '-test', api.fuchsia.results_dir_on_target,
     '-out', output_archive_name,
     'zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH,
@@ -194,7 +193,8 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
 
   # Isolate all necessary build artifacts.
   isolated = api.isolated.isolated()
-  isolated.add_file(build_dir.join(BOOTIMAGE_NAME), wd=build_dir)
+  isolated.add_file(build_dir.join(kernel_name), wd=build_dir)
+  isolated.add_file(build_dir.join(ramdisk_name), wd=build_dir)
   digest = isolated.archive('isolate zircon artifacts')
 
   with api.context(infra_steps=True):
@@ -341,9 +341,8 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
 
   # Isolate all necessary build artifacts as well as the MinFS image.
   isolated = api.isolated.isolated()
-  isolated.add_file(build_dir.join(BOOTIMAGE_NAME), wd=build_dir)
-  isolated.add_file(build_dir.join(TARGET_TO_QEMU_KERNEL[target]),
-                    wd=build_dir)
+  isolated.add_file(build_dir.join(TARGET_TO_KERNEL_IMAGE[target]), wd=build_dir)
+  isolated.add_file(build_dir.join('bootdata.bin'), wd=build_dir)
   isolated.add_file(test_image, wd=api.path['start_dir'])
   isolated.add_file(qemu_runner_core, wd=api.path['start_dir'])
   isolated.add_file(qemu_runner, wd=api.path['start_dir'])
@@ -404,10 +403,10 @@ def GenerateQEMUCommand(target, cmdline, use_kvm, blkdev=''):
     '-m', '4096',
     '-smp', '4',
     '-nographic',
-    '-kernel', TARGET_TO_QEMU_KERNEL[target],
+    '-kernel', TARGET_TO_KERNEL_IMAGE[target],
     '-serial', 'stdio',
     '-monitor', 'none',
-    '-initrd', BOOTIMAGE_NAME,
+    '-initrd', 'bootdata.bin',
     '-append', ' '.join(['TERM=dumb', 'kernel.halt-on-panic=true'] +
                         TARGET_CMDLINE[target] + cmdline),
   ]
