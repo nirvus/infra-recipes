@@ -36,7 +36,8 @@ class ZbiApi(recipe_api.RecipeApi):
           output_image (Path): The path to the output image.
           manifest (dict[str]Path): a dictionary of destination-to-source
             mappings, where destination/source are paths to files or
-            directories on target/host, respectively.
+            directories on target/host, respectively. Note that sources cannot
+            be placeholders.
 
         Returns:
           A step to perform the operation.
@@ -51,7 +52,6 @@ class ZbiApi(recipe_api.RecipeApi):
         ]
 
         for dest in manifest:
-          src = manifest[dest]
-          cmd.extend(['-e', dest, src])
+          cmd.extend(['-e',"%s=%s" % (dest, manifest[dest])])
 
         return self.m.step(step_name, cmd)
