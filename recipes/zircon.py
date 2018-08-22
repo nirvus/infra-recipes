@@ -566,6 +566,36 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   ))
 
 
+def _BlockDeviceTestExtraUserManifestLines(api, tmp_dir, block_device_path):
+  extra_user_manifest_lines = []
+  # Tuple of (test name, command).
+  commands = [
+      ('blktest', 'blktest -d %s' % block_device_path),
+      ('fs-test-minfs',
+          '/boot/test/fs/fs-test -f minfs -d %s' % block_device_path)]
+  for name, command in commands:
+    test_sh = ['#!/boot/bin/sh',
+               command,
+               'TEST_EXIT_CODE="$?"',
+               'if [ "$TEST_EXIT_CODE" -ne 0 ]; then',
+               # lsblk output may be useful to debug.
+               '  echo "lsblk output:"',
+               '  lsblk',
+               '  exit "$TEST_EXIT_CODE"',
+               'fi']
+    test_sh_basename = '%s.sh' % name
+    test_sh_path = tmp_dir.join(test_sh_basename)
+    api.file.write_text(
+        'write %s_sh' % name, test_sh_path, '\n'.join(test_sh))
+    api.step.active_result.presentation.logs[test_sh_basename] = test_sh
+    # Put it under test/fs/ so that runtests finds it. See kDefaultTestDirs in
+    # runtests.
+    extra_user_manifest_lines.append(
+        'test/fs/%s=%s' % (test_sh_basename, test_sh_path))
+
+  return extra_user_manifest_lines
+
+
 def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev,
           device_type):
   """Builds zircon and returns a path to the build output directory."""
@@ -618,22 +648,8 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev,
   # know what device type we're using. See IN-459 for discussion.
   block_device_path = DEVICE_TYPE_TO_SCRATCH_BLOCK_DEVICE_PATH.get(device_type)
   if block_device_path:
-    blktest_sh = ['#!/boot/bin/sh',
-                  'blktest -d %s\n' % block_device_path,
-                  'BLKTEST_EXIT_CODE="$?"',
-                  'if [ "$BLKTEST_EXIT_CODE" -ne 0 ]; then',
-                  # lsblk output may be useful to debug.
-                  '  echo "lsblk output:"',
-                  '  lsblk',
-                  '  exit "$BLKTEST_EXIT_CODE"',
-                  'fi']
-    blktest_sh_path = tmp_dir.join('blktest.sh')
-    api.file.write_text(
-        'write blktest_sh', blktest_sh_path, '\n'.join(blktest_sh))
-    api.step.active_result.presentation.logs['blktest.sh'] = blktest_sh
-    # Put it under test/fs/ so that runtests finds it. See kDefaultTestDirs in
-    # runtests.
-    extra_user_manifest_lines.append('test/fs/blktest.sh=%s' % blktest_sh_path)
+    extra_user_manifest_lines.extend(
+        _BlockDeviceTestExtraUserManifestLines(api, tmp_dir, block_device_path))
 
   with api.step.nest('build'):
     # Set up toolchain and build args.

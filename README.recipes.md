@@ -1687,7 +1687,7 @@ Recipe for building libwebkit.so.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#569)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
+&mdash; **def [Build](/recipes/zircon.py#599)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
 
 Builds zircon and returns a path to the build output directory.
 
@@ -1720,7 +1720,7 @@ Returns:
   A list[str] representing QEMU command which invokes QEMU from the default
   CIPD installation directory.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#667)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#683)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
 
 &mdash; **def [RunTestsInQEMU](/recipes/zircon.py#252)(api, target, build_dir, use_kvm):**
 
