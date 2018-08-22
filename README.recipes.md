@@ -1567,15 +1567,15 @@ Args:
 
 Recipe for building QEMU.
 
-&mdash; **def [RunSteps](/recipes/qemu.py#282)(api, repository, branch, revision, platform):**
+&mdash; **def [RunSteps](/recipes/qemu.py#304)(api, repository, branch, revision, platform):**
 
-&mdash; **def [build\_glib](/recipes/qemu.py#187)(api, cipd_dir, pkg_dir, platform):**
+&mdash; **def [build\_glib](/recipes/qemu.py#189)(api, cipd_dir, pkg_dir, platform):**
 
 &mdash; **def [build\_pixman](/recipes/qemu.py#151)(api, cipd_dir, pkg_dir, platform):**
 
-&mdash; **def [build\_qemu](/recipes/qemu.py#213)(api, cipd_dir, pkg_dir, platform):**
+&mdash; **def [build\_qemu](/recipes/qemu.py#215)(api, cipd_dir, pkg_dir, platform):**
 
-&mdash; **def [build\_sdl](/recipes/qemu.py#168)(api, cipd_dir, pkg_dir, platform, env={}):**
+&mdash; **def [build\_sdl](/recipes/qemu.py#170)(api, cipd_dir, pkg_dir, platform, env={}):**
 
 &mdash; **def [cmake](/recipes/qemu.py#87)(api, cipd_dir, src_dir, platform, options=[], step_name='cmake'):**
 

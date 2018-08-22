@@ -298,6 +298,21 @@
   },
   {
     "cmd": [
+      "[TMP_BASE]/pixman_src_tmp_1/autogen.sh"
+    ],
+    "cwd": "[TMP_BASE]/pixman_src_tmp_1",
+    "env": {
+      "NOCONFIGURE": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "pixman.autogen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
       "xcrun",
       "--show-sdk-path"
     ],

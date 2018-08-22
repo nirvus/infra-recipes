@@ -154,6 +154,8 @@ def build_pixman(api, cipd_dir, pkg_dir, platform):
                    src_dir, ref='refs/tags/pixman-0.34.0', submodules=False)
   build_dir = api.path.mkdtemp('pixman_build')
 
+  with api.context(cwd=src_dir, env={'NOCONFIGURE': '1'}):
+    api.step('autogen', [src_dir.join('autogen.sh')])
   with api.context(cwd=build_dir):
     configure(api, cipd_dir, src_dir, platform, [
       '--prefix=',
