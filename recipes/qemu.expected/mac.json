@@ -640,7 +640,7 @@
       "remote",
       "add",
       "origin",
-      "https://github.googlesource.com/GNOME/glib"
+      "https://fuchsia.googlesource.com/third_party/glib"
     ],
     "cwd": "[TMP_BASE]/glib_src_tmp_5",
     "env": {

@@ -205,7 +205,7 @@ def build_sdl(api, cipd_dir, pkg_dir, platform, env={}):
 
 def build_glib(api, cipd_dir, pkg_dir, platform):
   src_dir = api.path.mkdtemp('glib_src')
-  api.git.checkout('https://github.googlesource.com/GNOME/glib',
+  api.git.checkout('https://fuchsia.googlesource.com/third_party/glib',
                    src_dir, ref='refs/tags/2.57.2', submodules=False)
   build_dir = api.path.mkdtemp('glib_build')
 
