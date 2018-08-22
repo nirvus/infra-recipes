@@ -148,6 +148,23 @@ def upload_package(api, pkg_name, pkg_dir, repository, revision):
   )
 
 
+def build_zlib(api, cipd_dir, pkg_dir, platform):
+  src_dir = api.path.mkdtemp('zlib_src')
+  api.git.checkout('https://fuchsia.googlesource.com/third_party/zlib',
+                   src_dir, 'v1.2.11', submodules=False)
+  build_dir = api.path.mkdtemp('zlib_build')
+
+  with api.context(cwd=build_dir):
+    cmake(api, cipd_dir, src_dir, platform, [
+      '-DCMAKE_INSTALL_PREFIX=',
+      '-DCMAKE_BUILD_TYPE=Release',
+      '-DBUILD_SHARED_LIBS=OFF',
+    ])
+    api.step('build', [cipd_dir.join('ninja')])
+    with api.context(env={'DESTDIR': pkg_dir}):
+      api.step('install', [cipd_dir.join('ninja'), 'install'])
+
+
 def build_pixman(api, cipd_dir, pkg_dir, platform):
   src_dir = api.path.mkdtemp('pixman_src')
   api.git.checkout('https://fuchsia.googlesource.com/third_party/pixman',
@@ -351,6 +368,9 @@ def RunSteps(api, repository, branch, revision, platform):
     if target_platform.startswith('linux'):
       with api.step.nest('sdl'):
         build_sdl(api, cipd_dir, pkg_dir, target_platform)
+
+    with api.step.nest('zlib'):
+      build_zlib(api, cipd_dir, pkg_dir, target_platform)
 
     with api.step.nest('pixman'):
       build_pixman(api, cipd_dir, pkg_dir, target_platform)

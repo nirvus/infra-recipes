@@ -383,6 +383,211 @@
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
+    "name": "zlib"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/zlib_src_tmp_3"
+    ],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "infra_step": true,
+    "name": "zlib.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[TMP_BASE]/zlib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/zlib"
+    ],
+    "cwd": "[TMP_BASE]/zlib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "v1.2.11"
+    ],
+    "cwd": "[TMP_BASE]/zlib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[TMP_BASE]/zlib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[TMP_BASE]/zlib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[TMP_BASE]/zlib_src_tmp_3",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bin/cmake",
+      "-GNinja",
+      "-DCMAKE_MAKE_PROGRAM=[START_DIR]/cipd/ninja",
+      "-DCMAKE_C_COMPILER=[START_DIR]/cipd/bin/clang",
+      "-DCMAKE_C_COMPILER_TARGET=x86_64-linux-gnu",
+      "-DCMAKE_CXX_COMPILER=[START_DIR]/cipd/bin/clang++",
+      "-DCMAKE_CXX_COMPILER_TARGET=x86_64-linux-gnu",
+      "-DCMAKE_SYSROOT=[START_DIR]/cipd/sysroot",
+      "-DCMAKE_INSTALL_PREFIX=",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DBUILD_SHARED_LIBS=OFF",
+      "-DCMAKE_LINKER=[START_DIR]/cipd/bin/ld.lld",
+      "-DCMAKE_NM=[START_DIR]/cipd/bin/llvm-nm",
+      "-DCMAKE_OBJCOPY=[START_DIR]/cipd/bin/llvm-objcopy",
+      "-DCMAKE_OBJDUMP=[START_DIR]/cipd/bin/llvm-objdump",
+      "-DCMAKE_RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
+      "-DCMAKE_STRIP=[START_DIR]/cipd/bin/llvm-strip",
+      "[TMP_BASE]/zlib_src_tmp_3"
+    ],
+    "cwd": "[TMP_BASE]/zlib_build_tmp_4",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.cmake",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja"
+    ],
+    "cwd": "[TMP_BASE]/zlib_build_tmp_4",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninja",
+      "install"
+    ],
+    "cwd": "[TMP_BASE]/zlib_build_tmp_4",
+    "env": {
+      "DESTDIR": "[START_DIR]/pkgconfig",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "zlib.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
     "name": "pixman"
   },
   {
@@ -395,7 +600,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/pixman_src_tmp_3"
+      "[TMP_BASE]/pixman_src_tmp_5"
     ],
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -413,7 +618,7 @@
       "git",
       "init"
     ],
-    "cwd": "[TMP_BASE]/pixman_src_tmp_3",
+    "cwd": "[TMP_BASE]/pixman_src_tmp_5",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -432,7 +637,7 @@
       "origin",
       "https://fuchsia.googlesource.com/third_party/pixman"
     ],
-    "cwd": "[TMP_BASE]/pixman_src_tmp_3",
+    "cwd": "[TMP_BASE]/pixman_src_tmp_5",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -450,7 +655,7 @@
       "origin",
       "refs/tags/pixman-0.34.0"
     ],
-    "cwd": "[TMP_BASE]/pixman_src_tmp_3",
+    "cwd": "[TMP_BASE]/pixman_src_tmp_5",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -468,7 +673,7 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/pixman_src_tmp_3",
+    "cwd": "[TMP_BASE]/pixman_src_tmp_5",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -485,7 +690,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[TMP_BASE]/pixman_src_tmp_3",
+    "cwd": "[TMP_BASE]/pixman_src_tmp_5",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -506,7 +711,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[TMP_BASE]/pixman_src_tmp_3",
+    "cwd": "[TMP_BASE]/pixman_src_tmp_5",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -519,9 +724,9 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/pixman_src_tmp_3/autogen.sh"
+      "[TMP_BASE]/pixman_src_tmp_5/autogen.sh"
     ],
-    "cwd": "[TMP_BASE]/pixman_src_tmp_3",
+    "cwd": "[TMP_BASE]/pixman_src_tmp_5",
     "env": {
       "NOCONFIGURE": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -535,7 +740,7 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/pixman_src_tmp_3/configure",
+      "[TMP_BASE]/pixman_src_tmp_5/configure",
       "--prefix=",
       "--enable-static",
       "--disable-shared",
@@ -551,7 +756,7 @@
       "OBJCOPY=[START_DIR]/cipd/bin/llvm-objcopy",
       "NM=[START_DIR]/cipd/bin/llvm-nm"
     ],
-    "cwd": "[TMP_BASE]/pixman_build_tmp_4",
+    "cwd": "[TMP_BASE]/pixman_build_tmp_6",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -567,7 +772,7 @@
       "make",
       "-j20"
     ],
-    "cwd": "[TMP_BASE]/pixman_build_tmp_4",
+    "cwd": "[TMP_BASE]/pixman_build_tmp_6",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -584,7 +789,7 @@
       "install",
       "DESTDIR=[START_DIR]/pkgconfig"
     ],
-    "cwd": "[TMP_BASE]/pixman_build_tmp_4",
+    "cwd": "[TMP_BASE]/pixman_build_tmp_6",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -614,7 +819,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/glib_src_tmp_5"
+      "[TMP_BASE]/glib_src_tmp_7"
     ],
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -632,7 +837,7 @@
       "git",
       "init"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -651,7 +856,7 @@
       "origin",
       "https://github.googlesource.com/GNOME/glib"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -669,7 +874,7 @@
       "origin",
       "refs/tags/2.57.2"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -687,7 +892,7 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -704,7 +909,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -725,7 +930,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -738,9 +943,9 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/glib_src_tmp_5/autogen.sh"
+      "[TMP_BASE]/glib_src_tmp_7/autogen.sh"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
       "NOCONFIGURE": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -754,8 +959,8 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/glib_src_tmp_5/configure",
-      "[TMP_BASE]/glib_src_tmp_5/configure",
+      "[TMP_BASE]/glib_src_tmp_7/configure",
+      "[TMP_BASE]/glib_src_tmp_7/configure",
       "--prefix=",
       "--enable-static",
       "--disable-shared",
@@ -777,7 +982,7 @@
       "OBJCOPY=[START_DIR]/cipd/bin/llvm-objcopy",
       "NM=[START_DIR]/cipd/bin/llvm-nm"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_6",
+    "cwd": "[TMP_BASE]/glib_build_tmp_8",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -793,7 +998,7 @@
       "make",
       "-j20"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_6",
+    "cwd": "[TMP_BASE]/glib_build_tmp_8",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -810,7 +1015,7 @@
       "install",
       "DESTDIR=[START_DIR]/pkgconfig"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_6",
+    "cwd": "[TMP_BASE]/glib_build_tmp_8",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -840,7 +1045,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/qemu_src_tmp_7"
+      "[TMP_BASE]/qemu_src_tmp_9"
     ],
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -858,7 +1063,7 @@
       "git",
       "init"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -877,7 +1082,7 @@
       "origin",
       "https://fuchsia.googlesource.com/third_party/qemu"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -895,7 +1100,7 @@
       "origin",
       "master"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -913,7 +1118,7 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -930,7 +1135,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -951,7 +1156,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -968,7 +1173,7 @@
       "submodule",
       "sync"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -986,7 +1191,7 @@
       "update",
       "--init"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -999,7 +1204,7 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/qemu_src_tmp_7/configure",
+      "[TMP_BASE]/qemu_src_tmp_9/configure",
       "--prefix=",
       "--target-list=aarch64-softmmu,x86_64-softmmu",
       "--without-system-fdt",
@@ -1057,7 +1262,7 @@
       "--enable-sdl",
       "--enable-kvm"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_8",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_10",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -1073,7 +1278,7 @@
       "make",
       "-j2"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_8",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_10",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -1090,7 +1295,7 @@
       "install",
       "DESTDIR=[START_DIR]/pkgconfig"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_8",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_10",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
       "PKG_CONFIG_PATH": "[START_DIR]/cipd/usr/lib/x86_64-linux-gnu/pkgconfig",
@@ -1109,7 +1314,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/qemu_src_tmp_7/VERSION",
+      "[TMP_BASE]/qemu_src_tmp_9/VERSION",
       "/path/to/tmp/"
     ],
     "env": {
