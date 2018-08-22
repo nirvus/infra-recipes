@@ -653,7 +653,7 @@
       "git",
       "fetch",
       "origin",
-      "refs/tags/pixman-0.34.0"
+      "upstream/master"
     ],
     "cwd": "[TMP_BASE]/pixman_src_tmp_5",
     "env": {

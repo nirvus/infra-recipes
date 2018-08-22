@@ -168,7 +168,7 @@ def build_zlib(api, cipd_dir, pkg_dir, platform):
 def build_pixman(api, cipd_dir, pkg_dir, platform):
   src_dir = api.path.mkdtemp('pixman_src')
   api.git.checkout('https://fuchsia.googlesource.com/third_party/pixman',
-                   src_dir, ref='refs/tags/pixman-0.34.0', submodules=False)
+                   src_dir, ref='upstream/master', submodules=False)
   build_dir = api.path.mkdtemp('pixman_build')
 
   with api.context(cwd=src_dir, env={'NOCONFIGURE': '1'}):
