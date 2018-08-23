@@ -489,42 +489,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/gn_trace.html"
-    ],
-    "infra_step": true,
-    "name": "build.hash gn_trace.html",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/gn_trace.html",
-      "gs://###fake-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "build.upload gn_trace.html (hash)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@gn_trace.html@https://storage.cloud.google.com/###fake-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
-    ]
-  },
-  {
-    "cmd": [
       "vpython",
       "-vpython-spec",
       "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
@@ -541,42 +505,6 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@ninja_trace.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/ninja_trace.html@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/ninja_trace.html"
-    ],
-    "infra_step": true,
-    "name": "build.hash ninja_trace.html",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/ninja_trace.html",
-      "gs://###fake-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "build.upload ninja_trace.html (hash)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@ninja_trace.html@https://storage.cloud.google.com/###fake-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {
@@ -998,38 +926,6 @@
     "name": "upload bloaty.html",
     "~followup_annotations": [
       "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/bloaty.html@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
-      "-a",
-      "sha1",
-      "[CLEANUP]/bloaty.html"
-    ],
-    "infra_step": true,
-    "name": "hash bloaty.html",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/bloaty.html",
-      "gs://###fake-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "upload bloaty.html (hash)",
-    "~followup_annotations": [
-      "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fake-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {

@@ -1373,7 +1373,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Return a path to the tarball.
     return archive.path
 
-  def _upload_file_to_gcs(self, path, bucket):
+  def _upload_file_to_gcs(self, path, bucket, hash=True):
     """Uploads a file to a GCS bucket, using the appropriate naming scheme.
 
     Args:
@@ -1396,21 +1396,24 @@ class FuchsiaApi(recipe_api.RecipeApi):
         link_name=basename,
         name='upload %s' % basename)
 
-    # TOOD(IN-550): Stop uploading to hash-based paths once all consumers use
-    # buildbucket_id-based paths.
-    # TODO(dbort): As as step towards that, stop returning 'digest' from this
-    # method.
-    digest = self.m.hash.sha1(
-        'hash %s' % basename,
-        path,
-        test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
-    self.m.gsutil.upload(
-        bucket=bucket,
-        src=path,
-        dst=digest,
-        link_name=basename,
-        name='upload %s (hash)' % basename)
-    return digest
+    if hash:
+      # TOOD(IN-550): Stop uploading to hash-based paths once all consumers use
+      # buildbucket_id-based paths.
+      # TODO(dbort): As as step towards that, stop returning 'digest' from this
+      # method.
+      digest = self.m.hash.sha1(
+          'hash %s' % basename,
+          path,
+          test_data='cd963da3f17c3acc611a9b9c1b272fcd6ae39909')
+      self.m.gsutil.upload(
+          bucket=bucket,
+          src=path,
+          dst=digest,
+          link_name=basename,
+          name='upload %s (hash)' % basename)
+      return digest
+    else:
+      return None
 
   def upload_build_artifacts(self,
                              build_results,
@@ -1486,8 +1489,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
         gn_data = self._extract_gn_tracing_data(build_results)
         ninja_data = self._extract_ninja_tracing_data(build_results)
-        self._upload_file_to_gcs(gn_data, self._build_metrics_gcs_bucket)
-        self._upload_file_to_gcs(ninja_data, self._build_metrics_gcs_bucket)
+        self._upload_file_to_gcs(gn_data, self._build_metrics_gcs_bucket, hash=False)
+        self._upload_file_to_gcs(ninja_data, self._build_metrics_gcs_bucket, hash=False)
 
   def _extract_gn_tracing_data(self, build_results):
     """Extracts the tracing data from this GN run.
@@ -1570,4 +1573,4 @@ class FuchsiaApi(recipe_api.RecipeApi):
           '-top-syms', '50',
           '-format', 'html',
       ])
-      self._upload_file_to_gcs(bloaty_file, self._build_metrics_gcs_bucket)
+      self._upload_file_to_gcs(bloaty_file, self._build_metrics_gcs_bucket, hash=False)
