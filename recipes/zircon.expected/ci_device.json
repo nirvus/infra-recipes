@@ -466,7 +466,7 @@
       "-hard-timeout",
       "2400",
       "-cipd-package",
-      "botanist:fuchsia/infra/botanist/linux-amd64=latest",
+      "botanist:fuchsia/infra/botanist/linux-amd64=390309732792e4a97a97385892f30c163ddd3e5e",
       "-output",
       "out.tar",
       "-raw-cmd",
