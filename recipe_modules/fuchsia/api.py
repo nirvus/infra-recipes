@@ -1002,9 +1002,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
     zircon_a_name = self.m.path.basename(zircon_a_path)
     botanist_cmd = [
       './botanist/botanist',
-      '-config', '/etc/botanist/config.json',
+      'zedboot',
+      '-properties', '/etc/botanist/config.json',
       '-kernel', zircon_a_name,
-      '-test', self.results_dir_on_target,
+      '-results-dir', self.results_dir_on_target,
       '-out', output_archive_name,
       'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
     ] # yapf: disable
@@ -1022,8 +1023,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           io_timeout=TEST_IO_TIMEOUT_SECS,
           hard_timeout=timeout_secs,
           outputs=[output_archive_name],
-          cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64',
-                          '390309732792e4a97a97385892f30c163ddd3e5e')],
+          cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest')],
       )
 
       # Run and upload bloaty data (will run only if specified).
