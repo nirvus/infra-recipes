@@ -166,7 +166,9 @@
   {
     "cmd": [],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib"
@@ -184,7 +186,9 @@
       "[TMP_BASE]/zlib_src_tmp_1"
     ],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "infra_step": true,
@@ -200,7 +204,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_src_tmp_1",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.git init",
@@ -218,7 +224,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_src_tmp_1",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.git remote",
@@ -235,7 +243,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_src_tmp_1",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.git fetch",
@@ -252,7 +262,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_src_tmp_1",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.git checkout",
@@ -268,7 +280,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_src_tmp_1",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.git rev-parse",
@@ -288,7 +302,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_src_tmp_1",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.git clean",
@@ -303,7 +319,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_build_tmp_2",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.xcrun",
@@ -331,7 +349,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_build_tmp_2",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.cmake",
@@ -345,7 +365,9 @@
     ],
     "cwd": "[TMP_BASE]/zlib_build_tmp_2",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.build",
@@ -361,7 +383,9 @@
     "cwd": "[TMP_BASE]/zlib_build_tmp_2",
     "env": {
       "DESTDIR": "[START_DIR]/pkgconfig",
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "zlib.install",
@@ -372,7 +396,9 @@
   {
     "cmd": [],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman"
@@ -390,7 +416,9 @@
       "[TMP_BASE]/pixman_src_tmp_3"
     ],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "infra_step": true,
@@ -406,7 +434,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_src_tmp_3",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.git init",
@@ -424,7 +454,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_src_tmp_3",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.git remote",
@@ -441,7 +473,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_src_tmp_3",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.git fetch",
@@ -458,7 +492,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_src_tmp_3",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.git checkout",
@@ -474,7 +510,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_src_tmp_3",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.git rev-parse",
@@ -494,7 +532,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_src_tmp_3",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.git clean",
@@ -509,7 +549,9 @@
     "cwd": "[TMP_BASE]/pixman_src_tmp_3",
     "env": {
       "NOCONFIGURE": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.autogen",
@@ -524,7 +566,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_build_tmp_4",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.xcrun",
@@ -538,6 +582,8 @@
   {
     "cmd": [
       "[TMP_BASE]/pixman_src_tmp_3/configure",
+      "--build=x86_64-apple-darwin",
+      "--host=x86_64-apple-darwin",
       "--prefix=",
       "--enable-static",
       "--disable-shared",
@@ -550,7 +596,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_build_tmp_4",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.configure",
@@ -565,7 +613,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_build_tmp_4",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.build",
@@ -581,7 +631,9 @@
     ],
     "cwd": "[TMP_BASE]/pixman_build_tmp_4",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "pixman.install",
@@ -592,7 +644,257 @@
   {
     "cmd": [],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/libffi_src_tmp_5"
+    ],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "infra_step": true,
+    "name": "libffi.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[TMP_BASE]/libffi_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/libffi"
+    ],
+    "cwd": "[TMP_BASE]/libffi_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/tags/v3.3-rc0"
+    ],
+    "cwd": "[TMP_BASE]/libffi_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[TMP_BASE]/libffi_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[TMP_BASE]/libffi_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[TMP_BASE]/libffi_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/libffi_src_tmp_5/autogen.sh"
+    ],
+    "cwd": "[TMP_BASE]/libffi_src_tmp_5",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.autogen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "cwd": "[TMP_BASE]/libffi_build_tmp_6",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.xcrun",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@raw_io.output[sdk-path]@/some/xcode/path@@@",
+      "@@@STEP_LOG_END@raw_io.output[sdk-path]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/libffi_src_tmp_5/configure",
+      "--build=x86_64-apple-darwin",
+      "--host=x86_64-apple-darwin",
+      "--prefix=",
+      "--target=x86_64-apple-darwin",
+      "--with-pic",
+      "--enable-static",
+      "--disable-shared",
+      "CC=[START_DIR]/cipd/bin/clang",
+      "CXX=[START_DIR]/cipd/bin/clang++",
+      "CXXFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path",
+      "LDFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path",
+      "CFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
+    ],
+    "cwd": "[TMP_BASE]/libffi_build_tmp_6",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.configure",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "-j20"
+    ],
+    "cwd": "[TMP_BASE]/libffi_build_tmp_6",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "install",
+      "DESTDIR=[START_DIR]/pkgconfig"
+    ],
+    "cwd": "[TMP_BASE]/libffi_build_tmp_6",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "libffi.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib"
@@ -607,10 +909,12 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/glib_src_tmp_5"
+      "[TMP_BASE]/glib_src_tmp_7"
     ],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "infra_step": true,
@@ -624,9 +928,11 @@
       "git",
       "init"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.git init",
@@ -642,9 +948,11 @@
       "origin",
       "https://fuchsia.googlesource.com/third_party/glib"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.git remote",
@@ -659,9 +967,11 @@
       "origin",
       "refs/tags/2.57.2"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.git fetch",
@@ -676,9 +986,11 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.git checkout",
@@ -692,9 +1004,11 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.git rev-parse",
@@ -712,9 +1026,11 @@
       "-d",
       "-x"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.git clean",
@@ -724,12 +1040,14 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/glib_src_tmp_5/autogen.sh"
+      "[TMP_BASE]/glib_src_tmp_7/autogen.sh"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_5",
+    "cwd": "[TMP_BASE]/glib_src_tmp_7",
     "env": {
       "NOCONFIGURE": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.autogen",
@@ -742,9 +1060,11 @@
       "xcrun",
       "--show-sdk-path"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_6",
+    "cwd": "[TMP_BASE]/glib_build_tmp_8",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.xcrun",
@@ -757,27 +1077,28 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/glib_src_tmp_5/configure",
-      "[TMP_BASE]/glib_src_tmp_5/configure",
+      "[TMP_BASE]/glib_src_tmp_7/configure",
+      "--build=x86_64-apple-darwin",
+      "--host=x86_64-apple-darwin",
       "--prefix=",
-      "--enable-static",
-      "--disable-shared",
       "--with-pic",
-      "--disable-libmount",
-      "--disable-maintainer-mode",
-      "--disable-dependency-tracking",
-      "--disable-silent-rules",
+      "--with-pcre=internal",
+      "--enable-static",
       "--disable-dtrace",
       "--disable-libelf",
+      "--disable-libmount",
+      "--disable-shared",
       "CC=[START_DIR]/cipd/bin/clang",
       "CXX=[START_DIR]/cipd/bin/clang++",
       "CXXFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path",
       "LDFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path",
       "CFLAGS=--target=x86_64-apple-darwin --sysroot=/some/xcode/path"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_6",
+    "cwd": "[TMP_BASE]/glib_build_tmp_8",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.configure",
@@ -790,9 +1111,11 @@
       "make",
       "-j20"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_6",
+    "cwd": "[TMP_BASE]/glib_build_tmp_8",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.build",
@@ -806,9 +1129,11 @@
       "install",
       "DESTDIR=[START_DIR]/pkgconfig"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_6",
+    "cwd": "[TMP_BASE]/glib_build_tmp_8",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "glib.install",
@@ -819,7 +1144,9 @@
   {
     "cmd": [],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu"
@@ -834,10 +1161,12 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/qemu_src_tmp_7"
+      "[TMP_BASE]/qemu_src_tmp_9"
     ],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "infra_step": true,
@@ -851,9 +1180,11 @@
       "git",
       "init"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.git init",
@@ -869,9 +1200,11 @@
       "origin",
       "https://fuchsia.googlesource.com/third_party/qemu"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.git remote",
@@ -886,9 +1219,11 @@
       "origin",
       "master"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.git fetch",
@@ -903,9 +1238,11 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.git checkout",
@@ -919,9 +1256,11 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.git rev-parse",
@@ -939,9 +1278,11 @@
       "-d",
       "-x"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.git clean",
@@ -955,9 +1296,11 @@
       "submodule",
       "sync"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.submodule sync",
@@ -972,9 +1315,11 @@
       "update",
       "--init"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_7",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_9",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.submodule update",
@@ -984,7 +1329,7 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/qemu_src_tmp_7/configure",
+      "[TMP_BASE]/qemu_src_tmp_9/configure",
       "--prefix=",
       "--target-list=aarch64-softmmu,x86_64-softmmu",
       "--without-system-fdt",
@@ -1023,19 +1368,22 @@
       "--disable-tcmalloc",
       "--disable-tpm",
       "--disable-usb-redir",
-      "--disable-uuid",
       "--disable-vhost-scsi",
       "--disable-vhost-vsock",
       "--disable-virtfs",
-      "--disable-vnc-{jpeg,png,sasl}",
+      "--disable-vnc-jpeg",
+      "--disable-vnc-png",
+      "--disable-vnc-sasl",
       "--disable-vte",
       "--disable-werror",
       "--disable-xen",
       "--enable-cocoa"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_8",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_10",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.configure qemu",
@@ -1048,9 +1396,11 @@
       "make",
       "-j2"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_8",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_10",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.build",
@@ -1062,11 +1412,13 @@
     "cmd": [
       "make",
       "install",
-      "DESTDIR=[START_DIR]/pkgconfig"
+      "DESTDIR=[TMP_BASE]/qemu_install_tmp_11"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_8",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_10",
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.install",
@@ -1082,11 +1434,13 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/qemu_src_tmp_7/VERSION",
+      "[TMP_BASE]/qemu_src_tmp_9/VERSION",
       "/path/to/tmp/"
     ],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "infra_step": true,
@@ -1100,14 +1454,16 @@
       "cipd",
       "pkg-build",
       "-pkg-def",
-      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/fuchsia/third_party/qemu/mac-amd64.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/third_party/qemu/mac-amd64\", \"root\": \"[START_DIR]/pkgconfig\"}",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/fuchsia/third_party/qemu/mac-amd64.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/third_party/qemu/mac-amd64\", \"root\": \"[TMP_BASE]/qemu_install_tmp_11\"}",
       "-out",
-      "[CLEANUP]/fuchsia/third_party/qemu/mac-amd64",
+      "[CLEANUP]/third_party_qemu_mac-amd64.cipd",
       "-json-output",
       "/path/to/tmp/json"
     ],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.build fuchsia/third_party/qemu/mac-amd64",
@@ -1133,7 +1489,9 @@
       "/path/to/tmp/json"
     ],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.cipd search fuchsia/third_party/qemu/mac-amd64 git_revision:deadbeef",
@@ -1153,7 +1511,9 @@
   {
     "cmd": [],
     "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
     "name": "qemu.Package is up-to-date",

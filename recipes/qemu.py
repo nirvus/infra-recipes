@@ -60,7 +60,7 @@ def platform_sysroot(api, cipd_dir, platform):
     return step_result.stdout.strip()
 
 
-def configure(api, cipd_dir, src_dir, platform, flags=[], step_name='configure'):
+def configure(api, cipd_dir, src_dir, platform, host, flags=[], step_name='configure'):
   target = PLATFORM_TO_TRIPLE[platform]
   sysroot = platform_sysroot(api, cipd_dir, platform)
 
@@ -79,8 +79,11 @@ def configure(api, cipd_dir, src_dir, platform, flags=[], step_name='configure')
       'STRIP': cipd_dir.join('bin', 'llvm-strip'),
       'OBJCOPY': cipd_dir.join('bin', 'llvm-objcopy'),
     })
+
   return api.step(step_name, [
-    src_dir.join('configure')
+    src_dir.join('configure'),
+    '--build=%s' % PLATFORM_TO_TRIPLE[host],
+    '--host=%s' % target,
   ] + flags + ['%s=%s' % (k, v) for k, v in variables.iteritems()])
 
 
@@ -119,7 +122,7 @@ def upload_package(api, pkg_name, pkg_dir, repository, revision):
   pkg_def.add_dir(pkg_dir)
   pkg_def.add_version_file('.versions/%s.cipd_version' % cipd_pkg_name)
 
-  cipd_pkg_file = api.path['cleanup'].join(cipd_pkg_name)
+  cipd_pkg_file = api.path['cleanup'].join(pkg_name.replace('/', '_') + '.cipd')
   api.cipd.build_from_pkg(
       pkg_def=pkg_def,
       output_package=cipd_pkg_file,
@@ -165,7 +168,7 @@ def build_zlib(api, cipd_dir, pkg_dir, platform):
       api.step('install', [cipd_dir.join('ninja'), 'install'])
 
 
-def build_pixman(api, cipd_dir, pkg_dir, platform):
+def build_pixman(api, cipd_dir, pkg_dir, platform, host):
   src_dir = api.path.mkdtemp('pixman_src')
   api.git.checkout('https://fuchsia.googlesource.com/third_party/pixman',
                    src_dir, ref='upstream/master', submodules=False)
@@ -174,7 +177,7 @@ def build_pixman(api, cipd_dir, pkg_dir, platform):
   with api.context(cwd=src_dir, env={'NOCONFIGURE': '1'}):
     api.step('autogen', [src_dir.join('autogen.sh')])
   with api.context(cwd=build_dir):
-    configure(api, cipd_dir, src_dir, platform, [
+    configure(api, cipd_dir, src_dir, platform, host, [
       '--prefix=',
       '--enable-static',
       '--disable-shared',
@@ -203,7 +206,27 @@ def build_sdl(api, cipd_dir, pkg_dir, platform, env={}):
       api.step('install', [cipd_dir.join('ninja'), 'install'])
 
 
-def build_glib(api, cipd_dir, pkg_dir, platform):
+def build_libffi(api, cipd_dir, pkg_dir, platform, host):
+  src_dir = api.path.mkdtemp('libffi_src')
+  api.git.checkout('https://fuchsia.googlesource.com/third_party/libffi',
+                   src_dir, ref='refs/tags/v3.3-rc0', submodules=False)
+  build_dir = api.path.mkdtemp('libffi_build')
+
+  with api.context(cwd=src_dir):
+    api.step('autogen', [src_dir.join('autogen.sh')])
+  with api.context(cwd=build_dir):
+    configure(api, cipd_dir, src_dir, platform, host, [
+      '--prefix=',
+      '--target=%s' % PLATFORM_TO_TRIPLE[platform],
+      '--with-pic',
+      '--enable-static',
+      '--disable-shared',
+    ])
+    api.step('build', ['make', '-j%d' % api.goma.jobs])
+    api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
+
+
+def build_glib(api, cipd_dir, pkg_dir, platform, host):
   src_dir = api.path.mkdtemp('glib_src')
   api.git.checkout('https://fuchsia.googlesource.com/third_party/glib',
                    src_dir, ref='refs/tags/2.57.2', submodules=False)
@@ -212,28 +235,26 @@ def build_glib(api, cipd_dir, pkg_dir, platform):
   with api.context(cwd=src_dir, env={'NOCONFIGURE': '1'}):
     api.step('autogen', [src_dir.join('autogen.sh')])
   with api.context(cwd=build_dir):
-    configure(api, cipd_dir, src_dir, platform, [
-      src_dir.join('configure'),
+    configure(api, cipd_dir, src_dir, platform, host, [
       '--prefix=',
-      '--enable-static',
-      '--disable-shared',
       '--with-pic',
-      '--disable-libmount',
-      '--disable-maintainer-mode',
-      '--disable-dependency-tracking',
-      '--disable-silent-rules',
+      '--with-pcre=internal',
+      '--enable-static',
       '--disable-dtrace',
       '--disable-libelf',
+      '--disable-libmount',
+      '--disable-shared',
     ])
     api.step('build', ['make', '-j%d' % api.goma.jobs])
     api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
 
 
-def build_qemu(api, cipd_dir, pkg_dir, platform):
+def build_qemu(api, cipd_dir, pkg_dir, platform, host):
   src_dir = api.path.mkdtemp('qemu_src')
   repository = 'https://fuchsia.googlesource.com/third_party/qemu'
   revision = api.git.checkout(repository, src_dir, submodules=True)
   build_dir = api.path.mkdtemp('qemu_build')
+  install_dir = api.path.mkdtemp('qemu_install')
 
   target = PLATFORM_TO_TRIPLE[platform]
 
@@ -241,13 +262,14 @@ def build_qemu(api, cipd_dir, pkg_dir, platform):
     'linux': [
       '--cc=%s' % cipd_dir.join('bin', 'clang'),
       '--cxx=%s' % cipd_dir.join('bin', 'clang++'),
+      '--build=%s' % PLATFORM_TO_TRIPLE[host],
       '--host=%s' % target,
       '--extra-cflags=--target=%s --sysroot=%s' % (target, cipd_dir.join('sysroot')),
       '--extra-cxxflags=--target=%s --sysroot=%s' % (target, cipd_dir.join('sysroot')),
       # Supress warning about the unused arguments because QEMU ignores
       # --disable-werror at configure time which triggers an error because
       # -static-libstdc++ is unused when linking C code.
-      '--extra-ldflags=--target=%s --sysroot=%s -static-libstdc++ -Qunused-arguments -latomic' % (target, cipd_dir.join('sysroot')),
+      '--extra-ldflags=--target=%s --sysroot=%s -static-libstdc++ -Qunused-arguments -ldl -lpthread' % (target, cipd_dir.join('sysroot')),
       '--disable-gtk',
       '--disable-x11',
       '--enable-sdl',
@@ -299,23 +321,24 @@ def build_qemu(api, cipd_dir, pkg_dir, platform):
       '--disable-tcmalloc',
       '--disable-tpm',
       '--disable-usb-redir',
-      '--disable-uuid',
       '--disable-vhost-scsi',
       '--disable-vhost-vsock',
       '--disable-virtfs',
-      '--disable-vnc-{jpeg,png,sasl}',
+      '--disable-vnc-jpeg',
+      '--disable-vnc-png',
+      '--disable-vnc-sasl',
       '--disable-vte',
       '--disable-werror',
       '--disable-xen',
     ] + extra_options)
     api.step('build', ['make', '-j%d' % api.platform.cpu_count])
-    api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
+    api.step('install', ['make', 'install', 'DESTDIR=%s' % install_dir])
 
   qemu_version = api.file.read_text('version', src_dir.join('VERSION'),
                                     test_data='2.10.1')
   assert qemu_version, 'Cannot determine QEMU version'
 
-  upload_package(api, 'third_party/qemu/' + platform, pkg_dir, repository, revision)
+  upload_package(api, 'third_party/qemu/' + platform, install_dir, repository, revision)
 
 
 def RunSteps(api, repository, branch, revision, platform):
@@ -357,12 +380,11 @@ def RunSteps(api, repository, branch, revision, platform):
 
   env = {
     'PKG_CONFIG_SYSROOT_DIR': pkg_dir,
-    'PKG_CONFIG_ALLOW_SYSTEM_LIBS': '1',
+    'PKG_CONFIG_ALLOW_SYSTEM_CFLAGS': 1,
+    'PKG_CONFIG_ALLOW_SYSTEM_LIBS': 1,
+    'PKG_CONFIG_LIBDIR': ':'.join([str(pkg_dir.join('share', 'pkgconfig')),
+                                   str(pkg_dir.join('lib', 'pkgconfig'))]),
   }
-  if target_platform.startswith('linux'):
-    env.update({
-      'PKG_CONFIG_PATH': cipd_dir.join('usr', 'lib', target, 'pkgconfig'),
-    })
 
   with api.context(env=env):
     if target_platform.startswith('linux'):
@@ -373,13 +395,16 @@ def RunSteps(api, repository, branch, revision, platform):
       build_zlib(api, cipd_dir, pkg_dir, target_platform)
 
     with api.step.nest('pixman'):
-      build_pixman(api, cipd_dir, pkg_dir, target_platform)
+      build_pixman(api, cipd_dir, pkg_dir, target_platform, host_platform)
+
+    with api.step.nest('libffi'):
+      build_libffi(api, cipd_dir, pkg_dir, target_platform, host_platform)
 
     with api.step.nest('glib'):
-      build_glib(api, cipd_dir, pkg_dir, target_platform)
+      build_glib(api, cipd_dir, pkg_dir, target_platform, host_platform)
 
     with api.step.nest('qemu'):
-      build_qemu(api, cipd_dir, pkg_dir, target_platform)
+      build_qemu(api, cipd_dir, pkg_dir, target_platform, host_platform)
 
 
 def GenTests(api):

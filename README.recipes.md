@@ -1575,25 +1575,27 @@ Args:
 
 Recipe for building QEMU.
 
-&mdash; **def [RunSteps](/recipes/qemu.py#321)(api, repository, branch, revision, platform):**
+&mdash; **def [RunSteps](/recipes/qemu.py#344)(api, repository, branch, revision, platform):**
 
-&mdash; **def [build\_glib](/recipes/qemu.py#206)(api, cipd_dir, pkg_dir, platform):**
+&mdash; **def [build\_glib](/recipes/qemu.py#229)(api, cipd_dir, pkg_dir, platform, host):**
 
-&mdash; **def [build\_pixman](/recipes/qemu.py#168)(api, cipd_dir, pkg_dir, platform):**
+&mdash; **def [build\_libffi](/recipes/qemu.py#209)(api, cipd_dir, pkg_dir, platform, host):**
 
-&mdash; **def [build\_qemu](/recipes/qemu.py#232)(api, cipd_dir, pkg_dir, platform):**
+&mdash; **def [build\_pixman](/recipes/qemu.py#171)(api, cipd_dir, pkg_dir, platform, host):**
 
-&mdash; **def [build\_sdl](/recipes/qemu.py#187)(api, cipd_dir, pkg_dir, platform, env={}):**
+&mdash; **def [build\_qemu](/recipes/qemu.py#252)(api, cipd_dir, pkg_dir, platform, host):**
 
-&mdash; **def [build\_zlib](/recipes/qemu.py#151)(api, cipd_dir, pkg_dir, platform):**
+&mdash; **def [build\_sdl](/recipes/qemu.py#190)(api, cipd_dir, pkg_dir, platform, env={}):**
 
-&mdash; **def [cmake](/recipes/qemu.py#87)(api, cipd_dir, src_dir, platform, options=[], step_name='cmake'):**
+&mdash; **def [build\_zlib](/recipes/qemu.py#154)(api, cipd_dir, pkg_dir, platform):**
 
-&mdash; **def [configure](/recipes/qemu.py#63)(api, cipd_dir, src_dir, platform, flags=[], step_name='configure'):**
+&mdash; **def [cmake](/recipes/qemu.py#90)(api, cipd_dir, src_dir, platform, options=[], step_name='cmake'):**
+
+&mdash; **def [configure](/recipes/qemu.py#63)(api, cipd_dir, src_dir, platform, host, flags=[], step_name='configure'):**
 
 &mdash; **def [platform\_sysroot](/recipes/qemu.py#50)(api, cipd_dir, platform):**
 
-&mdash; **def [upload\_package](/recipes/qemu.py#113)(api, pkg_name, pkg_dir, repository, revision):**
+&mdash; **def [upload\_package](/recipes/qemu.py#116)(api, pkg_name, pkg_dir, repository, revision):**
 ### *recipes* / [qemu:examples/full](/recipe_modules/qemu/examples/full.py)
 
 [DEPS](/recipe_modules/qemu/examples/full.py#7): [qemu](#recipe_modules-qemu), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
