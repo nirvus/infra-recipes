@@ -1572,5 +1572,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
           '-top-files', '50',
           '-top-syms', '50',
           '-format', 'html',
+          '-j', '128',
       ])
       self._upload_file_to_gcs(bloaty_file, self._build_metrics_gcs_bucket, hash=False)

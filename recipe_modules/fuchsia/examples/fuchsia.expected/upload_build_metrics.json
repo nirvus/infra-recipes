@@ -904,7 +904,9 @@
       "-top-syms",
       "50",
       "-format",
-      "html"
+      "html",
+      "-j",
+      "128"
     ],
     "infra_step": true,
     "name": "bloaty"
