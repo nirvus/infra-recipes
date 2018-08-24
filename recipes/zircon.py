@@ -192,10 +192,9 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
   output_archive_name = 'out.tar'
   botanist_cmd = [
     './botanist/botanist',
-    'zedboot',
     '-kernel', kernel_name,
     '-ramdisk', ramdisk_name,
-    '-results-dir', api.fuchsia.results_dir_on_target,
+    '-test', api.fuchsia.results_dir_on_target,
     '-out', output_archive_name,
     'zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH,
   ]
@@ -219,7 +218,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
         io_timeout=TEST_IO_TIMEOUT_SECS,
         hard_timeout=40*60, # 40 minute hard timeout
         outputs=[output_archive_name],
-        cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest')],
+        cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', '390309732792e4a97a97385892f30c163ddd3e5e')],
     )
     # Collect results.
     results = api.swarming.collect(requests_json=api.json.input(trigger_result.json.output))
