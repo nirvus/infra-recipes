@@ -187,36 +187,6 @@
     "stdout": "/path/to/tmp/"
   },
   {
-    "cmd": [],
-    "name": "ensure_packages"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/tools/json_validator",
-      "-ensure-file",
-      "fuchsia/tools/json_validator/${platform} latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_packages.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/json_validator/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
     "cmd": [
       "python",
       "-u",
@@ -225,18 +195,6 @@
       "topaz"
     ],
     "name": "verify FIDL namespaces"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/packages/verify_layer.py",
-      "--layer",
-      "topaz",
-      "--json-validator",
-      "[START_DIR]/tools/json_validator/json_validator"
-    ],
-    "name": "verify build packages"
   },
   {
     "cmd": [],
@@ -328,7 +286,7 @@
       "gen",
       "[START_DIR]/out/debug-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\",\"build/packages/json_validator\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -414,6 +372,18 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
     ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/packages/verify_layer.py",
+      "--layer",
+      "topaz",
+      "--json-validator",
+      "[START_DIR]/out/debug-x64/tools/json_validator"
+    ],
+    "name": "verify build packages"
   },
   {
     "name": "$result",
