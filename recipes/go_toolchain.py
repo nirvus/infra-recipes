@@ -37,7 +37,7 @@ PROPERTIES = {
 def RunSteps(api, repository, branch, revision):
   api.gsutil.ensure_gsutil()
   api.gitiles.ensure_gitiles()
-  api.go.ensure_go(use_deprecated=True)
+  api.go.ensure_go()
 
   if revision is None:
     revision = api.gitiles.refs(repository).get(branch, None)

@@ -16,7 +16,6 @@ def RunSteps(api):
   # First, you need a go distribution.
   api.go.ensure_go()
   api.go.ensure_go(version='go_version:1.6')
-  api.go.ensure_go(use_deprecated=True)
   assert api.go.go_root
   assert api.go.go_executable
 

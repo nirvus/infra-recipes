@@ -707,15 +707,15 @@ GoApi provides support for Go.
 
 Return a Go command step.
 
-&mdash; **def [ensure\_go](/recipe_modules/go/api.py#33)(self, use_deprecated=False, version=None):**
+&mdash; **def [ensure\_go](/recipe_modules/go/api.py#29)(self, version=None):**
 
 Ensures that go distribution is installed.
 
-&emsp; **@property**<br>&mdash; **def [go\_executable](/recipe_modules/go/api.py#54)(self):**
+&emsp; **@property**<br>&mdash; **def [go\_executable](/recipe_modules/go/api.py#43)(self):**
 
-&emsp; **@property**<br>&mdash; **def [go\_root](/recipe_modules/go/api.py#50)(self):**
+&emsp; **@property**<br>&mdash; **def [go\_root](/recipe_modules/go/api.py#39)(self):**
 
-&mdash; **def [inline](/recipe_modules/go/api.py#58)(self, program, add_go_log=True, \*\*kwargs):**
+&mdash; **def [inline](/recipe_modules/go/api.py#47)(self, program, add_go_log=True, \*\*kwargs):**
 
 Run an inline Go program as a step.
 Program is output to a temp file and run when this step executes.
