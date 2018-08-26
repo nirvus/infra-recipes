@@ -216,6 +216,8 @@
     ],
     "cwd": "[START_DIR]/go/src",
     "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
       "GOROOT_BOOTSTRAP": "[START_DIR]/cipd/go"
     },
     "name": "build"

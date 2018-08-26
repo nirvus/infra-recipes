@@ -216,6 +216,8 @@
     ],
     "cwd": "[START_DIR]/go/src",
     "env": {
+      "GOARCH": "amd64",
+      "GOOS": "mac",
       "GOROOT_BOOTSTRAP": "[START_DIR]/cipd/go"
     },
     "name": "build"
@@ -279,8 +281,6 @@
       "cipd",
       "pkg-register",
       "[CLEANUP]/go.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
       "-ref",
       "latest",
       "-tag",
@@ -288,7 +288,9 @@
       "-tag",
       "git_revision:c6c554304e6d268f34ed510a36e77071830352cc",
       "-tag",
-      "version:go1.8"
+      "version:go1.8",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
     "name": "register fuchsia/go/mac-amd64",
     "~followup_annotations": [

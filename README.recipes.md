@@ -1440,11 +1440,11 @@ Recipe for building GCC toolchain.
 &mdash; **def [RunSteps](/recipe_modules/go/examples/full.py#15)(api):**
 ### *recipes* / [go\_toolchain](/recipes/go_toolchain.py)
 
-[DEPS](/recipes/go_toolchain.py#11): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/go_toolchain.py#11): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Go toolchain.
 
-&mdash; **def [RunSteps](/recipes/go_toolchain.py#37)(api, repository, branch, revision):**
+&mdash; **def [RunSteps](/recipes/go_toolchain.py#40)(api, repository, branch, revision, platform):**
 ### *recipes* / [goma:examples/full](/recipe_modules/goma/examples/full.py)
 
 [DEPS](/recipe_modules/goma/examples/full.py#5): [goma](#recipe_modules-goma), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
