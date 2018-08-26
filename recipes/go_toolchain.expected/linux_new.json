@@ -98,30 +98,10 @@
       "https://fuchsia.googlesource.com/third_party/go",
       "refs"
     ],
-    "infra_step": true,
     "name": "refs",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"refs/heads/master\": \"c6c554304e6d268f34ed510a36e77071830352cc\"@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "cipd",
-      "search",
-      "fuchsia/go/linux-amd64",
-      "-tag",
-      "git_revision:c6c554304e6d268f34ed510a36e77071830352cc",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "cipd search fuchsia/go/linux-amd64 git_revision:c6c554304e6d268f34ed510a36e77071830352cc",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -136,7 +116,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/third_party/go"
+      "[START_DIR]/go"
     ],
     "infra_step": true,
     "name": "makedirs"
@@ -146,7 +126,7 @@
       "git",
       "init"
     ],
-    "cwd": "[START_DIR]/third_party/go",
+    "cwd": "[START_DIR]/go",
     "infra_step": true,
     "name": "git init"
   },
@@ -158,7 +138,7 @@
       "origin",
       "https://fuchsia.googlesource.com/third_party/go"
     ],
-    "cwd": "[START_DIR]/third_party/go",
+    "cwd": "[START_DIR]/go",
     "infra_step": true,
     "name": "git remote"
   },
@@ -168,7 +148,7 @@
       "fetch",
       "origin"
     ],
-    "cwd": "[START_DIR]/third_party/go",
+    "cwd": "[START_DIR]/go",
     "infra_step": true,
     "name": "git fetch"
   },
@@ -179,7 +159,7 @@
       "-f",
       "c6c554304e6d268f34ed510a36e77071830352cc"
     ],
-    "cwd": "[START_DIR]/third_party/go",
+    "cwd": "[START_DIR]/go",
     "infra_step": true,
     "name": "git checkout"
   },
@@ -189,7 +169,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[START_DIR]/third_party/go",
+    "cwd": "[START_DIR]/go",
     "infra_step": true,
     "name": "git rev-parse",
     "stdout": "/path/to/tmp/",
@@ -205,7 +185,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[START_DIR]/third_party/go",
+    "cwd": "[START_DIR]/go",
     "infra_step": true,
     "name": "git clean"
   },
@@ -215,7 +195,7 @@
       "submodule",
       "sync"
     ],
-    "cwd": "[START_DIR]/third_party/go",
+    "cwd": "[START_DIR]/go",
     "infra_step": true,
     "name": "submodule sync"
   },
@@ -226,126 +206,19 @@
       "update",
       "--init"
     ],
-    "cwd": "[START_DIR]/third_party/go",
+    "cwd": "[START_DIR]/go",
     "infra_step": true,
     "name": "submodule update"
   },
   {
     "cmd": [
-      "[START_DIR]/third_party/go/src/make.bash"
+      "[START_DIR]/go/src/make.bash"
     ],
-    "cwd": "[START_DIR]/third_party/go/src",
+    "cwd": "[START_DIR]/go/src",
     "env": {
       "GOROOT_BOOTSTRAP": "[START_DIR]/cipd/go"
     },
     "name": "build"
-  },
-  {
-    "cmd": [],
-    "name": "install"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[CLEANUP]/go.install"
-    ],
-    "infra_step": true,
-    "name": "install.create pkg dir",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copytree",
-      "[START_DIR]/third_party/go/bin",
-      "[CLEANUP]/go.install/bin"
-    ],
-    "infra_step": true,
-    "name": "install.copy bin",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copytree",
-      "[START_DIR]/third_party/go/lib",
-      "[CLEANUP]/go.install/lib"
-    ],
-    "infra_step": true,
-    "name": "install.copy lib",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copytree",
-      "[START_DIR]/third_party/go/pkg",
-      "[CLEANUP]/go.install/pkg"
-    ],
-    "infra_step": true,
-    "name": "install.copy pkg",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copytree",
-      "[START_DIR]/third_party/go/src",
-      "[CLEANUP]/go.install/src"
-    ],
-    "infra_step": true,
-    "name": "install.copy src",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copytree",
-      "[START_DIR]/third_party/go/misc",
-      "[CLEANUP]/go.install/misc"
-    ],
-    "infra_step": true,
-    "name": "install.copy misc",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
   },
   {
     "cmd": [
@@ -355,7 +228,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/third_party/go/VERSION.cache",
+      "[START_DIR]/go/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -365,24 +238,38 @@
     "cmd": [
       "cipd",
       "pkg-build",
-      "-in",
-      "[CLEANUP]/go.install",
-      "-name",
-      "fuchsia/go/linux-amd64",
+      "-pkg-def",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/go.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/go/linux-amd64\", \"root\": \"[START_DIR]/go\"}",
       "-out",
       "[CLEANUP]/go.cipd",
       "-json-output",
-      "/path/to/tmp/json",
-      "-install-mode",
-      "copy"
+      "/path/to/tmp/json"
     ],
-    "name": "build linux-amd64",
+    "name": "build fuchsia/go/linux-amd64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/go/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/go/linux-amd64",
+      "-tag",
+      "git_revision:c6c554304e6d268f34ed510a36e77071830352cc",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "cipd search fuchsia/go/linux-amd64 git_revision:c6c554304e6d268f34ed510a36e77071830352cc",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]

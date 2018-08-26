@@ -1443,7 +1443,7 @@ Recipe for building GCC toolchain.
 
 Recipe for building Go toolchain.
 
-&mdash; **def [RunSteps](/recipes/go_toolchain.py#34)(api, repository, revision):**
+&mdash; **def [RunSteps](/recipes/go_toolchain.py#37)(api, repository, branch, revision):**
 ### *recipes* / [goma:examples/full](/recipe_modules/goma/examples/full.py)
 
 [DEPS](/recipe_modules/goma/examples/full.py#5): [goma](#recipe_modules-goma), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
