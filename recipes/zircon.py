@@ -62,6 +62,7 @@ TOOLCHAINS = {
   'clang': (['USE_CLANG=true'], '-clang'),
   'asan': (['USE_ASAN=true'], '-asan'),
   'lto': (['USE_LTO=true', 'USE_THINLTO=false'], '-lto'),
+  'profile': (['USE_PROFILE=true'], '-profile'),
   'thinlto': (['USE_LTO=true', 'USE_THINLTO=true'], '-thinlto'),
 }
 
