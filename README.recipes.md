@@ -1575,15 +1575,17 @@ Args:
 
 Recipe for building QEMU.
 
-&mdash; **def [RunSteps](/recipes/qemu.py#344)(api, repository, branch, revision, platform):**
+&mdash; **def [RunSteps](/recipes/qemu.py#365)(api, repository, branch, revision, platform):**
 
-&mdash; **def [build\_glib](/recipes/qemu.py#229)(api, cipd_dir, pkg_dir, platform, host):**
+&mdash; **def [build\_gettext](/recipes/qemu.py#229)(api, cipd_dir, pkg_dir, platform, host):**
+
+&mdash; **def [build\_glib](/recipes/qemu.py#250)(api, cipd_dir, pkg_dir, platform, host):**
 
 &mdash; **def [build\_libffi](/recipes/qemu.py#209)(api, cipd_dir, pkg_dir, platform, host):**
 
 &mdash; **def [build\_pixman](/recipes/qemu.py#171)(api, cipd_dir, pkg_dir, platform, host):**
 
-&mdash; **def [build\_qemu](/recipes/qemu.py#252)(api, cipd_dir, pkg_dir, platform, host):**
+&mdash; **def [build\_qemu](/recipes/qemu.py#273)(api, cipd_dir, pkg_dir, platform, host):**
 
 &mdash; **def [build\_sdl](/recipes/qemu.py#190)(api, cipd_dir, pkg_dir, platform, env={}):**
 

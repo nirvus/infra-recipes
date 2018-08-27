@@ -226,6 +226,27 @@ def build_libffi(api, cipd_dir, pkg_dir, platform, host):
     api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
 
 
+def build_gettext(api, cipd_dir, pkg_dir, platform, host):
+  src_dir = api.path.mkdtemp('gettext_src')
+  api.git.checkout('https://fuchsia.googlesource.com/third_party/gettext',
+                   src_dir, submodules=True)
+  build_dir = api.path.mkdtemp('gettext_build')
+
+  with api.context(cwd=src_dir):
+    api.step('autogen', [src_dir.join('autogen.sh')])
+  with api.context(cwd=build_dir):
+    configure(api, cipd_dir, src_dir, platform, host, [
+      '--prefix=',
+      '--target=%s' % PLATFORM_TO_TRIPLE[platform],
+      '--with-pic',
+      '--enable-static',
+      '--disable-shared',
+      '--disable-nls',
+    ])
+    api.step('build', ['make', '-j%d' % api.goma.jobs])
+    api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
+
+
 def build_glib(api, cipd_dir, pkg_dir, platform, host):
   src_dir = api.path.mkdtemp('glib_src')
   api.git.checkout('https://fuchsia.googlesource.com/third_party/glib',
@@ -399,6 +420,9 @@ def RunSteps(api, repository, branch, revision, platform):
 
     with api.step.nest('libffi'):
       build_libffi(api, cipd_dir, pkg_dir, target_platform, host_platform)
+
+    with api.step.nest('gettext'):
+      build_gettext(api, cipd_dir, pkg_dir, target_platform, host_platform)
 
     with api.step.nest('glib'):
       build_glib(api, cipd_dir, pkg_dir, target_platform, host_platform)

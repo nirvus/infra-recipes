@@ -1077,6 +1077,277 @@
       "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
       "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
     },
+    "name": "gettext"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[TMP_BASE]/gettext_src_tmp_9"
+    ],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "infra_step": true,
+    "name": "gettext.makedirs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.git init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/gettext"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.git remote",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "master"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.git fetch",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.git checkout",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.git clean",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.submodule sync",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.submodule update",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/gettext_src_tmp_9/autogen.sh"
+    ],
+    "cwd": "[TMP_BASE]/gettext_src_tmp_9",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.autogen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[TMP_BASE]/gettext_src_tmp_9/configure",
+      "--build=x86_64-linux-gnu",
+      "--host=x86_64-linux-gnu",
+      "--prefix=",
+      "--target=x86_64-linux-gnu",
+      "--with-pic",
+      "--enable-static",
+      "--disable-shared",
+      "--disable-nls",
+      "CFLAGS=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CC=[START_DIR]/cipd/bin/clang",
+      "RANLIB=[START_DIR]/cipd/bin/llvm-ranlib",
+      "CXXFLAGS=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "CXX=[START_DIR]/cipd/bin/clang++",
+      "AR=[START_DIR]/cipd/bin/llvm-ar",
+      "LDFLAGS=--target=x86_64-linux-gnu --sysroot=[START_DIR]/cipd/sysroot",
+      "STRIP=[START_DIR]/cipd/bin/llvm-strip",
+      "OBJCOPY=[START_DIR]/cipd/bin/llvm-objcopy",
+      "NM=[START_DIR]/cipd/bin/llvm-nm"
+    ],
+    "cwd": "[TMP_BASE]/gettext_build_tmp_10",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.configure",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "-j20"
+    ],
+    "cwd": "[TMP_BASE]/gettext_build_tmp_10",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "install",
+      "DESTDIR=[START_DIR]/pkgconfig"
+    ],
+    "cwd": "[TMP_BASE]/gettext_build_tmp_10",
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
+    "name": "gettext.install",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
+      "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
+      "PKG_CONFIG_LIBDIR": "[START_DIR]/pkgconfig/share/pkgconfig:[START_DIR]/pkgconfig/lib/pkgconfig",
+      "PKG_CONFIG_SYSROOT_DIR": "[START_DIR]/pkgconfig"
+    },
     "name": "glib"
   },
   {
@@ -1089,7 +1360,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/glib_src_tmp_9"
+      "[TMP_BASE]/glib_src_tmp_11"
     ],
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
@@ -1108,7 +1379,7 @@
       "git",
       "init"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_9",
+    "cwd": "[TMP_BASE]/glib_src_tmp_11",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1128,7 +1399,7 @@
       "origin",
       "https://fuchsia.googlesource.com/third_party/glib"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_9",
+    "cwd": "[TMP_BASE]/glib_src_tmp_11",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1147,7 +1418,7 @@
       "origin",
       "refs/tags/2.57.2"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_9",
+    "cwd": "[TMP_BASE]/glib_src_tmp_11",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1166,7 +1437,7 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_9",
+    "cwd": "[TMP_BASE]/glib_src_tmp_11",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1184,7 +1455,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_9",
+    "cwd": "[TMP_BASE]/glib_src_tmp_11",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1206,7 +1477,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_9",
+    "cwd": "[TMP_BASE]/glib_src_tmp_11",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1220,9 +1491,9 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/glib_src_tmp_9/autogen.sh"
+      "[TMP_BASE]/glib_src_tmp_11/autogen.sh"
     ],
-    "cwd": "[TMP_BASE]/glib_src_tmp_9",
+    "cwd": "[TMP_BASE]/glib_src_tmp_11",
     "env": {
       "NOCONFIGURE": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
@@ -1237,7 +1508,7 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/glib_src_tmp_9/configure",
+      "[TMP_BASE]/glib_src_tmp_11/configure",
       "--build=x86_64-linux-gnu",
       "--host=x86_64-linux-gnu",
       "--prefix=",
@@ -1259,7 +1530,7 @@
       "OBJCOPY=[START_DIR]/cipd/bin/llvm-objcopy",
       "NM=[START_DIR]/cipd/bin/llvm-nm"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_10",
+    "cwd": "[TMP_BASE]/glib_build_tmp_12",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1276,7 +1547,7 @@
       "make",
       "-j20"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_10",
+    "cwd": "[TMP_BASE]/glib_build_tmp_12",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1294,7 +1565,7 @@
       "install",
       "DESTDIR=[START_DIR]/pkgconfig"
     ],
-    "cwd": "[TMP_BASE]/glib_build_tmp_10",
+    "cwd": "[TMP_BASE]/glib_build_tmp_12",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1326,7 +1597,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/qemu_src_tmp_11"
+      "[TMP_BASE]/qemu_src_tmp_13"
     ],
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
@@ -1345,7 +1616,7 @@
       "git",
       "init"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_11",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_13",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1365,7 +1636,7 @@
       "origin",
       "https://fuchsia.googlesource.com/third_party/qemu"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_11",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_13",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1384,7 +1655,7 @@
       "origin",
       "master"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_11",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_13",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1403,7 +1674,7 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_11",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_13",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1421,7 +1692,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_11",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_13",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1443,7 +1714,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_11",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_13",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1461,7 +1732,7 @@
       "submodule",
       "sync"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_11",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_13",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1480,7 +1751,7 @@
       "update",
       "--init"
     ],
-    "cwd": "[TMP_BASE]/qemu_src_tmp_11",
+    "cwd": "[TMP_BASE]/qemu_src_tmp_13",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1494,7 +1765,7 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/qemu_src_tmp_11/configure",
+      "[TMP_BASE]/qemu_src_tmp_13/configure",
       "--prefix=",
       "--target-list=aarch64-softmmu,x86_64-softmmu",
       "--without-system-fdt",
@@ -1554,7 +1825,7 @@
       "--enable-sdl",
       "--enable-kvm"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_12",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_14",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1571,7 +1842,7 @@
       "make",
       "-j2"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_12",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_14",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1587,9 +1858,9 @@
     "cmd": [
       "make",
       "install",
-      "DESTDIR=[TMP_BASE]/qemu_install_tmp_13"
+      "DESTDIR=[TMP_BASE]/qemu_install_tmp_15"
     ],
-    "cwd": "[TMP_BASE]/qemu_build_tmp_12",
+    "cwd": "[TMP_BASE]/qemu_build_tmp_14",
     "env": {
       "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS": "1",
       "PKG_CONFIG_ALLOW_SYSTEM_LIBS": "1",
@@ -1609,7 +1880,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/qemu_src_tmp_11/VERSION",
+      "[TMP_BASE]/qemu_src_tmp_13/VERSION",
       "/path/to/tmp/"
     ],
     "env": {
@@ -1629,7 +1900,7 @@
       "cipd",
       "pkg-build",
       "-pkg-def",
-      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/fuchsia/third_party/qemu/linux-amd64.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/third_party/qemu/linux-amd64\", \"root\": \"[TMP_BASE]/qemu_install_tmp_13\"}",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/fuchsia/third_party/qemu/linux-amd64.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/third_party/qemu/linux-amd64\", \"root\": \"[TMP_BASE]/qemu_install_tmp_15\"}",
       "-out",
       "[CLEANUP]/third_party_qemu_linux-amd64.cipd",
       "-json-output",
