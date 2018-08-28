@@ -950,7 +950,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           requests_json=self.m.json.input(trigger_result.json.output))
       assert len(results) == 1
       result = results[0]
-    self.analyze_collect_result('task results', result, build.zircon_build_dir)
+    self.analyze_collect_result('task results', result, build.fuchsia_build_dir)
 
     # Extract test results.
     with self.m.context(infra_steps=True):
@@ -1034,7 +1034,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           requests_json=self.m.json.input(trigger_result.json.output))
       assert len(results) == 1
       result = results[0]
-    self.analyze_collect_result('task results', result, build.zircon_build_dir)
+    self.analyze_collect_result('task results', result, build.fuchsia_build_dir)
 
     # Extract test results.
     with self.m.context(infra_steps=True):
@@ -1107,14 +1107,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
     else:
       return self._test_on_device(build, images, timeout_secs)
 
-  def analyze_collect_result(self, step_name, result, zircon_build_dir):
+  def analyze_collect_result(self, step_name, result, build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.
 
     Args:
       step_name (str): The display name of the step for this analysis.
       result (swarming.CollectResult): The swarming collection result to analyze.
-      zircon_build_dir (Path): A path to the zircon build directory for symbolization
-        artifacts.
+      build_dir (Path): A path to the build directory for symbolization artifacts.
 
     Raises:
       A StepFailure if a kernel panic is detected, or if the tests timed out.
@@ -1132,7 +1131,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         step_result.presentation.step_text = 'i/o timeout'
         step_result.presentation.status = self.m.step.FAILURE
         if result.output:
-          self._symbolize(zircon_build_dir, result.output)
+          self._symbolize(build_dir, result.output)
         failure_lines = [
             'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
             'Last 10 lines of kernel output:',
@@ -1146,7 +1145,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       step_result.presentation.step_text = 'kernel panic'
       step_result.presentation.status = self.m.step.FAILURE
       if result.output:
-        self._symbolize(zircon_build_dir, result.output)
+        self._symbolize(build_dir, result.output)
       raise self.m.step.StepFailure(
           'Found kernel panic. See symbolized output for details.')
 

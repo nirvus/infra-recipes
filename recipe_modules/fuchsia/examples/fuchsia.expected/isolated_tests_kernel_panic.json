@@ -781,7 +781,7 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/out/build-zircon/build-x64"
+      "[START_DIR]/out/debug-x64"
     ],
     "name": "symbolize",
     "stdin": "KERNEL PANIC",
@@ -790,7 +790,7 @@
   {
     "cmd": [
       "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/out/build-zircon/build-x64/ids.txt"
+      "[START_DIR]/out/debug-x64/ids.txt"
     ],
     "name": "symbolize logs",
     "stdin": "KERNEL PANIC",
