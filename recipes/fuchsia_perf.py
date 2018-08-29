@@ -69,6 +69,11 @@ PROPERTIES = {
     'gn_args':
         Property(
             kind=List(basestring), help='Extra args to pass to GN', default=[]),
+    'ninja_targets':
+        Property(
+            kind=List(basestring),
+            help='Extra target args to pass to ninja',
+            default=[]),
     'catapult_url':
         Property(
             kind=str,
@@ -123,7 +128,7 @@ PROPERTIES = {
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
-             variant, gn_args, catapult_url, device_type,
+             variant, gn_args, ninja_targets, catapult_url, device_type,
              dashboard_masters_name, dashboard_bots_name, patch_ref,
              patch_gerrit_url, patch_project, snapshot_gcs_bucket,
              upload_to_dashboard, benchmarks_package):
@@ -172,6 +177,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       packages=packages,
       variants=variant,
       gn_args=gn_args,
+      ninja_targets=ninja_targets,
       test_cmds=test_cmds,
       test_device_type=device_type,
   )
@@ -235,7 +241,7 @@ def GenTests(api):
   ) + (
       buildbucket_test_data +
       api.fuchsia.images_step_data() +
-      api.fuchsia.task_step_data() + 
+      api.fuchsia.task_step_data() +
       api.fuchsia.test_step_data()
   )
 
