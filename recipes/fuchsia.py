@@ -14,7 +14,7 @@ TARGETS = ['arm64', 'x64']
 
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
-DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'HiKey 960']
+DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE', 'HiKey 960']
 
 DEPS = [
     'infra/cipd',
