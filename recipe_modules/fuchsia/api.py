@@ -1124,6 +1124,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     step_result.presentation.logs['kernel log'] = kernel_output_lines
     if result.is_infra_failure():
       raise self.m.step.InfraFailure('Failed to collect: %s' % result.output)
+    elif result.expired():
+      raise self.m.step.InfraFailure('Timed out waiting for a bot to run on')
     elif result.is_failure():
       if result.timed_out():
         # If we have a timeout with a successful collect, then this must be an

@@ -34,6 +34,8 @@ def RunSteps(api):
   # Wait for its results.
   try:
     results = api.swarming.collect(timeout='1m', requests_json=json)
+    if results[0].expired():
+      raise api.step.StepTimeout('Task timed out waiting for a bot to run on!')
     if not results[0].is_failure() and not results[0].is_infra_failure():
       # Get the path of an output like this!
       path = results[0]['out/hello.txt']
@@ -60,5 +62,7 @@ def GenTests(api):
   yield api.test('infra_failure') + api.step_data(
       'collect', api.swarming.collect(task_data=[
           api.swarming.task_infra_failure(outputs=['output0'])]))
+  yield api.test('task_expired') + api.step_data(
+      'collect', api.swarming.collect(task_data=[api.swarming.task_expired()]))
   yield api.test('infra_failure_no_out') + api.step_data(
       'collect', api.json.output({}))

@@ -24,13 +24,20 @@ class CollectResult(object):
         }
 
   def is_failure(self):
-    return (not self._is_error) and ('failure' in self._raw_results['results'])
+    return ((not self._is_error) and
+            ('failure' in self._raw_results['results']))
 
   def is_infra_failure(self):
-    return (self._is_error) or ('internal_failure' in self._raw_results['results'])
+    return ((self._is_error) or
+            ('internal_failure' in self._raw_results['results']))
 
   def timed_out(self):
-    return (not self._is_error) and self._raw_results['results']['state'] == 'TIMED_OUT'
+    return ((not self._is_error) and
+            self._raw_results['results']['state'] == 'TIMED_OUT')
+
+  def expired(self):
+    return ((not self._is_error) and
+            self._raw_results['results']['state'] == 'EXPIRED')
 
   def __getitem__(self, key):
     return self._outputs[key]

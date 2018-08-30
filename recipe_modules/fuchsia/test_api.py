@@ -162,6 +162,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
                      device=False,
                      task_failure=False,
                      infra_failure=False,
+                     expired=False,
                      timed_out=False):
     """Returns mock step data for task results.
 
@@ -174,6 +175,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       infra_failure (bool): Whether there was an infra failure in executing the
         task.
       timed_out (bool): Whether the task timed out.
+      expired (bool): Whether the task expired waiting for live bots to become
+        available and pick up the task.
 
     Returns:
       RecipeTestApi.step_data for the collect step.
@@ -190,6 +193,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     elif timed_out:
       task_datum = self.m.swarming.task_timed_out(
           output=output, outputs=outputs)
+    elif expired:
+      task_datum = self.m.swarming.task_expired()
     else:
       task_datum = self.m.swarming.task_success(output=output, outputs=outputs)
     return self.step_data(
