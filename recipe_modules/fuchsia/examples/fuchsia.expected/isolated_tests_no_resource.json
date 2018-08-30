@@ -1,0 +1,779 @@
+[
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-v",
+      "-time",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
+      "-cache",
+      "[CACHE]/git",
+      "-shared"
+    ],
+    "infra_step": true,
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "-v",
+      "-time",
+      "-name",
+      "topaz",
+      "fuchsia",
+      "https://fuchsia.googlesource.com/manifest"
+    ],
+    "infra_step": true,
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update",
+    "timeout": 1200
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "run-hooks",
+      "-v",
+      "-time",
+      "-attempts=3"
+    ],
+    "infra_step": true,
+    "name": "jiri run-hooks"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "source-manifest",
+      "-v",
+      "-time",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "jiri source-manifest",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
+      "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "snapshot",
+      "-v",
+      "-time",
+      "[CLEANUP]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "jiri snapshot"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CLEANUP]/jiri.snapshot",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@snapshot_contents@@@@",
+      "@@@STEP_LOG_END@snapshot_contents@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/jiri.snapshot",
+      "gs://fuchsia-snapshots/builds/5555555555/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/builds/5555555555/jiri.snapshot@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[CLEANUP]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "hash jiri.snapshot",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/jiri.snapshot",
+      "gs://fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot (hash)",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\nruntests\numount /tmp/infra-test-output\ndm poweroff",
+      "[CLEANUP]/runcmds"
+    ],
+    "infra_step": true,
+    "name": "write runcmds",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
+      "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@runtests@@@",
+      "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
+      "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
+      "@@@STEP_LOG_END@runcmds@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@{@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@  name = \"infra_runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@  resources = [@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@    {@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@      path = \"[CLEANUP]/runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@      dest = \"runcmds\"@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@    },@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@  ]@@@",
+      "@@@STEP_LOG_LINE@runcmds_package_spec@}@@@",
+      "@@@STEP_LOG_END@runcmds_package_spec@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build"
+  },
+  {
+    "cmd": [],
+    "name": "build.ensure_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[CACHE]/goma/client",
+      "-ensure-file",
+      "infra_internal/goma/client/${platform} release",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "build.ensure_goma.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra_internal/goma/client/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build.pre_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "restart"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "infra_step": true,
+    "name": "build.pre_goma.start_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/build-zircon.sh",
+      "-t",
+      "x64",
+      "-j",
+      "20",
+      "GOMACC=[CACHE]/goma/client/gomacc"
+    ],
+    "name": "build.zircon",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build.build fuchsia",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/gn",
+      "gen",
+      "[START_DIR]/out/debug-x64",
+      "--check",
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true synthesize_packages = [ \n{\n  name = \"infra_runcmds\"\n  resources = [\n    {\n      path = \"[CLEANUP]/runcmds\"\n      dest = \"runcmds\"\n    },\n  ]\n}\n ]"
+    ],
+    "name": "build.build fuchsia.gn gen",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/ninja",
+      "-C",
+      "[START_DIR]/out/debug-x64",
+      "-j",
+      "20"
+    ],
+    "name": "build.build fuchsia.ninja",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "build.post_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "jsonstatus",
+      "[CACHE]/goma/client/jsonstatus"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build.post_goma.goma_jsonstatus",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"notice\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"infra_status\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"num_user_error\": 0, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"ping_status_code\": 200@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "stat"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build.post_goma.goma_stat",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CACHE]/goma/client/goma_ctl.py",
+      "stop"
+    ],
+    "env": {
+      "GOMA_CACHE_DIR": "[CACHE]/goma",
+      "GOMA_DEPS_CACHE_FILE": "goma_deps_cache"
+    },
+    "name": "build.post_goma.stop_goma",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/out/debug-x64/images.json",
+      "/path/to/tmp/json"
+    ],
+    "name": "read image manifest",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"zircon-a\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fuchsia.zbi\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"storage-full\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fvm.blk\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"blk\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"qemu-kernel\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"boot.bin\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"bin\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"netboot\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"netboot.zbi\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_swarming"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/luci/swarming",
+      "-ensure-file",
+      "infra/tools/luci/swarming/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_swarming.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/swarming/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_qemu"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/qemu",
+      "-ensure-file",
+      "fuchsia/qemu/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_qemu.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/qemu/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/qemu/bin/qemu-img",
+      "create",
+      "-f",
+      "qcow2",
+      "-b",
+      "fvm.blk",
+      "fuchsia.qcow2"
+    ],
+    "cwd": "[START_DIR]/out/debug-x64",
+    "name": "qemu-img create fuchsia.qcow2"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[START_DIR]/input.fs@16M",
+      "create"
+    ],
+    "name": "create test image"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/bin/sh\ncp input.fs output.fs\nmkdir empty-qemu-exec\ncd empty-qemu-exec\n../qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel ../boot.bin -serial stdio -monitor none -initrd ../fuchsia.zbi -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=../fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=../output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none",
+      "[START_DIR]/run-qemu.sh"
+    ],
+    "infra_step": true,
+    "name": "write qemu runner",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@mkdir empty-qemu-exec@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@cd empty-qemu-exec@@@",
+      "@@@STEP_LOG_LINE@run-qemu.sh@../qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel ../boot.bin -serial stdio -monitor none -initrd ../fuchsia.zbi -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=../fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=../output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none@@@",
+      "@@@STEP_LOG_END@run-qemu.sh@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_isolated"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/luci/isolate",
+      "-ensure-file",
+      "infra/tools/luci/isolated/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_isolated.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/isolated/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/luci/isolate/isolated",
+      "archive",
+      "-isolate-server",
+      "https://isolateserver.appspot.com",
+      "-namespace",
+      "default-gzip",
+      "-dump-hash",
+      "/path/to/tmp/",
+      "-files",
+      "[START_DIR]:input.fs",
+      "-files",
+      "[START_DIR]:run-qemu.sh",
+      "-files",
+      "[START_DIR]/out/debug-x64:fuchsia.zbi",
+      "-files",
+      "[START_DIR]/out/debug-x64:fvm.blk",
+      "-files",
+      "[START_DIR]/out/debug-x64:boot.bin",
+      "-files",
+      "[START_DIR]/out/debug-x64:fuchsia.qcow2"
+    ],
+    "name": "archive"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/luci/swarming/swarming",
+      "trigger",
+      "-isolate-server",
+      "https://isolateserver.appspot.com",
+      "-server",
+      "https://chromium-swarm.appspot.com",
+      "-task-name",
+      "all tests",
+      "-namespace",
+      "default-gzip",
+      "-dump-json",
+      "[CLEANUP]/qemu_test_results.json",
+      "-isolated",
+      "[dummy hash]",
+      "-dimension",
+      "cpu=x86-64",
+      "-dimension",
+      "kvm=1",
+      "-dimension",
+      "os=Debian",
+      "-dimension",
+      "pool=fuchsia.tests",
+      "-io-timeout",
+      "60",
+      "-hard-timeout",
+      "2400",
+      "-cipd-package",
+      "qemu:fuchsia/qemu/linux-amd64=latest",
+      "-output",
+      "output.fs",
+      "-raw-cmd",
+      "--",
+      "/bin/sh",
+      "run-qemu.sh"
+    ],
+    "infra_step": true,
+    "name": "trigger all tests",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"tasks\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"request\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"expiration_secs\": \"3600\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"name\": \"all tests\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"priority\": \"100\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"properties\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@          \"cipd_input\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@            \"packages\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@              {@@@",
+      "@@@STEP_LOG_LINE@json.output@                \"package_name\": \"fuchsia/qemu/linux-amd64\", @@@",
+      "@@@STEP_LOG_LINE@json.output@                \"path\": \"qemu\", @@@",
+      "@@@STEP_LOG_LINE@json.output@                \"version\": \"latest\"@@@",
+      "@@@STEP_LOG_LINE@json.output@              }@@@",
+      "@@@STEP_LOG_LINE@json.output@            ]@@@",
+      "@@@STEP_LOG_LINE@json.output@          }, @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"command\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@            \"/bin/sh\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"run-qemu.sh\"@@@",
+      "@@@STEP_LOG_LINE@json.output@          ], @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"dimensions\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@            {@@@",
+      "@@@STEP_LOG_LINE@json.output@              \"key\": \"cpu\", @@@",
+      "@@@STEP_LOG_LINE@json.output@              \"value\": \"x86-64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@            }, @@@",
+      "@@@STEP_LOG_LINE@json.output@            {@@@",
+      "@@@STEP_LOG_LINE@json.output@              \"key\": \"kvm\", @@@",
+      "@@@STEP_LOG_LINE@json.output@              \"value\": \"1\"@@@",
+      "@@@STEP_LOG_LINE@json.output@            }, @@@",
+      "@@@STEP_LOG_LINE@json.output@            {@@@",
+      "@@@STEP_LOG_LINE@json.output@              \"key\": \"os\", @@@",
+      "@@@STEP_LOG_LINE@json.output@              \"value\": \"Debian\"@@@",
+      "@@@STEP_LOG_LINE@json.output@            }, @@@",
+      "@@@STEP_LOG_LINE@json.output@            {@@@",
+      "@@@STEP_LOG_LINE@json.output@              \"key\": \"pool\", @@@",
+      "@@@STEP_LOG_LINE@json.output@              \"value\": \"fuchsia.tests\"@@@",
+      "@@@STEP_LOG_LINE@json.output@            }@@@",
+      "@@@STEP_LOG_LINE@json.output@          ], @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"execution_timeout_secs\": \"3600\", @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"grace_period_secs\": \"30\", @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"io_timeout_secs\": \"1200\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        }, @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"user\": \"luci\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"397418be219814a0\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/luci/swarming/swarming",
+      "collect",
+      "-server",
+      "https://chromium-swarm.appspot.com",
+      "-task-summary-json",
+      "/path/to/tmp/json",
+      "-task-output-stdout",
+      "json",
+      "-output-dir",
+      "[TMP_BASE]/swarming_tmp_1",
+      "-requests-json",
+      "{\"tasks\": [{\"request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"/bin/sh\", \"run-qemu.sh\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"task_id\": \"397418be219814a0\"}]}"
+    ],
+    "infra_step": true,
+    "name": "collect",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae7013\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"output\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"outputs\": null, @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"bot_version\": \"f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c47f2\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2017-12-01T22:06:11.538070\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2017-12-01T22:06:08.298510\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"duration\": 0.06629300117492676, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"exit_code\": \"2\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2017-12-01T22:06:11.538070\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"test\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ae7011\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"started_ts\": \"2017-11-01T22:06:09.155530\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"state\": \"NO_RESOURCE\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"tags\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"os:Debian\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"pool:Fuchsia\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      ], @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ae7013\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"try_number\": \"1\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"user\": \"luci\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "task results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@kernel log@@@@",
+      "@@@STEP_LOG_END@kernel log@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "reason": "Found no bots to run this task",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]

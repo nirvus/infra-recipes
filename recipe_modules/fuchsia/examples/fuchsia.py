@@ -270,6 +270,11 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[api.fuchsia.task_step_data(expired=True)])
   yield api.fuchsia.test(
+      'isolated_tests_no_resource',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_tests=True),
+      steps=[api.fuchsia.task_step_data(no_resource=True)])
+  yield api.fuchsia.test(
       'isolated_tests_kernel_panic',
       expect_failure=True,  # Failure step injected below.
       properties=dict(run_tests=True),

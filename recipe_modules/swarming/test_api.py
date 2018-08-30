@@ -71,6 +71,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
                    output=None,
                    outputs=()):
     output = output or 'hello world!'
+    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
     return {
         'output': output,
         'outputs': outputs,
@@ -117,6 +118,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
                    outputs=None):
     output = output or 'hello world!'
     outputs = outputs or ['out/hello.txt']
+    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
     return {
         'output': output,
         'outputs': outputs,
@@ -172,6 +174,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
                     outputs=None):
     output = output or 'hello world!'
     outputs = outputs or ['out/hello.txt']
+    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
     return {
         'output': output,
         'outputs': outputs,
@@ -216,6 +219,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
 
   @staticmethod
   def task_expired(id='39927049b6ae7013'):
+    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
     return {
         'output': '',
         'outputs': None,
@@ -243,6 +247,49 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
                 '2017-11-01T22:06:09.155530',
             'state':
                 'EXPIRED',
+            'tags': [
+                'os:Debian',
+                'pool:Fuchsia',
+            ],
+            'task_id':
+                id,
+            'try_number':
+                '1',
+            'user':
+                'luci',
+        },
+    }
+
+  @staticmethod
+  def task_no_resource(id='39927049b6ae7013'):
+    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
+    return {
+        'output': '',
+        'outputs': None,
+        'results': {
+            'bot_id':
+                'fuchsia-test-vm',
+            'bot_version': (
+                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c4'
+                '7f2'),
+            'completed_ts':
+                '2017-12-01T22:06:11.538070',
+            'created_ts':
+                '2017-12-01T22:06:08.298510',
+            'duration':
+                0.06629300117492676,
+            'exit_code':
+                '2',
+            'modified_ts':
+                '2017-12-01T22:06:11.538070',
+            'name':
+                'test',
+            'run_id':
+                '39927049b6ae7011',
+            'started_ts':
+                '2017-11-01T22:06:09.155530',
+            'state':
+                'NO_RESOURCE',
             'tags': [
                 'os:Debian',
                 'pool:Fuchsia',

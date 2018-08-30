@@ -39,6 +39,10 @@ class CollectResult(object):
     return ((not self._is_error) and
             self._raw_results['results']['state'] == 'EXPIRED')
 
+  def no_resource(self):
+    return ((not self._is_error) and
+            self._raw_results['results']['state'] == 'NO_RESOURCE')
+
   def __getitem__(self, key):
     return self._outputs[key]
 
