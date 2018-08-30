@@ -1474,7 +1474,7 @@ expected to have a Gopkg.toml file specifying its dependency restrictions.
 
 &mdash; **def [RunSteps](/recipes/infra.py#103)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, packages):**
 
-&mdash; **def [UploadPackage](/recipes/infra.py#70)(api, bin_name, bin_dir, revision, remote):**
+&mdash; **def [UploadPackage](/recipes/infra.py#70)(api, bin_name, bin_dir, revision, remote, platform):**
 
 Creates and uploads a CIPD package containing the tool at bin_dir/bin_name.
 

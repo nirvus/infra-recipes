@@ -258,10 +258,28 @@
       "fuchsia.googlesource.com/infra/infra/cmd/catapult"
     ],
     "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
     "name": "go build"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-o",
+      "[TMP_BASE]/infra_tmp_1/catapult",
+      "fuchsia.googlesource.com/infra/infra/cmd/catapult"
+    ],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "go build (2)"
   },
   {
     "name": "$result",

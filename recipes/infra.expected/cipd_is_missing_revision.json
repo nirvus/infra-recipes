@@ -258,6 +258,8 @@
       "fuchsia.googlesource.com/infra/infra/cmd/catapult"
     ],
     "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
@@ -274,6 +276,8 @@
       "/path/to/tmp/json"
     ],
     "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
     "name": "cipd search fuchsia/infra/catapult/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
@@ -300,6 +304,8 @@
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
     "name": "create fuchsia/infra/catapult/linux-amd64",
@@ -313,6 +319,59 @@
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-o",
+      "[TMP_BASE]/infra_tmp_1/catapult",
+      "fuchsia.googlesource.com/infra/infra/cmd/catapult"
+    ],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "go build (2)"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/infra/catapult/linux-arm64",
+      "-tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "cipd search fuchsia/infra/catapult/linux-arm64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/infra/catapult/linux-arm64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "Package is up-to-date"
   },
   {
     "name": "$result",

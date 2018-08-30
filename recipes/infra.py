@@ -67,7 +67,7 @@ DEP_VERSION = 'version:0.3.2'
 PKG_NAME = 'fuchsia.googlesource.com/infra/infra'
 
 
-def UploadPackage(api, bin_name, bin_dir, revision, remote):
+def UploadPackage(api, bin_name, bin_dir, revision, remote, platform):
   """
   Creates and uploads a CIPD package containing the tool at bin_dir/bin_name.
 
@@ -78,7 +78,7 @@ def UploadPackage(api, bin_name, bin_dir, revision, remote):
     bin_name: The name of the tool binary
   """
 
-  cipd_pkg_name = 'fuchsia/infra/%s/%s' % (bin_name, api.cipd.platform_suffix())
+  cipd_pkg_name = 'fuchsia/infra/%s/%s' % (bin_name, platform)
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
@@ -143,14 +143,17 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
     bin_dir = api.path.mkdtemp('infra')
 
-    # Build all tools.
-    for pkg in packages:
-      bin_name = pkg.split('/')[-1]
-      api.go('build', '-o', bin_dir.join(bin_name), pkg)
 
-      # Upload to CIPD.
-      if not api.properties.get('tryjob', False):
-        UploadPackage(api, bin_name, bin_dir, revision, remote)
+    # Build all tools for both x64 and arm64.
+    for arch in ['amd64', 'arm64']:
+      with api.context(env={'GOOS': 'linux', 'GOARCH': arch}):
+        for pkg in packages:
+          bin_name = pkg.split('/')[-1]
+          api.go('build', '-o', bin_dir.join(bin_name), pkg)
+
+          # Upload to CIPD.
+          if not api.properties.get('tryjob', False):
+            UploadPackage(api, bin_name, bin_dir, revision, remote, 'linux-%s' % arch)
 
 
 def GenTests(api):
