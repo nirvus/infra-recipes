@@ -157,8 +157,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     _TEST_RESULT_PASS = 'PASS'
     _TEST_RESULT_FAIL = 'FAIL'
 
-    def __init__(self, build_dir, zircon_kernel_log, outputs, json_api):
+    def __init__(self, build_dir, results_dir, zircon_kernel_log, outputs, json_api):
       self._build_dir = build_dir
+      self._results_dir = results_dir
       self._zircon_kernel_log = zircon_kernel_log
       self._outputs = outputs
 
@@ -172,6 +173,16 @@ class FuchsiaApi(recipe_api.RecipeApi):
         # TODO(kjharland): Raise explicit step failure when parsing fails so
         # that it's clear that the summary file is malformed.
         self._summary = json_api.loads(outputs['summary.json'])
+
+    @property
+    def build_dir(self):
+      """A path to the build directory for symbolization artifacts."""
+      return self._build_dir
+
+    @property
+    def results_dir(self):
+      """A path to the directory that contains test results."""
+      return self._results_dir
 
     @property
     def outputs(self):
@@ -229,6 +240,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
   def __init__(self, fuchsia_properties, *args, **kwargs):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
     self._build_metrics_gcs_bucket = fuchsia_properties.get('build_metrics_gcs_bucket')
+    self._test_coverage_gcs_bucket = fuchsia_properties.get('test_coverage_gcs_bucket')
 
   def checkout(self,
                manifest,
@@ -620,12 +632,16 @@ class FuchsiaApi(recipe_api.RecipeApi):
       symbolize_result.presentation.logs[
           'symbolized backtraces'] = symbolized_lines
 
-  def _symbolize_filter(self, build_dir, data):
+  def _symbolize_filter(self, build_dir, data, json_output=None):
     """Invokes zircon's symbolization script to symbolize the given data."""
+    downloads_dir = self.m.path['start_dir'].join('zircon', 'prebuilt', 'downloads')
     symbolize_cmd = [
-        self.m.path['start_dir'].join('zircon', 'scripts', 'symbolize-filter'),
-        build_dir.join('ids.txt'),
+        downloads_dir.join('symbolize'),
+        '-ids', build_dir.join('ids.txt'),
+        '-llvm-symbolizer', downloads_dir.join('clang', 'bin', 'llvm-symbolizer'),
     ]
+    if json_output:
+      symbolize_cmd.extend(['-json-output', json_output])
     symbolize_result = self.m.step(
         'symbolize logs',
         symbolize_cmd,
@@ -636,11 +652,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
     symbolized_lines = symbolize_result.stdout.splitlines()
     if symbolized_lines:
       symbolize_result.presentation.logs['symbolized logs'] = symbolized_lines
+    self.m.step('print file', ['cat', json_output])
 
-  def _symbolize(self, build_dir, data):
+  def _symbolize(self, build_dir, data, json_output=None):
     # Do both old and new symbolization styles for now.
     self._symbolize_compat(build_dir, data)
-    self._symbolize_filter(build_dir, data)
+    self._symbolize_filter(build_dir, data, json_output)
 
   def _isolate_files_at_isolated_root(self, files):
     """Isolates a set of files such that they all appear at the top-level.
@@ -731,6 +748,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     test_results_map = self.m.step.active_result.raw_io.output_dir
     return self.FuchsiaTestResults(
         build_dir=build.fuchsia_build_dir,
+        results_dir=test_results_dir,
         zircon_kernel_log=None,  # We did not run tests on target.
         outputs=test_results_map,
         json_api=self.m.json,
@@ -866,8 +884,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
           image_path=result[minfs_image_name],
           out_dir=test_results_dir,
       ).raw_io.output_dir
+
     return self.FuchsiaTestResults(
         build_dir=build.fuchsia_build_dir,
+        results_dir=test_results_dir,
         zircon_kernel_log=result.output,
         outputs=test_results_map,
         json_api=self.m.json,
@@ -986,8 +1006,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
           path=result[output_archive_name],
           directory=self.m.raw_io.output_dir(leak_to=test_results_dir),
       ).raw_io.output_dir
+
     return self.FuchsiaTestResults(
         build_dir=build.fuchsia_build_dir,
+        results_dir=test_results_dir,
         zircon_kernel_log=result.output,
         outputs=test_results_map,
         json_api=self.m.json,
@@ -1072,8 +1094,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     with self.m.step.nest(step_name) as step_result:
       if result.output:
+        # TODO: We should store this path somewhere.
+        symbolize_dump = self.m.path['cleanup'].join('symbolize-dump.json')
         # Always symbolize the result output if present.
-        self._symbolize(build_dir, result.output)
+        self._symbolize(build_dir, result.output, symbolize_dump)
       kernel_output_lines = result.output.split('\n')
       step_result.presentation.logs['kernel log'] = kernel_output_lines
       if result.is_failure():
@@ -1110,6 +1134,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
     with self.m.step.nest(step_name):
       # Log the results of each test.
       self.report_test_results(test_results)
+
+      if self._test_coverage_gcs_bucket:
+        symbolize_dump = self.m.path['cleanup'].join('symbolize-dump.json')
+        self._process_coverage(test_results, symbolize_dump)
 
       if test_results.failed_test_outputs:
         # Halt with a step failure.
@@ -1419,6 +1447,42 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     return list(
         map(self.m.path.abs_to_path, binary_to_symbol_file.itervalues()))
+
+  def _process_coverage(self, test_results, symbolize_dump):
+    self.m.gsutil.ensure_gsutil()
+
+    with self.m.context(infra_steps=True):
+      cipd_dir = self.m.path['start_dir'].join('cipd')
+      pkgs = self.m.cipd.EnsureFile()
+      pkgs.add_package('fuchsia/tools/covargs/${platform}', 'latest')
+      self.m.cipd.ensure(cipd_dir, pkgs)
+
+    host_platform = HOST_PLATFORMS[self.m.platform.arch][self.m.platform.bits]
+    downloads_dir = self.m.path['start_dir'].join('zircon', 'prebuilt', 'downloads')
+    clang_dir = downloads_dir.join('clang', 'bin')
+
+    output_dir = self.m.path['cleanup'].join('coverage')
+    self.m.step(
+        'covargs', [
+            cipd_dir.join('covargs'),
+            '-summary', test_results.results_dir.join('summary.json'),
+            # TODO: this is already in build_results, maybe we should pass it
+            # to this method rather than constructing it manually.
+            '-ids', test_results.build_dir.join('ids.txt'),
+            '-symbolize-dump', symbolize_dump,
+            '-output-dir', output_dir,
+            '-llvm-profdata', clang_dir.join('llvm-profdata'),
+            '-llvm-cov', clang_dir.join('llvm-cov'),
+        ])
+
+    # TODO: move this into gsutil module/deduplicate this with other GCS logic
+    dst = 'builds/%s/coverage' % self.m.buildbucket.build_id
+    step_result = self.m.gsutil(
+        'cp', '-r', '-z', 'html', '-a', 'public-read', output_dir,
+        'gs://%s/%s' % (self._test_coverage_gcs_bucket, dst),
+        name='upload coverage', parallel_upload=True)
+    step_result.presentation.links['index.html'] = self.m.gsutil._http_url(
+        self._test_coverage_gcs_bucket, self.m.gsutil.join(dst, 'index.html'), True)
 
   def _tracing_data(self, build_results):
     """Uploads GN and ninja tracing results for this build to GCS"""

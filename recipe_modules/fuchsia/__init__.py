@@ -39,8 +39,10 @@ PROPERTIES = {
         help='Properties specifically for the fuchsia module',
         param_name='fuchsia_properties',
         kind=ConfigGroup(
-          # Whether to upload tracing data from this build.
+          # The GCS bucket to upload build tracing data to.
           build_metrics_gcs_bucket=Single(str),
+          # The GCS bucket to upload code coverage artifacts to.
+          test_coverage_gcs_bucket=Single(str),
         ), default={},
       ),
 }

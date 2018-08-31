@@ -426,3 +426,14 @@ def GenTests(api):
           run_tests=True,
       ),
   )
+
+  # Test case for generating test coverage
+  yield api.fuchsia.test(
+      'upload_test_coverage',
+      test_coverage_gcs_bucket="###fake-bucket###",
+          properties=dict(
+          build_type='release',
+          target='x64',
+          run_tests=True,
+      ),
+  )

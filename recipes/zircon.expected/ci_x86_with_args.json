@@ -667,8 +667,13 @@
   },
   {
     "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/zircon/build-x64/ids.txt"
+      "[START_DIR]/zircon/prebuilt/downloads/symbolize",
+      "-ids",
+      "[START_DIR]/zircon/build-x64/ids.txt",
+      "-llvm-symbolizer",
+      "[START_DIR]/zircon/prebuilt/downloads/clang/bin/llvm-symbolizer",
+      "-json-output",
+      "[CLEANUP]/symbolize-dump.json"
     ],
     "name": "core tests task results.symbolize logs",
     "stdin": "core-tests succeeded RZMm59f7zOSs6aZUIXZR",
@@ -678,6 +683,16 @@
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_END@symbolized logs@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cat",
+      "[CLEANUP]/symbolize-dump.json"
+    ],
+    "name": "core tests task results.print file",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -704,8 +719,13 @@
   },
   {
     "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/zircon/build-x64/ids.txt"
+      "[START_DIR]/zircon/prebuilt/downloads/symbolize",
+      "-ids",
+      "[START_DIR]/zircon/build-x64/ids.txt",
+      "-llvm-symbolizer",
+      "[START_DIR]/zircon/prebuilt/downloads/clang/bin/llvm-symbolizer",
+      "-json-output",
+      "[CLEANUP]/symbolize-dump.json"
     ],
     "name": "booted tests task results.symbolize logs",
     "stdin": "hello world!",
@@ -715,6 +735,16 @@
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_END@symbolized logs@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cat",
+      "[CLEANUP]/symbolize-dump.json"
+    ],
+    "name": "booted tests task results.print file",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
