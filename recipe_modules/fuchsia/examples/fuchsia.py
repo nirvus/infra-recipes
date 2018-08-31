@@ -169,7 +169,9 @@ def RunSteps(
   )
   if run_tests:
     test_results = api.fuchsia.test(
-        build=build, external_network=networking_for_tests)
+        build=build,
+        test_pool='fuchsia.tests',
+        external_network=networking_for_tests)
     # Ensure failed_test_outputs gets filled out when tests fail.
     if test_results.summary and test_results.failed_test_outputs:
       assert test_results.failed_test_outputs['/hello']

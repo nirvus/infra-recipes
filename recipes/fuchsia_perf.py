@@ -74,6 +74,11 @@ PROPERTIES = {
             kind=List(basestring),
             help='Extra target args to pass to ninja',
             default=[]),
+    'test_pool':
+        Property(
+          kind=str,
+          help='Swarming pool from which a test task will be drawn',
+          default='fuchsia.tests'),
     'catapult_url':
         Property(
             kind=str,
@@ -128,9 +133,9 @@ PROPERTIES = {
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
-             variant, gn_args, ninja_targets, catapult_url, device_type,
-             dashboard_masters_name, dashboard_bots_name, patch_ref,
-             patch_gerrit_url, patch_project, snapshot_gcs_bucket,
+             variant, gn_args, ninja_targets, test_pool, catapult_url,
+             device_type, dashboard_masters_name, dashboard_bots_name,
+             patch_ref, patch_gerrit_url, patch_project, snapshot_gcs_bucket,
              upload_to_dashboard, benchmarks_package):
   api.catapult.ensure_catapult()
 
@@ -181,7 +186,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       test_cmds=test_cmds,
       test_device_type=device_type,
   )
-  test_results = api.fuchsia.test(build)
+  test_results = api.fuchsia.test(build, test_pool)
 
   # Log the results of each benchmark.
   api.fuchsia.report_test_results(test_results)

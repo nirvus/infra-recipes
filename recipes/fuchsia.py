@@ -105,6 +105,11 @@ PROPERTIES = {
             default=False),
 
     # Properties pertaining to testing.
+    'test_pool':
+        Property(
+          kind=str,
+          help='Swarming pool from which a test task will be drawn',
+          default='fuchsia.tests'),
     'run_tests':
         Property(kind=bool, help='Whether to run target tests', default=False),
     'runtests_args':
@@ -155,7 +160,7 @@ PROPERTIES = {
 def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              repository, patch_gerrit_url, patch_issue, patch_project,
              patch_ref, patch_repository_url, target, build_type, packages,
-             variant, gn_args, run_tests, runtests_args, run_host_tests,
+             variant, gn_args, test_pool, run_tests, runtests_args, run_host_tests,
              device_type, networking_for_tests, ninja_targets,
              test_timeout_secs, archive_gcs_bucket, upload_breakpad_symbols,
              snapshot_gcs_bucket):
@@ -266,6 +271,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
   if run_tests:
     test_results = api.fuchsia.test(
         build=build,
+        test_pool=test_pool,
         timeout_secs=test_timeout_secs,
         external_network=networking_for_tests,
     )

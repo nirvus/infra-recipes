@@ -757,7 +757,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
-  def _test_in_qemu(self, build, images, timeout_secs, external_network):
+  def _test_in_qemu(self, build, test_pool, images, timeout_secs, external_network):
     """Tests a Fuchsia build inside of QEMU.
 
     Expects the build and artifacts to be at the same place they were at
@@ -765,6 +765,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     Args:
       build (FuchsiaBuildResults): The Fuchsia build to test.
+      test_pool (str): Swarming pool from which the test task will be drawn.
       images (dict[string]Path): A map between the canonical name of an
         image produced by the Fuchsia build to the path to that image on the
         local disk.
@@ -930,7 +931,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           dump_json=self.m.path.join(self.m.path['cleanup'],
                                      'qemu_test_results.json'),
           dimensions={
-              'pool': 'fuchsia.tests',
+              'pool': test_pool,
               'os': 'Debian',
               'cpu': dimension_cpu,
               'kvm': '1',
@@ -969,7 +970,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         json_api=self.m.json,
     )
 
-  def _test_on_device(self, build, images, timeout_secs):
+  def _test_on_device(self, build, test_pool, images, timeout_secs):
     """Tests a Fuchsia build on a specific device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -977,6 +978,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     Args:
       build (FuchsiaBuildResults): The Fuchsia build to test.
+      test_pool (str): Swarming pool from which the test task will be drawn.
       images (dict[string]Path): A map between the canonical name of an
         image produced by the Fuchsia build to the path to that image on the
         local disk.
@@ -1017,7 +1019,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           botanist_cmd,
           isolated=isolated_hash,
           dimensions={
-              'pool': 'fuchsia.tests',
+              'pool': test_pool,
               'device_type': build.test_device_type,
           },
           io_timeout=TEST_IO_TIMEOUT_SECS,
@@ -1077,7 +1079,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       for image in raw_images
     }
 
-  def test(self, build, timeout_secs=40 * 60, external_network=False):
+  def test(self, build, test_pool, timeout_secs=40 * 60, external_network=False):
     """Tests a Fuchsia build on the specified device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -1085,6 +1087,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     Args:
       build (FuchsiaBuildResults): The Fuchsia build to test.
+      test_pool (str): Swarming pool from which the test task will be drawn.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
       external_network (bool): Whether to enable access to the external
@@ -1100,12 +1103,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
     if build.test_device_type == 'QEMU':
       return self._test_in_qemu(
           build=build,
+          test_pool=test_pool,
           images=images,
           timeout_secs=timeout_secs,
           external_network=external_network,
       )
     else:
-      return self._test_on_device(build, images, timeout_secs)
+      return self._test_on_device(build, test_pool, images, timeout_secs)
 
   def analyze_collect_result(self, step_name, result, build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.
