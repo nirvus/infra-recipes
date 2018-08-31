@@ -71,6 +71,7 @@ def UploadPackage(api, name, target, staging_dir, revision, remote):
       install_mode='copy',
   )
   pkg_def.add_file(staging_dir.join(name))
+  pkg_def.add_version_file('.versions/%s.cipd_version' % name)
 
   cipd_pkg_file = api.path['cleanup'].join('%s.cipd' % name)
   api.cipd.build_from_pkg(
