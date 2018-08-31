@@ -664,63 +664,11 @@
     ]
   },
   {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "[START_DIR]/zircon/build-x64-asan"
-    ],
-    "name": "symbolize",
-    "stdin": "core-tests succeeded RZMm59f7zOSs6aZUIXZR",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/zircon/build-x64-asan/ids.txt"
-    ],
-    "name": "symbolize logs",
-    "stdin": "core-tests succeeded RZMm59f7zOSs6aZUIXZR",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@",
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "core tests task results",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@kernel log@core-tests succeeded RZMm59f7zOSs6aZUIXZR@@@",
       "@@@STEP_LOG_END@kernel log@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "[START_DIR]/zircon/build-x64-asan"
-    ],
-    "name": "symbolize (2)",
-    "stdin": "hello world!",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/zircon/build-x64-asan/ids.txt"
-    ],
-    "name": "symbolize logs (2)",
-    "stdin": "hello world!",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@",
-      "@@@STEP_FAILURE@@@"
     ]
   },
   {

@@ -464,7 +464,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1175)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1176)(self, test_results):**
 
 Logs individual test results in separate steps.
 
@@ -483,7 +483,7 @@ separate subdirectories so as not to collide.
 
 The directory on target to which target test results will be written.
 
-&mdash; **def [run\_bloaty](/recipe_modules/fuchsia/api.py#1544)(self, build_results):**
+&mdash; **def [run\_bloaty](/recipe_modules/fuchsia/api.py#1548)(self, build_results):**
 
 Runs bloaty on the specified build results.
 
@@ -519,7 +519,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1413)(self, build_results, bucket, upload_breakpad_symbols=False):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1417)(self, build_results, bucket, upload_breakpad_symbols=False):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 

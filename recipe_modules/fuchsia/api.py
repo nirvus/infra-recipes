@@ -1119,21 +1119,19 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A StepFailure if a kernel panic is detected, or if the tests timed out.
       An InfraFailure if the swarming task failed for a different reason.
     """
-    if result.is_infra_failure():
-      raise self.m.step.InfraFailure('Failed to collect: %s' % result.output)
-    elif result.output:
-      # Always symbolize the result output if present.
-      self._symbolize(build_dir, result.output)
-
     step_result = self.m.step(step_name, None)
     kernel_output_lines = result.output.split('\n')
     step_result.presentation.logs['kernel log'] = kernel_output_lines
-    if result.is_failure():
+    if result.is_infra_failure():
+      raise self.m.step.InfraFailure('Failed to collect: %s' % result.output)
+    elif result.is_failure():
       if result.timed_out():
         # If we have a timeout with a successful collect, then this must be an
         # io_timeout failure, since task timeout > collect timeout.
         step_result.presentation.step_text = 'i/o timeout'
         step_result.presentation.status = self.m.step.FAILURE
+        if result.output:
+          self._symbolize(build_dir, result.output)
         failure_lines = [
             'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
             'Last 10 lines of kernel output:',
@@ -1146,6 +1144,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     elif 'KERNEL PANIC' in result.output:
       step_result.presentation.step_text = 'kernel panic'
       step_result.presentation.status = self.m.step.FAILURE
+      if result.output:
+        self._symbolize(build_dir, result.output)
       raise self.m.step.StepFailure(
           'Found kernel panic. See symbolized output for details.')
 
@@ -1160,14 +1160,15 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A StepFailure if any of the discovered tests failed.
     """
     with self.m.step.nest(step_name):
-      if test_results.zircon_kernel_log:
-        # Alway symbolize the kernel log output if present.
-        self._symbolize(test_results.build_dir, test_results.zircon_kernel_log)
-
       # Log the results of each test.
       self.report_test_results(test_results)
 
       if test_results.failed_test_outputs:
+        # If a Zircon kernel log is present, it may contain stack traces which
+        # we want to symbolize.
+        if test_results.zircon_kernel_log:
+          self._symbolize(test_results.build_dir,
+                          test_results.zircon_kernel_log)
         # Halt with a step failure.
         raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(
             test_results.failed_test_outputs.keys()))
@@ -1179,6 +1180,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
       test_results (FuchsiaTestResults): The test results.
     """
     if not test_results.summary:
+      if test_results.zircon_kernel_log:
+        self._symbolize(test_results.build_dir, test_results.zircon_kernel_log)
+
       # Halt with step failure if summary file is missing.
       raise self.m.step.StepFailure(
           'Test summary JSON not found, see kernel log for details')
