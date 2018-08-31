@@ -820,25 +820,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "task results",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
-      "@@@STEP_LOG_END@kernel log@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/out/build-zircon/tools/minfs",
-      "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/output.fs",
-      "cp",
-      "::",
-      "[START_DIR]/test_results/target"
-    ],
-    "infra_step": true,
-    "name": "extract results"
-  },
-  {
     "cmd": [
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
@@ -863,6 +844,25 @@
       "@@@STEP_LOG_END@symbolized logs@@@",
       "@@@STEP_FAILURE@@@"
     ]
+  },
+  {
+    "cmd": [],
+    "name": "task results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
+      "@@@STEP_LOG_END@kernel log@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/out/build-zircon/tools/minfs",
+      "[TMP_BASE]/swarming_tmp_1/39927049b6ee7010/output.fs",
+      "cp",
+      "::",
+      "[START_DIR]/test_results/target"
+    ],
+    "infra_step": true,
+    "name": "extract results"
   },
   {
     "name": "$result",

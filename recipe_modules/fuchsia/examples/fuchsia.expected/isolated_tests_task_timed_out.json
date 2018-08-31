@@ -768,16 +768,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "task results",
-    "~followup_annotations": [
-      "@@@STEP_TEXT@i/o timeout@@@",
-      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
-      "@@@STEP_LOG_END@kernel log@@@",
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
     "cmd": [
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
@@ -800,6 +790,16 @@
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_END@symbolized logs@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "task results",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@i/o timeout@@@",
+      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
+      "@@@STEP_LOG_END@kernel log@@@",
       "@@@STEP_FAILURE@@@"
     ]
   },
