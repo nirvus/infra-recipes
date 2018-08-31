@@ -382,54 +382,10 @@
   {
     "cmd": [
       "[START_DIR]/zircon/build-x64-clang/tools/minfs",
-      "[START_DIR]/input.fs@16M",
+      "[START_DIR]/output.fs@16M",
       "create"
     ],
-    "name": "create test image"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "#!/bin/sh\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true kernel.serial=legacy userboot=bin/core-tests userboot.shutdown' -device isa-debug-exit,iobase=0xf4,iosize=0x04 -machine q35 -enable-kvm -cpu host\nrc=$?\nif [ \"$rc\" -eq \"31\" ]; then\n  exit 0\nfi\nexit $rc",
-      "[START_DIR]/run-qemu-core.sh"
-    ],
-    "infra_step": true,
-    "name": "write qemu runner for core-tests",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@run-qemu-core.sh@#!/bin/sh@@@",
-      "@@@STEP_LOG_LINE@run-qemu-core.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true kernel.serial=legacy userboot=bin/core-tests userboot.shutdown' -device isa-debug-exit,iobase=0xf4,iosize=0x04 -machine q35 -enable-kvm -cpu host@@@",
-      "@@@STEP_LOG_LINE@run-qemu-core.sh@rc=$?@@@",
-      "@@@STEP_LOG_LINE@run-qemu-core.sh@if [ \"$rc\" -eq \"31\" ]; then@@@",
-      "@@@STEP_LOG_LINE@run-qemu-core.sh@  exit 0@@@",
-      "@@@STEP_LOG_LINE@run-qemu-core.sh@fi@@@",
-      "@@@STEP_LOG_LINE@run-qemu-core.sh@exit $rc@@@",
-      "@@@STEP_LOG_END@run-qemu-core.sh@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "#!/bin/sh\ncp input.fs output.fs\n./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true kernel.serial=legacy zircon.autorun.boot=/boot/bin/sh+/boot/infra/runcmds devmgr.suspend-timeout-debug=true' -device isa-debug-exit,iobase=0xf4,iosize=0x04 -machine q35 -enable-kvm -cpu host -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0",
-      "[START_DIR]/run-qemu.sh"
-    ],
-    "infra_step": true,
-    "name": "write qemu runner",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@./qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -kernel zircon.bin -serial stdio -monitor none -initrd bootdata.bin -append 'TERM=dumb kernel.halt-on-panic=true kernel.serial=legacy zircon.autorun.boot=/boot/bin/sh+/boot/infra/runcmds devmgr.suspend-timeout-debug=true' -device isa-debug-exit,iobase=0xf4,iosize=0x04 -machine q35 -enable-kvm -cpu host -drive file=output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0@@@",
-      "@@@STEP_LOG_END@run-qemu.sh@@@"
-    ]
+    "name": "create minfs image"
   },
   {
     "cmd": [
@@ -446,11 +402,7 @@
       "-files",
       "[START_DIR]/zircon/build-x64-clang:bootdata.bin",
       "-files",
-      "[START_DIR]:input.fs",
-      "-files",
-      "[START_DIR]:run-qemu-core.sh",
-      "-files",
-      "[START_DIR]:run-qemu.sh"
+      "[START_DIR]:output.fs"
     ],
     "name": "archive"
   },
@@ -484,10 +436,23 @@
       "600",
       "-cipd-package",
       "qemu:fuchsia/qemu/linux-amd64=latest",
+      "-cipd-package",
+      "botanist:fuchsia/infra/botanist/linux-amd64=latest",
       "-raw-cmd",
       "--",
-      "/bin/sh",
-      "./run-qemu-core.sh"
+      "./botanist/botanist",
+      "qemu",
+      "-qemu-dir",
+      "./qemu/bin",
+      "-qemu-kernel",
+      "zircon.bin",
+      "-zircon-a",
+      "bootdata.bin",
+      "-arch",
+      "x64",
+      "-use-kvm",
+      "userboot=bin/core-tests",
+      "userboot.shutdown"
     ],
     "infra_step": true,
     "name": "trigger core tests",
@@ -548,12 +513,28 @@
       "2400",
       "-cipd-package",
       "qemu:fuchsia/qemu/linux-amd64=latest",
+      "-cipd-package",
+      "botanist:fuchsia/infra/botanist/linux-amd64=latest",
       "-output",
       "output.fs",
       "-raw-cmd",
       "--",
-      "/bin/sh",
-      "./run-qemu.sh"
+      "./botanist/botanist",
+      "qemu",
+      "-qemu-dir",
+      "./qemu/bin",
+      "-qemu-kernel",
+      "zircon.bin",
+      "-zircon-a",
+      "bootdata.bin",
+      "-arch",
+      "x64",
+      "-use-kvm",
+      "-minfs",
+      "output.fs",
+      "-pci-addr",
+      "06.0",
+      "zircon.autorun.boot=/boot/bin/sh+/boot/infra/runcmds"
     ],
     "infra_step": true,
     "name": "trigger booted tests",
