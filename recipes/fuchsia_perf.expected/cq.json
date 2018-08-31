@@ -514,77 +514,12 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_qemu"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/qemu",
-      "-ensure-file",
-      "fuchsia/qemu/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_qemu.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/qemu/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/qemu/bin/qemu-img",
-      "create",
-      "-f",
-      "qcow2",
-      "-b",
-      "fvm.blk",
-      "fuchsia.qcow2"
-    ],
-    "cwd": "[START_DIR]/out/debug-x64",
-    "name": "qemu-img create fuchsia.qcow2"
-  },
-  {
     "cmd": [
       "[START_DIR]/out/build-zircon/tools/minfs",
-      "[START_DIR]/input.fs@16M",
+      "[START_DIR]/output.fs@16M",
       "create"
     ],
     "name": "create test image"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "#!/bin/sh\ncp input.fs output.fs\nmkdir empty-qemu-exec\ncd empty-qemu-exec\n../qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel ../boot.bin -serial stdio -monitor none -initrd ../fuchsia.zbi -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=../fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=../output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none",
-      "[START_DIR]/run-qemu.sh"
-    ],
-    "infra_step": true,
-    "name": "write qemu runner",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@run-qemu.sh@#!/bin/sh@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@cp input.fs output.fs@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@mkdir empty-qemu-exec@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@cd empty-qemu-exec@@@",
-      "@@@STEP_LOG_LINE@run-qemu.sh@../qemu/bin/qemu-system-x86_64 -m 4096 -smp 4 -nographic -machine q35 -kernel ../boot.bin -serial stdio -monitor none -initrd ../fuchsia.zbi -enable-kvm -cpu host -append 'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds kernel.halt-on-panic=true devmgr.suspend-timeout-debug=true kernel.serial=legacy' -drive file=../fuchsia.qcow2,format=qcow2,if=none,id=maindisk -device virtio-blk-pci,drive=maindisk -drive file=../output.fs,format=raw,if=none,id=testdisk -device virtio-blk-pci,drive=testdisk,addr=06.0 -net none@@@",
-      "@@@STEP_LOG_END@run-qemu.sh@@@"
-    ]
   },
   {
     "cmd": [],
@@ -627,17 +562,13 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]:input.fs",
-      "-files",
-      "[START_DIR]:run-qemu.sh",
+      "[START_DIR]:output.fs",
       "-files",
       "[START_DIR]/out/debug-x64:fuchsia.zbi",
       "-files",
       "[START_DIR]/out/debug-x64:fvm.blk",
       "-files",
-      "[START_DIR]/out/debug-x64:boot.bin",
-      "-files",
-      "[START_DIR]/out/debug-x64:fuchsia.qcow2"
+      "[START_DIR]/out/debug-x64:boot.bin"
     ],
     "name": "archive"
   },
@@ -671,12 +602,30 @@
       "2400",
       "-cipd-package",
       "qemu:fuchsia/qemu/linux-amd64=latest",
+      "-cipd-package",
+      "botanist:fuchsia/infra/botanist/linux-amd64=latest",
       "-output",
       "output.fs",
       "-raw-cmd",
       "--",
-      "/bin/sh",
-      "run-qemu.sh"
+      "./botanist/botanist",
+      "qemu",
+      "-qemu-dir",
+      "./qemu/bin",
+      "-qemu-kernel",
+      "boot.bin",
+      "-zircon-a",
+      "fuchsia.zbi",
+      "-storage-full",
+      "fvm.blk",
+      "-arch",
+      "x64",
+      "-minfs",
+      "output.fs",
+      "-pci-addr",
+      "06.0",
+      "-use-kvm",
+      "zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds"
     ],
     "infra_step": true,
     "name": "trigger all tests",
@@ -695,12 +644,33 @@
       "@@@STEP_LOG_LINE@json.output@                \"package_name\": \"fuchsia/qemu/linux-amd64\", @@@",
       "@@@STEP_LOG_LINE@json.output@                \"path\": \"qemu\", @@@",
       "@@@STEP_LOG_LINE@json.output@                \"version\": \"latest\"@@@",
+      "@@@STEP_LOG_LINE@json.output@              }, @@@",
+      "@@@STEP_LOG_LINE@json.output@              {@@@",
+      "@@@STEP_LOG_LINE@json.output@                \"package_name\": \"fuchsia/infra/botanist/linux-amd64\", @@@",
+      "@@@STEP_LOG_LINE@json.output@                \"path\": \"botanist\", @@@",
+      "@@@STEP_LOG_LINE@json.output@                \"version\": \"latest\"@@@",
       "@@@STEP_LOG_LINE@json.output@              }@@@",
       "@@@STEP_LOG_LINE@json.output@            ]@@@",
       "@@@STEP_LOG_LINE@json.output@          }, @@@",
       "@@@STEP_LOG_LINE@json.output@          \"command\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@            \"/bin/sh\", @@@",
-      "@@@STEP_LOG_LINE@json.output@            \"run-qemu.sh\"@@@",
+      "@@@STEP_LOG_LINE@json.output@            \"./botanist/botanist\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"qemu\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"-qemu-dir\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"./qemu/bin\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"-qemu-kernel\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"boot.bin\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"-zircon-a\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"fuchsia.zbi\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"-storage-full\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"fvm.blk\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"-arch\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"x64\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"-minfs\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"output.fs\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"-pci-addr\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"06.0\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"-use-kvm\", @@@",
+      "@@@STEP_LOG_LINE@json.output@            \"zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds\"@@@",
       "@@@STEP_LOG_LINE@json.output@          ], @@@",
       "@@@STEP_LOG_LINE@json.output@          \"dimensions\": [@@@",
       "@@@STEP_LOG_LINE@json.output@            {@@@",
@@ -746,7 +716,7 @@
       "-output-dir",
       "[TMP_BASE]/swarming_tmp_1",
       "-requests-json",
-      "{\"tasks\": [{\"request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}]}, \"command\": [\"/bin/sh\", \"run-qemu.sh\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"task_id\": \"397418be219814a0\"}]}"
+      "{\"tasks\": [{\"request\": {\"expiration_secs\": \"3600\", \"name\": \"all tests\", \"priority\": \"100\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/qemu/linux-amd64\", \"path\": \"qemu\", \"version\": \"latest\"}, {\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"qemu\", \"-qemu-dir\", \"./qemu/bin\", \"-qemu-kernel\", \"boot.bin\", \"-zircon-a\", \"fuchsia.zbi\", \"-storage-full\", \"fvm.blk\", \"-arch\", \"x64\", \"-minfs\", \"output.fs\", \"-pci-addr\", \"06.0\", \"-use-kvm\", \"zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds\"], \"dimensions\": [{\"key\": \"cpu\", \"value\": \"x86-64\"}, {\"key\": \"kvm\", \"value\": \"1\"}, {\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"io_timeout_secs\": \"1200\"}, \"user\": \"luci\"}, \"task_id\": \"397418be219814a0\"}]}"
     ],
     "infra_step": true,
     "name": "collect",

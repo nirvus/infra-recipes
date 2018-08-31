@@ -27,17 +27,8 @@ TARGET_TO_KERNEL_IMAGE = dict(zip(
     ['zircon.bin', 'qemu-zircon.bin'],
 )) # yapf: disable
 
-# Per-target kernel command line.
-TARGET_CMDLINE = dict(zip(
-    TARGETS,
-    [['kernel.serial=legacy'], []]
-)) # yapf: disable
-
 # List of available build types.
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
-
-# The name of the CoW Fuchsia image to create.
-FUCHSIA_IMAGE_NAME = 'fuchsia.qcow2'
 
 # The FVM block name.
 FVM_BLOCK_NAME = 'fvm.blk'
@@ -794,112 +785,35 @@ class FuchsiaApi(recipe_api.RecipeApi):
     storage_full_name = self.m.path.basename(storage_full_path)
     qemu_kernel_name = self.m.path.basename(qemu_kernel_path)
 
-    # Generate the copy-on-write (CoW) image for QEMU which acts as a frontend
-    # to the complete Fuchsia storage image. This copy-on-write image is used as
-    # a layer to prevent writes from within QEMU to the original underlying
-    # image and instead stores those edits in the CoW image.
-    cow_image_name = 'fuchsia.qcow2'
-    self.m.qemu.ensure_qemu()
-    fvmblk_dir = self.m.path.abs_to_path(self.m.path.dirname(storage_full_path))
-    with self.m.context(cwd=fvmblk_dir):
-      # We must be operating with this CWD because the QEMU tool encodes
-      # a relative path between the CoW image and its backing file
-      # inside the CoW image.
-      self.m.qemu.create_image(
-          image=cow_image_name,
-          backing_file=storage_full_name,
-          fmt='qcow2',
-      )
-      cow_image_path = fvmblk_dir.join(cow_image_name)
-
     # As part of running tests, we'll send a MinFS image over to another machine
     # which will be declared as a block device in QEMU, at which point
-    # Fuchsia will mount it and write test output to. input_image_name refers to
-    # the name of the image as its created by this recipe, and sent off to the
-    # test machine. output_image_name refers to the name of the image as its
-    # returned back from the other machine.
-    input_image_name = 'input.fs'
-    output_image_name = 'output.fs'
+    # Fuchsia will mount it and write test output to.
+    minfs_image_name = 'output.fs'
 
     # Create MinFS image (which will hold test output). We choose 16MB for the
     # MinFS image arbitrarily, and it appears it can hold our test output
     # comfortably without going overboard on size.
-    input_image_path = self.m.path['start_dir'].join(input_image_name)
-    self.m.minfs.create(input_image_path, '16M', name='create test image')
+    minfs_image_path = self.m.path['start_dir'].join(minfs_image_name)
+    self.m.minfs.create(minfs_image_path, '16M', name='create test image')
 
-    cmdline = [
-        'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
-        'kernel.halt-on-panic=true',
-        # Print a message if `dm poweroff` times out.
-        'devmgr.suspend-timeout-debug=true',
-    ] + TARGET_CMDLINE[build.target]
-
-    qemu_arch = {
-        'arm64': 'aarch64',
-        'x64': 'x86_64',
-    }[build.target]
-
-    # This variable is a directory we create in the test task so that QEMU runs
-    # in a clean working directory. The reason we want to do this is frequently
-    # QEMU will attempt to pick up files from its working directory, one
-    # notable culprit being multiboot.bin. As a result, sometimes QEMU will then
-    # use a file for an unintended purpose resulting in strange behavior and
-    # often a failure to boot. For more information, see ZX-2523.
-    qemu_working_dir = 'empty-qemu-exec'
-
-    # In this QEMU command, most paths to images are prefixed with '..'. This is
-    # because we'll be executing QEMU with an empty working directory, but we
-    # will still drop all the necessary images and QEMU itself such into that
-    # empty directory's parent directory.
-    qemu_cmd = [
-      '../qemu/bin/qemu-system-' + qemu_arch, # Dropped in by CIPD.
-      '-m', '4096',
-      '-smp', '4',
-      '-nographic',
-      '-machine', {'aarch64': 'virt,gic_version=host', 'x86_64': 'q35'}[qemu_arch],
-      '-kernel', '../%s' % qemu_kernel_name,
-      '-serial', 'stdio',
-      '-monitor', 'none',
-      '-initrd', '../%s' % zircon_a_name,
-      '-enable-kvm', '-cpu', 'host',
-      '-append', ' '.join(cmdline),
-
-      '-drive', 'file=../%s,format=qcow2,if=none,id=maindisk' % cow_image_name,
-      '-device', 'virtio-blk-pci,drive=maindisk',
-
-      '-drive', 'file=../%s,format=raw,if=none,id=testdisk' % output_image_name,
-      '-device', 'virtio-blk-pci,drive=testdisk,addr=%s' % TEST_FS_PCI_ADDR,
+    botanist_cmd = [
+      './botanist/botanist',
+      'qemu',
+      '-qemu-dir', './qemu/bin',
+      '-qemu-kernel', qemu_kernel_name,
+      '-zircon-a', zircon_a_name,
+      '-storage-full', storage_full_name,
+      '-arch', build.target,
+      '-minfs', minfs_image_name,
+      '-pci-addr', TEST_FS_PCI_ADDR,
+      '-use-kvm'
     ] # yapf: disable
 
-    # If we don't need the network, explicitly disable it.
-    if not external_network:
-      qemu_cmd.extend(['-net', 'none'])
+    if external_network:
+      botanist_cmd.append('-enable-networking')
 
-    # Create a qemu runner script which trivially copies the blank MinFS image
-    # to hold test results, in order to work around a bug in swarming where
-    # modifying cached isolate downloads will modify the cache contents.
-    #
-    # TODO(mknyszek): Once the isolate bug (http://crbug.com/812925) gets fixed,
-    # don't send a runner script to the bot anymore, since we don't need to do
-    # this hack to cp the image.
-    qemu_runner_script = [
-        '#!/bin/sh',
-        'cp %s %s' % (input_image_name, output_image_name),
-        'mkdir %s' % qemu_working_dir,
-        'cd %s' % qemu_working_dir,
-        ' '.join(map(pipes.quote, qemu_cmd)),
-    ]
-
-    # Write the QEMU runner to disk so that we can isolate it.
-    qemu_runner_name = 'run-qemu.sh'
-    qemu_runner_path = self.m.path['start_dir'].join(qemu_runner_name)
-    self.m.file.write_text(
-        'write qemu runner',
-        qemu_runner_path,
-        '\n'.join(qemu_runner_script),
-    )
-    self.m.step.active_result.presentation.logs[
-        qemu_runner_name] = qemu_runner_script
+    botanist_cmd.append(
+      'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds')
 
     # Isolate the Fuchsia build artifacts in addition to the test image and the
     # qemu runner.
@@ -907,12 +821,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
         zircon_a_path,
         storage_full_path,
         qemu_kernel_path,
-        cow_image_path,
-        input_image_path,
-        qemu_runner_path,
+        minfs_image_path,
     ])
 
-    qemu_cipd_arch = {
+    cipd_arch = {
         'arm64': 'arm64',
         'x64': 'amd64',
     }[build.target]
@@ -926,7 +838,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       # Trigger task.
       trigger_result = self.m.swarming.trigger(
           'all tests',
-          ['/bin/sh', qemu_runner_name],
+          botanist_cmd,
           isolated=isolated_hash,
           dump_json=self.m.path.join(self.m.path['cleanup'],
                                      'qemu_test_results.json'),
@@ -938,9 +850,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
           },
           io_timeout=TEST_IO_TIMEOUT_SECS,
           hard_timeout=timeout_secs,
-          outputs=[output_image_name],
-          cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % qemu_cipd_arch,
-                          'latest')],
+          outputs=[minfs_image_name],
+          cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % cipd_arch,
+                          'latest'),
+                         ('botanist', 'fuchsia/infra/botanist/linux-%s' % cipd_arch,
+                          'latest'),
+                        ],
       )
 
       # Run and upload bloaty data (will run only if specified).
@@ -960,7 +875,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       test_results_dir = self.results_dir_on_host.join('target')
       test_results_map = self.m.minfs.copy_image(
           step_name='extract results',
-          image_path=result[output_image_name],
+          image_path=result[minfs_image_name],
           out_dir=test_results_dir,
       ).raw_io.output_dir
     return self.FuchsiaTestResults(
