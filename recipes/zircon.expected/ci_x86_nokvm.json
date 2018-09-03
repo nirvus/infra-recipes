@@ -659,8 +659,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_END@symbolized logs@@@"
     ]
   },
   {
@@ -693,8 +692,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_END@symbolized logs@@@"
     ]
   },
   {
@@ -745,8 +743,7 @@
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_END@symbolized logs@@@"
     ]
   },
   {

@@ -629,7 +629,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     if symbolized_lines:
       symbolize_result.presentation.logs[
           'symbolized backtraces'] = symbolized_lines
-      symbolize_result.presentation.status = self.m.step.FAILURE
 
   def _symbolize_filter(self, build_dir, data):
     """Invokes zircon's symbolization script to symbolize the given data."""
@@ -647,7 +646,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     symbolized_lines = symbolize_result.stdout.splitlines()
     if symbolized_lines:
       symbolize_result.presentation.logs['symbolized logs'] = symbolized_lines
-      symbolize_result.presentation.status = self.m.step.FAILURE
 
   def _symbolize(self, build_dir, data):
     # Do both old and new symbolization styles for now.

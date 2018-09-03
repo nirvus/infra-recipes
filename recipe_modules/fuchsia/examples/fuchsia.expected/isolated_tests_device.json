@@ -707,8 +707,7 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_END@symbolized logs@@@"
     ]
   },
   {
@@ -797,8 +796,7 @@
       "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"PASS\"}]}@@@",
       "@@@STEP_LOG_END@summary.json@@@",
       "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",
-      "@@@STEP_LOG_END@goodbye-txt@@@",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_END@goodbye-txt@@@"
     ]
   },
   {
