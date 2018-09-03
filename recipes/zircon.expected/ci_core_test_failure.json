@@ -643,6 +643,32 @@
     ]
   },
   {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize",
+      "--no-echo",
+      "--build-dir",
+      "[START_DIR]/zircon/build-x64-clang"
+    ],
+    "name": "symbolize",
+    "stdin": "not success",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize-filter",
+      "[START_DIR]/zircon/build-x64-clang/ids.txt"
+    ],
+    "name": "symbolize logs",
+    "stdin": "not success",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_END@symbolized logs@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "core tests task results",
     "~followup_annotations": [

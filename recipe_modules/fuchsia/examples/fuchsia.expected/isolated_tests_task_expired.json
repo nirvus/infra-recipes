@@ -733,14 +733,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "task results",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@kernel log@@@@",
-      "@@@STEP_LOG_END@kernel log@@@"
-    ]
-  },
-  {
     "name": "$result",
     "reason": "Timed out waiting for a bot to run on",
     "recipe_result": null,

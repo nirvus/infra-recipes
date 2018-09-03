@@ -738,16 +738,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "task results",
-    "~followup_annotations": [
-      "@@@STEP_TEXT@i/o timeout@@@",
-      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
-      "@@@STEP_LOG_END@kernel log@@@",
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
     "cmd": [
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
@@ -764,6 +754,42 @@
       "[START_DIR]/out/debug-x64/ids.txt"
     ],
     "name": "symbolize logs",
+    "stdin": "hello world!",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_END@symbolized logs@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "task results",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@i/o timeout@@@",
+      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
+      "@@@STEP_LOG_END@kernel log@@@",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize",
+      "--no-echo",
+      "--build-dir",
+      "[START_DIR]/out/debug-x64"
+    ],
+    "name": "symbolize (2)",
+    "stdin": "hello world!",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize-filter",
+      "[START_DIR]/out/debug-x64/ids.txt"
+    ],
+    "name": "symbolize logs (2)",
     "stdin": "hello world!",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [

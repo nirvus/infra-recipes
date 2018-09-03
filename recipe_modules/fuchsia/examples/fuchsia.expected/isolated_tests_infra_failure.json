@@ -720,14 +720,6 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "task results",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@kernel log@something went wrong!@@@",
-      "@@@STEP_LOG_END@kernel log@@@"
-    ]
-  },
-  {
     "name": "$result",
     "reason": "Failed to collect: something went wrong!",
     "recipe_result": null,
