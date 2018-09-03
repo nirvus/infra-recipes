@@ -646,31 +646,6 @@
     ]
   },
   {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "[START_DIR]/zircon/build-x64-lto"
-    ],
-    "name": "symbolize",
-    "stdin": "core-tests succeeded RZMm59f7zOSs6aZUIXZR",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/zircon/build-x64-lto/ids.txt"
-    ],
-    "name": "symbolize logs",
-    "stdin": "core-tests succeeded RZMm59f7zOSs6aZUIXZR",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "core tests task results",
     "~followup_annotations": [
@@ -685,19 +660,23 @@
       "--build-dir",
       "[START_DIR]/zircon/build-x64-lto"
     ],
-    "name": "symbolize (2)",
-    "stdin": "hello world!",
-    "stdout": "/path/to/tmp/"
+    "name": "core tests task results.symbolize",
+    "stdin": "core-tests succeeded RZMm59f7zOSs6aZUIXZR",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
       "[START_DIR]/zircon/scripts/symbolize-filter",
       "[START_DIR]/zircon/build-x64-lto/ids.txt"
     ],
-    "name": "symbolize logs (2)",
-    "stdin": "hello world!",
+    "name": "core tests task results.symbolize logs",
+    "stdin": "core-tests succeeded RZMm59f7zOSs6aZUIXZR",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_END@symbolized logs@@@"
@@ -713,26 +692,12 @@
   },
   {
     "cmd": [
-      "[START_DIR]/zircon/build-x64-lto/tools/minfs",
-      "[TMP_BASE]/swarming_tmp_1/11/output.fs",
-      "cp",
-      "::",
-      "[START_DIR]/test_results/target"
-    ],
-    "name": "extract results"
-  },
-  {
-    "cmd": [],
-    "name": "booted test results"
-  },
-  {
-    "cmd": [
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
       "[START_DIR]/zircon/build-x64-lto"
     ],
-    "name": "booted test results.symbolize",
+    "name": "booted tests task results.symbolize",
     "stdin": "hello world!",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
@@ -744,7 +709,7 @@
       "[START_DIR]/zircon/scripts/symbolize-filter",
       "[START_DIR]/zircon/build-x64-lto/ids.txt"
     ],
-    "name": "booted test results.symbolize logs",
+    "name": "booted tests task results.symbolize logs",
     "stdin": "hello world!",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
@@ -753,6 +718,20 @@
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_END@symbolized logs@@@"
     ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/build-x64-lto/tools/minfs",
+      "[TMP_BASE]/swarming_tmp_1/11/output.fs",
+      "cp",
+      "::",
+      "[START_DIR]/test_results/target"
+    ],
+    "name": "extract results"
+  },
+  {
+    "cmd": [],
+    "name": "booted test results"
   },
   {
     "name": "$result",

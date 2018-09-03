@@ -737,36 +737,43 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "task results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
+      "@@@STEP_LOG_END@kernel log@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
       "[START_DIR]/out/debug-x64"
     ],
-    "name": "symbolize",
+    "name": "task results.symbolize",
     "stdin": "hello world!",
-    "stdout": "/path/to/tmp/"
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@symbolized backtraces@bt1@@@",
+      "@@@STEP_LOG_LINE@symbolized backtraces@bt2@@@",
+      "@@@STEP_LOG_END@symbolized backtraces@@@"
+    ]
   },
   {
     "cmd": [
       "[START_DIR]/zircon/scripts/symbolize-filter",
       "[START_DIR]/out/debug-x64/ids.txt"
     ],
-    "name": "symbolize logs",
+    "name": "task results.symbolize logs",
     "stdin": "hello world!",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
       "@@@STEP_LOG_END@symbolized logs@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "task results",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@kernel log@hello world!@@@",
-      "@@@STEP_LOG_END@kernel log@@@"
     ]
   },
   {
@@ -782,38 +789,8 @@
   },
   {
     "cmd": [],
-    "name": "test results"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "[START_DIR]/out/debug-x64"
-    ],
-    "name": "test results.symbolize",
-    "stdin": "hello world!",
-    "stdout": "/path/to/tmp/",
+    "name": "test results",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@symbolized backtraces@bt1@@@",
-      "@@@STEP_LOG_LINE@symbolized backtraces@bt2@@@",
-      "@@@STEP_LOG_END@symbolized backtraces@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/out/debug-x64/ids.txt"
-    ],
-    "name": "test results.symbolize logs",
-    "stdin": "hello world!",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@",
       "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"FAIL\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"FAIL\"}]}@@@",
       "@@@STEP_LOG_END@summary.json@@@",
       "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",

@@ -737,31 +737,6 @@
     ]
   },
   {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize",
-      "--no-echo",
-      "--build-dir",
-      "[START_DIR]/out/debug-x64"
-    ],
-    "name": "symbolize",
-    "stdin": "KERNEL PANIC",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/zircon/scripts/symbolize-filter",
-      "[START_DIR]/out/debug-x64/ids.txt"
-    ],
-    "name": "symbolize logs",
-    "stdin": "KERNEL PANIC",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
-      "@@@STEP_LOG_END@symbolized logs@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "task results",
     "~followup_annotations": [
@@ -769,6 +744,35 @@
       "@@@STEP_LOG_LINE@kernel log@KERNEL PANIC@@@",
       "@@@STEP_LOG_END@kernel log@@@",
       "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize",
+      "--no-echo",
+      "--build-dir",
+      "[START_DIR]/out/debug-x64"
+    ],
+    "name": "task results.symbolize",
+    "stdin": "KERNEL PANIC",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/scripts/symbolize-filter",
+      "[START_DIR]/out/debug-x64/ids.txt"
+    ],
+    "name": "task results.symbolize logs",
+    "stdin": "KERNEL PANIC",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_LINE@symbolized logs@blah@@@",
+      "@@@STEP_LOG_END@symbolized logs@@@"
     ]
   },
   {

@@ -174,16 +174,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self._summary = json_api.loads(outputs['summary.json'])
 
     @property
-    def build_dir(self):
-      """A path to the build directory for symbolization artifacts."""
-      return self._build_dir
-
-    @property
-    def zircon_kernel_log(self):
-      """Kernel output which may be passed to the symbolizer script."""
-      return self._zircon_kernel_log
-
-    @property
     def outputs(self):
       """A dict that maps test outputs to their contents.
 
@@ -1042,35 +1032,33 @@ class FuchsiaApi(recipe_api.RecipeApi):
       raise self.m.step.InfraFailure('Found no bots to run this task')
     elif result.expired():
       raise self.m.step.InfraFailure('Timed out waiting for a bot to run on')
-    elif result.output:
-      # Always symbolize the result output if present.
-      self._symbolize(build_dir, result.output)
 
-    step_result = self.m.step(step_name, None)
-    kernel_output_lines = result.output.split('\n')
-    step_result.presentation.logs['kernel log'] = kernel_output_lines
-    if result.is_failure():
-      if result.timed_out():
-        # If we have a timeout with a successful collect, then this must be an
-        # io_timeout failure, since task timeout > collect timeout.
-        step_result.presentation.step_text = 'i/o timeout'
+    with self.m.step.nest(step_name) as step_result:
+      if result.output:
+        # Always symbolize the result output if present.
+        self._symbolize(build_dir, result.output)
+      kernel_output_lines = result.output.split('\n')
+      step_result.presentation.logs['kernel log'] = kernel_output_lines
+      if result.is_failure():
+        if result.timed_out():
+          # If we have a timeout with a successful collect, then this must be an
+          # io_timeout failure, since task timeout > collect timeout.
+          step_result.presentation.step_text = 'i/o timeout'
+          step_result.presentation.status = self.m.step.FAILURE
+          failure_lines = [
+              'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
+              'Last 10 lines of kernel output:',
+          ] + kernel_output_lines[-10:]
+          raise self.m.step.StepFailure('\n'.join(failure_lines))
+        # At this point its likely an infra issue with QEMU.
+        step_result.presentation.status = self.m.step.EXCEPTION
+        raise self.m.step.InfraFailure(
+            'Swarming task failed:\n%s' % result.output)
+      elif 'KERNEL PANIC' in result.output:
+        step_result.presentation.step_text = 'kernel panic'
         step_result.presentation.status = self.m.step.FAILURE
-        if result.output:
-          self._symbolize(build_dir, result.output)
-        failure_lines = [
-            'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
-            'Last 10 lines of kernel output:',
-        ] + kernel_output_lines[-10:]
-        raise self.m.step.StepFailure('\n'.join(failure_lines))
-      # At this point its likely an infra issue with QEMU.
-      step_result.presentation.status = self.m.step.EXCEPTION
-      raise self.m.step.InfraFailure(
-          'Swarming task failed:\n%s' % result.output)
-    elif 'KERNEL PANIC' in result.output:
-      step_result.presentation.step_text = 'kernel panic'
-      step_result.presentation.status = self.m.step.FAILURE
-      raise self.m.step.StepFailure(
-          'Found kernel panic. See symbolized output for details.')
+        raise self.m.step.StepFailure(
+            'Found kernel panic. See symbolized output for details.')
 
   def analyze_test_results(self, step_name, test_results):
     """Analyzes test results represented by a FuchsiaTestResults.
@@ -1083,10 +1071,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A StepFailure if any of the discovered tests failed.
     """
     with self.m.step.nest(step_name):
-      if test_results.zircon_kernel_log:
-        # Alway symbolize the kernel log output if present.
-        self._symbolize(test_results.build_dir, test_results.zircon_kernel_log)
-
       # Log the results of each test.
       self.report_test_results(test_results)
 

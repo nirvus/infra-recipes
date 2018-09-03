@@ -246,7 +246,7 @@ def GenTests(api):
       steps=[
           api.fuchsia.task_step_data(),
           api.fuchsia.test_step_data(failure=True),
-          api.step_data('test results.symbolize',
+          api.step_data('task results.symbolize',
                         api.raw_io.stream_output('bt1\nbt2\n'))
       ])
   yield api.fuchsia.test(
