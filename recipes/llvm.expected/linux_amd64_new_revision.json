@@ -328,7 +328,7 @@
       "-DCMAKE_SYSROOT=[START_DIR]/cipd/sysroot",
       "-DLLVM_HOST_TRIPLE=x86_64-linux-gnu",
       "-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64",
-      "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM",
+      "-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;llvm-libraries;LLVM",
       "-DLLVM_BUILD_LLVM_DYLIB=ON",
       "-DLLVM_EXTERNALIZE_DEBUGINFO=ON",
       "-DCMAKE_AR=[START_DIR]/cipd/bin/llvm-ar",

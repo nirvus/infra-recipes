@@ -166,7 +166,7 @@ def RunSteps(api, repository, branch, revision, platform):
             '-DCMAKE_SYSROOT=%s' % sysroot,
             '-DLLVM_HOST_TRIPLE=%s' % triple,
             '-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64',
-            '-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;LLVM',
+            '-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;llvm-libraries;LLVM',
             '-DLLVM_BUILD_LLVM_DYLIB=ON',
             '-DLLVM_EXTERNALIZE_DEBUGINFO=ON',
         ] + extra_options + [llvm_dir.join('llvm')])
