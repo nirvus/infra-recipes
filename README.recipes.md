@@ -1699,7 +1699,7 @@ Recipe for building libwebkit.so.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#474)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
+&mdash; **def [Build](/recipes/zircon.py#477)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
 
 Builds zircon and returns a path to the build output directory.
 
@@ -1713,7 +1713,7 @@ Args:
   booted_task (str): The swarming task ID of the task running booted tests.
   build_dir (Path): A path to the directory containing build artifacts.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#558)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#561)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
 
 &mdash; **def [RunTestsInQEMU](/recipes/zircon.py#239)(api, target, build_dir, use_kvm):**
 

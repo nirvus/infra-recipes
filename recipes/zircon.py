@@ -447,7 +447,10 @@ def _BlockDeviceTestExtraUserManifestLines(api, tmp_dir, block_device_path):
   commands = [
       ('blktest', 'blktest -d %s' % block_device_path),
       ('fs-test-minfs',
-          '/boot/test/fs/fs-test -f minfs -d %s' % block_device_path)]
+          '/boot/test/fs/fs-test -f minfs -d %s' % block_device_path),
+      # value for -c is block count, should be small enough to let the test run
+      # in < 30 seconds.
+      ('iochk', 'iochk -c 16384 --live-dangerously %s' % block_device_path)]
   for name, command in commands:
     test_sh = ['#!/boot/bin/sh',
                command,
