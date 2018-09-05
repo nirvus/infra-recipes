@@ -169,6 +169,9 @@ def RunSteps(api, repository, branch, revision, platform):
             '-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;llvm-libraries;LLVM',
             '-DLLVM_BUILD_LLVM_DYLIB=ON',
             '-DLLVM_EXTERNALIZE_DEBUGINFO=ON',
+            '-DLLVM_ENABLE_LIBXML2=OFF',
+            '-DLLVM_ENABLE_TERMINFO=OFF',
+            '-DLLVM_ENABLE_ZLIB=OFF',
         ] + extra_options + [llvm_dir.join('llvm')])
         api.step(
             'build %s llvm' % triple,
