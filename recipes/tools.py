@@ -93,7 +93,8 @@ def UploadPackage(api, name, target, staging_dir, revision, remote):
       cipd_pkg_file,
       api.gsutil.join('tools', name, api.cipd.platform_suffix(),
                       step_result.json.output['result']['instance_id']),
-      unauthenticated_url=True
+      unauthenticated_url=True,
+      ok_ret=(0,1),
   )
 
 
