@@ -893,45 +893,27 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     self.m.swarming.ensure_swarming(version='latest')
 
-    # Use canonical image names to refer to images to extract the path to that
-    # image. These dict keys come from the images.json format which is produced
+    # Isolate the netboot ZBI image which is the only image required to run
+    # tests on a device at the moment.
+    #
+    # This dict key comes from the images.json format which is produced
     # by a Fuchsia build.
     # TODO(BLD-253): Point to the schema once there is one.
-    zircon_a_path = images['zircon-a']
-    efi_path = images['efi']
-    storage_sparse_path = images['storage-sparse']
-    data_template_path = images['data-template']
-
-    # All the *_name references below act as relative paths to the corresponding
-    # artifacts in the test Swarming task, since we isolate all of the artifacts
-    # into the root directory where the isolate is extracted.
-    zircon_a_name = self.m.path.basename(zircon_a_path)
-    efi_name = self.m.path.basename(efi_path)
-    storage_sparse_name = self.m.path.basename(storage_sparse_path)
-    data_template_name = self.m.path.basename(data_template_path)
+    zircon_a_path = images['netboot']
+    isolated_hash = self._isolate_files_at_isolated_root([zircon_a_path])
 
     # Construct the botanist command.
     output_archive_name = 'out.tar'
+    zircon_a_name = self.m.path.basename(zircon_a_path)
     botanist_cmd = [
       './botanist/botanist',
       'zedboot',
       '-properties', '/etc/botanist/config.json',
       '-kernel', zircon_a_name,
       '-results-dir', self.results_dir_on_target,
-      '-efi', efi_name,
-      '-fvm', storage_sparse_name,
-      '-fvm', data_template_name,
       '-out', output_archive_name,
       'zircon.autorun.system=/boot/bin/sh+/pkgfs/packages/infra_runcmds/0/data/runcmds',
     ] # yapf: disable
-
-    # Isolate all the necessary artifacts used by the botanist command.
-    isolated_hash = self._isolate_files_at_isolated_root([
-      zircon_a_path,
-      efi_path,
-      storage_sparse_path,
-      data_template_path,
-    ])
 
     with self.m.context(infra_steps=True):
       # Trigger task.
