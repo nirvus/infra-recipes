@@ -165,7 +165,7 @@ def RunSteps(api, repository, branch, revision, platform):
             '-DCMAKE_ASM_COMPILER_TARGET=%s' % triple,
             '-DCMAKE_SYSROOT=%s' % sysroot,
             '-DLLVM_HOST_TRIPLE=%s' % triple,
-            '-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64',
+            '-DLLVM_TARGETS_TO_BUILD=X86;AArch64',
             '-DLLVM_DISTRIBUTION_COMPONENTS=llvm-headers;llvm-libraries;LLVM',
             '-DLLVM_BUILD_LLVM_DYLIB=ON',
             '-DLLVM_EXTERNALIZE_DEBUGINFO=ON',
