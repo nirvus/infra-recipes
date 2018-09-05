@@ -42,7 +42,7 @@ PROPERTIES = {
     'patch_repository_url':
         Property(kind=str, help='URL to a Git repository', default=None),
     'project':
-        Property(kind=str, help='Jiri remote manifest project', default=None),
+        Property(kind=str, help='Jiri remote manifest project'),
     'manifest':
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
@@ -87,17 +87,18 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
   with api.context(infra_steps=True):
     if not revision:
       # api.fuchsia.checkout() will have ensured that jiri exists.
-      revision = api.jiri.project(['topaz']).json.output[0]['revision']
+      revision = api.jiri.project([project]).json.output[0]['revision']
       api.step.active_result.presentation.properties['got_revision'] = revision
 
   # Build fuchsia for each target.
   builds = {}
   for target in TARGETS:
     with api.step.nest('build ' + target):
+      sdk_build_package = '%s/packages/sdk/%s' % (project, project)
       builds[target] = api.fuchsia.build(
           target=target,
           build_type=BUILD_TYPE,
-          packages=['topaz/packages/sdk/topaz'])
+          packages=[sdk_build_package])
 
   # For each SDK type, per target, invoke the corresponding script that creates
   # the layout of artifacts and upload these to CIPD and GCS.
@@ -114,7 +115,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
             script_path,
             args=[
               '--manifest',
-              builds[target].fuchsia_build_dir.join('sdk-manifests', 'topaz'),
+              builds[target].fuchsia_build_dir.join('sdk-manifests', project),
               '--output',
               sdk_dir,
             ] + (['--overlay'] if overlay else []),
@@ -124,7 +125,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
     if not api.properties.get('tryjob'):
       with api.step.nest('upload %s sdk' % sdk_type.name):
         # Upload the SDK to CIPD and GCS.
-        UploadPackage(api, sdk_type.name, sdk_dir, revision)
+        UploadPackage(api, sdk_type.name, sdk_dir, remote, revision)
 
   # Likewise for the Chromium SDK, but by other legacy means.
   with api.step.nest('make chromium sdk'):
@@ -136,11 +137,11 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
   if not api.properties.get('tryjob'):
     with api.step.nest('upload chromium sdk'):
       # Upload the Chromium style SDK to GCS and CIPD.
-      UploadArchive(api, sdk, out_dir, revision)
+      UploadArchive(api, sdk, out_dir, remote, revision)
 
 # Given an SDK |sdk_name| with artifacts found in |staging_dir|, upload a
 # corresponding .cipd file to CIPD and GCS.
-def UploadPackage(api, sdk_name, staging_dir, revision):
+def UploadPackage(api, sdk_name, staging_dir, remote, revision):
   if sdk_name == 'fuchsia':
     sdk_subpath = 'sdk/%s' % api.cipd.platform_suffix()
   else:
@@ -170,7 +171,7 @@ def UploadPackage(api, sdk_name, staging_dir, revision):
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'git_repository': 'https://fuchsia.googlesource.com/topaz',
+        'git_repository': remote,
         'git_revision': revision,
       }
   )
@@ -184,7 +185,7 @@ def UploadPackage(api, sdk_name, staging_dir, revision):
   )
 
 
-def UploadArchive(api, sdk, out_dir, revision):
+def UploadArchive(api, sdk, out_dir, remote, revision):
   digest = api.hash.sha1('hash archive', sdk)
   archive_base_location = 'sdk/' + api.cipd.platform_suffix()
   archive_bucket = 'fuchsia'
@@ -236,7 +237,7 @@ def UploadArchive(api, sdk, out_dir, revision):
       pkg_def=pkg_def,
       refs=['latest'],
       tags={
-        'git_repository': 'https://fuchsia.googlesource.com/topaz',
+        'git_repository': remote,
         'git_revision': revision,
         'jiri_snapshot': digest,
       }
@@ -270,6 +271,10 @@ def GenTests(api):
       api.step_data('upload chromium sdk.hash archive',
                     api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
   yield (api.test('cq_try') +
+      api.properties(
+          project='topaz',
+          manifest='manifest/topaz',
+          remote='https://fuchsia.googlesource.com/topaz') +
       api.properties.tryserver(
           project='topaz',
           manifest='manifest/topaz',

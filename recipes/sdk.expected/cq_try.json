@@ -111,6 +111,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "topaz",
       "manifest/topaz",
       "https://fuchsia.googlesource.com/topaz"
     ],
