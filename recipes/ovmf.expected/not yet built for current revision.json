@@ -1,0 +1,204 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/edk2"
+    ],
+    "infra_step": true,
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://fuchsia.googlesource.com/third_party/edk2"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "master"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "submodule update"
+  },
+  {
+    "cmd": [
+      "git",
+      "show",
+      "HEAD",
+      "--format=%H",
+      "-s"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "git show",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/firmware/ovmf/firmware",
+      "-tag",
+      "git_revision:abc123",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "cipd search fuchsia/firmware/ovmf/firmware git_revision:abc123",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "make",
+      "-C",
+      "BaseTools"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "build BaseTools"
+  },
+  {
+    "cmd": [
+      "./OvmfPkg/build.sh",
+      "--arch=X64",
+      "--buildtarget=RELEASE"
+    ],
+    "cwd": "[START_DIR]/edk2",
+    "name": "build OVMF binaries"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-build",
+      "-in",
+      "[START_DIR]/edk2/Build/OvmfX64/RELEASE_GCC5/FV",
+      "-name",
+      "fuchsia/firmware/ovmf/firmware",
+      "-out",
+      "[CLEANUP]/ovmf.cipd",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-install-mode",
+      "copy"
+    ],
+    "name": "build firmware",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/firmware/ovmf/firmware\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "[CLEANUP]/ovmf.cipd",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-ref",
+      "latest",
+      "-tag",
+      "git_repository:https://fuchsia.googlesource.com/third_party/edk2",
+      "-tag",
+      "git_revision:abc123"
+    ],
+    "name": "register fuchsia/firmware/ovmf/firmware",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/firmware/ovmf/firmware\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

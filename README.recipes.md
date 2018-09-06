@@ -68,6 +68,7 @@
   * [llvm](#recipes-llvm) &mdash; Recipe for building LLVM.
   * [minfs:examples/full](#recipes-minfs_examples_full)
   * [modules](#recipes-modules) &mdash; Recipe for building and running pre-submit checks for the modules repo.
+  * [ovmf](#recipes-ovmf) &mdash; Recipe for building OVMF firmware and uploading them to CIPD.
   * [prebuilt_host_tool](#recipes-prebuilt_host_tool) &mdash; Recipe for building and publishing CIPD prebuilts.
   * [qemu](#recipes-qemu) &mdash; Recipe for building QEMU.
   * [qemu:examples/full](#recipes-qemu_examples_full)
@@ -1554,6 +1555,18 @@ Recipe for building LLVM.
 Recipe for building and running pre-submit checks for the modules repo.
 
 &mdash; **def [RunSteps](/recipes/modules.py#36)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, project_path):**
+### *recipes* / [ovmf](/recipes/ovmf.py)
+
+[DEPS](/recipes/ovmf.py#12): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe for building OVMF firmware and uploading them to CIPD.
+
+The Open Virtual Machine Firmware (OVMF) project supports firmware for Virtual
+Machines (e.g., QEMU). The produced OVMF_CODE.fd and OVMF_VARS.fd are used to
+emulate EFI bootloading in QEMU in order to boot Zircon off of disk. Currently
+this is only supported for x64.
+
+&mdash; **def [RunSteps](/recipes/ovmf.py#29)(api):**
 ### *recipes* / [prebuilt\_host\_tool](/recipes/prebuilt_host_tool.py)
 
 [DEPS](/recipes/prebuilt_host_tool.py#9): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
