@@ -132,7 +132,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
     out_dir = api.path['cleanup'].join('chromium-sdk')
     sdk = api.path['cleanup'].join('chromium-sdk.tgz')
     api.go('run', api.path['start_dir'].join('scripts', 'sdk', 'foundation', 'makesdk.go'),
-           '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
+           '-manifest', project, '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
 
   if not api.properties.get('tryjob'):
     with api.step.nest('upload chromium sdk'):

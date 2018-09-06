@@ -700,6 +700,8 @@
       "[START_DIR]/cipd/go/bin/go",
       "run",
       "[START_DIR]/scripts/sdk/foundation/makesdk.go",
+      "-manifest",
+      "topaz",
       "-out-dir",
       "[CLEANUP]/chromium-sdk",
       "-output",
