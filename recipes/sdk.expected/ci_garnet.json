@@ -112,9 +112,11 @@
       "-v",
       "-time",
       "-name",
-      "topaz",
-      "manifest/topaz",
-      "https://fuchsia.googlesource.com/topaz"
+      "garnet",
+      "-revision",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "manifest/garnet",
+      "https://fuchsia.googlesource.com/garnet"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -136,44 +138,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-v",
-      "-time",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "-project",
-      "topaz",
-      "-rebase=true",
-      "refs/changes/89/456789/12"
-    ],
-    "infra_step": true,
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-gc=true",
-      "-rebase-tracked",
-      "-local-manifest=true",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update (2)",
-    "timeout": 1200
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3",
-      "-local-manifest=true"
+      "-attempts=3"
     ],
     "infra_step": true,
     "name": "jiri run-hooks"
@@ -243,35 +211,6 @@
     "infra_step": true,
     "name": "hash snapshot",
     "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-v",
-      "-time",
-      "-json-output",
-      "/path/to/tmp/json",
-      "topaz"
-    ],
-    "infra_step": true,
-    "name": "jiri project",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"topaz\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/topaz\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/topaz\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
-    ]
   },
   {
     "cmd": [],
@@ -370,7 +309,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/garnet\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -554,7 +493,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/garnet\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -642,29 +581,170 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "make chromium sdk"
+  },
+  {
     "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/sdk/bazel/generate.py",
-      "--manifest",
-      "[START_DIR]/out/release-arm64/sdk-manifests/topaz",
-      "--output",
-      "[CLEANUP]/sdk-bazel"
+      "[START_DIR]/cipd/go/bin/go",
+      "run",
+      "[START_DIR]/scripts/sdk/foundation/makesdk.go",
+      "-manifest",
+      "garnet",
+      "-out-dir",
+      "[CLEANUP]/chromium-sdk",
+      "-output",
+      "[CLEANUP]/chromium-sdk.tgz",
+      "[START_DIR]"
     ],
-    "name": "create bazel sdk"
+    "env": {
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "make chromium sdk.go run",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload chromium sdk"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/scripts/sdk/bazel/generate.py",
-      "--manifest",
-      "[START_DIR]/out/release-x64/sdk-manifests/topaz",
-      "--output",
-      "[CLEANUP]/sdk-bazel",
-      "--overlay"
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[CLEANUP]/chromium-sdk.tgz"
     ],
-    "name": "create bazel sdk (2)"
+    "infra_step": true,
+    "name": "upload chromium sdk.hash archive",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/chromium-sdk.tgz",
+      "gs://fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
+    ],
+    "infra_step": true,
+    "name": "upload chromium sdk.upload fuchsia-sdk 27a0c185de8bb5dba483993ff1e362bc9e2c7643",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@archive@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "snapshot",
+      "-v",
+      "-time",
+      "[CLEANUP]/jiri.snapshot"
+    ],
+    "name": "upload chromium sdk.jiri snapshot",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/jiri.snapshot",
+      "gs://fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
+    ],
+    "infra_step": true,
+    "name": "upload chromium sdk.upload jiri.snapshot",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "27a0c185de8bb5dba483993ff1e362bc9e2c7643",
+      "[CLEANUP]/digest"
+    ],
+    "infra_step": true,
+    "name": "upload chromium sdk.write digest",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/digest",
+      "gs://fuchsia/sdk/linux-amd64/LATEST_ARCHIVE"
+    ],
+    "infra_step": true,
+    "name": "upload chromium sdk.upload latest digest",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@LATEST_ARCHIVE@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/LATEST_ARCHIVE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/sdk/chromium/linux-amd64",
+      "-tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "upload chromium sdk.cipd search fuchsia/sdk/chromium/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sdk/chromium/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload chromium sdk.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result",

@@ -5,6 +5,7 @@
 
 from contextlib import contextmanager
 
+from recipe_engine.config import Enum
 from recipe_engine.recipe_api import Property
 
 import collections
@@ -26,6 +27,8 @@ DEPS = [
     'recipe_engine/step',
 ]
 
+PROJECTS = ['garnet', 'topaz']
+
 TARGETS = ('arm64', 'x64')
 
 BUILD_TYPE = 'release'
@@ -42,7 +45,7 @@ PROPERTIES = {
     'patch_repository_url':
         Property(kind=str, help='URL to a Git repository', default=None),
     'project':
-        Property(kind=str, help='Jiri remote manifest project'),
+        Property(kind=Enum(*PROJECTS), help='Jiri remote manifest project'),
     'manifest':
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
@@ -50,24 +53,6 @@ PROPERTIES = {
     'revision':
         Property(kind=str, help='Revision of manifest to import', default=None),
 }
-
-# namedtuple representing an SDK type to be built and uploaded to CIPD and GCS.
-# |name| is the name of the SDK
-# |script_path| is the path from the fuchsia root at which one finds the
-#   script that generates the SDK artifacts.
-SDKType = collections.namedtuple('SDKType', ('name', 'script_path'))
-
-# The current list of SDKTypes that we build for.
-SDK_TYPES = (
-    SDKType(
-        name='fuchsia',
-        script_path=('scripts', 'sdk', 'foundation', 'generate.py'),
-    ),
-    SDKType(
-        name='bazel',
-        script_path=('scripts', 'sdk', 'bazel', 'generate.py'),
-    ),
-)
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
              patch_storage, patch_repository_url, project, manifest, remote,
@@ -100,22 +85,20 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
           build_type=BUILD_TYPE,
           packages=[sdk_build_package])
 
-  # For each SDK type, per target, invoke the corresponding script that creates
-  # the layout of artifacts and upload these to CIPD and GCS.
-  for sdk_type in SDK_TYPES:
-    script_path = api.path['start_dir'].join(*sdk_type.script_path)
-    sdk_dir = api.path['cleanup'].join('sdk-%s' % sdk_type.name)
+  if project == 'topaz':
+    script_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel', 'generate.py')
+    sdk_dir = api.path['cleanup'].join('sdk-bazel')
 
     # If |overlay| is false, the --output directory is deleted before producing
     # the SDK; if true, the script verifies that the --output directory exists
     # before overlaying content in it.
     overlay = False
     for target in TARGETS:
-        api.python('create %s sdk' % sdk_type.name,
+        api.python('create bazel sdk',
             script_path,
             args=[
               '--manifest',
-              builds[target].fuchsia_build_dir.join('sdk-manifests', project),
+              builds[target].fuchsia_build_dir.join('sdk-manifests', 'topaz'),
               '--output',
               sdk_dir,
             ] + (['--overlay'] if overlay else []),
@@ -123,30 +106,27 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
         overlay = True
 
     if not api.properties.get('tryjob'):
-      with api.step.nest('upload %s sdk' % sdk_type.name):
+      with api.step.nest('upload bazel sdk'):
         # Upload the SDK to CIPD and GCS.
-        UploadPackage(api, sdk_type.name, sdk_dir, remote, revision)
+        UploadPackage(api, 'bazel', sdk_dir, remote, revision)
 
   # Likewise for the Chromium SDK, but by other legacy means.
-  with api.step.nest('make chromium sdk'):
-    out_dir = api.path['cleanup'].join('chromium-sdk')
-    sdk = api.path['cleanup'].join('chromium-sdk.tgz')
-    api.go('run', api.path['start_dir'].join('scripts', 'sdk', 'foundation', 'makesdk.go'),
-           '-manifest', project, '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
+  elif project == 'garnet':
+    with api.step.nest('make chromium sdk'):
+      out_dir = api.path['cleanup'].join('chromium-sdk')
+      sdk = api.path['cleanup'].join('chromium-sdk.tgz')
+      api.go('run', api.path['start_dir'].join('scripts', 'sdk', 'foundation', 'makesdk.go'),
+             '-manifest', 'garnet', '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
 
-  if not api.properties.get('tryjob'):
-    with api.step.nest('upload chromium sdk'):
-      # Upload the Chromium style SDK to GCS and CIPD.
-      UploadArchive(api, sdk, out_dir, remote, revision)
+    if not api.properties.get('tryjob'):
+      with api.step.nest('upload chromium sdk'):
+        # Upload the Chromium style SDK to GCS and CIPD.
+        UploadArchive(api, sdk, out_dir, remote, revision)
 
 # Given an SDK |sdk_name| with artifacts found in |staging_dir|, upload a
 # corresponding .cipd file to CIPD and GCS.
 def UploadPackage(api, sdk_name, staging_dir, remote, revision):
-  if sdk_name == 'fuchsia':
-    sdk_subpath = 'sdk/%s' % api.cipd.platform_suffix()
-  else:
-    sdk_subpath = 'sdk/%s/%s' % (sdk_name,  api.cipd.platform_suffix())
-
+  sdk_subpath = 'sdk/%s/%s' % (sdk_name,  api.cipd.platform_suffix())
   cipd_pkg_name = 'fuchsia/%s' % sdk_subpath
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
@@ -246,30 +226,38 @@ def UploadArchive(api, sdk, out_dir, remote, revision):
 
 # yapf: disable
 def GenTests(api):
-  yield (api.test('ci') +
+  yield (api.test('ci_garnet') +
+      api.properties(
+          project='garnet',
+          manifest='manifest/garnet',
+          remote='https://fuchsia.googlesource.com/garnet',
+          revision=api.jiri.example_revision) +
+      api.step_data('upload chromium sdk.hash archive',
+                    api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
+  yield (api.test('ci_topaz') +
       api.properties(
           project='topaz',
           manifest='manifest/topaz',
           remote='https://fuchsia.googlesource.com/topaz',
-          revision=api.jiri.example_revision) +
-      api.step_data('upload chromium sdk.hash archive',
-                    api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
-  yield (api.test('ci_new') +
+          revision=api.jiri.example_revision))
+  yield (api.test('ci_new_garnet') +
       api.properties(
-          project='topaz',
-          manifest='manifest/topaz',
-          remote='https://fuchsia.googlesource.com/topaz') +
-      api.step_data('upload fuchsia sdk.cipd search fuchsia/sdk/linux-amd64 ' +
-                    'git_revision:' + api.jiri.example_revision,
-                     api.json.output({'result': []})) +
-      api.step_data('upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 ' +
-                    'git_revision:' + api.jiri.example_revision,
-                     api.json.output({'result': []})) +
+          project='garnet',
+          manifest='manifest/garnet',
+          remote='https://fuchsia.googlesource.com/garnet') +
       api.step_data('upload chromium sdk.cipd search fuchsia/sdk/chromium/linux-amd64 ' +
                     'git_revision:' + api.jiri.example_revision,
                      api.json.output({'result': []})) +
       api.step_data('upload chromium sdk.hash archive',
                     api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
+  yield (api.test('ci_new_topaz') +
+      api.properties(
+          project='topaz',
+          manifest='manifest/topaz',
+          remote='https://fuchsia.googlesource.com/topaz') +
+      api.step_data('upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 ' +
+                    'git_revision:' + api.jiri.example_revision,
+                     api.json.output({'result': []})))
   yield (api.test('cq_try') +
       api.properties(
           project='topaz',

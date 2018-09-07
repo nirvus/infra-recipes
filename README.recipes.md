@@ -1622,15 +1622,15 @@ Recipe for building Rust toolchain.
 &mdash; **def [RunSteps](/recipes/rust_toolchain.py#101)(api, url, ref, revision):**
 ### *recipes* / [sdk](/recipes/sdk.py)
 
-[DEPS](/recipes/sdk.py#12): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/sdk.py#13): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building Fuchsia SDKs.
 
-&mdash; **def [RunSteps](/recipes/sdk.py#72)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
+&mdash; **def [RunSteps](/recipes/sdk.py#57)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision):**
 
-&mdash; **def [UploadArchive](/recipes/sdk.py#188)(api, sdk, out_dir, remote, revision):**
+&mdash; **def [UploadArchive](/recipes/sdk.py#168)(api, sdk, out_dir, remote, revision):**
 
-&mdash; **def [UploadPackage](/recipes/sdk.py#144)(api, sdk_name, staging_dir, remote, revision):**
+&mdash; **def [UploadPackage](/recipes/sdk.py#128)(api, sdk_name, staging_dir, remote, revision):**
 ### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
 
 [DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)

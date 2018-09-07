@@ -136,44 +136,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "patch",
-      "-v",
-      "-time",
-      "-host",
-      "fuchsia-review.googlesource.com",
-      "-project",
-      "topaz",
-      "-rebase=true",
-      "refs/changes/89/456789/12"
-    ],
-    "infra_step": true,
-    "name": "jiri patch"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-v",
-      "-time",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-gc=true",
-      "-rebase-tracked",
-      "-local-manifest=true",
-      "-run-hooks=false"
-    ],
-    "infra_step": true,
-    "name": "jiri update (2)",
-    "timeout": 1200
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3",
-      "-local-manifest=true"
+      "-attempts=3"
     ],
     "infra_step": true,
     "name": "jiri run-hooks"
@@ -665,6 +631,98 @@
       "--overlay"
     ],
     "name": "create bazel sdk (2)"
+  },
+  {
+    "cmd": [],
+    "name": "upload bazel sdk"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/sdk/bazel/linux-amd64",
+      "-tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-build",
+      "-pkg-def",
+      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/sdk.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/sdk/bazel/linux-amd64\", \"root\": \"[CLEANUP]/sdk-bazel\"}",
+      "-out",
+      "[CLEANUP]/sdk.cipd",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "upload bazel sdk.build fuchsia/sdk/bazel/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/sdk/bazel/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "pkg-register",
+      "[CLEANUP]/sdk.cipd",
+      "-json-output",
+      "/path/to/tmp/json",
+      "-ref",
+      "latest",
+      "-tag",
+      "git_repository:https://fuchsia.googlesource.com/topaz",
+      "-tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+    ],
+    "name": "upload bazel sdk.register fuchsia/sdk/bazel/linux-amd64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/sdk/bazel/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/sdk.cipd",
+      "gs://fuchsia/sdk/bazel/linux-amd64/40-chars-fake-of-the-package-instance_id"
+    ],
+    "infra_step": true,
+    "name": "upload bazel sdk.gsutil cp",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/sdk/bazel/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
+    ]
   },
   {
     "name": "$result",
