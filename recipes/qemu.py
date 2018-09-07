@@ -178,9 +178,12 @@ def build_pixman(api, cipd_dir, pkg_dir, platform, host):
     api.step('autogen', [src_dir.join('autogen.sh')])
   with api.context(cwd=build_dir):
     configure(api, cipd_dir, src_dir, platform, host, [
-      '--prefix=',
-      '--enable-static',
+      '--disable-dependency-tracking',
+      '--disable-gtk',
       '--disable-shared',
+      '--disable-silent-rules',
+      '--enable-static',
+      '--prefix=',
       '--with-pic',
     ])
     api.step('build', ['make', '-j%d' % api.goma.jobs])
@@ -216,11 +219,13 @@ def build_libffi(api, cipd_dir, pkg_dir, platform, host):
     api.step('autogen', [src_dir.join('autogen.sh')])
   with api.context(cwd=build_dir):
     configure(api, cipd_dir, src_dir, platform, host, [
+      '--disable-debug',
+      '--disable-dependency-tracking',
+      '--disable-shared',
+      '--enable-static',
       '--prefix=',
       '--target=%s' % PLATFORM_TO_TRIPLE[platform],
       '--with-pic',
-      '--enable-static',
-      '--disable-shared',
     ])
     api.step('build', ['make', '-j%d' % api.goma.jobs])
     api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
@@ -236,12 +241,23 @@ def build_gettext(api, cipd_dir, pkg_dir, platform, host):
     api.step('autogen', [src_dir.join('autogen.sh')])
   with api.context(cwd=build_dir):
     configure(api, cipd_dir, src_dir, platform, host, [
-      '--prefix=',
-      '--target=%s' % PLATFORM_TO_TRIPLE[platform],
-      '--with-pic',
-      '--enable-static',
+      '--disable-dependency-tracking',
+      '--disable-silent-rules',
+      '--disable-debug',
       '--disable-shared',
       '--disable-nls',
+      '--disable-java',
+      '--disable-csharp',
+      '--enable-static',
+      '--prefix=',
+      '--with-pic',
+      '--with-included-gettext',
+      '--with-included-glib',
+      '--with-included-libcroco',
+      '--with-included-libunistring',
+      '--without-git',
+      '--without-cvs',
+      '--without-xz',
     ])
     api.step('build', ['make', '-j%d' % api.goma.jobs])
     api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
@@ -257,14 +273,16 @@ def build_glib(api, cipd_dir, pkg_dir, platform, host):
     api.step('autogen', [src_dir.join('autogen.sh')])
   with api.context(cwd=build_dir):
     configure(api, cipd_dir, src_dir, platform, host, [
-      '--prefix=',
-      '--with-pic',
-      '--with-pcre=internal',
-      '--enable-static',
+      '--disable-dependency-tracking',
+      '--disable-silent-rules',
       '--disable-dtrace',
       '--disable-libelf',
       '--disable-libmount',
       '--disable-shared',
+      '--enable-static',
+      '--prefix=',
+      '--with-pic',
+      '--with-pcre=internal',
     ])
     api.step('build', ['make', '-j%d' % api.goma.jobs])
     api.step('install', ['make', 'install', 'DESTDIR=%s' % pkg_dir])
