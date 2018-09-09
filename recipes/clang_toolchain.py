@@ -158,8 +158,10 @@ def RunSteps(api, repository, branch, revision, platform):
         api.step('configure', [
           libxml2_dir.join('configure'),
           '--prefix=',
-          '--enable-static',
+          '--build=%s' % host_triple,
+          '--host=%s' % target_triple,
           '--disable-shared',
+          '--enable-static',
           '--with-zlib=%s' % lib_install_dir,
           '--without-icu',
           '--without-lzma',

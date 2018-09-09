@@ -631,8 +631,10 @@
     "cmd": [
       "[START_DIR]/libxml2/configure",
       "--prefix=",
-      "--enable-static",
+      "--build=x86_64-apple-darwin",
+      "--host=x86_64-apple-darwin",
       "--disable-shared",
+      "--enable-static",
       "--with-zlib=[TMP_BASE]/clang_tmp_1/lib_install",
       "--without-icu",
       "--without-lzma",
