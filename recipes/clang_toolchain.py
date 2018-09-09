@@ -221,18 +221,22 @@ def RunSteps(api, repository, branch, revision, platform):
         llvm_dir.join('llvm'),
       ])
       api.step('build', [cipd_dir.join('ninja'), 'stage2-distribution'])
-      # TODO: we should be running stage2-check-all
-      api.step('check-llvm', [cipd_dir.join('ninja'), 'stage2-check-llvm'])
-      api.step('check-clang', [cipd_dir.join('ninja'), 'stage2-check-clang'])
+      # Don't run tests when cross-compiling.
+      if host_platform == target_platform:
+        # TODO: we should be running stage2-check-all
+        api.step('check-llvm', [cipd_dir.join('ninja'), 'stage2-check-llvm'])
+        api.step('check-clang', [cipd_dir.join('ninja'), 'stage2-check-clang'])
       with api.context(env={'DESTDIR': pkg_dir}):
         api.step('install',
                  [cipd_dir.join('ninja'), 'stage2-install-distribution'])
 
-  # use first rather than second stage clang just in case we're cross-compiling
-  step_result = api.step('clang version',
-      [build_dir.join('bin', 'clang'), '--version'],
-      stdout=api.raw_io.output())
-  m = re.search(r'version ([0-9.-]+)', step_result.stdout)
+  step_result = api.file.read_text(
+      'Version.inc',
+      build_dir.join(
+          'tools', 'clang', 'stage2-bins',
+          'tools', 'clang', 'include', 'clang', 'Basic', 'Version.inc'),
+      test_data='#define CLANG_VERSION_STRING "8.0.0"')
+  m = re.search(r'CLANG_VERSION_STRING "([a-zA-Z0-9.-]+)"', step_result)
   assert m, 'Cannot determine Clang version'
   clang_version = m.group(1)
 
@@ -316,16 +320,15 @@ def RunSteps(api, repository, branch, revision, platform):
 
 def GenTests(api):
   revision = '75b05681239cb309a23fcb4f8864f177e5aa62da'
-  version = 'clang version 5.0.0 (trunk 302207) (llvm/trunk 302209)'
   for platform in ('linux', 'mac'):
     yield (api.test(platform) +
            api.platform.name(platform) +
-           api.gitiles.refs('refs', ('refs/heads/master', revision)) +
-           api.step_data('clang version', api.raw_io.stream_output(version)))
+           api.properties(platform='%s-amd64' % platform) +
+           api.gitiles.refs('refs', ('refs/heads/master', revision)))
     yield (api.test(platform + '_new') +
            api.platform.name(platform) +
+           api.properties(platform='%s-amd64' % platform) +
            api.gitiles.refs('refs', ('refs/heads/master', revision)) +
-           api.step_data('clang version', api.raw_io.stream_output(version)) +
            api.step_data('cipd search fuchsia/clang/' + platform + '-amd64 ' +
                          'git_revision:' + revision,
                          api.cipd.example_search('fuchsia/clang/' + platform + '-amd64 ', [])))

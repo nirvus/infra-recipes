@@ -829,11 +829,17 @@
   },
   {
     "cmd": [
-      "[TMP_BASE]/clang_tmp_1/llvm_build_dir/bin/clang",
-      "--version"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[TMP_BASE]/clang_tmp_1/llvm_build_dir/tools/clang/stage2-bins/tools/clang/include/clang/Basic/Version.inc",
+      "/path/to/tmp/"
     ],
-    "name": "clang version",
-    "stdout": "/path/to/tmp/"
+    "infra_step": true,
+    "name": "Version.inc"
   },
   {
     "cmd": [
@@ -841,7 +847,7 @@
       "-u",
       "RECIPE[infra::clang_toolchain].resources/create_symlink.py",
       "x86_64-fuchsia",
-      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/x86_64-unknown-fuchsia"
+      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/8.0.0/x86_64-unknown-fuchsia"
     ],
     "name": "create x86_64-unknown-fuchsia symlink"
   },
@@ -851,7 +857,7 @@
       "-u",
       "RECIPE[infra::clang_toolchain].resources/create_symlink.py",
       "aarch64-fuchsia",
-      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/5.0.0/aarch64-unknown-fuchsia"
+      "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/clang/8.0.0/aarch64-unknown-fuchsia"
     ],
     "name": "create aarch64-unknown-fuchsia symlink"
   },
@@ -863,7 +869,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "lib/libclang_rt.asan.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.asan.so\nlib/libclang_rt.ubsan_standalone.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.ubsan_standalone.so\nlib/libclang_rt.scudo.so=clang/5.0.0/x86_64-fuchsia/lib/libclang_rt.scudo.so\nlib/libc++.so.2=clang/5.0.0/x86_64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=clang/5.0.0/x86_64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=clang/5.0.0/x86_64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=clang/5.0.0/x86_64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=clang/5.0.0/x86_64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=clang/5.0.0/x86_64-fuchsia/lib/asan/libunwind.so.1\n",
+      "lib/libclang_rt.asan.so=clang/8.0.0/x86_64-fuchsia/lib/libclang_rt.asan.so\nlib/libclang_rt.ubsan_standalone.so=clang/8.0.0/x86_64-fuchsia/lib/libclang_rt.ubsan_standalone.so\nlib/libclang_rt.scudo.so=clang/8.0.0/x86_64-fuchsia/lib/libclang_rt.scudo.so\nlib/libc++.so.2=clang/8.0.0/x86_64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=clang/8.0.0/x86_64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=clang/8.0.0/x86_64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=clang/8.0.0/x86_64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=clang/8.0.0/x86_64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=clang/8.0.0/x86_64-fuchsia/lib/asan/libunwind.so.1\n",
       "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/x86_64-fuchsia.manifest"
     ],
     "infra_step": true,
@@ -877,7 +883,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "lib/libclang_rt.asan.so=clang/5.0.0/aarch64-fuchsia/lib/libclang_rt.asan.so\nlib/libclang_rt.ubsan_standalone.so=clang/5.0.0/aarch64-fuchsia/lib/libclang_rt.ubsan_standalone.so\nlib/libclang_rt.scudo.so=clang/5.0.0/aarch64-fuchsia/lib/libclang_rt.scudo.so\nlib/libc++.so.2=clang/5.0.0/aarch64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=clang/5.0.0/aarch64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=clang/5.0.0/aarch64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=clang/5.0.0/aarch64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=clang/5.0.0/aarch64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=clang/5.0.0/aarch64-fuchsia/lib/asan/libunwind.so.1\n",
+      "lib/libclang_rt.asan.so=clang/8.0.0/aarch64-fuchsia/lib/libclang_rt.asan.so\nlib/libclang_rt.ubsan_standalone.so=clang/8.0.0/aarch64-fuchsia/lib/libclang_rt.ubsan_standalone.so\nlib/libclang_rt.scudo.so=clang/8.0.0/aarch64-fuchsia/lib/libclang_rt.scudo.so\nlib/libc++.so.2=clang/8.0.0/aarch64-fuchsia/lib/libc++.so.2\nlib/libc++abi.so.1=clang/8.0.0/aarch64-fuchsia/lib/libc++abi.so.1\nlib/libunwind.so.1=clang/8.0.0/aarch64-fuchsia/lib/libunwind.so.1\nlib/asan/libc++.so.2=clang/8.0.0/aarch64-fuchsia/lib/asan/libc++.so.2\nlib/asan/libc++abi.so.1=clang/8.0.0/aarch64-fuchsia/lib/asan/libc++abi.so.1\nlib/asan/libunwind.so.1=clang/8.0.0/aarch64-fuchsia/lib/asan/libunwind.so.1\n",
       "[TMP_BASE]/clang_tmp_1/clang-darwin/lib/aarch64-fuchsia.manifest"
     ],
     "infra_step": true,

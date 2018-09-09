@@ -496,7 +496,7 @@
       "-tag",
       "git_revision:75b05681239cb309a23fcb4f8864f177e5aa62da",
       "-tag",
-      "version:7.0.0",
+      "version:7.0.0svn",
       "-json-output",
       "/path/to/tmp/json"
     ],
