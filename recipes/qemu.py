@@ -163,7 +163,13 @@ def build_zlib(api, cipd_dir, pkg_dir, platform):
       '-DCMAKE_BUILD_TYPE=Release',
       '-DBUILD_SHARED_LIBS=OFF',
     ])
-    api.step('build', [cipd_dir.join('ninja')])
+    api.step('build', [
+        cipd_dir.join('ninja'),
+        '-j',
+        api.goma.jobs,
+        '-l',
+        api.platform.cpu_count,
+    ])
     with api.context(env={'DESTDIR': pkg_dir}):
       api.step('install', [cipd_dir.join('ninja'), 'install'])
 

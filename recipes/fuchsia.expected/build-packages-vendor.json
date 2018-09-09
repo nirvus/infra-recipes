@@ -378,7 +378,9 @@
       "-C",
       "[START_DIR]/out/debug-x64",
       "-j",
-      "20"
+      "20",
+      "-l",
+      "2"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [

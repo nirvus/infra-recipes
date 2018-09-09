@@ -81,7 +81,13 @@ def RunSteps(api, repository, branch, revision, host_cpu, host_os):
         packages['fuchsia/sysroot/%s' % cipd_platform] = 'latest'
       api.cipd.ensure(cipd_dir, packages)
 
-  ninja = [cipd_dir.join('ninja'), '-j%d' % api.goma.jobs]
+  ninja = [
+      cipd_dir.join('ninja'),
+      '-j',
+      api.goma.jobs,
+      '-l',
+      api.platform.cpu_count,
+  ]
 
   # TODO(mcgrathr): Move this logic into a host_build recipe module shared
   # with gcc_toolchain.py and others.

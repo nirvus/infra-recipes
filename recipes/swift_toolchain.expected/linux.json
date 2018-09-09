@@ -503,7 +503,9 @@
       "-C",
       "[START_DIR]/out/release-arm64",
       "-j",
-      "20"
+      "20",
+      "-l",
+      "2"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -680,7 +682,9 @@
       "-C",
       "[START_DIR]/out/release-x64",
       "-j",
-      "20"
+      "20",
+      "-l",
+      "2"
     ],
     "name": "build.build fuchsia.ninja (2)",
     "~followup_annotations": [

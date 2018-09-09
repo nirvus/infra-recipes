@@ -546,6 +546,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
           build.fuchsia_build_dir,
           '-j',
           self.m.goma.jobs,
+          '-l',
+          self.m.platform.cpu_count,
       ] + list(ninja_targets))
 
     self._tracing_data(build)

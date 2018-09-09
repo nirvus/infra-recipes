@@ -275,7 +275,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
-      "-j20"
+      "-j",
+      "20",
+      "-l",
+      "2"
     ],
     "cwd": "[START_DIR]/bloaty_build",
     "name": "build"

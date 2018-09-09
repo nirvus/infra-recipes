@@ -377,6 +377,8 @@
       "[START_DIR]/out/debug-x64",
       "-j",
       "20",
+      "-l",
+      "2",
       "build/gn:host_tests"
     ],
     "name": "build.build fuchsia.ninja",

@@ -164,7 +164,13 @@ def RunSteps(api, repository, branch, revision, platform):
   with api.goma.build_with_goma():
     with api.context(cwd=build_dir):
       cmake(api, cipd_dir, src_dir, target_platform)
-      api.step('build', [cipd_dir.join('ninja'), '-j%d' % api.goma.jobs])
+      api.step('build', [
+          cipd_dir.join('ninja'),
+          '-j',
+          api.goma.jobs,
+          '-l',
+          api.platform.cpu_count,
+      ])
       api.step('test', [cipd_dir.join('ninja'), 'test'])
 
   upload_package(api, "fuchsia/third_party/bloaty/" + target_platform,
