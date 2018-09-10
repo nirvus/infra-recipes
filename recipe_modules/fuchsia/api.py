@@ -706,7 +706,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.step.active_result.presentation.logs['runcmds'] = runcmds
 
   def _construct_qemu_task_request(self, zbi_path, build, test_pool, images,
-                                   timeout_secs, external_network):
+                                   timeout_secs, external_network, secret_bytes):
     """Constructs a Swarming task request which runs Fuchsia tests inside QEMU.
 
     Expects the build and artifacts to be at the same place they were at
@@ -722,6 +722,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         execute before giving up.
       external_network (bool): Whether to give Fuchsia inside QEMU access
         to the external network.
+      secret_bytes (str): secret bytes to pass to the QEMU task.
 
     Returns:
       An api.swarming.TaskRequest representing the swarming task request.
@@ -803,6 +804,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         },
         io_timeout_secs=TEST_IO_TIMEOUT_SECS,
         hard_timeout_secs=timeout_secs,
+        secret_bytes=secret_bytes,
         outputs=[minfs_image_name],
 	cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % cipd_arch,
 			'latest'),
@@ -953,8 +955,43 @@ class FuchsiaApi(recipe_api.RecipeApi):
       for image in raw_images
     }
 
+  def _decrypt_secrets(self, build):
+    """Decrypts the secrets included in the build.
+
+    Args:
+      build (FuchsiaBuildResults): The build for which secret specs were
+        generated.
+
+    Returns:
+      The dictionary that maps secret spec name to the corresponding plaintext.
+    """
+    self.m.cloudkms.ensure_cloudkms()
+
+    secret_spec_dir = build.fuchsia_build_dir.join('secret_specs')
+    secrets_map = {}
+    with self.m.step.nest('process secret specs'):
+      secret_spec_files = self.m.file.listdir('list', secret_spec_dir)
+      for secret_spec_file in secret_spec_files:
+        secret_spec = self.m.json.read('read spec', secret_spec_file).json.output
+
+        # For each test spec file <name>.json in this directory, there is an
+        # associated ciphertext file at ciphertext/<name>.ciphertext.
+        name, _ = self.m.path.basename(secret_spec_file).split('.json', 1)
+        ciphertext_file = secret_spec_dir.join('ciphertext', '%s.ciphertext' % name)
+
+        key_path = secret_spec['cloudkms_key_path']
+        plaintext_file = self.m.path.mkdtemp('plaintext').join(name)
+        self.m.cloudkms.decrypt('decrypt secret for %s' % name, key_path,
+                                 ciphertext_file, plaintext_file)
+        secrets_map[name] = self.m.cloudkms.decrypt(
+            'decrypt secret for %s' % name, key_path,
+            ciphertext_file,
+            self.m.raw_io.output()).raw_io.output
+    return secrets_map
+
+
   def test(self, build, test_pool, test_cmds, device_type, timeout_secs=40 * 60,
-           pave=True, external_network=False):
+           pave=True, external_network=False, requires_secrets=False):
     """Tests a Fuchsia build on the specified device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -967,6 +1004,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         execute before giving up.
       external_network (bool): Whether to enable access to the external
         network when executing tests. Ignored if device_type != 'QEMU'.
+      requires_secrets (bool): Whether tests require plaintext secrets;
+        ignored if device_type == 'QEMU'.
       pave (bool): Whether to pave the image to disk. Ignored if
         device_type == 'QEMU'.
 
@@ -995,6 +1034,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     )
 
     if device_type == 'QEMU':
+      secret_bytes = ''
+      if requires_secrets:
+        secret_bytes = self.m.json.dumps(self._decrypt_secrets(build))
       task = self._construct_qemu_task_request(
           zbi_path=new_zbi_path,
           build=build,
@@ -1002,6 +1044,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           images=images,
           timeout_secs=timeout_secs,
           external_network=external_network,
+          secret_bytes=secret_bytes,
       )
     else:
       task = self._construct_device_task_request(

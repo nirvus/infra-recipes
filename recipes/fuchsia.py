@@ -144,7 +144,11 @@ PROPERTIES = {
             kind=int,
             help='How long to wait until timing out on tests',
             default=40 * 60),
-
+    'requires_secrets':
+        Property(
+            kind=bool,
+            help='Whether any plaintext needs to be supplied to the tests',
+            default=False),
     # Properties pertaining to uploading build artifacts.
     'snapshot_gcs_bucket':
         Property(
@@ -168,25 +172,35 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              patch_ref, patch_repository_url, target, build_type, packages,
              variant, gn_args, test_pool, run_tests, runtests_args, run_host_tests,
              device_type, networking_for_tests, pave, ninja_targets,
-             test_timeout_secs, archive_gcs_bucket, upload_breakpad_symbols,
-             snapshot_gcs_bucket):
+             test_timeout_secs, requires_secrets, archive_gcs_bucket,
+             upload_breakpad_symbols, snapshot_gcs_bucket):
+  tryjob = api.properties.get('tryjob')
+
   # Don't upload snapshots for tryjobs.
-  if api.properties.get('tryjob'):
+  if tryjob:
     snapshot_gcs_bucket = None
     archive_gcs_bucket = None
 
   # Handle illegal setting of networking_for_tests.
   if networking_for_tests:
-    if device_type != 'QEMU':
+    # We must make absolutely sure that networking_for_tests is never set in a
+    # tryjob, because a tryjob may execute unvetted code. Letting that code
+    # access the internet can lead to abuse of the CQ system for botnets, among
+    # other things.
+    if tryjob or device_type != 'QEMU':
       raise api.step.InfraFailure(
-          'networking for tests is not yet implemented for non-QEMU tests')
-    elif api.properties.get('tryjob'):
-      # We must make absolutely sure that networking_for_tests is never set in a
-      # tryjob, because a tryjob may be execute unvetted code. Letting that code
-      # access the internet can lead to abuse of the CQ system for botnets, among
-      # other things.
+          'networking for tests is not available for tryjobs and '
+          'is not yet implemented for non-QEMU tests'
+      )
+
+  # Handle illegal settings around secrets.
+  if requires_secrets:
+    if tryjob or not networking_for_tests or device_type != 'QEMU':
       raise api.step.InfraFailure(
-          'networking for tests is not available for tryjobs')
+          'the secrets pipeline is only supported in tryjobs, ' +
+          'when networking for tests enabled, and ' +
+          'and on QEMU'
+      )
 
   if checkout_snapshot:
     if api.properties.get('tryjob'):
@@ -277,6 +291,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         ],
         device_type=device_type,
         external_network=networking_for_tests,
+        requires_secrets=requires_secrets,
     )
     api.fuchsia.analyze_test_results('test results', test_results)
   else:
@@ -435,3 +450,54 @@ def GenTests(api):
               '/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'
           })
       ])
+
+  # Test cases for exercising the secrets pipeline.
+  yield api.fuchsia.test(
+      'ci_requires_secrets',
+      tryjob=False,
+      properties=dict(
+          requires_secrets=True,
+          networking_for_tests=True,
+          run_tests=True,
+          device_type='QEMU',
+      ),
+  )
+  yield api.fuchsia.test(
+      'cq_requires_secrets',
+      tryjob=True,
+      # Secrets are not supported for tryjobs.
+      expect_failure=True,
+      clear_default_steps=True,
+      properties=dict(
+          requires_secrets=True,
+          networking_for_tests=True,
+          run_tests=True,
+          device_type='QEMU',
+      ),
+  )
+  yield api.fuchsia.test(
+      'ci_requires_secrets_no_networking',
+      tryjob=False,
+      # Secrets are not supported without networking.
+      expect_failure=True,
+      clear_default_steps=True,
+      properties=dict(
+          requires_secrets=True,
+          networking_for_tests=False,
+          run_tests=True,
+          device_type='QEMU',
+      ),
+  )
+  yield api.fuchsia.test(
+      'ci_requires_secrets_on_hardware',
+      tryjob=False,
+      # Secrets are not supported on hardware.
+      expect_failure=True,
+      clear_default_steps=True,
+      properties=dict(
+          requires_secrets=True,
+          networking_for_tests=True,
+          run_tests=True,
+          device_type='Intel NUC Kit NUC6i3SYK',
+      ),
+  )

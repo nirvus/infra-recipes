@@ -107,7 +107,10 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       run_tests = final_properties.get('run_tests', False)
       run_host_tests = final_properties.get('run_host_tests', False)
       on_device = final_properties.get('device_type', 'QEMU') != 'QEMU'
+      requires_secrets = final_properties.get('requires_secrets', False)
 
+      if requires_secrets:
+        extra_steps.extend(self.secrets_step_data())
       if run_tests:
         extra_steps.append(self.images_step_data())
         if not expect_failure:
@@ -261,3 +264,31 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
             'goodbye.txt': 'goodbye',
             'benchmark.catapult_json': '["dummy_catapult_data"]',
         }))
+
+  def secrets_step_data(self):
+    """Returns mock step data for the secrets pipeline.
+
+    This should be used by any test which calls api.fuchsia.test() with
+    requires_secrets is set to True.
+
+    Returns:
+      list(RecipeTestApi.step_data) for the steps around secrets decryption.
+    """
+    step_data = []
+    secret_name = 'auth-token'
+    step_data.append(self.step_data(
+        'process secret specs.list',
+        self.m.file.listdir(['%s.json' % secret_name])
+    ))
+    step_data.append(self.step_data(
+        'process secret specs.read spec',
+        self.m.json.output({
+            'cloudkms_key_path': 'key-path',
+        })
+    ))
+    step_data.append(self.step_data(
+        'process secret specs.decrypt secret for %s' % secret_name,
+        self.m.raw_io.output_text('plaintext')
+    ))
+    return step_data
+

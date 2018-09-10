@@ -107,6 +107,11 @@ PROPERTIES = {
             ' (always False if tryjob is True or if device_type'
             ' != QEMU)',
             default=False),
+    'requires_secrets':
+        Property(
+            kind=bool,
+            help='Whether any plaintext needs to be supplied to the tests',
+            default=False),
     'upload_breakpad_symbols':
         Property(
             kind=bool,
@@ -135,8 +140,8 @@ def RunSteps(
     snapshot_revision, patch_gerrit_url, patch_issue, patch_project, patch_ref,
     patch_repository_url, target, build_type, packages, variants, gn_args,
     ninja_targets, run_tests, runtests_args, device_type, run_host_tests,
-    networking_for_tests, snapshot_gcs_bucket, upload_breakpad_symbols,
-    pave):
+    networking_for_tests, requires_secrets, snapshot_gcs_bucket,
+    upload_breakpad_symbols, pave):
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       checkout = api.fuchsia.checkout_patched_snapshot(
@@ -173,6 +178,7 @@ def RunSteps(
       gn_args=gn_args,
       ninja_targets=ninja_targets,
   )
+
   if run_tests:
     test_results = api.fuchsia.test(
         build=build,
@@ -180,7 +186,8 @@ def RunSteps(
         pave=pave,
         device_type=device_type,
         test_cmds=['runtests' + runtests_args] if run_tests else None,
-        external_network=networking_for_tests)
+        external_network=networking_for_tests,
+        requires_secrets=requires_secrets)
     # Ensure failed_test_outputs gets filled out when tests fail.
     if test_results.summary and test_results.failed_test_outputs:
       assert test_results.failed_test_outputs['/hello']
@@ -216,6 +223,14 @@ def GenTests(api):
       properties=dict(
           run_tests=True,
           networking_for_tests=True,
+      ),
+  )
+  yield api.fuchsia.test(
+      'isolated_tests_x64_with_secrets',
+      properties=dict(
+          run_tests=True,
+          networking_for_tests=True,
+          requires_secrets=True,
       ),
   )
   yield api.fuchsia.test(

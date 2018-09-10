@@ -52,6 +52,6 @@ class CloudKmsApi(recipe_api.RecipeApi):
         self._cloudkms_path,
         'decrypt',
         '-input', ciphertext_file,
-        '-output', self.m.raw_io.output(leak_to=plaintext_file),
+        '-output', plaintext_file,
         crypto_key_path,
     ])
