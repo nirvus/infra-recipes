@@ -444,10 +444,7 @@
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
-      "-j",
-      "20",
-      "-l",
-      "2",
+      "-j20",
       "-C",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64",
       "create_sdk",
@@ -460,10 +457,7 @@
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
-      "-j",
-      "20",
-      "-l",
-      "2",
+      "-j20",
       "-C",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseSIMARM64",
       "gen_snapshot_fuchsia",
@@ -476,10 +470,7 @@
   {
     "cmd": [
       "[START_DIR]/cipd/ninja",
-      "-j",
-      "20",
-      "-l",
-      "2",
+      "-j20",
       "-C",
       "[START_DIR]/dart/sdk/xcodebuild/ReleaseX64",
       "gen_snapshot_fuchsia",

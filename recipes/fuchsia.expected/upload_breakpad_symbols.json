@@ -377,8 +377,6 @@
       "[START_DIR]/out/release-x64",
       "-j",
       "20",
-      "-l",
-      "2",
       "build/gn:breakpad_symbols"
     ],
     "name": "build.build fuchsia.ninja",

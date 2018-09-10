@@ -361,11 +361,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/ninja",
-      "-j",
-      "20",
-      "-l",
-      "2"
+      "[START_DIR]/cipd/ninja"
     ],
     "cwd": "[TMP_BASE]/zlib_build_tmp_2",
     "env": {

@@ -323,8 +323,6 @@
       "[START_DIR]/out/debug-x64",
       "-j",
       "20",
-      "-l",
-      "2",
       "//target:one",
       "//target:two"
     ],

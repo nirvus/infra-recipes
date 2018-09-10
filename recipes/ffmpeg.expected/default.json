@@ -387,8 +387,6 @@
       "[START_DIR]/out/release-arm64",
       "-j",
       "20",
-      "-l",
-      "2",
       "third_party/ffmpeg"
     ],
     "name": "build arm64.build.build fuchsia.ninja",
@@ -661,8 +659,6 @@
       "[START_DIR]/out/release-x64",
       "-j",
       "20",
-      "-l",
-      "2",
       "third_party/ffmpeg"
     ],
     "name": "build x64.build.build fuchsia.ninja",
