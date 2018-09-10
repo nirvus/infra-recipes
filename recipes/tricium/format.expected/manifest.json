@@ -103,11 +103,13 @@
   {
     "cmd": [
       "[START_DIR]/cipd/bin/clang-format",
+      "-style=file",
+      "-fallback-style=Google",
+      "-sort-includes",
       "-i",
-      "[START_DIR]/path/to/file",
-      "[START_DIR]/other/path/to/file"
+      "path/to/file.h"
     ],
-    "name": "clang-format"
+    "name": "formatting path/to/file.h"
   },
   {
     "cmd": [
@@ -115,15 +117,42 @@
       "diff",
       "--name-only"
     ],
-    "cwd": "[START_DIR]/topaz",
-    "name": "check file formatting",
+    "name": "check path/to/file.h formatting",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard"
+    ],
+    "name": "reset path/to/file.h"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bin/clang-format",
+      "-style=file",
+      "-fallback-style=Google",
+      "-sort-includes",
+      "-i",
+      "other/path/to/file.c"
+    ],
+    "name": "formatting other/path/to/file.c"
+  },
+  {
+    "cmd": [
+      "git",
+      "diff",
+      "--name-only"
+    ],
+    "name": "check other/path/to/file.c formatting",
     "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [],
     "name": "write results",
     "~followup_annotations": [
-      "@@@SET_BUILD_PROPERTY@tricium@{\"comments\": [{\"category\": \"ClangFormat/Unformatted\", \"end_char\": 0, \"end_line\": 0, \"message\": \"File not formatted properly.\\nRun the following to format:\\n\\nclang-format -i path/to/file\", \"path\": \"path/to/file\", \"start_char\": 0, \"start_line\": 0, \"suggestion\": [], \"url\": \"\"}, {\"category\": \"ClangFormat/Unformatted\", \"end_char\": 0, \"end_line\": 0, \"message\": \"File not formatted properly.\\nRun the following to format:\\n\\nclang-format -i other/path/to/file\", \"path\": \"other/path/to/file\", \"start_char\": 0, \"start_line\": 0, \"suggestion\": [], \"url\": \"\"}]}@@@"
+      "@@@SET_BUILD_PROPERTY@tricium@{\"comments\": [{\"category\": \"Format/ClangFormat\", \"end_char\": 0, \"end_line\": 0, \"message\": \"File not formatted properly.\\nRun the following to format:\\n\\nclang-format -i path/to/file.h\", \"path\": \"path/to/file.h\", \"start_char\": 0, \"start_line\": 0, \"suggestion\": [], \"url\": \"\"}]}@@@"
     ]
   },
   {
