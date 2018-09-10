@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import base64
 from recipe_engine import recipe_api
 
 
@@ -65,7 +66,7 @@ class TaskRequest(object):
 
   def __init__(self, name, cmd, dimensions, isolated='', isolate_server='',
                expiration_secs=300, io_timeout_secs=60, hard_timeout_secs=1200,
-               idempotent=False, cipd_packages=(), outputs=()):
+               idempotent=False, secret_bytes='', cipd_packages=(), outputs=()):
     """Creates a Swarming task request object.
 
     For more details on what goes into a Swarming task, see the user guide:
@@ -85,6 +86,7 @@ class TaskRequest(object):
         tasks are such that if another task is executed with identical
         properties, we can short-circuit execution and just return the other
         task's results.
+      secret_bytes (str): Data that can securely be passed to the task.
       cipd_packages (list[(str,str,str)]: List of 3-tuples corresponding to
         CIPD packages needed for the task: ('path', 'package_name', 'version'),
         defined as follows:
@@ -107,6 +109,7 @@ class TaskRequest(object):
     self.io_timeout_secs = io_timeout_secs
     self.hard_timeout_secs = hard_timeout_secs
     self.idempotent = idempotent
+    self.secret_bytes = base64.b64encode(secret_bytes)
     self.cipd_packages = cipd_packages
     self.outputs = outputs
 
@@ -140,6 +143,8 @@ class TaskRequest(object):
         'namespace': 'default-gzip',
         'isolatedserver': self.isolate_server,
       }
+    if self.secret_bytes:
+      properties['secret_bytes'] = self.secret_bytes
     if self.cipd_packages:
       properties['cipd_input'] = {
         'packages': [

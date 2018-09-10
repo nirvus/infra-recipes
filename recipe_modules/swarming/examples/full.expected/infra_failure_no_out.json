@@ -36,7 +36,7 @@
       "-server",
       "chromium-swarm-dev.appspot.com",
       "-json-input",
-      "{\"requests\": [{\"expiration_secs\": \"3600\", \"name\": \"recipes-go\", \"priority\": \"200\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"infra/git/${platform}\", \"path\": \"cipd_bin_packages\", \"version\": \"version:2.14.1.chromium10\"}]}, \"command\": [\"recipes\", \"run\", \"\\\"example\\\"\"], \"dimensions\": [{\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"Fuchsia\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"idempotent\": true, \"inputs_ref\": {\"isolated\": \"606d94add94223636ee516c6bc9918f937823ccc\", \"isolatedserver\": \"https://isolateserver.appspot.com\", \"namespace\": \"default-gzip\"}, \"io_timeout_secs\": \"600\", \"outputs\": [\"out/hello.txt\"]}}]}",
+      "{\"requests\": [{\"expiration_secs\": \"3600\", \"name\": \"recipes-go\", \"priority\": \"200\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"infra/git/${platform}\", \"path\": \"cipd_bin_packages\", \"version\": \"version:2.14.1.chromium10\"}]}, \"command\": [\"recipes\", \"run\", \"\\\"example\\\"\"], \"dimensions\": [{\"key\": \"os\", \"value\": \"Debian\"}, {\"key\": \"pool\", \"value\": \"Fuchsia\"}], \"execution_timeout_secs\": \"3600\", \"grace_period_secs\": \"30\", \"idempotent\": true, \"inputs_ref\": {\"isolated\": \"606d94add94223636ee516c6bc9918f937823ccc\", \"isolatedserver\": \"https://isolateserver.appspot.com\", \"namespace\": \"default-gzip\"}, \"io_timeout_secs\": \"600\", \"outputs\": [\"out/hello.txt\"], \"secret_bytes\": \"c2hoLCBkb24ndCB0ZWxs\"}}]}",
       "-json-output",
       "[CLEANUP]/task.json"
     ],

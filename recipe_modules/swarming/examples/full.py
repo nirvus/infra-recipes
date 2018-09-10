@@ -41,6 +41,7 @@ def RunSteps(api, spawn_tasks):
         io_timeout_secs=600,
         hard_timeout_secs=3600,
         idempotent=True,
+        secret_bytes='shh, don\'t tell',
         outputs=['out/hello.txt'],
         cipd_packages=[('cipd_bin_packages', 'infra/git/${platform}', 'version:2.14.1.chromium10')],
     )
