@@ -48,7 +48,7 @@ ZIRCON_ZBI_NAME = 'zircon.zbi'
 # The kernel image.
 TARGET_TO_KERNEL_IMAGE = dict(zip(
     TARGETS,
-    ['multiboot.bin', 'qemu-zircon.bin'],
+    ['multiboot.bin', 'qemu-boot-shim.bin'],
 ))
 ARCHS = ('x86_64', 'aarch64')
 
