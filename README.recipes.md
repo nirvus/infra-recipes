@@ -1716,11 +1716,11 @@ Recipe for building libwebkit.so.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#480)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
+&mdash; **def [Build](/recipes/zircon.py#481)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#389)(api, core_task, booted_task, booted_task_output_image, build_dir):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#390)(api, core_task, booted_task, booted_task_output_image, build_dir):**
 
 Waits on the tasks running core tests and booted tests, then analyzes the
 results.
@@ -1730,9 +1730,9 @@ Args:
   booted_task (str): The swarming task ID of the task running booted tests.
   build_dir (Path): A path to the directory containing build artifacts.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#564)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#565)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
 
-&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#241)(api, target, build_dir, use_kvm):**
+&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#242)(api, target, build_dir, use_kvm):**
 
 Executes Zircon tests in QEMU on a different machine.
 
@@ -1742,7 +1742,7 @@ Args:
   build_dir (Path): Path to the build directory.
   use_kvm (bool): Whether or not to enable KVM with QEMU when testing.
 
-&mdash; **def [RunTestsOnDevice](/recipes/zircon.py#168)(api, target, build_dir, device_type):**
+&mdash; **def [RunTestsOnDevice](/recipes/zircon.py#173)(api, target, build_dir, device_type):**
 
 Executes Zircon tests on a hardware device.
 
@@ -1752,14 +1752,14 @@ Args
   build_dir (Path): Path to the build directory.
   device_type (Enum(*DEVICES)): The type of device to run tests on.
 
-&mdash; **def [RunTestsOnHost](/recipes/zircon.py#121)(api, build_dir):**
+&mdash; **def [RunTestsOnHost](/recipes/zircon.py#126)(api, build_dir):**
 
 Runs host tests.
 
 Args:
   build_dir (Path): Path to the build directory.
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#324)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#325)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
 
 TriggerTestsTask triggers a task to execute a command on a remote machine.
 

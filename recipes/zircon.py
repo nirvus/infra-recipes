@@ -40,10 +40,15 @@ TARGET_TO_ARCH = dict(zip(
     TARGETS,
     ['x86_64', 'aarch64'],
 ))
+
+# The name of the Zircon ZBI image produced by the build. Contains both kernel
+# and a ramdisk.
+ZIRCON_ZBI_NAME = 'zircon.zbi'
+
 # The kernel image.
 TARGET_TO_KERNEL_IMAGE = dict(zip(
     TARGETS,
-    ['zircon.bin', 'qemu-zircon.bin'],
+    ['multiboot.bin', 'qemu-zircon.bin'],
 ))
 ARCHS = ('x86_64', 'aarch64')
 
@@ -174,14 +179,11 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     build_dir (Path): Path to the build directory.
     device_type (Enum(*DEVICES)): The type of device to run tests on.
   """
-  kernel_name = TARGET_TO_KERNEL_IMAGE[target]
-  ramdisk_name = 'bootdata.bin'
   output_archive_name = 'out.tar'
   botanist_cmd = [
     './botanist/botanist',
     'zedboot',
-    '-kernel', kernel_name,
-    '-ramdisk', ramdisk_name,
+    '-kernel', ZIRCON_ZBI_NAME,
     '-results-dir', api.fuchsia.results_dir_on_target,
     '-out', output_archive_name,
     'zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH,
@@ -189,8 +191,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
 
   # Isolate all necessary build artifacts.
   isolated = api.isolated.isolated()
-  isolated.add_file(build_dir.join(kernel_name), wd=build_dir)
-  isolated.add_file(build_dir.join(ramdisk_name), wd=build_dir)
+  isolated.add_file(build_dir.join(ZIRCON_ZBI_NAME), wd=build_dir)
   digest = isolated.archive('isolate zircon artifacts')
 
   with api.context(infra_steps=True):
@@ -268,7 +269,7 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
     'qemu',
     '-qemu-dir', './qemu/bin',
     '-qemu-kernel', TARGET_TO_KERNEL_IMAGE[target],
-    '-zircon-a', 'bootdata.bin',
+    '-zircon-a', ZIRCON_ZBI_NAME,
     '-arch', target,
   ] # yapf: disable
   if use_kvm:
@@ -291,7 +292,7 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
   # Isolate all necessary build artifacts as well as the MinFS image.
   isolated = api.isolated.isolated()
   isolated.add_file(build_dir.join(TARGET_TO_KERNEL_IMAGE[target]), wd=build_dir)
-  isolated.add_file(build_dir.join('bootdata.bin'), wd=build_dir)
+  isolated.add_file(build_dir.join(ZIRCON_ZBI_NAME), wd=build_dir)
   isolated.add_file(minfs_image, wd=api.path['start_dir'])
   digest = isolated.archive('isolate zircon artifacts')
 
