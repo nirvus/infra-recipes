@@ -217,7 +217,7 @@
     "cwd": "[START_DIR]/go/src",
     "env": {
       "GOARCH": "amd64",
-      "GOOS": "mac",
+      "GOOS": "darwin",
       "GOROOT_BOOTSTRAP": "[START_DIR]/cipd/go"
     },
     "name": "build"

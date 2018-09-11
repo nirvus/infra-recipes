@@ -62,7 +62,9 @@ def RunSteps(api, repository, branch, revision, platform):
     go_dir = api.path['start_dir'].join('go')
     api.git.checkout(repository, go_dir, revision)
 
-  goos, goarch = target_platform.split('-', 2)
+  cipd_os, cipd_cpu = target_platform.split('-')
+  goos = cipd_os.replace('mac', 'darwin')
+  goarch = cipd_cpu.replace('armv6', 'arm')
   env = {'GOOS': goos, 'GOARCH': goarch, 'GOROOT_BOOTSTRAP': api.go.go_root}
 
   with api.context(cwd=go_dir.join('src'), env=env):
