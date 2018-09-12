@@ -237,60 +237,266 @@
   },
   {
     "cmd": [],
-    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "cwd": "[START_DIR]/path/to/tools",
     "env": {
       "GOARCH": "amd64",
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
-    "name": "fuchsia.googlesource.com/tools/cmd/gndoc"
+    "name": "fuchsia.googlesource.com/tools/gndoc"
   },
   {
-    "cmd": [
-      "[START_DIR]/cipd/go/bin/go",
-      "build",
-      "-v",
-      "fuchsia.googlesource.com/tools/cmd/gndoc"
-    ],
-    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
     "env": {
       "GOARCH": "amd64",
       "GOOS": "linux",
-      "GOPATH": "[START_DIR]/go",
-      "GOROOT": "[START_DIR]/cipd/go"
+      "GOPATH": "[START_DIR]/go"
     },
-    "name": "fuchsia.googlesource.com/tools/cmd/gndoc.go build",
+    "name": "fuchsia.googlesource.com/tools/gndoc.linux-amd64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
-    "cmd": [],
-    "cwd": "[TMP_BASE]/tools_tmp_1",
-    "env": {
-      "GOARCH": "amd64",
-      "GOOS": "linux",
-      "GOPATH": "[START_DIR]/go"
-    },
-    "name": "fuchsia.googlesource.com/tools/cmd/symbolizer"
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "build",
+      "-o",
+      "[TMP_BASE]/tools_tmp_1/gndoc",
       "-v",
-      "fuchsia.googlesource.com/tools/cmd/symbolizer"
+      "fuchsia.googlesource.com/tools/gndoc"
     ],
-    "cwd": "[TMP_BASE]/tools_tmp_1",
+    "cwd": "[START_DIR]/path/to/tools",
     "env": {
       "GOARCH": "amd64",
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
-    "name": "fuchsia.googlesource.com/tools/cmd/symbolizer.go build",
+    "name": "fuchsia.googlesource.com/tools/gndoc.linux-amd64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer"
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer.linux-amd64",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-o",
+      "[TMP_BASE]/tools_tmp_1/symbolizer",
+      "-v",
+      "fuchsia.googlesource.com/tools/symbolizer"
+    ],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer.linux-amd64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/gndoc (2)"
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/gndoc.linux-arm64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-o",
+      "[TMP_BASE]/tools_tmp_1/gndoc",
+      "-v",
+      "fuchsia.googlesource.com/tools/gndoc"
+    ],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/gndoc.linux-arm64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer (2)"
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer.linux-arm64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-o",
+      "[TMP_BASE]/tools_tmp_1/symbolizer",
+      "-v",
+      "fuchsia.googlesource.com/tools/symbolizer"
+    ],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer.linux-arm64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/gndoc (3)"
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/gndoc.mac-amd64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-o",
+      "[TMP_BASE]/tools_tmp_1/gndoc",
+      "-v",
+      "fuchsia.googlesource.com/tools/gndoc"
+    ],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/gndoc.mac-amd64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer (3)"
+  },
+  {
+    "cmd": [],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer.mac-amd64",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-o",
+      "[TMP_BASE]/tools_tmp_1/symbolizer",
+      "-v",
+      "fuchsia.googlesource.com/tools/symbolizer"
+    ],
+    "cwd": "[START_DIR]/path/to/tools",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "fuchsia.googlesource.com/tools/symbolizer.mac-amd64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
     ]
   },
   {
