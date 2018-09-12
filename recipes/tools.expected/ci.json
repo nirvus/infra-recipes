@@ -196,31 +196,6 @@
   },
   {
     "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "go/cmd/github.com/golang/dep/${platform} version:0.3.2",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:0.3.2---\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"go/cmd/github.com/golang/dep/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
       "-v",
@@ -245,19 +220,6 @@
       "@@@STEP_LOG_LINE@json.output@]@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/dep",
-      "ensure",
-      "-v",
-      "-vendor-only"
-    ],
-    "cwd": "[START_DIR]/path/to/tools",
-    "env": {
-      "GOPATH": "[START_DIR]/go"
-    },
-    "name": "dep ensure"
   },
   {
     "cmd": [

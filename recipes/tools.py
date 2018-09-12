@@ -129,20 +129,10 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
     if not revision:
       revision = api.jiri.project([project]).json.output[0]['revision']
 
-  with api.context(infra_steps=True):
-    cipd_dir = api.path['start_dir'].join('cipd')
-    api.cipd.ensure(cipd_dir, {
-        'go/cmd/github.com/golang/dep/${platform}': 'version:0.3.2',
-    })
-
   gopath = api.path['start_dir'].join('go')
 
   path = api.jiri.project([project]).json.output[0]['path']
   with api.context(cwd=api.path.abs_to_path(path), env={'GOPATH': gopath}):
-    # Ensure all dependencies are present.
-    api.step('dep ensure',
-             [cipd_dir.join('dep'), 'ensure', '-v', '-vendor-only'])
-
     # Run all the tests.
     api.go('test', '-v', './...')
 
