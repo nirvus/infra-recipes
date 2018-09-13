@@ -278,10 +278,13 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     secret_name = 'auth-token'
     step_data.append(self.step_data(
         'process secret specs.list',
-        self.m.file.listdir(['%s.json' % secret_name])
+        self.m.file.listdir([
+            '%s.json' % secret_name,
+            'ciphertext' # the 'ciphertext' subdir, which will be skipped.
+        ])
     ))
     step_data.append(self.step_data(
-        'process secret specs.read spec',
+        'process secret specs.read spec for %s' % secret_name,
         self.m.json.output({
             'cloudkms_key_path': 'key-path',
         })

@@ -972,19 +972,26 @@ class FuchsiaApi(recipe_api.RecipeApi):
     with self.m.step.nest('process secret specs'):
       secret_spec_files = self.m.file.listdir('list', secret_spec_dir)
       for secret_spec_file in secret_spec_files:
-        secret_spec = self.m.json.read('read spec', secret_spec_file).json.output
+        basename = self.m.path.basename(secret_spec_file)
+        # Skip the 'ciphertext' subdirectory.
+        if basename == 'ciphertext':
+          continue
+
+        secret_name, _ = basename.split('.json', 1)
+        secret_spec = self.m.json.read(
+            'read spec for %s' % secret_name, secret_spec_file).json.output
 
         # For each test spec file <name>.json in this directory, there is an
         # associated ciphertext file at ciphertext/<name>.ciphertext.
-        name, _ = self.m.path.basename(secret_spec_file).split('.json', 1)
-        ciphertext_file = secret_spec_dir.join('ciphertext', '%s.ciphertext' % name)
+        ciphertext_file = secret_spec_dir.join(
+            'ciphertext', '%s.ciphertext' % secret_name)
 
         key_path = secret_spec['cloudkms_key_path']
-        plaintext_file = self.m.path.mkdtemp('plaintext').join(name)
-        self.m.cloudkms.decrypt('decrypt secret for %s' % name, key_path,
-                                 ciphertext_file, plaintext_file)
-        secrets_map[name] = self.m.cloudkms.decrypt(
-            'decrypt secret for %s' % name, key_path,
+        plaintext_file = self.m.path.mkdtemp('plaintext').join(secret_name)
+        self.m.cloudkms.decrypt('decrypt secret for %s' % secret_name,
+                                key_path, ciphertext_file, plaintext_file)
+        secrets_map[secret_name] = self.m.cloudkms.decrypt(
+            'decrypt secret for %s' % secret_name, key_path,
             ciphertext_file,
             self.m.raw_io.output()).raw_io.output
     return secrets_map
