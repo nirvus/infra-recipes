@@ -19,7 +19,7 @@ DEPS = [
     'recipe_engine/step',
 ]
 
-CIPD_PKG_NAME = 'fuchsia/firmware/ovmf/firmware'
+CIPD_PKG_NAME = 'fuchsia/firmware/ovmf/amd64'
 
 # Note that this recipe accepts no properties because the recipe itself is quite
 # specific, and its required configuration is encoded entirely in the logic.

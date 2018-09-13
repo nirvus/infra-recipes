@@ -112,14 +112,14 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/firmware/ovmf/firmware",
+      "fuchsia/firmware/ovmf/amd64",
       "-tag",
       "git_revision:abc123",
       "-json-output",
       "/path/to/tmp/json"
     ],
     "cwd": "[START_DIR]/edk2",
-    "name": "cipd search fuchsia/firmware/ovmf/firmware git_revision:abc123",
+    "name": "cipd search fuchsia/firmware/ovmf/amd64 git_revision:abc123",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",

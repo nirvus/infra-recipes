@@ -112,14 +112,14 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/firmware/ovmf/firmware",
+      "fuchsia/firmware/ovmf/amd64",
       "-tag",
       "git_revision:abc123",
       "-json-output",
       "/path/to/tmp/json"
     ],
     "cwd": "[START_DIR]/edk2",
-    "name": "cipd search fuchsia/firmware/ovmf/firmware git_revision:abc123",
+    "name": "cipd search fuchsia/firmware/ovmf/amd64 git_revision:abc123",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -152,7 +152,7 @@
       "-in",
       "[START_DIR]/edk2/Build/OvmfX64/RELEASE_GCC5/FV",
       "-name",
-      "fuchsia/firmware/ovmf/firmware",
+      "fuchsia/firmware/ovmf/amd64",
       "-out",
       "[CLEANUP]/ovmf.cipd",
       "-json-output",
@@ -160,12 +160,12 @@
       "-install-mode",
       "copy"
     ],
-    "name": "build firmware",
+    "name": "build amd64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/firmware/ovmf/firmware\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/firmware/ovmf/amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
@@ -185,12 +185,12 @@
       "-tag",
       "git_revision:abc123"
     ],
-    "name": "register fuchsia/firmware/ovmf/firmware",
+    "name": "register fuchsia/firmware/ovmf/amd64",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/firmware/ovmf/firmware\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/firmware/ovmf/amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
