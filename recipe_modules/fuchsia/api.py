@@ -818,25 +818,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       An api.swarming.TaskRequest representing the swarming task request.
     """
-    self.m.swarming.ensure_swarming(version='latest')
+    # TODO(BLD-253): images in doc string should point to the schema once there is one.
 
-    # Use canonical image names to refer to images to extract the path to that
-    # image. These dict keys come from the images.json format which is produced
-    # by a Fuchsia build.
-    # TODO(BLD-253): Point to the schema once there is one.
-    if pave:
-      efi_path = images['efi']
-      storage_sparse_path = images['storage-sparse']
-      data_template_path = images['data-template']
+    self.m.swarming.ensure_swarming(version='latest')
 
     # All the *_name references below act as relative paths to the corresponding
     # artifacts in the test Swarming task, since we isolate all of the artifacts
     # into the root directory where the isolate is extracted.
     zbi_name = self.m.path.basename(zbi_path)
-    if pave:
-      efi_name = self.m.path.basename(efi_path)
-      storage_sparse_name = self.m.path.basename(storage_sparse_path)
-      data_template_name = self.m.path.basename(data_template_path)
 
     # Construct the botanist command.
     output_archive_name = 'out.tar'
@@ -849,31 +838,44 @@ class FuchsiaApi(recipe_api.RecipeApi):
       '-out', output_archive_name,
     ] # yapf: disable
 
+    # image_paths collects the paths to all artifacts consumed by bonanist.
+    # Paving builds will add additional paths.
+    image_paths = [
+      zbi_path,
+    ]
+
     # If we're paving, ensure we add the additional necessary artifacts.
     if pave:
-      botanist_cmd.extend([
-          '-efi',
-          efi_name,
-          '-fvm',
-          storage_sparse_name,
-          '-fvm',
-          data_template_name,
+      efi_path = images['efi']
+      efi_name = self.m.path.basename(efi_path)
+
+      storage_sparse_path = images['storage-sparse']
+      storage_sparse_name = self.m.path.basename(storage_sparse_path)
+
+      image_paths.extend([
+        efi_path,
+        storage_sparse_path,
       ])
+      botanist_cmd.extend([
+        '-efi', efi_name,
+        '-fvm', storage_sparse_name,
+      ])
+
+      data_template_path = images.get('data-template', None)
+      if data_template_path:
+        data_template_name = self.m.path.basename(data_template_path)
+
+        image_paths.extend([data_template_path])
+        botanist_cmd.extend([
+          '-fvm', data_template_name,
+        ])
 
     # Add the kernel command line arg for invoking runcmds.
     botanist_cmd.append(
         'zircon.autorun.system=/boot/bin/sh+/boot/%s' % RUNCMDS_BOOTFS_PATH)
 
     # Isolate all the necessary artifacts used by the botanist command.
-    if pave:
-      isolated_hash = self._isolate_files_at_isolated_root([
-          zbi_path,
-          efi_path,
-          storage_sparse_path,
-          data_template_path,
-      ])
-    else:
-      isolated_hash = self._isolate_files_at_isolated_root([zbi_path])
+    isolated_hash = self._isolate_files_at_isolated_root(image_paths)
 
     return self.m.swarming.task_request(
         name='all tests',

@@ -149,31 +149,36 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     return self.step_data('read symbol file summary',
                           self.m.json.output(summary_json))
 
-  def images_step_data(self):
+  def images_step_data(self, has_data_template=True):
     """Returns mock step data for the image manifest."""
-    return self.step_data('read image manifest', self.m.json.output([
-        {'name': 'zircon-a',
-         'type': 'zbi',
-         'path': 'fuchsia.zbi'},
-        {'name': 'storage-full',
-         'type': 'blk',
-         'path': 'fvm.blk'},
-        {'name': 'storage-sparse',
-         'type': 'blk',
-         'path': 'fvm.sparse.blk'},
-        {'name': 'data-template',
-         'type': 'blk',
-         'path': 'fvm.data.sparse.blk'},
-        {'name': 'qemu-kernel',
-         'type': 'bin',
-         'path': 'boot.bin'},
-        {'name': 'efi',
-         'type': 'blk',
-         'path': 'efi.blk'},
-        {'name': 'netboot',
-         'type': 'zbi',
-         'path': 'netboot.zbi'},
-    ]))
+    mock_image_manifest = [
+          {'name': 'zircon-a',
+          'type': 'zbi',
+          'path': 'fuchsia.zbi'},
+          {'name': 'storage-full',
+          'type': 'blk',
+          'path': 'fvm.blk'},
+          {'name': 'storage-sparse',
+          'type': 'blk',
+          'path': 'fvm.sparse.blk'},
+          {'name': 'qemu-kernel',
+          'type': 'bin',
+          'path': 'boot.bin'},
+          {'name': 'efi',
+          'type': 'blk',
+          'path': 'efi.blk'},
+          {'name': 'netboot',
+          'type': 'zbi',
+          'path': 'netboot.zbi'},
+      ]
+
+    if has_data_template:
+      return self.step_data('read image manifest', self.m.json.output(mock_image_manifest
+        + [{'name': 'data-template',
+          'type': 'blk',
+          'path': 'fvm.data.sparse.blk'},]))
+    else:
+      return self.step_data('read image manifest', self.m.json.output(mock_image_manifest))
 
   def task_step_data(self,
                      output='',
