@@ -387,6 +387,7 @@
     "cwd": "[TMP_BASE]/rust_tmp_1/build",
     "env": {
       "CARGO_HOME": "[TMP_BASE]/rust_tmp_1/.cargo",
+      "CFG_VERSION": "75b05681239cb309a23fcb4f8864f177e5aa62da",
       "CFLAGS_aarch64-fuchsia": "--target=aarch64-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -I[START_DIR]/sdk/pkg/fdio/include",
       "CFLAGS_x86_64-fuchsia": "--target=x86_64-fuchsia --sysroot=[START_DIR]/sdk/arch/x64/sysroot -I[START_DIR]/sdk/pkg/fdio/include",
       "LDFLAGS_aarch64-fuchsia": "--target=aarch64-fuchsia --sysroot=[START_DIR]/sdk/arch/arm64/sysroot -L[START_DIR]/sdk/arch/arm64/lib",

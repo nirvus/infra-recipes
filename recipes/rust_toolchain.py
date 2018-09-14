@@ -182,6 +182,7 @@ def RunSteps(api, url, ref, revision):
       )
     )
   env['CARGO_HOME'] = cargo_dir
+  env['CFG_VERSION'] = revision
   env_prefixes = {'PATH': [cipd_dir, cipd_dir.join('bin')]}
   with api.context(cwd=build_dir, env=env, env_prefixes=env_prefixes):
     api.python(
