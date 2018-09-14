@@ -1598,6 +1598,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           '-top-files', '50',
           '-top-syms', '50',
           '-format', 'html',
-          '-j', '128',
+          # Limit the number of jobs so that we don't overwhelm the bot.
+          '-jobs', str(min(10 * self.m.platform.cpu_count, 128)),
       ])
       self._upload_file_to_gcs(bloaty_file, self._build_metrics_gcs_bucket, hash=False)

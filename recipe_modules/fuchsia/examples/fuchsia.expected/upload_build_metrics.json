@@ -778,8 +778,8 @@
       "50",
       "-format",
       "html",
-      "-j",
-      "128"
+      "-jobs",
+      "20"
     ],
     "infra_step": true,
     "name": "bloaty"
