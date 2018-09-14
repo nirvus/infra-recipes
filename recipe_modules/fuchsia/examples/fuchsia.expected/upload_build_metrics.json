@@ -779,7 +779,7 @@
       "-format",
       "html",
       "-jobs",
-      "20"
+      "2"
     ],
     "infra_step": true,
     "name": "bloaty"
