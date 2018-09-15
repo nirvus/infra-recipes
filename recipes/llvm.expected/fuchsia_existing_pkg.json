@@ -602,6 +602,8 @@
       "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/llvm.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/lib/llvm/fuchsia\", \"root\": \"[TMP_BASE]/llvm_tmp_1/root\"}",
       "-out",
       "[CLEANUP]/llvm.cipd",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],

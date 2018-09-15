@@ -939,6 +939,8 @@
       "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/clang.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/clang/linux-amd64\", \"root\": \"[TMP_BASE]/clang_tmp_1/clang-linux\"}",
       "-out",
       "[CLEANUP]/clang.cipd",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],

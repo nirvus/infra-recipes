@@ -375,6 +375,8 @@
       "{\"data\": [{\"file\": \"bloaty\"}, {\"version_file\": \".versions/fuchsia/third_party/bloaty/mac-amd64.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/third_party/bloaty/mac-amd64\", \"root\": \"[START_DIR]/bloaty_build\"}",
       "-out",
       "[CLEANUP]/fuchsia/third_party/bloaty/mac-amd64",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],

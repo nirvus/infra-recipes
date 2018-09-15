@@ -899,6 +899,8 @@
       "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/clang.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/clang/mac-amd64\", \"root\": \"[TMP_BASE]/clang_tmp_1/clang-darwin\"}",
       "-out",
       "[CLEANUP]/clang.cipd",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],

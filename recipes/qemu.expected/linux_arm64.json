@@ -1921,6 +1921,8 @@
       "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/fuchsia/third_party/qemu/linux-arm64.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/third_party/qemu/linux-arm64\", \"root\": \"[TMP_BASE]/qemu_install_tmp_15\"}",
       "-out",
       "[CLEANUP]/third_party_qemu_linux-arm64.cipd",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],

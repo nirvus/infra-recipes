@@ -244,6 +244,8 @@
       "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/go.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/go/mac-amd64\", \"root\": \"[START_DIR]/go\"}",
       "-out",
       "[CLEANUP]/go.cipd",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],
