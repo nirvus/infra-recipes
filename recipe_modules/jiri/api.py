@@ -308,10 +308,13 @@ class JiriApi(recipe_api.RecipeApi):
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
 
+  # TODO(IN-617) Once all api.jiri.checkout() instances have been moved over to
+  # using build_input, remove `remote` and `patch_*` arguments.
   def checkout(self,
                manifest,
                remote,
                project=None,
+               build_input=None,
                revision=None,
                patch_ref=None,
                patch_gerrit_url=None,
@@ -325,6 +328,8 @@ class JiriApi(recipe_api.RecipeApi):
       manifest (str): Relative path to the manifest in the remote repository.
       remote (str): URL to the remote repository.
       project (str): The name that jiri should assign to the project.
+      build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
+        build.
       revision (str): A revision to checkout for the remote.
       patch_ref (str): The ref at which a patch lives.
       patch_gerrit_url (str): The Gerrit URL for the patch to apply.
@@ -332,6 +337,21 @@ class JiriApi(recipe_api.RecipeApi):
       timeout_secs (int): A timeout for jiri update in seconds.
     """
     self.init()
+
+    if build_input:
+      # Proto messages like build_input cannot have None members.
+      gitiles_commit = build_input.gitiles_commit
+      revision = revision or gitiles_commit.id
+
+      if build_input.gerrit_changes:
+        assert len(build_input.gerrit_changes) == 1
+        cl = build_input.gerrit_changes[0]
+        revision = revision or 'HEAD'
+        patch_project = patch_project or cl.project
+        patch_gerrit_url = patch_gerrit_url or 'https://%s' % cl.host
+        patch_ref = patch_ref or self.m.gerrit.get_change_ref(
+          cl.change, cl.patchset)
+
     self.import_manifest(manifest, remote, name=project, revision=revision)
     # Note that timeout is not a jiri commandline argument, but a param
     # that will get passed to self.m.step() via kwargs.

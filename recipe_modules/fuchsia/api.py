@@ -250,7 +250,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.jiri.ensure_jiri()
       self.m.jiri.checkout(
           manifest,
-          remote,
+          remote=remote,
           project=project,
           revision=revision,
           patch_ref=patch_ref,

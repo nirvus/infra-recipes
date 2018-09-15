@@ -6,6 +6,7 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
     'jiri',
+    'recipe_engine/buildbucket',
     'recipe_engine/json',
     'recipe_engine/path',
     'recipe_engine/platform',
@@ -16,12 +17,13 @@ DEPS = [
 
 
 PROPERTIES = {
+    'tryjob': Property(kind=bool, help='', default=False),
     'checkout_from_snapshot':
         Property(kind=bool, help='Checkout from snapshot', default=False),
 }
 
 
-def RunSteps(api, checkout_from_snapshot):
+def RunSteps(api, tryjob, checkout_from_snapshot):
   # First, ensure we have jiri.
   api.jiri.ensure_jiri()
   assert api.jiri.jiri
@@ -30,12 +32,31 @@ def RunSteps(api, checkout_from_snapshot):
     # Check out from snapshot.
     api.jiri.checkout_snapshot('snapshot')
   else:
+    if tryjob:
+      build_input = api.buildbucket.build_pb2.Build.Input(
+          gitiles_commit=api.buildbucket.common_pb2.GitilesCommit(
+              host='fuchsia.googlesource.com',
+              project='garnet',
+              ref='refs/heads/master',
+              id='a1b2c3',
+          ),
+      )
+    else:
+      build_input = api.buildbucket.build_pb2.Build.Input(
+          gerrit_changes=[
+              api.buildbucket.common_pb2.GerritChange(
+                  host='fuchsia-review.googlesource.com',
+                  project='garnet',
+                  change=100,
+                  patchset=5,
+              ),
+          ],
+      )
     api.jiri.checkout(
-        'minimal',
-        'https://fuchsia.googlesource.com',
-        patch_ref='refs/changes/1/2/3',
-        patch_gerrit_url='https://fuchsia-review.googlesource.com')
-
+        manifest='minimal',
+        remote='https://fuchsia.googlesource.com/manifest',
+        build_input=build_input,
+    )
   # Setup a new jiri root.
   api.jiri.init('dir')
 
@@ -119,7 +140,19 @@ def RunSteps(api, checkout_from_snapshot):
 
 # yapf: disable
 def GenTests(api):
-  yield (api.test('basic') +
+  yield (api.test('basic_ci') +
+      api.jiri.read_manifest_element(api,
+          manifest='minimal',
+          element_type='import',
+          element_name='test/import',
+          test_output=api.jiri.read_manifest_project_output) +
+      api.jiri.read_manifest_element(api,
+          manifest='minimal',
+          element_type='project',
+          element_name='test/project',
+          test_output=api.jiri.read_manifest_project_output))
+  yield (api.test('basic_cq') +
+      api.properties(tryjob=True) +
       api.jiri.read_manifest_element(api,
           manifest='minimal',
           element_type='import',

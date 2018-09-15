@@ -1,5 +1,6 @@
 DEPS = [
   'cipd',
+  'infra/gerrit',
   'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',

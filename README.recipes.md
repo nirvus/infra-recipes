@@ -78,7 +78,6 @@
   * [sdk](#recipes-sdk) &mdash; Recipe for building Fuchsia SDKs.
   * [service_account:examples/full](#recipes-service_account_examples_full)
   * [swarming:examples/full](#recipes-swarming_examples_full)
-  * [swift_toolchain](#recipes-swift_toolchain) &mdash; Recipe for building Swift toolchain.
   * [tar:examples/full](#recipes-tar_examples_full)
   * [third_party_rust_licenses](#recipes-third_party_rust_licenses) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [tools](#recipes-tools) &mdash; Recipe for building and publishing tools.
@@ -857,7 +856,7 @@ and directories.
 &emsp; **@property**<br>&mdash; **def [isolated\_client](/recipe_modules/isolated/api.py#37)(self):**
 ### *recipe_modules* / [jiri](/recipe_modules/jiri)
 
-[DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [JiriApi](/recipe_modules/jiri/api.py#14)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -867,7 +866,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#311)(self, manifest, remote, project=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#313)(self, manifest, remote, project=None, build_input=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -877,13 +876,15 @@ Args:
   manifest (str): Relative path to the manifest in the remote repository.
   remote (str): URL to the remote repository.
   project (str): The name that jiri should assign to the project.
+  build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
+    build.
   revision (str): A revision to checkout for the remote.
   patch_ref (str): The ref at which a patch lives.
   patch_gerrit_url (str): The Gerrit URL for the patch to apply.
   patch_project (str): The Gerrit project where the patch lives.
   timeout_secs (int): A timeout for jiri update in seconds.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#351)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#371)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -961,7 +962,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#368)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#388)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -1530,9 +1531,9 @@ Recipe for building Jiri.
 &mdash; **def [UploadPackage](/recipes/jiri.py#42)(api, revision, staging_dir):**
 ### *recipes* / [jiri:examples/full](/recipe_modules/jiri/examples/full.py)
 
-[DEPS](/recipe_modules/jiri/examples/full.py#7): [jiri](#recipe_modules-jiri), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/jiri/examples/full.py#7): [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-&mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#24)(api, checkout_from_snapshot):**
+&mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#26)(api, tryjob, checkout_from_snapshot):**
 ### *recipes* / [licenses](/recipes/licenses.py)
 
 [DEPS](/recipes/licenses.py#11): [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1689,13 +1690,6 @@ Recipe for building Fuchsia SDKs.
 [DEPS](/recipe_modules/swarming/examples/full.py#8): [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
 &mdash; **def [RunSteps](/recipe_modules/swarming/examples/full.py#25)(api, spawn_tasks):**
-### *recipes* / [swift\_toolchain](/recipes/swift_toolchain.py)
-
-[DEPS](/recipes/swift_toolchain.py#19): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
-
-Recipe for building Swift toolchain.
-
-&mdash; **def [RunSteps](/recipes/swift_toolchain.py#326)(api, url, ref, revision, mock_build):**
 ### *recipes* / [tar:examples/full](/recipe_modules/tar/examples/full.py)
 
 [DEPS](/recipe_modules/tar/examples/full.py#5): [tar](#recipe_modules-tar), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step]
