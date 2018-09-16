@@ -14,6 +14,7 @@ DEPS = [
     'infra/fuchsia',
     'infra/git',
     'infra/goma',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -33,19 +34,6 @@ PROPERTIES = {
         Property(kind=str, help='Jiri manifest to use', default=None),
     'remote':
         Property(kind=str, help='Remote manifest repository', default=None),
-    'revision':
-        Property(
-            kind=str, help='Revision which triggered this build.',
-            default=None),
-    # Properties for applying a change from Gerrit as a patch.
-    # NOTE: in the case of checkout_snapshot, these are treated as applying
-    # to the snapshot, and not the full checkout.
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
     'checks':
         Property(
             kind=List(basestring),
@@ -54,8 +42,7 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, manifest, remote, project, revision, patch_gerrit_url,
-             patch_project, patch_ref, checks):
+def RunSteps(api, project, manifest, remote, checks):
   api.goma.ensure_goma()
   api.clang_tidy.ensure_clang()
 
@@ -63,10 +50,7 @@ def RunSteps(api, manifest, remote, project, revision, patch_gerrit_url,
       manifest=manifest,
       remote=remote,
       project=project,
-      revision=revision,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
-      patch_ref=patch_ref,
+      build_input=api.buildbucket.build.input
   ).root_dir
   compile_commands = api.clang_tidy.gen_compile_commands(checkout_dir)
 
@@ -110,8 +94,6 @@ other/path/to/file'''
   }]
 
   yield (api.test('with_errors') + api.properties(
-      patch_project='fuchsia',
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       paths=['path/to/file', 'other/path/to/file']) +
@@ -123,8 +105,6 @@ other/path/to/file'''
                                stdout=api.json.output(has_errors_json)))
 
   yield (api.test('no_errors') + api.properties(
-      patch_project='fuchsia',
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       paths=['path/to/file', 'other/path/to/file']) +

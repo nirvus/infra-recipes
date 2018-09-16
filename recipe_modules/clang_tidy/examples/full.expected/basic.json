@@ -86,6 +86,8 @@
       "import",
       "-v",
       "-time",
+      "-revision",
+      "HEAD",
       "manifest/minimal",
       "tools"
     ],
@@ -112,8 +114,12 @@
       "patch",
       "-v",
       "-time",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-project",
+      "tools",
       "-rebase=true",
-      "abcdef0123456789abcdef0123456789abcdef01"
+      "refs/changes/56/123456/7"
     ],
     "infra_step": true,
     "name": "jiri patch"

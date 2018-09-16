@@ -1323,16 +1323,16 @@ Recipe for building some Breakpad tools.
 &mdash; **def [RunSteps](/recipe_modules/cipd/examples/platform_suffix.py#24)(api, arch_override, bits_override, expect_error):**
 ### *recipes* / [clang\_tidy](/recipes/clang_tidy.py)
 
-[DEPS](/recipes/clang_tidy.py#11): [cipd](#recipe_modules-cipd), [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
+[DEPS](/recipes/clang_tidy.py#11): [cipd](#recipe_modules-cipd), [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
 
 Recipe for running CQ-blocking clang-tidy checks.
 
-&mdash; **def [RunSteps](/recipes/clang_tidy.py#57)(api, manifest, remote, project, revision, patch_gerrit_url, patch_project, patch_ref, checks):**
+&mdash; **def [RunSteps](/recipes/clang_tidy.py#45)(api, project, manifest, remote, checks):**
 ### *recipes* / [clang\_tidy:examples/full](/recipe_modules/clang_tidy/examples/full.py)
 
-[DEPS](/recipe_modules/clang_tidy/examples/full.py#5): [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/clang_tidy/examples/full.py#5): [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-&mdash; **def [RunSteps](/recipe_modules/clang_tidy/examples/full.py#14)(api):**
+&mdash; **def [RunSteps](/recipe_modules/clang_tidy/examples/full.py#15)(api):**
 ### *recipes* / [clang\_toolchain](/recipes/clang_toolchain.py)
 
 [DEPS](/recipes/clang_toolchain.py#13): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]

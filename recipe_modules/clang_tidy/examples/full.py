@@ -5,6 +5,7 @@
 DEPS = [
     'clang_tidy',
     'fuchsia',
+    'recipe_engine/buildbucket',
     'recipe_engine/json',
     'recipe_engine/raw_io',
     'recipe_engine/step',
@@ -16,7 +17,7 @@ def RunSteps(api):
   checkout_dir = api.fuchsia.checkout(
       manifest='manifest/minimal',
       remote='tools',
-      patch_ref='abcdef0123456789abcdef0123456789abcdef01',
+      build_input=api.buildbucket.build.input,
   ).root_dir
   compile_commands = api.clang_tidy.gen_compile_commands(checkout_dir)
 
@@ -46,6 +47,11 @@ newline output
       'FilePath': 'path/to/file'
   }]
 
-  yield (api.test('basic') + api.step_data(
+  yield (api.test('basic') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/tools'
+    ) +
+    api.step_data(
       'step one.load yaml', stdout=api.json.output(has_errors_json)) +
-         api.step_data('step two.load yaml', stdout=api.json.output('')))
+         api.step_data('step two.load yaml', stdout=api.json.output(''))
+  )
