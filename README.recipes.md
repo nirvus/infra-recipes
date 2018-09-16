@@ -1347,11 +1347,11 @@ Recipe for building Clang toolchain.
 &mdash; **def [RunSteps](/recipe_modules/cloudkms/examples/full.py#11)(api):**
 ### *recipes* / [cobalt](/recipes/cobalt.py)
 
-[DEPS](/recipes/cobalt.py#10): [cipd](#recipe_modules-cipd), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/cobalt.py#10): [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building and testing Cobalt.
 
-&mdash; **def [RunSteps](/recipes/cobalt.py#31)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, revision):**
+&mdash; **def [RunSteps](/recipes/cobalt.py#27)(api, manifest, remote):**
 ### *recipes* / [cut\_release](/recipes/cut_release.py)
 
 [DEPS](/recipes/cut_release.py#12): [git](#recipe_modules-git), [lkgs](#recipe_modules-lkgs), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/time][recipe_engine/recipe_modules/time]
