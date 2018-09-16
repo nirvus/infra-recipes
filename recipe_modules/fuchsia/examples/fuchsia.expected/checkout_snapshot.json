@@ -39,7 +39,8 @@
     "cmd": [
       "git",
       "fetch",
-      "origin"
+      "origin",
+      "a1b2c3"
     ],
     "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
@@ -50,7 +51,7 @@
       "git",
       "checkout",
       "-f",
-      "69acf9677ff075e15329cc860d968c1f70be5e6a"
+      "FETCH_HEAD"
     ],
     "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,

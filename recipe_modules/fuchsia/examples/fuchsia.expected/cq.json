@@ -53,8 +53,10 @@
       "-time",
       "-name",
       "topaz",
-      "fuchsia",
-      "https://fuchsia.googlesource.com/manifest"
+      "-revision",
+      "HEAD",
+      "manifest/minimal",
+      "https://fuchsia.googlesource.com/topaz"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -84,7 +86,7 @@
       "-project",
       "topaz",
       "-rebase=true",
-      "refs/changes/89/456789/12"
+      "refs/changes/00/100/5"
     ],
     "infra_step": true,
     "name": "jiri patch"

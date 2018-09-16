@@ -15,7 +15,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
            expect_failure=False,
            build_metrics_gcs_bucket=None,
            test_coverage_gcs_bucket=None,
-           properties=None,
+           properties={},
            steps=(),
            paths=()):  # pragma: no cover
     """Returns a test case appropriate for yielding from GenTests().
@@ -48,44 +48,64 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       raise ValueError('Test "%s": Do not specify a "tryjob" property; '
                        'use the tryjob arg.' % name)  # pragma: no cover
 
+    project = properties.get('project', 'topaz')
     if clear_default_properties:
       final_properties = {}
     else:
       final_properties = dict(
-          manifest='fuchsia',
-          remote='https://fuchsia.googlesource.com/manifest',
-          project='topaz',
+          manifest='manifest/minimal',
+          remote='https://fuchsia.googlesource.com/%s' % project,
+          project=project,
           target='x64',
-          packages=['topaz/packages/default'],
+          packages=['%s/packages/default' % project],
           revision=self.m.jiri.example_revision,
       )
-
     if 'buildbucket' in properties:
       # Re-evaluate this restriction if a test really needs to specify its
       # own buildbucket properties.
       raise ValueError(
           'Test "%s": Do not specify a "buildbucket" property; '
           'the test API should provide it.' % name)  # pragma: no cover
+
     # Used by api.buildbucket.
-    final_properties['buildbucket'] = {
+    if tryjob:
+      input = {
+        'gerrit_changes': [
+          {
+            'host': 'fuchsia-review.googlesource.com',
+            'project': project,
+            'change': 100,
+            'patchset': 5,
+          },
+        ]
+      }
+    else:
+      input = {
+        'gitiles_commit' : {
+            'host': 'fuchsia.googlesource.com',
+            'project': project,
+            'ref': 'refs/heads/master',
+            'id': 'a1b2c3',
+        }
+      }
+
+    final_properties['$recipe_engine/buildbucket'] = {
         'build': {
             'bucket': '###buildbucket-bucket###',
             'id': '5555555555',
             'project': '###buildbucket-project###',
             'tags': ['builder:###buildbucket-builder###'],
+            'input': input
         },
     }
 
     if tryjob:
-      gerrit_project = (
-          properties.get('project', None) or
-          final_properties.get('project', 'topaz'))
       final_properties.update(
           dict(
               # properties.tryserver will add patch_* properties based on
               # these gerrit_* properties.
               gerrit_url='https://fuchsia-review.googlesource.com',
-              gerrit_project=gerrit_project,
+              gerrit_project=project,
               tryjob=True,
           ))
 

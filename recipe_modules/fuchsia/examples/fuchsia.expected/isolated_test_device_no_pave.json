@@ -53,8 +53,10 @@
       "-time",
       "-name",
       "topaz",
-      "fuchsia",
-      "https://fuchsia.googlesource.com/manifest"
+      "-revision",
+      "a1b2c3",
+      "manifest/minimal",
+      "https://fuchsia.googlesource.com/topaz"
     ],
     "infra_step": true,
     "name": "jiri import"

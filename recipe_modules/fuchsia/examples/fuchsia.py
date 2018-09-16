@@ -19,6 +19,7 @@ DEPS = [
     'infra/goma',
     'infra/swarming',
     'infra/jiri',
+    'recipe_engine/buildbucket',
     'recipe_engine/json',
     'recipe_engine/path',
     'recipe_engine/properties',
@@ -40,31 +41,6 @@ PROPERTIES = {
             kind=bool,
             help='Whether to checkout from a snapshot',
             default=False),
-    'snapshot_repository':
-        Property(
-            kind=str,
-            help='Repository containing snapshot to check out',
-            default=None),
-    'snapshot_revision':
-        Property(
-            kind=str,
-            help='Snapshot revision in the repository to check out from',
-            default=None),
-
-    # Properties for patching a jiri checkout or snapshot.
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_issue':
-        Property(kind=int, help='Gerrit patch issue number', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_repository_url':
-        Property(
-            kind=str,
-            help='Repository which Gerrit change patches',
-            default=None),
 
     # Properties controlling a Fuchsia build.
     'target':
@@ -137,35 +113,28 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, project, manifest, remote, checkout_snapshot,
-             snapshot_repository, snapshot_revision, patch_gerrit_url,
-             patch_issue, patch_project, patch_ref, patch_repository_url,
-             target, build_type, packages, variants, gn_args, ninja_targets,
-             run_tests, runtests_args, device_type, run_host_tests,
-             networking_for_tests, requires_secrets, snapshot_gcs_bucket,
-             upload_breakpad_symbols, pave):
+def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
+             build_type, packages, variants, gn_args, ninja_targets, run_tests,
+             runtests_args, device_type, run_host_tests, networking_for_tests,
+             requires_secrets, snapshot_gcs_bucket, upload_breakpad_symbols,
+             pave):
+  build_input = api.buildbucket.build.input
   if checkout_snapshot:
     if api.properties.get('tryjob'):
+      assert len(build_input.gerrit_changes) == 1
       checkout = api.fuchsia.checkout_patched_snapshot(
-          patch_gerrit_url=patch_gerrit_url,
-          patch_issue=patch_issue,
-          patch_project=patch_project,
-          patch_ref=patch_ref,
-          patch_repository_url=patch_repository_url,
+        gerrit_change=build_input.gerrit_changes[0],
       )
     else:
       checkout = api.fuchsia.checkout_snapshot(
-          repository=snapshot_repository,
-          revision=snapshot_revision,
+        gitiles_commit=build_input.gitiles_commit,
       )
   else:
     checkout = api.fuchsia.checkout(
         manifest=manifest,
         remote=remote,
         project=project,
-        patch_ref=patch_ref,
-        patch_gerrit_url=patch_gerrit_url,
-        patch_project=patch_project,
+        build_input=build_input,
         snapshot_gcs_bucket=snapshot_gcs_bucket,
     )
   assert checkout.root_dir
@@ -377,9 +346,7 @@ def GenTests(api):
       clear_default_properties=True,
       properties=dict(
           checkout_snapshot=True,
-          snapshot_repository='https://fuchsia.googlesource.com/snapshots',
-          snapshot_revision='69acf9677ff075e15329cc860d968c1f70be5e6a',
-          gerrit_project='snapshots',
+          project='snapshots',
           target='x64',
           packages=['topaz/packages/default'],
       ),
@@ -389,8 +356,8 @@ def GenTests(api):
       clear_default_properties=True,
       tryjob=True,
       properties=dict(
+          project='snapshots',
           checkout_snapshot=True,
-          gerrit_project='snapshots',
           target='x64',
           packages=['topaz/packages/default'],
       ),
@@ -399,10 +366,8 @@ def GenTests(api):
       'checkout_snapshot_with_cherrypicks',
       clear_default_properties=True,
       properties=dict(
+          project='snapshots',
           checkout_snapshot=True,
-          snapshot_repository='https://fuchsia.googlesource.com/snapshots',
-          snapshot_revision='69acf9677ff075e15329cc860d968c1f70be5e6a',
-          gerrit_project='snapshots',
           target='x64',
           packages=['topaz/packages/default'],
       ),
