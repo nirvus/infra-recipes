@@ -11,6 +11,7 @@ DEPS = [
     'infra/gsutil',
     'infra/jiri',
     'infra/tar',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/file',
     'recipe_engine/path',
@@ -25,18 +26,8 @@ SOURCE_PATTERNS = ['fuchsia/config/**/*', 'lib*/*.h', 'LICENSE.md']
 TARGETS = ['arm64', 'x64']
 
 PROPERTIES = {
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_storage':
-        Property(kind=str, help='Patch location', default=None),
-    'patch_repository_url':
-        Property(kind=str, help='URL to a Git repository', default=None),
-    'revision':
-        Property(kind=str, help='Revision of manifest to import', default=None),
+    'project':
+        Property(kind=str, help='Jiri remote manifest project', default=None),
     'snapshot_gcs_bucket':
         Property(
             kind=str,
@@ -47,26 +38,18 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, revision, snapshot_gcs_bucket):
+def RunSteps(api, project, snapshot_gcs_bucket):
+  build_input = api.buildbucket.build.input
+
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
       manifest='manifest/ffmpeg',
       remote='https://fuchsia.googlesource.com/third_party/ffmpeg',
-      project='third_party/ffmpeg',
-      revision=revision,
-      patch_ref=patch_ref,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
+      project=project,
+      build_input=build_input,
       snapshot_gcs_bucket=snapshot_gcs_bucket,
   )
-
-  with api.context(infra_steps=True):
-    # api.fuchsia.checkout() will have ensured that jiri exists.
-    revision = api.jiri.project(
-        ['third_party/ffmpeg']).json.output[0]['revision']
-    api.step.active_result.presentation.properties['got_revision'] = revision
 
   # Build and archive for all targets before uploading any to avoid an
   # incomplete upload.
@@ -108,6 +91,9 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
   if api.properties.get('tryjob'):
     return
 
+  revision = build_input.gitiles_commit.id
+  assert revision
+
   # Upload the built library to Google Cloud Storage.
   # api.fuchsia.checkout() doesn't always ensure that gsutil exists.
   api.gsutil.ensure_gsutil()
@@ -137,22 +123,28 @@ def GenTests(api):
   yield api.fuchsia.test(
       'default',
       clear_default_properties=True,
-      properties={},
+      properties=dict(project='third_party/ffmpeg'),
   )
   yield api.fuchsia.test(
       'cq',
       clear_default_properties=True,
       tryjob=True,
-      properties={},
+      properties=dict(project='third_party/ffmpeg'),
   )
   yield api.fuchsia.test(
       'cq_no_snapshot',
       clear_default_properties=True,
       tryjob=True,
-      properties=dict(snapshot_gcs_bucket=''),
+      properties=dict(
+        project='third_party/ffmpeg',
+        snapshot_gcs_bucket='',
+      ),
   )
   yield api.fuchsia.test(
       'ci_no_snapshot',
       clear_default_properties=True,
-      properties=dict(snapshot_gcs_bucket=''),
+      properties=dict(
+        project='third_party/ffmpeg',
+        snapshot_gcs_bucket='',
+      ),
   )
