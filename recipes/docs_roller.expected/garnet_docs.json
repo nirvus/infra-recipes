@@ -113,6 +113,8 @@
       "-time",
       "-name",
       "garnet",
+      "-revision",
+      "2d72510e447ab60a9728aeea2362d8be2cbd7789",
       "fuchsia",
       "https://fuchsia.googlesource.com/garnet"
     ],

@@ -21,6 +21,7 @@ DEPS = [
     'infra/cipd',
     'infra/fuchsia',
     'infra/jiri',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -30,18 +31,6 @@ DEPS = [
 ]
 
 PROPERTIES = {
-    'category':
-        Property(kind=str, help='Build category', default=None),
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_storage':
-        Property(kind=str, help='Patch location', default=None),
-    'patch_repository_url':
-        Property(kind=str, help='URL to a Git repository', default=None),
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
@@ -106,9 +95,7 @@ def gen_gndoc(api, packages, project_dir):
   api.step("gndoc", gndoc_cmd)
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, project, manifest, remote,
-             packages, run_gndoc):
+def RunSteps(api, project, manifest, remote, packages, run_gndoc):
   api.jiri.ensure_jiri()
 
   cipd_dir = api.path['start_dir'].join('cipd')
@@ -118,13 +105,12 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
           'fuchsia/tools/gndoc/${platform}': 'latest',
       })
 
+  build_input = api.buildbucket.build.input
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
+      build_input=build_input,
       project=project,
-      patch_ref=patch_ref,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
   )
 
   project_dir = api.path['start_dir'].join(*project.split('/'))
@@ -172,11 +158,29 @@ def GenTests(api):
                 "name": "target_cpu"
             }]))
 
-  yield (api.test('garnet_docs') + roller_success + properties('garnet') +
-         gndoc_test_data('garnet'))
+  yield (api.test('garnet_docs') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/garnet'
+    ) +
+    roller_success +
+    properties('garnet') +
+    gndoc_test_data('garnet')
+  )
 
-  yield (api.test('peridot_docs') + roller_success + properties('peridot') +
-         gndoc_test_data('peridot'))
+  yield (api.test('peridot_docs') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/peridot'
+    ) +
+    roller_success +
+    properties('peridot') +
+    gndoc_test_data('peridot')
+  )
 
-  yield (api.test('topaz_docs') + roller_success + properties('topaz') +
-         gndoc_test_data('topaz'))
+  yield (api.test('topaz_docs') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    roller_success +
+    properties('topaz') +
+    gndoc_test_data('topaz')
+  )
