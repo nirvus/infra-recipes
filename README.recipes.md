@@ -586,6 +586,14 @@ Args:
 
 &mdash; **def [ensure\_gerrit](/recipe_modules/gerrit/api.py#42)(self, version=None):**
 
+&mdash; **def [get\_change\_ref](/recipe_modules/gerrit/api.py#172)(self, change, patchset):**
+
+Returns the reference ID to a given Gerrit change.
+
+Args:
+  change (int): Change number.
+  patchset (int): Patch set number.
+
 &emsp; **@host.setter**<br>&mdash; **def [host](/recipe_modules/gerrit/api.py#59)(self, host):**
 
 &mdash; **def [set\_review](/recipe_modules/gerrit/api.py#113)(self, name, change_id, labels=None, reviewers=None, ccs=None, revision='current', test_data=None):**

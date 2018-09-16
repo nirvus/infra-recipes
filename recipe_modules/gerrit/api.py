@@ -168,3 +168,14 @@ class GerritApi(recipe_api.RecipeApi):
         test_data=test_data,
     )
 
+  # TODO(IN-625): Get this value from the Gerrit client.
+  def get_change_ref(self, change, patchset):
+    """Returns the reference ID to a given Gerrit change.
+
+    Args:
+      change (int): Change number.
+      patchset (int): Patch set number.
+    """
+    assert change >= 0 and patchset >= 0
+    last_two_digits = str(change)[-2:]
+    return 'refs/changes/%s/%d/%d' % (last_two_digits, change, patchset)
