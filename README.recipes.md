@@ -1569,13 +1569,13 @@ Recipe for building Jiri.
 &mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#26)(api, tryjob, checkout_from_snapshot):**
 ### *recipes* / [licenses](/recipes/licenses.py)
 
-[DEPS](/recipes/licenses.py#11): [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/licenses.py#11): [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for checking license text in the source code.
 
 Requires topaz source to be present in the manifest.
 
-&mdash; **def [RunSteps](/recipes/licenses.py#41)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, remote, manifest, revision):**
+&mdash; **def [RunSteps](/recipes/licenses.py#30)(api, project, remote, manifest):**
 ### *recipes* / [lkgs:examples/full](/recipe_modules/lkgs/examples/full.py)
 
 [DEPS](/recipe_modules/lkgs/examples/full.py#5): [lkgs](#recipe_modules-lkgs), [recipe\_engine/path][recipe_engine/recipe_modules/path]

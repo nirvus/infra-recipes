@@ -10,6 +10,7 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
     'infra/fuchsia',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/path',
     'recipe_engine/properties',
@@ -17,37 +18,21 @@ DEPS = [
 ]
 
 PROPERTIES = {
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_storage':
-        Property(kind=str, help='Patch location', default=None),
-    'patch_repository_url':
-        Property(kind=str, help='URL to a Git repository', default=None),
     'project':
-        Property(kind=str, help='Jiri remote manifest project', default=None),
+      Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
         Property(kind=str, help='Jiri manifest to use. Should include //topaz'),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
-    'revision':
-        Property(kind=str, help='Revision of manifest to import', default=None),
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, project, remote, manifest, revision):
+def RunSteps(api, project, remote, manifest):
   checkout = api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
       project=project,
-      revision=revision,
-      patch_ref=patch_ref,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
+      build_input=api.buildbucket.build.input,
   )
   licenses_path = checkout.root_dir.join('topaz', 'tools', 'check-licenses.sh')
   with api.context(cwd=checkout.root_dir):
@@ -55,5 +40,22 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
 
 def GenTests(api):
-  yield api.test('default') + api.properties(
-      manifest='fuchsia', remote='https://fuchsia.googlesource.com/manifest')
+  yield (api.test('default_ci') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+    )
+  )
+
+  yield (api.test('default_cq') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
+      manifest='fuchsia',
+      remote='https://fuchsia.googlesource.com/manifest',
+    )
+  )
