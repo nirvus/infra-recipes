@@ -23,6 +23,7 @@ DEPS = [
     'infra/jiri',
     'infra/git',
     'infra/go',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -34,24 +35,12 @@ DEPS = [
 ]
 
 PROPERTIES = {
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_storage':
-        Property(kind=str, help='Patch location', default=None),
-    'patch_repository_url':
-        Property(kind=str, help='URL to a Git repository', default=None),
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
-    'revision':
-        Property(kind=str, help='Revision of manifest to import', default=None),
     'packages':
         Property(kind=List(str), help='The list of packages to build'),
 }
@@ -100,26 +89,20 @@ def UploadPackage(api, bin_name, bin_dir, revision, remote, platform):
   )
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, project, manifest, remote, revision,
-             packages):
+def RunSteps(api, project, manifest, remote, packages):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
 
   gopath = api.path['start_dir'].join('go')
+
+  build_input = api.buildbucket.build.input
 
   # Checkout the project at the specified patch.
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest=manifest,
                       remote=remote,
                       project=project,
-                      revision=revision,
-                      patch_ref=patch_ref,
-                      patch_gerrit_url=patch_gerrit_url,
-                      patch_project=patch_project)
-    if not revision:
-      revision = api.jiri.project(['infra/infra']).json.output[0]['revision']
-      api.step.active_result.presentation.properties['got_revision'] = revision
+                      build_input=build_input)
 
   # Install golang/dep for dependencies.
   with api.step.nest('ensure_packages'):
@@ -153,41 +136,65 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
           # Upload to CIPD.
           if not api.properties.get('tryjob', False):
+            revision = build_input.gitiles_commit.id
+            assert revision
             UploadPackage(api, bin_name, bin_dir, revision, remote, 'linux-%s' % arch)
 
 
 def GenTests(api):
+  revision = 'a1b2c3'
+
+  ci_build = api.buildbucket.ci_build(
+    git_repo='https://fuchsia.googlesource.com/infra/infra',
+    revision=revision,
+  )
+  try_build = api.buildbucket.try_build(
+    git_repo='https://fuchsia.googlesource.com/infra/infra',
+    revision=None,
+  )
+
   # Tests execution in the event that CIPD doesn't yet have this tool at the
   # specified revision.
-  yield (api.test('cipd_is_missing_revision') + api.properties(
+  yield (api.test('cipd_is_missing_revision') +
+    ci_build +
+    api.properties(
       project='infra/infra',
       manifest='infra/infra',
       remote='https://fuchsia.googlesource.com/infra/infra',
       packages=['fuchsia.googlesource.com/infra/infra/cmd/catapult']
-  ) + api.step_data(
-      'cipd search fuchsia/infra/catapult/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
-      api.json.output({
-          'result': []
-      }),
-  ))
+    ) + api.step_data(
+        'cipd search fuchsia/infra/catapult/linux-amd64 git_revision:%s' % revision,
+        api.json.output({
+            'result': []
+        }),
+    )
+  )
+
   # Tests execution in the event that CIPD already has this tool at the
   # specified revision.
-  yield (api.test('cipd_has_revision') + api.properties(
+  yield (api.test('cipd_has_revision') +
+    ci_build +
+    api.properties(
       project='infra/infra',
       manifest='infra/infra',
       remote='https://fuchsia.googlesource.com/infra/infra',
       packages=['fuchsia.googlesource.com/infra/infra/cmd/catapult']
-  ) + api.step_data(
-      'cipd search fuchsia/infra/catapult/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
-      api.json.output({
-          'result':
-              ['Packages: go/cmd/github.com/golang/dep/linux-amd64:abc123']
-      }),
-  ))
+    ) + api.step_data(
+        'cipd search fuchsia/infra/catapult/linux-amd64 git_revision:%s' % revision,
+        api.json.output({
+            'result':
+                ['Packages: go/cmd/github.com/golang/dep/linux-amd64:abc123']
+        }),
+    )
+  )
+
   # Tests execution in the event that this is a tryjob.
-  yield (api.test('cq_and_cipd_has_revision') + api.properties(
+  yield (api.test('cq_and_cipd_has_revision') +
+    try_build +
+    api.properties(
       project='infra/infra',
       manifest='infra/infra',
       tryjob=True,
       remote='https://fuchsia.googlesource.com/infra/infra',
-      packages=['fuchsia.googlesource.com/infra/infra/cmd/catapult']))
+      packages=['fuchsia.googlesource.com/infra/infra/cmd/catapult'])
+  )

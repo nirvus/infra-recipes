@@ -1525,7 +1525,7 @@ Recipe for building Go toolchain.
 &mdash; **def [RunSteps](/recipe_modules/hash/examples/full.py#11)(api):**
 ### *recipes* / [infra](/recipes/infra.py)
 
-[DEPS](/recipes/infra.py#21): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+[DEPS](/recipes/infra.py#21): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
 
 Recipe for building and publishing infra tools.
 
@@ -1537,9 +1537,9 @@ packages are uploaded.
 This recipe uses golang/dep to manage dependencies, so the given project is
 expected to have a Gopkg.toml file specifying its dependency restrictions.
 
-&mdash; **def [RunSteps](/recipes/infra.py#103)(api, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, project, manifest, remote, revision, packages):**
+&mdash; **def [RunSteps](/recipes/infra.py#92)(api, project, manifest, remote, packages):**
 
-&mdash; **def [UploadPackage](/recipes/infra.py#70)(api, bin_name, bin_dir, revision, remote, platform):**
+&mdash; **def [UploadPackage](/recipes/infra.py#59)(api, bin_name, bin_dir, revision, remote, platform):**
 
 Creates and uploads a CIPD package containing the tool at bin_dir/bin_name.
 
