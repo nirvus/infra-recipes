@@ -1734,7 +1734,7 @@ Recipe for building Fuchsia SDKs.
 
 Recipe for checking licenses in the repo hosting third-party Rust crates.
 
-&mdash; **def [RunSteps](/recipes/third_party_rust_licenses.py#31)(api, category, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url):**
+&mdash; **def [RunSteps](/recipes/third_party_rust_licenses.py#23)(api):**
 ### *recipes* / [tools](/recipes/tools.py)
 
 [DEPS](/recipes/tools.py#12): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
