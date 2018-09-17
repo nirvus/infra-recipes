@@ -1464,7 +1464,7 @@ This differs from the fuchsia recipe in the following ways:
 * Tests are always run (this recipe is not used to verify builds).
 * Test results are uploaded to the catapult dashboard after execution.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#141)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, ninja_targets, test_pool, catapult_url, device_type, pave, dashboard_masters_name, dashboard_bots_name, patch_ref, patch_gerrit_url, patch_project, snapshot_gcs_bucket, upload_to_dashboard, benchmarks_package):**
+&mdash; **def [RunSteps](/recipes/fuchsia_perf.py#135)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, ninja_targets, test_pool, catapult_url, device_type, pave, dashboard_masters_name, dashboard_bots_name, snapshot_gcs_bucket, upload_to_dashboard, benchmarks_package):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
 [DEPS](/recipes/fuchsia_roller.py#14): [auto\_roller](#recipe_modules-auto_roller), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

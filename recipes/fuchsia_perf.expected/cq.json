@@ -81,8 +81,8 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "topaz",
+      "-revision",
+      "HEAD",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -114,7 +114,7 @@
       "-project",
       "topaz",
       "-rebase=true",
-      "refs/changes/96/147496/10"
+      "refs/changes/56/123456/7"
     ],
     "infra_step": true,
     "name": "jiri patch"

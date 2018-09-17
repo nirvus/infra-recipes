@@ -41,12 +41,6 @@ DEPS = [
 ]
 
 PROPERTIES = {
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
@@ -138,10 +132,9 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, project, manifest, remote, target, build_type, packages,
-             variant, gn_args, ninja_targets, test_pool, catapult_url,
-             device_type, pave, dashboard_masters_name, dashboard_bots_name,
-             patch_ref, patch_gerrit_url, patch_project, snapshot_gcs_bucket,
+def RunSteps(api, project, manifest, remote, target, build_type, packages, variant,
+             gn_args, ninja_targets, test_pool, catapult_url, device_type, pave,
+             dashboard_masters_name, dashboard_bots_name, snapshot_gcs_bucket,
              upload_to_dashboard, benchmarks_package):
   api.catapult.ensure_catapult()
 
@@ -151,9 +144,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       manifest=manifest,
       remote=remote,
       project=project,
-      patch_ref=patch_ref,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
+      build_input=api.buildbucket.build.input,
       snapshot_gcs_bucket=snapshot_gcs_bucket,
   )
 
@@ -241,27 +232,32 @@ def GenTests(api):
                   "bucket": "luci.fuchsia.ci",
               }
           })))
-  buildbucket_test_data = api.buildbucket.ci_build() + buildbucket_get_response
 
   # Test cases for running Fuchsia performance tests as a swarming task.
-  yield api.test('successful_run') + api.properties(
-      project='topaz',
+  yield (api.test('successful_run') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
-      benchmarks_package='topaz_benchmarks',
-  ) + (
-      buildbucket_test_data +
-      api.fuchsia.images_step_data() +
-      api.fuchsia.task_step_data() +
-      api.fuchsia.test_step_data()
+      benchmarks_package='topaz_benchmarks'
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.task_step_data() +
+    api.fuchsia.test_step_data()
   )
 
-  yield api.test('failed_run') + api.properties(
-      project='topaz',
+  yield (api.test('failed_run') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz',
+    ) +
+    api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
@@ -269,41 +265,43 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
       benchmarks_package='topaz_benchmarks',
-  ) + (
-      buildbucket_test_data +
-      api.fuchsia.task_step_data() +
-      api.fuchsia.images_step_data() +
-      api.fuchsia.test_step_data(failure=True))
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.task_step_data() +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.test_step_data(failure=True)
+  )
 
   # Tests running this recipe with a pending Gerrit change. Note
   # that upload_to_dashboard is false. Be sure to set this when
   # testing patches.
-  yield api.test('with_patch') + api.properties(
-      patch_project='topaz',
-      patch_ref='refs/changes/96/147496/10',
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
-      project='topaz',
+  yield (api.test('with_patch') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
       packages=['topaz/packages/default'],
-      dashboard_masters_name='fuchsia.ci',
+      dashboard_masters_name='fuchsia.try',
       dashboard_bots_name='topaz-builder',
       upload_to_dashboard=False,
       benchmarks_package='topaz_benchmarks',
-  ) + (
-      buildbucket_test_data +
-      api.fuchsia.images_step_data() +
-      api.fuchsia.task_step_data() +
-      api.fuchsia.test_step_data()
+      tryjob=True,
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.task_step_data() +
+    api.fuchsia.test_step_data()
   )
 
   # CQ runs should disable certain things like dashboard uploads.
-  yield api.test('cq') + api.properties(
-      patch_project='topaz',
-      patch_ref='refs/changes/96/147496/10',
-      patch_gerrit_url='https://fuchsia-review.googlesource.com',
-      project='topaz',
+  yield (api.test('cq') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
@@ -313,15 +311,18 @@ def GenTests(api):
       upload_to_dashboard=True,
       benchmarks_package='topaz_benchmarks',
       tryjob=True,
-  ) + (
-      buildbucket_test_data +
-      api.fuchsia.images_step_data() +
-      api.fuchsia.task_step_data() +
-      api.fuchsia.test_step_data()
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.task_step_data() +
+    api.fuchsia.test_step_data()
   )
 
-  yield api.test('device_tests') + api.properties(
-      project='topaz',
+  yield (api.test('device_tests') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
@@ -332,15 +333,18 @@ def GenTests(api):
       benchmarks_package='topaz_benchmarks',
       upload_to_dashboard=True,
       tryjob=False,
-  ) + (
-      buildbucket_test_data +
-      api.fuchsia.images_step_data() +
-      api.fuchsia.task_step_data(device=True) +
-      api.fuchsia.test_step_data()
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.images_step_data() +
+    api.fuchsia.task_step_data(device=True) +
+    api.fuchsia.test_step_data()
   )
 
-  yield api.test('missing test results') + api.properties(
-      project='topaz',
+  yield (api.test('missing test results') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz'
+    ) +
+    api.properties(
       manifest='fuchsia',
       remote='https://fuchsia.googlesource.com/manifest',
       target='x64',
@@ -348,8 +352,9 @@ def GenTests(api):
       dashboard_masters_name='fuchsia.ci',
       dashboard_bots_name='topaz-builder',
       benchmarks_package='topaz_benchmarks',
-  ) + (
-      buildbucket_test_data +
-      api.fuchsia.task_step_data() +
-      api.fuchsia.images_step_data() +
-      api.step_data('extract results', api.raw_io.output_dir({})))
+    ) +
+    buildbucket_get_response +
+    api.fuchsia.task_step_data() +
+    api.fuchsia.images_step_data() +
+    api.step_data('extract results', api.raw_io.output_dir({}))
+  )

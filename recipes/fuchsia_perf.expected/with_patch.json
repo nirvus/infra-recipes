@@ -81,8 +81,8 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "topaz",
+      "-revision",
+      "HEAD",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -114,7 +114,7 @@
       "-project",
       "topaz",
       "-rebase=true",
-      "refs/changes/96/147496/10"
+      "refs/changes/56/123456/7"
     ],
     "infra_step": true,
     "name": "jiri patch"
@@ -202,56 +202,6 @@
     ]
   },
   {
-    "cmd": [],
-    "infra_step": true,
-    "name": "ensure_gsutil"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://fuchsia-snapshots/builds/8945511751514863184/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/builds/8945511751514863184/jiri.snapshot@@@"
-    ]
-  },
-  {
     "cmd": [
       "python",
       "-u",
@@ -261,27 +211,8 @@
       "[CLEANUP]/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "hash jiri.snapshot",
+    "name": "hash snapshot",
     "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot (hash)",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
-    ]
   },
   {
     "cmd": [
@@ -491,7 +422,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output --catapult-converter-args --bots topaz-builder --masters fuchsia.ci --execution-timestamp-ms 1337000001500 --log-url https://ci.chromium.org/p/fuchsia/builds/b123\numount /tmp/infra-test-output\ndm poweroff",
+      "mkdir /tmp/infra-test-output\nwaitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000\nmount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output\n/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output --catapult-converter-args --bots topaz-builder --masters fuchsia.try --execution-timestamp-ms 1337000001500 --log-url https://ci.chromium.org/p/fuchsia/builds/b123\numount /tmp/infra-test-output\ndm poweroff",
       "[CLEANUP]/runcmds"
     ],
     "infra_step": true,
@@ -500,7 +431,7 @@
       "@@@STEP_LOG_LINE@runcmds@mkdir /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@waitfor class=block topo=/dev/sys/pci/00:06.0/virtio-block/block timeout=60000@@@",
       "@@@STEP_LOG_LINE@runcmds@mount /dev/sys/pci/00:06.0/virtio-block/block /tmp/infra-test-output@@@",
-      "@@@STEP_LOG_LINE@runcmds@/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output --catapult-converter-args --bots topaz-builder --masters fuchsia.ci --execution-timestamp-ms 1337000001500 --log-url https://ci.chromium.org/p/fuchsia/builds/b123@@@",
+      "@@@STEP_LOG_LINE@runcmds@/pkgfs/packages/topaz_benchmarks/0/bin/benchmarks.sh /tmp/infra-test-output --catapult-converter-args --bots topaz-builder --masters fuchsia.try --execution-timestamp-ms 1337000001500 --log-url https://ci.chromium.org/p/fuchsia/builds/b123@@@",
       "@@@STEP_LOG_LINE@runcmds@umount /tmp/infra-test-output@@@",
       "@@@STEP_LOG_LINE@runcmds@dm poweroff@@@",
       "@@@STEP_LOG_END@runcmds@@@"
