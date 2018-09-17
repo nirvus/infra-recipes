@@ -112,6 +112,8 @@
       "-time",
       "-name",
       "tools",
+      "-revision",
+      "HEAD",
       "tools",
       "https://fuchsia.googlesource.com/tools"
     ],
@@ -134,10 +136,43 @@
   {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-v",
+      "-time",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-project",
+      "tools",
+      "-rebase=true",
+      "refs/changes/56/123456/7"
+    ],
+    "infra_step": true,
+    "name": "jiri patch"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-gc=true",
+      "-rebase-tracked",
+      "-local-manifest=true",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update (2)"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3"
+      "-attempts=3",
+      "-local-manifest=true"
     ],
     "infra_step": true,
     "name": "jiri run-hooks"
@@ -176,35 +211,7 @@
       "/path/to/tmp/json",
       "tools"
     ],
-    "infra_step": true,
     "name": "jiri project",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"tools\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/tools\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/tools\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-v",
-      "-time",
-      "-json-output",
-      "/path/to/tmp/json",
-      "tools"
-    ],
-    "name": "jiri project (2)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@[@@@",
       "@@@STEP_LOG_LINE@json.output@  {@@@",

@@ -15,6 +15,7 @@ DEPS = [
     'infra/git',
     'infra/go',
     'infra/gsutil',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -26,26 +27,12 @@ DEPS = [
 ]
 
 PROPERTIES = {
-    'category':
-        Property(kind=str, help='Build category', default=None),
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_storage':
-        Property(kind=str, help='Patch location', default=None),
-    'patch_repository_url':
-        Property(kind=str, help='URL to a Git repository', default=None),
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'manifest':
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
-    'revision':
-        Property(kind=str, help='Revision', default=None),
     'packages':
         Property(kind=List(str), help='The list of Go packages to build'),
 }
@@ -99,24 +86,19 @@ def upload_package(api, name, platform, staging_dir, revision, remote):
   )
 
 
-def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, project, manifest, remote,
-             revision, packages):
+def RunSteps(api, project, manifest, remote, packages):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
+
+  build_input = api.buildbucket.build.input
 
   with api.context(infra_steps=True):
     api.jiri.checkout(
         manifest=manifest,
         remote=remote,
         project=project,
-        revision=revision,
-        patch_ref=patch_ref,
-        patch_gerrit_url=patch_gerrit_url,
-        patch_project=patch_project)
-    if not revision:
-      revision = api.jiri.project([project]).json.output[0]['revision']
+        build_input=build_input)
 
   gopath = api.path['start_dir'].join('go')
   path = api.jiri.project([project]).json.output[0]['path']
@@ -138,6 +120,8 @@ def RunSteps(api, category, patch_gerrit_url, patch_project, patch_ref,
 
             # Upload the package to CIPD.
             if not api.properties.get('tryjob', False):
+              revision = build_input.gitiles_commit.id
+              assert revision
               upload_package(api, output, platform, staging_dir, revision,
                              remote)
 
@@ -159,19 +143,41 @@ def GenTests(api):
               api.json.output({
                   'result': []
               })))
-  yield (api.test('ci_new') + api.properties(
+  yield (api.test('ci_new') +
+    api.buildbucket.ci_build(
+        git_repo='https://fuchsia.googlesource.com/tools',
+        revision = revision,
+    ) +
+    api.properties(
       project='tools',
       manifest='tools',
       remote='https://fuchsia.googlesource.com/tools',
-      packages=packages) + reduce(lambda a, b: a + b, cipd_search_step_data))
-  yield (api.test('ci') + api.properties(
+      packages=packages
+    ) +
+    reduce(lambda a, b: a + b, cipd_search_step_data)
+  )
+
+  yield (api.test('ci') +
+    api.buildbucket.ci_build(
+        git_repo='https://fuchsia.googlesource.com/tools',
+        revision=revision,
+    ) +
+    api.properties(
       project='tools',
       manifest='tools',
       remote='https://fuchsia.googlesource.com/tools',
-      packages=packages))
-  yield (api.test('cq_try') + api.properties(
+      packages=packages)
+  )
+
+  yield (api.test('cq_try') +
+    api.buildbucket.try_build(
+        git_repo='https://fuchsia.googlesource.com/tools',
+    ) +
+    api.properties(
       project='tools',
       manifest='tools',
+      remote='https://fuchsia.googlesource.com/tools',
+      packages=packages,
       tryjob=True,
-      remote='https://fuchsia.googlesource.com/tools',
-      packages=packages))
+    )
+  )
