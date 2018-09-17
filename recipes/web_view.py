@@ -11,6 +11,7 @@ DEPS = [
     'infra/gitiles',
     'infra/gsutil',
     'infra/jiri',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/properties',
     'recipe_engine/step',
@@ -19,25 +20,6 @@ DEPS = [
 TARGETS = ['arm64', 'x64']
 
 PROPERTIES = {
-    'repository':
-        Property(
-            kind=str,
-            help='Git repository URL',
-            default='https://fuchsia.googlesource.com/manifest'),
-    'branch':
-        Property(kind=str, help='Git branch', default='refs/heads/master'),
-    'revision':
-        Property(kind=str, help='Revision', default=None),
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_storage':
-        Property(kind=str, help='Patch location', default=None),
-    'patch_repository_url':
-        Property(kind=str, help='URL to a Git repository', default=None),
     'snapshot_gcs_bucket':
         Property(
             kind=str,
@@ -48,32 +30,19 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, repository, branch, revision, patch_gerrit_url, patch_project,
-             patch_ref, patch_storage, patch_repository_url,
-             snapshot_gcs_bucket):
+def RunSteps(api, snapshot_gcs_bucket):
   api.gitiles.ensure_gitiles()
 
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
 
-  if not revision:
-    revision = api.gitiles.refs(repository).get(branch, None)
-
+  build_input = api.buildbucket.build.input
   checkout = api.fuchsia.checkout(
       manifest='webkit',
-      remote=repository,
-      patch_ref=patch_ref,
-      patch_gerrit_url=patch_gerrit_url,
-      patch_project=patch_project,
-      revision=revision,
+      remote='https://fuchsia.googlesource.com/third_party/webkit',
+      build_input=build_input,
       snapshot_gcs_bucket=snapshot_gcs_bucket,
   )
-
-  with api.context(infra_steps=True):
-    # api.fuchsia.checkout() will have ensured that jiri exists.
-    revision = api.jiri.project(
-        ['third_party/webkit']).json.output[0]['revision']
-    api.step.active_result.presentation.properties['got_revision'] = revision
 
   # Build for all targets before uploading any to avoid an incomplete upload.
   builds = {}  # keyed by target string
@@ -89,6 +58,9 @@ def RunSteps(api, repository, branch, revision, patch_gerrit_url, patch_project,
   # If this isn't a real run, don't pollute the storage.
   if api.properties.get('tryjob'):
     return
+
+  revision = build_input.gitiles_commit.id
+  assert revision
 
   # Upload the built library to Google Cloud Storage.
   # api.fuchsia.checkout() doesn't always ensure that gsutil exists.
@@ -121,34 +93,20 @@ def GenTests(api):
   yield api.fuchsia.test(
       'ci',
       clear_default_properties=True,
-      properties=dict(revision=api.jiri.example_revision),
   )
   yield api.fuchsia.test(
       'cq',
       clear_default_properties=True,
       tryjob=True,
-      properties=dict(revision=api.jiri.example_revision),
   )
   yield api.fuchsia.test(
       'cq_no_snapshot',
       clear_default_properties=True,
       tryjob=True,
-      properties=dict(
-          revision=api.jiri.example_revision, snapshot_gcs_bucket=''),
+      properties=dict(snapshot_gcs_bucket=''),
   )
   yield api.fuchsia.test(
       'ci_no_snapshot',
       clear_default_properties=True,
-      properties=dict(
-          revision=api.jiri.example_revision, snapshot_gcs_bucket=''),
+      properties=dict(snapshot_gcs_bucket=''),
   )
-
-  # Test reading the revision from gitiles
-  yield api.fuchsia.test(
-      'ci_no_revision',
-      clear_default_properties=True,
-      properties={},
-      steps=[
-          api.gitiles.refs('refs',
-                           ('refs/heads/master', api.jiri.example_revision)),
-      ])

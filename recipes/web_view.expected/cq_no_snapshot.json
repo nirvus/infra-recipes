@@ -82,9 +82,9 @@
       "-v",
       "-time",
       "-revision",
-      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "HEAD",
       "webkit",
-      "https://fuchsia.googlesource.com/manifest"
+      "https://fuchsia.googlesource.com/third_party/webkit"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -114,7 +114,7 @@
       "-project",
       "topaz",
       "-rebase=true",
-      "refs/changes/89/456789/12"
+      "refs/changes/00/100/5"
     ],
     "infra_step": true,
     "name": "jiri patch"
@@ -213,35 +213,6 @@
     "infra_step": true,
     "name": "hash snapshot",
     "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-v",
-      "-time",
-      "-json-output",
-      "/path/to/tmp/json",
-      "third_party/webkit"
-    ],
-    "infra_step": true,
-    "name": "jiri project",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"third_party/webkit\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/third_party/webkit\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/third_party/webkit\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
-    ]
   },
   {
     "cmd": [],

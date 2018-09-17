@@ -1760,11 +1760,11 @@ Recipe for running Tricium clang-format analyzer.
 &mdash; **def [RunSteps](/recipes/tricium/format.py#62)(api, project, manifest, formatters):**
 ### *recipes* / [web\_view](/recipes/web_view.py)
 
-[DEPS](/recipes/web_view.py#9): [fuchsia](#recipe_modules-fuchsia), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/web_view.py#9): [fuchsia](#recipe_modules-fuchsia), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building libwebkit.so.
 
-&mdash; **def [RunSteps](/recipes/web_view.py#51)(api, repository, branch, revision, patch_gerrit_url, patch_project, patch_ref, patch_storage, patch_repository_url, snapshot_gcs_bucket):**
+&mdash; **def [RunSteps](/recipes/web_view.py#33)(api, snapshot_gcs_bucket):**
 ### *recipes* / [zbi:examples/full](/recipe_modules/zbi/examples/full.py)
 
 [DEPS](/recipe_modules/zbi/examples/full.py#5): [zbi](#recipe_modules-zbi), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
