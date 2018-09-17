@@ -82,8 +82,8 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "zircon",
+      "-revision",
+      "HEAD",
       "manifest",
       "https://fuchsia.googlesource.com/zircon"
     ],
@@ -110,11 +110,11 @@
       "-v",
       "-time",
       "-host",
-      "fuchsia-review.googlesource.com",
+      "https://fuchsia-review.googlesource.com",
       "-project",
       "zircon",
       "-rebase=true",
-      "refs/changes/89/456789/12"
+      "refs/changes/56/123456/7"
     ],
     "infra_step": true,
     "name": "jiri patch"

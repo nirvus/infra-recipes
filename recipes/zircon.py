@@ -22,6 +22,7 @@ DEPS = [
   'infra/qemu',
   'infra/swarming',
   'infra/tar',
+  'recipe_engine/buildbucket',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -96,17 +97,10 @@ DEVICE_TYPE_TO_SCRATCH_BLOCK_DEVICE_PATH = {
 }
 
 PROPERTIES = {
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'patch_storage': Property(kind=str, help='Patch location', default=None),
-  'patch_repository_url': Property(kind=str, help='URL to a Git repository',
-                                   default=None),
-  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
+  'project':
+      Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
-  'revision': Property(kind=str, help='Revision of manifest to import',
-                       default=None),
   'target': Property(kind=Enum(*TARGETS), help='Target to build'),
   'toolchain': Property(kind=Enum(*(TOOLCHAINS.keys())),
                         help='Toolchain to use'),
@@ -568,10 +562,8 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev,
   return src_dir.join('build-%s' % target + tc_suffix)
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, project, manifest, remote, revision,
-             target, toolchain, make_args, use_kvm, run_tests, runtests_args,
-             device_type, run_host_tests):
+def RunSteps(api, project, manifest, remote, target, toolchain, make_args,
+             use_kvm, run_tests, runtests_args, device_type, run_host_tests):
   api.goma.ensure_goma()
   api.jiri.ensure_jiri()
 
@@ -579,10 +571,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
     api.jiri.checkout(manifest=manifest,
                       remote=remote,
                       project=project,
-                      revision=revision,
-                      patch_ref=patch_ref,
-                      patch_gerrit_url=patch_gerrit_url,
-                      patch_project=patch_project)
+                      build_input=api.buildbucket.build.input)
 
   src_dir = api.path['start_dir'].join('zircon')
   build_dir = Build(
@@ -617,6 +606,13 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
 
 
 def GenTests(api):
+  ci_build = api.buildbucket.ci_build(
+    git_repo='https://fuchsia.googlesource.com/zircon',
+  )
+  try_build = api.buildbucket.try_build(
+    git_repo='https://fuchsia.googlesource.com/zircon',
+  )
+
   # Step test data for triggering the booted tests task.
   booted_tests_trigger_data = api.step_data(
       'trigger booted tests',
@@ -642,7 +638,8 @@ def GenTests(api):
       ),
   )
   yield (api.test('ci_arm64') +
-      api.properties(project='zircon',
+      ci_build +
+      api.properties(project='zircon', 
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='arm64',
@@ -651,6 +648,7 @@ def GenTests(api):
       booted_tests_trigger_data +
       collect_data)
   yield (api.test('ci_arm64_nokvm') +
+      ci_build +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -661,6 +659,7 @@ def GenTests(api):
       booted_tests_trigger_data +
       collect_data)
   yield (api.test('ci_host_tests') +
+      ci_build +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -669,6 +668,7 @@ def GenTests(api):
                      run_tests=False,
                      run_host_tests=True))
   yield (api.test('ci_host_and_target_tests') +
+      ci_build +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -680,6 +680,7 @@ def GenTests(api):
       booted_tests_trigger_data +
       collect_data)
   yield (api.test('ci_x86') +
+      ci_build +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -689,6 +690,7 @@ def GenTests(api):
       booted_tests_trigger_data +
       collect_data)
   yield (api.test('ci_x86_with_args') +
+      ci_build +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -699,6 +701,7 @@ def GenTests(api):
       booted_tests_trigger_data +
       collect_data)
   yield (api.test('ci_x86_nokvm') +
+      ci_build +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -717,6 +720,7 @@ def GenTests(api):
       continue
     test_name = 'ci_device_' + re.sub(r'\s+', '_', device_type)
     yield (api.test(test_name) +
+        ci_build +
         api.properties(project='zircon',
                        manifest='manifest',
                        remote='https://fuchsia.googlesource.com/zircon',
@@ -729,6 +733,7 @@ def GenTests(api):
         )))
 
   yield (api.test('task_failure') +
+      ci_build +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
@@ -741,6 +746,7 @@ def GenTests(api):
                      api.swarming.task_failure(id='11')]
       )))
   yield (api.test('asan') +
+      ci_build +
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
@@ -759,6 +765,7 @@ def GenTests(api):
       booted_tests_trigger_data +
       collect_data)
   yield (api.test('thinlto') +
+     ci_build +
      api.properties(project='zircon',
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
@@ -768,9 +775,8 @@ def GenTests(api):
       booted_tests_trigger_data +
       collect_data)
   yield (api.test('cq_try') +
+     try_build +
      api.properties.tryserver(
-         gerrit_project='zircon',
-         patch_gerrit_url='fuchsia-review.googlesource.com',
          project='zircon',
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
@@ -780,6 +786,7 @@ def GenTests(api):
       booted_tests_trigger_data +
       collect_data)
   yield (api.test('no_run_tests') +
+     try_build +
      api.properties.tryserver(
          project='zircon',
          manifest='manifest',
@@ -788,6 +795,7 @@ def GenTests(api):
          toolchain='clang',
          run_tests=False))
   yield (api.test('debug_buildonly') +
+     try_build +
      api.properties.tryserver(
          project='zircon',
          manifest='manifest',
@@ -806,6 +814,7 @@ def GenTests(api):
       api.swarming.collect(task_data=(failed_core_task_datum, booted_task_datum)
       ))
   yield (api.test('ci_core_test_failure') +
+      ci_build +
       api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
