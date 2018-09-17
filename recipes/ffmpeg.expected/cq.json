@@ -51,6 +51,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "third_party/ffmpeg",
       "manifest/ffmpeg",
       "https://fuchsia.googlesource.com/third_party/ffmpeg"
     ],

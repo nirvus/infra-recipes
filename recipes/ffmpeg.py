@@ -35,8 +35,6 @@ PROPERTIES = {
         Property(kind=str, help='Patch location', default=None),
     'patch_repository_url':
         Property(kind=str, help='URL to a Git repository', default=None),
-    'project':
-        Property(kind=str, help='Jiri remote manifest project', default=None),
     'revision':
         Property(kind=str, help='Revision of manifest to import', default=None),
     'snapshot_gcs_bucket':
@@ -50,13 +48,13 @@ PROPERTIES = {
 
 
 def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, patch_storage,
-             patch_repository_url, revision, project, snapshot_gcs_bucket):
+             patch_repository_url, revision, snapshot_gcs_bucket):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
       manifest='manifest/ffmpeg',
       remote='https://fuchsia.googlesource.com/third_party/ffmpeg',
-      project=project,
+      project='third_party/ffmpeg',
       revision=revision,
       patch_ref=patch_ref,
       patch_gerrit_url=patch_gerrit_url,
