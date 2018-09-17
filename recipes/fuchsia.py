@@ -25,6 +25,7 @@ DEPS = [
     'infra/hash',
     'infra/jiri',
     'infra/tar',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/file',
     'recipe_engine/path',
@@ -42,10 +43,6 @@ PROPERTIES = {
         Property(kind=str, help='Jiri manifest to use', default=None),
     'remote':
         Property(kind=str, help='Remote manifest repository', default=None),
-    'revision':
-        Property(
-            kind=str, help='Revision which triggered this build.',
-            default=None),
 
     # Properties for checking out code from a snapshot.
     'checkout_snapshot':
@@ -54,29 +51,6 @@ PROPERTIES = {
             help='Whether or not to checkout from a Jiri snapshot.'
             ' Snapshot is expected to be found at revision in repository.',
             default=False),
-    'repository':
-        Property(
-            kind=str,
-            help='Repository which triggered this build.'
-            ' Set by luci-scheduler. Used if checkout_snapshot is True.',
-            default=None),
-
-    # Properties for applying a change from Gerrit as a patch.
-    # NOTE: in the case of checkout_snapshot, these are treated as applying
-    # to the snapshot, and not the full checkout.
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_issue':
-        Property(kind=int, help='Gerrit patch issue number', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
-    'patch_repository_url':
-        Property(
-            kind=str,
-            help='Repository which Gerrit change patches',
-            default=None),
 
     # Properties pertaining to the build.
     'target':
@@ -169,12 +143,10 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
-             repository, patch_gerrit_url, patch_issue, patch_project,
-             patch_ref, patch_repository_url, target, build_type, packages,
-             variant, gn_args, test_pool, run_tests, runtests_args,
-             run_host_tests, device_type, networking_for_tests, pave,
-             ninja_targets, test_timeout_secs, requires_secrets,
+def RunSteps(api, project, manifest, remote, checkout_snapshot,target,
+             build_type, packages, variant, gn_args, test_pool, run_tests,
+             runtests_args, run_host_tests, device_type, networking_for_tests,
+             pave, ninja_targets, test_timeout_secs, requires_secrets,
              archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket):
   tryjob = api.properties.get('tryjob')
 
@@ -201,17 +173,19 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
           'the secrets pipeline is only supported in tryjobs, ' +
           'when networking for tests enabled, and ' + 'and on QEMU')
 
+  build_input = api.buildbucket.build.input
+  if api.properties.get('tryjob'):
+    assert len(build_input.gerrit_changes) == 1
+
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       api.fuchsia.checkout_patched_snapshot(
-          patch_gerrit_url=patch_gerrit_url,
-          patch_issue=patch_issue,
-          patch_project=patch_project,
-          patch_ref=patch_ref,
-          patch_repository_url=patch_repository_url,
+        gerrit_change=build_input.gerrit_changes[0],
       )
     else:
-      api.fuchsia.checkout_snapshot(repository, revision)
+      api.fuchsia.checkout_snapshot(
+        gitiles_commit=build_input.gitiles_commit,
+      )
   else:
     assert manifest
     assert remote
@@ -219,24 +193,20 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         manifest=manifest,
         remote=remote,
         project=project,
-        revision=revision,
-        patch_gerrit_url=patch_gerrit_url,
-        patch_project=patch_project,
-        patch_ref=patch_ref,
+        build_input=build_input,
         snapshot_gcs_bucket=snapshot_gcs_bucket,
     )
 
+  with api.step.nest('ensure_packages'):
+    with api.context(infra_steps=True):
+      json_validator_dir = api.path['start_dir'].join('tools', 'json_validator')
+      api.cipd.ensure(json_validator_dir, {
+        'fuchsia/tools/json_validator/${platform}': 'latest',
+      })
+
+  validator = json_validator_dir.join('json_validator')
+
   if project:
-    with api.step.nest('ensure_packages'):
-      with api.context(infra_steps=True):
-        json_validator_dir = api.path['start_dir'].join('tools',
-                                                        'json_validator')
-        api.cipd.ensure(json_validator_dir, {
-            'fuchsia/tools/json_validator/${platform}': 'latest',
-        })
-
-    validator = json_validator_dir.join('json_validator')
-
     if project.startswith('vendor/'):
       vendor = project[len('vendor/'):]
       layer_args = [
@@ -258,7 +228,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         'verify FIDL namespaces',
         api.path['start_dir'].join('scripts', 'style',
                                    'verify-fidl-libraries.py'),
-        args=layer_args + namespace_args)
+        args=layer_args+namespace_args)
 
     api.python(
         'verify build packages',
@@ -387,7 +357,6 @@ def GenTests(api):
       tryjob=True,
       properties=dict(
           checkout_snapshot=True,
-          gerrit_project='snapshots',
           target='x64',
           packages=['topaz/packages/default'],
       ),

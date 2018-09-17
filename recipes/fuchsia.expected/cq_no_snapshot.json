@@ -54,7 +54,7 @@
       "-name",
       "topaz",
       "-revision",
-      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "HEAD",
       "manifest/minimal",
       "https://fuchsia.googlesource.com/topaz"
     ],
@@ -86,7 +86,7 @@
       "-project",
       "topaz",
       "-rebase=true",
-      "refs/changes/89/456789/12"
+      "refs/changes/00/100/5"
     ],
     "infra_step": true,
     "name": "jiri patch"

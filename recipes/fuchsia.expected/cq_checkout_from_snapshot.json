@@ -29,7 +29,7 @@
       "remote",
       "add",
       "origin",
-      "https://fuchsia-review.googlesource.com/snapshots"
+      "https://fuchsia-review.googlesource.com/topaz"
     ],
     "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
@@ -40,7 +40,7 @@
       "git",
       "fetch",
       "origin",
-      "refs/changes/89/456789/12"
+      "refs/changes/00/100/5"
     ],
     "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
@@ -142,7 +142,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"snapshots~456789\"}",
+      "{\"change_id\": \"topaz~100\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -159,7 +159,7 @@
     "cmd": [
       "git",
       "fetch",
-      "https://fuchsia.googlesource.com/snapshots",
+      "https://fuchsia.googlesource.com/topaz",
       "master"
     ],
     "cwd": "[CLEANUP]/snapshot_repo",
@@ -289,6 +289,36 @@
     "infra_step": true,
     "name": "hash snapshot",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/tools/json_validator",
+      "-ensure-file",
+      "fuchsia/tools/json_validator/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/json_validator/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [],

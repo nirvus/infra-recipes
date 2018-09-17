@@ -29,7 +29,7 @@
       "remote",
       "add",
       "origin",
-      "https://fuchsia.googlesource.com/snapshots"
+      "https://fuchsia.googlesource.com/topaz"
     ],
     "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
@@ -39,7 +39,8 @@
     "cmd": [
       "git",
       "fetch",
-      "origin"
+      "origin",
+      "a1b2c3"
     ],
     "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
@@ -50,7 +51,7 @@
       "git",
       "checkout",
       "-f",
-      "69acf9677ff075e15329cc860d968c1f70be5e6a"
+      "FETCH_HEAD"
     ],
     "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
@@ -216,6 +217,36 @@
     "infra_step": true,
     "name": "hash snapshot",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/tools/json_validator",
+      "-ensure-file",
+      "fuchsia/tools/json_validator/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/json_validator/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [],

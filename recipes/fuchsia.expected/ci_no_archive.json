@@ -54,7 +54,7 @@
       "-name",
       "topaz",
       "-revision",
-      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "a1b2c3",
       "manifest/minimal",
       "https://fuchsia.googlesource.com/topaz"
     ],
