@@ -9,6 +9,7 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
   'infra/jiri',
+  'recipe_engine/buildbucket',
   'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -17,31 +18,21 @@ DEPS = [
 ]
 
 PROPERTIES = {
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
+  'project':
+      Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
-  'revision': Property(kind=str, help='Revision of manifest to import', default=None),
 }
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project,
-             manifest, remote, revision):
+def RunSteps(api, project, manifest, remote):
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest=manifest,
                       remote=remote,
                       project=project,
-                      revision=revision,
-                      patch_ref=patch_ref,
-                      patch_gerrit_url=patch_gerrit_url,
-                      patch_project=patch_project)
-    if not revision:
-      revision = api.jiri.project(['infra/recipes']).json.output[0]['revision']
-      api.step.active_result.presentation.properties['got_revision'] = revision
+                      build_input=api.buildbucket.build.input)
 
   with api.context(cwd=api.path['start_dir'].join('infra', 'recipes')):
     api.python('test', api.context.cwd.join('recipes.py'),
@@ -49,9 +40,12 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref, project,
 
 
 def GenTests(api):
-  yield api.test('cq_try') + api.properties.tryserver(
-      gerrit_project='infra/recipes',
-      patch_gerrit_url='fuchsia-review.googlesource.com',
-      manifest='infra',
-      remote='https://fuchsia.googlesource.com/manifest',
+  yield (api.test('cq_try') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/infra/recipes'
+    ) +
+    api.properties.tryserver(
+        manifest='infra',
+        remote='https://fuchsia.googlesource.com/manifest',
+    )
   )

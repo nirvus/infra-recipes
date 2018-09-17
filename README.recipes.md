@@ -1674,11 +1674,11 @@ Recipe for building QEMU.
 &mdash; **def [RunSteps](/recipe_modules/qemu/examples/full.py#17)(api):**
 ### *recipes* / [recipes](/recipes/recipes.py)
 
-[DEPS](/recipes/recipes.py#10): [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/recipes.py#10): [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for testing Recipes.
 
-&mdash; **def [RunSteps](/recipes/recipes.py#30)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, revision):**
+&mdash; **def [RunSteps](/recipes/recipes.py#28)(api, project, manifest, remote):**
 ### *recipes* / [release/cherry-pick](/recipes/release/cherry-pick.py)
 
 [DEPS](/recipes/release/cherry-pick.py#13): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
