@@ -14,6 +14,7 @@ DEPS = [
   'infra/git',
   'infra/go',
   'infra/gsutil',
+  'recipe_engine/buildbucket',
   'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
@@ -25,16 +26,10 @@ DEPS = [
 ]
 
 PROPERTIES = {
-  'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
-  'patch_project': Property(kind=str, help='Gerrit project', default=None),
-  'patch_ref': Property(kind=str, help='Gerrit patch ref', default=None),
-  'patch_storage': Property(kind=str, help='Patch location', default=None),
-  'patch_repository_url': Property(kind=str, help='URL to a Git repository',
-                            default=None),
-  'project': Property(kind=str, help='Jiri remote manifest project', default=None),
+  'project':
+      Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
-  'revision': Property(kind=str, help='Revision of manifest to import', default=None),
   'target': Property(kind=str, help='Target to build'),
 }
 
@@ -74,23 +69,18 @@ def UploadPackage(api, revision, staging_dir):
   )
 
 
-def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
-             patch_storage, patch_repository_url, project, manifest, remote,
-             revision, target):
+def RunSteps(api, project, manifest, remote, target):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
+
+  build_input = api.buildbucket.build.input
+  project = build_input.gitiles_commit.project
+  revision = build_input.gitiles_commit.id
 
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest=manifest,
                       remote=remote,
-                      project=project,
-                      revision=revision,
-                      patch_ref=patch_ref,
-                      patch_gerrit_url=patch_gerrit_url,
-                      patch_project=patch_project)
-    if not revision:
-      revision = api.jiri.project(['jiri']).json.output[0]['revision']
-      api.step.active_result.presentation.properties['got_revision'] = revision
+                      build_input=build_input)
 
   staging_dir = api.path.mkdtemp('jiri')
   jiri_dir = api.path['start_dir'].join(
@@ -117,25 +107,37 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
     api.go('test', 'fuchsia.googlesource.com/jiri/cmd/jiri')
 
   if not api.properties.get('tryjob', False):
+    assert revision
     UploadPackage(api, revision, staging_dir)
 
 
 def GenTests(api):
+  revision = 'a1b2c3'
+
   yield (api.test('ci') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/jiri',
+      revision=revision,
+    ) +
     api.properties(manifest='jiri',
                    remote='https://fuchsia.googlesource.com/manifest',
                    target='linux-amd64'))
   yield (api.test('ci_new') +
+    api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/jiri',
+      revision=revision,
+    ) +
     api.properties(manifest='jiri',
                    remote='https://fuchsia.googlesource.com/manifest',
                    target='linux-amd64') +
     api.step_data('cipd search fuchsia/tools/jiri/linux-amd64 git_revision:' +
-                  api.jiri.example_revision,
+                  revision,
                   api.json.output({'result': []})))
   yield (api.test('cq_try') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/jiri'
+    ) +
     api.properties.tryserver(
-        gerrit_project='jiri',
-        patch_gerrit_url='fuchsia-review.googlesource.com',
         manifest='jiri',
         remote='https://fuchsia.googlesource.com/manifest',
         target='linux-amd64',

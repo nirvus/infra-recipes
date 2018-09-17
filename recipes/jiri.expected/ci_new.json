@@ -80,6 +80,8 @@
       "import",
       "-v",
       "-time",
+      "-revision",
+      "a1b2c3",
       "jiri",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -132,35 +134,6 @@
       "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
       "@@@STEP_LOG_END@json.output[source manifest]@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "project",
-      "-v",
-      "-time",
-      "-json-output",
-      "/path/to/tmp/json",
-      "jiri"
-    ],
-    "infra_step": true,
-    "name": "jiri project",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"jiri\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/jiri\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/jiri\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
     ]
   },
   {
@@ -257,11 +230,11 @@
       "search",
       "fuchsia/tools/jiri/linux-amd64",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "git_revision:a1b2c3",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/tools/jiri/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "name": "cipd search fuchsia/tools/jiri/linux-amd64 git_revision:a1b2c3",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -307,7 +280,7 @@
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/jiri",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+      "git_revision:a1b2c3"
     ],
     "name": "register fuchsia/tools/jiri/linux-amd64",
     "~followup_annotations": [
