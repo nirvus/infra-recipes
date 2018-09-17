@@ -1503,7 +1503,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     step_result = self.m.gsutil(
         'cp', '-r', '-z', 'html', '-a', 'public-read', output_dir,
         'gs://%s/%s' % (self._test_coverage_gcs_bucket, dst),
-        name='upload coverage', parallel_upload=True)
+        name='upload coverage', multithreaded=True)
     step_result.presentation.links['index.html'] = self.m.gsutil._http_url(
         self._test_coverage_gcs_bucket, self.m.gsutil.join(dst, 'index.html'), True)
 
