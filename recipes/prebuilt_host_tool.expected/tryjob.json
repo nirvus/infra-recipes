@@ -51,7 +51,7 @@
       "-v",
       "-time",
       "-revision",
-      "9bb87e3415a943a91b62a7003d870b7f2d354c57",
+      "a1b2c3",
       "manifest/build",
       "https://fuchsia.googlesource.com/build"
     ],
@@ -78,11 +78,11 @@
       "-v",
       "-time",
       "-host",
-      "https://chromium-review.googlesource.com",
+      "https://fuchsia-review.googlesource.com",
       "-project",
       "build",
       "-rebase=true",
-      "refs/changes/89/456789/12"
+      "refs/changes/56/123456/7"
     ],
     "infra_step": true,
     "name": "jiri patch"

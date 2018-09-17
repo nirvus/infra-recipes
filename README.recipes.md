@@ -1607,11 +1607,11 @@ this is only supported for x64.
 &mdash; **def [RunSteps](/recipes/ovmf.py#29)(api):**
 ### *recipes* / [prebuilt\_host\_tool](/recipes/prebuilt_host_tool.py)
 
-[DEPS](/recipes/prebuilt_host_tool.py#9): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/prebuilt_host_tool.py#9): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building and publishing CIPD prebuilts
 
-&mdash; **def [GetBinPathComponents](/recipes/prebuilt_host_tool.py#87)(build_dir, ninja_target):**
+&mdash; **def [GetBinPathComponents](/recipes/prebuilt_host_tool.py#80)(build_dir, ninja_target):**
 
 Returns a binary's path based on its ninja target.
 
@@ -1623,9 +1623,9 @@ Returns:
   bin_dir: The absolute path to the parent directory of bin_name.
   bin_name: The name of the tool binary
 
-&mdash; **def [RunSteps](/recipes/prebuilt_host_tool.py#104)(api, cipd_pkg_prefix, manifest, ninja_targets, packages, patch_gerrit_url, patch_project, patch_ref, project, remote, revision):**
+&mdash; **def [RunSteps](/recipes/prebuilt_host_tool.py#97)(api, project, manifest, remote, cipd_pkg_prefix, ninja_targets, packages):**
 
-&mdash; **def [UploadPackage](/recipes/prebuilt_host_tool.py#50)(api, bin_dir, bin_name, cipd_pkg_prefix, revision, remote):**
+&mdash; **def [UploadPackage](/recipes/prebuilt_host_tool.py#43)(api, bin_dir, bin_name, cipd_pkg_prefix, revision, remote):**
 
 Creates and uploads a CIPD package containing the tool at '$bin_dir/$bin_name'.
 
