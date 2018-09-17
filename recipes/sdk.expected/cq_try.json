@@ -370,7 +370,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false build_sdk_archives=true"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -554,7 +554,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/sdk/topaz\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false build_sdk_archives=true"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -645,26 +645,27 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/scripts/sdk/bazel/generate.py",
-      "--manifest",
-      "[START_DIR]/out/release-arm64/sdk-manifests/topaz",
-      "--output",
-      "[CLEANUP]/sdk-bazel"
+      "[START_DIR]/scripts/sdk/merger/merge.py",
+      "--alpha-archive",
+      "[START_DIR]/out/release-x64/sdk/topaz.tar.gz",
+      "--beta-archive",
+      "[START_DIR]/out/release-arm64/sdk/topaz.tar.gz",
+      "--output-archive",
+      "[CLEANUP]/merged_sdk_archive.tar.gz"
     ],
-    "name": "create bazel sdk"
+    "name": "merge sdk archives"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/scripts/sdk/bazel/generate.py",
-      "--manifest",
-      "[START_DIR]/out/release-x64/sdk-manifests/topaz",
+      "[START_DIR]/scripts/sdk/bazel/generate-plus-plus.py",
+      "--archive",
+      "[CLEANUP]/merged_sdk_archive.tar.gz",
       "--output",
-      "[CLEANUP]/sdk-bazel",
-      "--overlay"
+      "[CLEANUP]/sdk-bazel"
     ],
-    "name": "create bazel sdk (2)"
+    "name": "create bazel sdk"
   },
   {
     "name": "$result",
