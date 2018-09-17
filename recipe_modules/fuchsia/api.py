@@ -128,7 +128,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     _TEST_RESULT_PASS = 'PASS'
     _TEST_RESULT_FAIL = 'FAIL'
 
-    def __init__(self, build_dir, results_dir, zircon_kernel_log, outputs, json_api):
+    def __init__(self, build_dir, results_dir, zircon_kernel_log, outputs,
+                 json_api):
       self._build_dir = build_dir
       self._results_dir = results_dir
       self._zircon_kernel_log = zircon_kernel_log
@@ -210,8 +211,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
   def __init__(self, fuchsia_properties, *args, **kwargs):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
-    self._build_metrics_gcs_bucket = fuchsia_properties.get('build_metrics_gcs_bucket')
-    self._test_coverage_gcs_bucket = fuchsia_properties.get('test_coverage_gcs_bucket')
+    self._build_metrics_gcs_bucket = fuchsia_properties.get(
+        'build_metrics_gcs_bucket')
+    self._test_coverage_gcs_bucket = fuchsia_properties.get(
+        'test_coverage_gcs_bucket')
 
   def checkout(self,
                manifest,
@@ -287,23 +290,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           path=snapshot_repo_dir,
       )
 
-      # Read the snapshot so it shows up in the step presentation.
-      snapshot_file = snapshot_repo_dir.join('snapshot')
-
-      # Perform a jiri checkout from the snapshot.
-      self.m.jiri.ensure_jiri()
-      self.m.jiri.checkout_snapshot(snapshot_file)
-      return self._finalize_checkout(
-          snapshot_file=snapshot_file,
-          # This method should never upload a snapshot because the point is that
-          # we obtain a checkout from an existing snapshot. The snapshot is
-          # already readily available in the repository from whence it was
-          # retrieved. Note also that the checkout will never be patched by this
-          # method, unlike checkout(). This is because the purpose of the
-          # patch_* arguments is to patch the snapshot itself (e.g. to CQ a
-          # snapshot update).
-          snapshot_gcs_bucket=None,
-      )
+      return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
 
   def checkout_patched_snapshot(self,
                                 patch_gerrit_url,
@@ -360,23 +347,26 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.git('fetch', patch_repository_url, details['branch'])
         self.m.git('rebase', 'FETCH_HEAD')
 
-      # Read the snapshot so it shows up in the step presentation.
-      snapshot_file = snapshot_repo_dir.join('snapshot')
+      return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
 
-      # Perform a jiri checkout from the snapshot.
-      self.m.jiri.ensure_jiri()
-      self.m.jiri.checkout_snapshot(snapshot_file)
-      return self._finalize_checkout(
-          snapshot_file=snapshot_file,
-          # This method should never upload a snapshot because the point is that
-          # we obtain a checkout from an existing snapshot. The snapshot is
-          # already readily available in the repository from whence it was
-          # retrieved. Note also that the checkout will never be patched by this
-          # method, unlike checkout(). This is because the purpose of the
-          # patch_* arguments is to patch the snapshot itself (e.g. to CQ a
-          # snapshot update).
-          snapshot_gcs_bucket=None,
-      )
+  def _checkout_snapshot(self, snapshot_repo_dir):
+    # Read the snapshot so it shows up in the step presentation.
+    snapshot_file = snapshot_repo_dir.join('snapshot')
+
+    # Perform a jiri checkout from the snapshot.
+    self.m.jiri.ensure_jiri()
+    self.m.jiri.checkout_snapshot(snapshot_file)
+    return self._finalize_checkout(
+        snapshot_file=snapshot_file,
+        # This method should never upload a snapshot because the point is that
+        # we obtain a checkout from an existing snapshot. The snapshot is
+        # already readily available in the repository from whence it was
+        # retrieved. Note also that the checkout will never be patched by this
+        # method, unlike checkout(). This is because the purpose of the
+        # patch_* arguments is to patch the snapshot itself (e.g. to CQ a
+        # snapshot update).
+        snapshot_gcs_bucket=None,
+    )
 
   def _finalize_checkout(self, snapshot_file, snapshot_gcs_bucket):
     """Finalizes a Fuchsia checkout.
@@ -461,7 +451,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       # Collect gn tracing data if specified.
       if self._build_metrics_gcs_bucket:
-          gen_cmd.append('--tracelog=' + str(self.m.path['cleanup'].join('gn_trace.json')))
+        gen_cmd.append('--tracelog=' +
+                       str(self.m.path['cleanup'].join('gn_trace.json')))
 
       self.m.step('gn gen', gen_cmd)
 
@@ -548,11 +539,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
   def _symbolize_filter(self, build_dir, data, json_output=None):
     """Invokes zircon's symbolization script to symbolize the given data."""
-    downloads_dir = self.m.path['start_dir'].join('zircon', 'prebuilt', 'downloads')
+    downloads_dir = self.m.path['start_dir'].join('zircon', 'prebuilt',
+                                                  'downloads')
     symbolize_cmd = [
         downloads_dir.join('symbolize'),
-        '-ids', build_dir.join('ids.txt'),
-        '-llvm-symbolizer', downloads_dir.join('clang', 'bin', 'llvm-symbolizer'),
+        '-ids',
+        build_dir.join('ids.txt'),
+        '-llvm-symbolizer',
+        downloads_dir.join('clang', 'bin', 'llvm-symbolizer'),
     ]
     if json_output:
       symbolize_cmd.extend(['-json-output', json_output])
@@ -640,9 +634,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     host_platform = HOST_PLATFORMS[self.m.platform.arch][self.m.platform.bits]
     set_vars_and_run_cmd = [
         self.m.path['start_dir'].join('build', 'gn_run_binary.sh'),
-        self.m.path['start_dir'].join('buildtools', '%s-%s' %
-                                      (self.m.platform.name,
-                                       host_platform), 'clang', 'bin'),
+        self.m.path['start_dir'].join(
+            'buildtools', '%s-%s' % (self.m.platform.name, host_platform),
+            'clang', 'bin'),
     ]
 
     # Allow the runtests invocation to fail without resulting in a step failure.
@@ -696,7 +690,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.step.active_result.presentation.logs['runcmds'] = runcmds
 
   def _construct_qemu_task_request(self, zbi_path, build, test_pool, images,
-                                   timeout_secs, external_network, secret_bytes):
+                                   timeout_secs, external_network,
+                                   secret_bytes):
     """Constructs a Swarming task request which runs Fuchsia tests inside QEMU.
 
     Expects the build and artifacts to be at the same place they were at
@@ -796,11 +791,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
         hard_timeout_secs=timeout_secs,
         secret_bytes=secret_bytes,
         outputs=[minfs_image_name],
-	cipd_packages=[('qemu', 'fuchsia/qemu/linux-%s' % cipd_arch,
-			'latest'),
-		       ('botanist', 'fuchsia/infra/botanist/linux-%s' % cipd_arch,
-			'latest'),
-		      ],
+        cipd_packages=[
+            ('qemu', 'fuchsia/qemu/linux-%s' % cipd_arch, 'latest'),
+            ('botanist', 'fuchsia/infra/botanist/linux-%s' % cipd_arch,
+             'latest'),
+        ],
     )
 
   def _construct_device_task_request(self, device_type, zbi_path, build,
@@ -857,9 +852,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # If we're paving, ensure we add the additional necessary artifacts.
     if pave:
       botanist_cmd.extend([
-        '-efi', efi_name,
-        '-fvm', storage_sparse_name,
-        '-fvm', data_template_name,
+          '-efi',
+          efi_name,
+          '-fvm',
+          storage_sparse_name,
+          '-fvm',
+          data_template_name,
       ])
 
     # Add the kernel command line arg for invoking runcmds.
@@ -869,10 +867,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Isolate all the necessary artifacts used by the botanist command.
     if pave:
       isolated_hash = self._isolate_files_at_isolated_root([
-        zbi_path,
-        efi_path,
-        storage_sparse_path,
-        data_template_path,
+          zbi_path,
+          efi_path,
+          storage_sparse_path,
+          data_template_path,
       ])
     else:
       isolated_hash = self._isolate_files_at_isolated_root([zbi_path])
@@ -939,10 +937,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
     ).json.output
 
     return {
-      image['name']:
-        self.m.path.abs_to_path(
+        image['name']: self.m.path.abs_to_path(
             self.m.path.realpath(build.fuchsia_build_dir.join(image['path'])))
-      for image in raw_images
+        for image in raw_images
     }
 
   def _decrypt_secrets(self, build):
@@ -968,27 +965,32 @@ class FuchsiaApi(recipe_api.RecipeApi):
           continue
 
         secret_name, _ = basename.split('.json', 1)
-        secret_spec = self.m.json.read(
-            'read spec for %s' % secret_name, secret_spec_file).json.output
+        secret_spec = self.m.json.read('read spec for %s' % secret_name,
+                                       secret_spec_file).json.output
 
         # For each test spec file <name>.json in this directory, there is an
         # associated ciphertext file at ciphertext/<name>.ciphertext.
-        ciphertext_file = secret_spec_dir.join(
-            'ciphertext', '%s.ciphertext' % secret_name)
+        ciphertext_file = secret_spec_dir.join('ciphertext',
+                                               '%s.ciphertext' % secret_name)
 
         key_path = secret_spec['cloudkms_key_path']
         plaintext_file = self.m.path.mkdtemp('plaintext').join(secret_name)
-        self.m.cloudkms.decrypt('decrypt secret for %s' % secret_name,
-                                key_path, ciphertext_file, plaintext_file)
+        self.m.cloudkms.decrypt('decrypt secret for %s' % secret_name, key_path,
+                                ciphertext_file, plaintext_file)
         secrets_map[secret_name] = self.m.cloudkms.decrypt(
-            'decrypt secret for %s' % secret_name, key_path,
-            ciphertext_file,
+            'decrypt secret for %s' % secret_name, key_path, ciphertext_file,
             self.m.raw_io.output()).raw_io.output
     return secrets_map
 
-
-  def test(self, build, test_pool, test_cmds, device_type, timeout_secs=40 * 60,
-           pave=True, external_network=False, requires_secrets=False):
+  def test(self,
+           build,
+           test_pool,
+           test_cmds,
+           device_type,
+           timeout_secs=40 * 60,
+           pave=True,
+           external_network=False,
+           requires_secrets=False):
     """Tests a Fuchsia build on the specified device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -1024,10 +1026,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
       zbi_path = images['zircon-a']
     new_zbi_path = build.fuchsia_build_dir.join('test-infra.zbi')
     self.m.zbi.copy_and_extend(
-      step_name='create test zbi',
-      input_image=zbi_path,
-      output_image=new_zbi_path,
-      manifest={RUNCMDS_BOOTFS_PATH: runcmds_path},
+        step_name='create test zbi',
+        input_image=zbi_path,
+        output_image=new_zbi_path,
+        manifest={RUNCMDS_BOOTFS_PATH: runcmds_path},
     )
 
     if device_type == 'QEMU':
@@ -1481,42 +1483,59 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.cipd.ensure(cipd_dir, pkgs)
 
     host_platform = HOST_PLATFORMS[self.m.platform.arch][self.m.platform.bits]
-    downloads_dir = self.m.path['start_dir'].join('zircon', 'prebuilt', 'downloads')
+    downloads_dir = self.m.path['start_dir'].join('zircon', 'prebuilt',
+                                                  'downloads')
     clang_dir = downloads_dir.join('clang', 'bin')
 
     output_dir = self.m.path['cleanup'].join('coverage')
     self.m.step(
-        'covargs', [
+        'covargs',
+        [
             cipd_dir.join('covargs'),
-            '-summary', test_results.results_dir.join('summary.json'),
+            '-summary',
+            test_results.results_dir.join('summary.json'),
             # TODO: this is already in build_results, maybe we should pass it
             # to this method rather than constructing it manually.
-            '-ids', test_results.build_dir.join('ids.txt'),
-            '-symbolize-dump', symbolize_dump,
-            '-output-dir', output_dir,
-            '-llvm-profdata', clang_dir.join('llvm-profdata'),
-            '-llvm-cov', clang_dir.join('llvm-cov'),
+            '-ids',
+            test_results.build_dir.join('ids.txt'),
+            '-symbolize-dump',
+            symbolize_dump,
+            '-output-dir',
+            output_dir,
+            '-llvm-profdata',
+            clang_dir.join('llvm-profdata'),
+            '-llvm-cov',
+            clang_dir.join('llvm-cov'),
         ])
 
     # TODO: move this into gsutil module/deduplicate this with other GCS logic
     dst = 'builds/%s/coverage' % self.m.buildbucket.build_id
     step_result = self.m.gsutil(
-        'cp', '-r', '-z', 'html', '-a', 'public-read', output_dir,
+        'cp',
+        '-r',
+        '-z',
+        'html',
+        '-a',
+        'public-read',
+        output_dir,
         'gs://%s/%s' % (self._test_coverage_gcs_bucket, dst),
         name='upload coverage', multithreaded=True)
     step_result.presentation.links['index.html'] = self.m.gsutil._http_url(
-        self._test_coverage_gcs_bucket, self.m.gsutil.join(dst, 'index.html'), True)
+        self._test_coverage_gcs_bucket, self.m.gsutil.join(dst, 'index.html'),
+        True)
 
   def _tracing_data(self, build_results):
     """Uploads GN and ninja tracing results for this build to GCS"""
     # Only upload if the bucket is specified.
     if self._build_metrics_gcs_bucket:
-        self.m.gsutil.ensure_gsutil()
+      self.m.gsutil.ensure_gsutil()
 
-        gn_data = self._extract_gn_tracing_data(build_results)
-        ninja_data = self._extract_ninja_tracing_data(build_results)
-        self._upload_file_to_gcs(gn_data, self._build_metrics_gcs_bucket, hash=False)
-        self._upload_file_to_gcs(ninja_data, self._build_metrics_gcs_bucket, hash=False)
+      gn_data = self._extract_gn_tracing_data(build_results)
+      ninja_data = self._extract_ninja_tracing_data(build_results)
+      self._upload_file_to_gcs(
+          gn_data, self._build_metrics_gcs_bucket, hash=False)
+      self._upload_file_to_gcs(
+          ninja_data, self._build_metrics_gcs_bucket, hash=False)
 
   def _extract_gn_tracing_data(self, build_results):
     """Extracts the tracing data from this GN run.
@@ -1528,9 +1547,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A Path to the file containing the gn tracing data in Chromium's
       about:tracing html format.
     """
-    return self._trace2html(
-        self.m.path['cleanup'].join('gn_trace.json'),
-        self.m.path['cleanup'].join('gn_trace.html'))
+    return self._trace2html(self.m.path['cleanup'].join('gn_trace.json'),
+                            self.m.path['cleanup'].join('gn_trace.html'))
 
   def _extract_ninja_tracing_data(self, build_results):
     """Extracts the tracing data from the .ninja_log.
@@ -1553,8 +1571,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.step(
         'ninja tracing', [
             self.m.path['start_dir'].join('cipd').join('ninjatrace'),
-            '-filename', build_results.fuchsia_build_dir.join('.ninja_log'),
-            '-trace-json', trace,
+            '-filename',
+            build_results.fuchsia_build_dir.join('.ninja_log'),
+            '-trace-json',
+            trace,
         ],
         stdout=self.m.raw_io.output(leak_to=trace))
     return self._trace2html(trace, html)
@@ -1568,7 +1588,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     #     return
     self.m.python(
         name='trace2html',
-        script=self.m.path['start_dir'].join('third_party', 'catapult', 'tracing', 'bin', 'trace2html'),
+        script=self.m.path['start_dir'].join('third_party', 'catapult',
+                                             'tracing', 'bin', 'trace2html'),
         args=['--output', html, trace])
     return html
 
@@ -1588,17 +1609,26 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.cipd.ensure(cipd_dir, pkgs)
 
       bloaty_file = self.m.path['cleanup'].join('bloaty.html')
-      self.m.step('bloaty', [
-          self.m.path['start_dir'].join('cipd', 'bloatalyzer'),
-          '-bloaty',
-          self.m.path['start_dir'].join('cipd', 'bloaty'),
-          '-input', build_results.ids,
-          '-output', bloaty_file,
-           # We can't include all targets because the page won't load, so limit the output.
-          '-top-files', '50',
-          '-top-syms', '50',
-          '-format', 'html',
-          # Limit the number of jobs so that we don't overwhelm the bot.
-          '-jobs', str(min(self.m.platform.cpu_count, 32)),
-      ])
-      self._upload_file_to_gcs(bloaty_file, self._build_metrics_gcs_bucket, hash=False)
+      self.m.step(
+          'bloaty',
+          [
+              self.m.path['start_dir'].join('cipd', 'bloatalyzer'),
+              '-bloaty',
+              self.m.path['start_dir'].join('cipd', 'bloaty'),
+              '-input',
+              build_results.ids,
+              '-output',
+              bloaty_file,
+              # We can't include all targets because the page won't load, so limit the output.
+              '-top-files',
+              '50',
+              '-top-syms',
+              '50',
+              '-format',
+              'html',
+              # Limit the number of jobs so that we don't overwhelm the bot.
+              '-jobs',
+              str(min(self.m.platform.cpu_count, 32)),
+          ])
+      self._upload_file_to_gcs(
+          bloaty_file, self._build_metrics_gcs_bucket, hash=False)
