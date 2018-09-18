@@ -173,6 +173,81 @@
     ]
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/boot/bin/sh\nblktest -d /dev/sys/pci/00:17.0/ahci/sata2/block\nTEST_EXIT_CODE=\"$?\"\nif [ \"$TEST_EXIT_CODE\" -ne 0 ]; then\n  echo \"lsblk output:\"\n  lsblk\n  exit \"$TEST_EXIT_CODE\"\nfi",
+      "[CLEANUP]/zircon_tmp/blktest.sh"
+    ],
+    "infra_step": true,
+    "name": "write blktest_sh",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@blktest.sh@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@blktest -d /dev/sys/pci/00:17.0/ahci/sata2/block@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@TEST_EXIT_CODE=\"$?\"@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@if [ \"$TEST_EXIT_CODE\" -ne 0 ]; then@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@  echo \"lsblk output:\"@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@  lsblk@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@  exit \"$TEST_EXIT_CODE\"@@@",
+      "@@@STEP_LOG_LINE@blktest.sh@fi@@@",
+      "@@@STEP_LOG_END@blktest.sh@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/boot/bin/sh\n/boot/test/fs/fs-test -f minfs -d /dev/sys/pci/00:17.0/ahci/sata2/block\nTEST_EXIT_CODE=\"$?\"\nif [ \"$TEST_EXIT_CODE\" -ne 0 ]; then\n  echo \"lsblk output:\"\n  lsblk\n  exit \"$TEST_EXIT_CODE\"\nfi",
+      "[CLEANUP]/zircon_tmp/fs-test-minfs.sh"
+    ],
+    "infra_step": true,
+    "name": "write fs-test-minfs_sh",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@fs-test-minfs.sh@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@fs-test-minfs.sh@/boot/test/fs/fs-test -f minfs -d /dev/sys/pci/00:17.0/ahci/sata2/block@@@",
+      "@@@STEP_LOG_LINE@fs-test-minfs.sh@TEST_EXIT_CODE=\"$?\"@@@",
+      "@@@STEP_LOG_LINE@fs-test-minfs.sh@if [ \"$TEST_EXIT_CODE\" -ne 0 ]; then@@@",
+      "@@@STEP_LOG_LINE@fs-test-minfs.sh@  echo \"lsblk output:\"@@@",
+      "@@@STEP_LOG_LINE@fs-test-minfs.sh@  lsblk@@@",
+      "@@@STEP_LOG_LINE@fs-test-minfs.sh@  exit \"$TEST_EXIT_CODE\"@@@",
+      "@@@STEP_LOG_LINE@fs-test-minfs.sh@fi@@@",
+      "@@@STEP_LOG_END@fs-test-minfs.sh@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "#!/boot/bin/sh\niochk -c 16384 --live-dangerously /dev/sys/pci/00:17.0/ahci/sata2/block\nTEST_EXIT_CODE=\"$?\"\nif [ \"$TEST_EXIT_CODE\" -ne 0 ]; then\n  echo \"lsblk output:\"\n  lsblk\n  exit \"$TEST_EXIT_CODE\"\nfi",
+      "[CLEANUP]/zircon_tmp/iochk.sh"
+    ],
+    "infra_step": true,
+    "name": "write iochk_sh",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@iochk.sh@#!/boot/bin/sh@@@",
+      "@@@STEP_LOG_LINE@iochk.sh@iochk -c 16384 --live-dangerously /dev/sys/pci/00:17.0/ahci/sata2/block@@@",
+      "@@@STEP_LOG_LINE@iochk.sh@TEST_EXIT_CODE=\"$?\"@@@",
+      "@@@STEP_LOG_LINE@iochk.sh@if [ \"$TEST_EXIT_CODE\" -ne 0 ]; then@@@",
+      "@@@STEP_LOG_LINE@iochk.sh@  echo \"lsblk output:\"@@@",
+      "@@@STEP_LOG_LINE@iochk.sh@  lsblk@@@",
+      "@@@STEP_LOG_LINE@iochk.sh@  exit \"$TEST_EXIT_CODE\"@@@",
+      "@@@STEP_LOG_LINE@iochk.sh@fi@@@",
+      "@@@STEP_LOG_END@iochk.sh@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "build"
   },
@@ -209,7 +284,7 @@
       "20",
       "HOST_USE_ASAN=true",
       "BUILDROOT=[START_DIR]/zircon",
-      "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds"
+      "EXTRA_USER_MANIFEST_LINES=infra/runcmds=[CLEANUP]/zircon_tmp/runcmds test/fs/blktest.sh=[CLEANUP]/zircon_tmp/blktest.sh test/fs/fs-test-minfs.sh=[CLEANUP]/zircon_tmp/fs-test-minfs.sh test/fs/iochk.sh=[CLEANUP]/zircon_tmp/iochk.sh"
     ],
     "cwd": "[START_DIR]/zircon",
     "name": "build.build",

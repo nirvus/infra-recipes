@@ -81,13 +81,19 @@ TEST_IO_TIMEOUT_SECS = 60
 # This string matches the one in //zircon/system/utest/core/main.c.
 CORE_TESTS_SUCCESS_STR = 'core-tests succeeded RZMm59f7zOSs6aZUIXZR'
 
+# Common to all NUC devices: block device path for use by blktest and other
+# destructive local storage tests.
+NUC_SCRATCH_BLOCK_DEVICE_PATH = '/dev/sys/pci/00:17.0/ahci/sata2/block'
+
 # Key is device_type recipe property.
 # Val is a block device path for use by blktest and other destructive local
 # storage tests. 'Scratch' here means it can be destroyed by the tests.
 # Destructive local storage tests will run on a given device type iff that
 # device type is present in this dict.
 DEVICE_TYPE_TO_SCRATCH_BLOCK_DEVICE_PATH = {
-    'Intel NUC Kit NUC6i3SYK': '/dev/sys/pci/00:17.0/ahci/sata2/block'}
+    'Intel NUC Kit NUC6i3SYK': NUC_SCRATCH_BLOCK_DEVICE_PATH,
+    'Intel NUC Kit NUC7i5DNHE': NUC_SCRATCH_BLOCK_DEVICE_PATH,
+}
 
 PROPERTIES = {
   'patch_gerrit_url': Property(kind=str, help='Gerrit host', default=None),
