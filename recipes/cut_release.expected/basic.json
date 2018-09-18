@@ -137,10 +137,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/lkgs/lkgs",
-      "-builder-id",
-      "garnet-x64-release-qemu_kvm",
       "-output-file",
-      "[START_DIR]/releases/snapshot"
+      "[START_DIR]/releases/snapshot",
+      "-builder-id",
+      "garnet-x64-release-qemu_kvm"
     ],
     "infra_step": true,
     "name": "lkgs garnet-x64-release-qemu_kvm"

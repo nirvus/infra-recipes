@@ -1001,17 +1001,17 @@ Retrieves the last-known-"good"-(jiri-)snapshot given a builder.
 
 Args:
   step_name (str): The name of the step produced.
-  builder (str): A fully-qualified buildbucket v2 builder ID, consisting of
-    <project>/<project-namespaced bucket>/<builder name>. For example:
+  builder (str): A single or list of fully-qualified buildbucket v2 builder ID,
+    consisting of <project>/<project-namespaced bucket>/<builder name>. For example:
     fuchsia/ci/garnet-x64-release-qemu_kvm.
   output_file (Path|Placeholder): The location to dump the retrieved
     snapshot.
 
-&mdash; **def [ensure\_lkgs](/recipe_modules/lkgs/api.py#33)(self, version=None):**
+&mdash; **def [ensure\_lkgs](/recipe_modules/lkgs/api.py#42)(self, version=None):**
 
 Ensures that the lkgs tool is installed.
 
-&emsp; **@property**<br>&mdash; **def [lkgs\_tool](/recipe_modules/lkgs/api.py#47)(self):**
+&emsp; **@property**<br>&mdash; **def [lkgs\_tool](/recipe_modules/lkgs/api.py#54)(self):**
 ### *recipe_modules* / [minfs](/recipe_modules/minfs)
 
 [DEPS](/recipe_modules/minfs/__init__.py#1): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

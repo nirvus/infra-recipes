@@ -32,10 +32,10 @@
   {
     "cmd": [
       "[START_DIR]/cipd/lkgs/lkgs",
-      "-builder-id",
-      "fuchsia/ci/garnet-x64-qemu_kvm",
       "-output-file",
-      "[START_DIR]/snapshot"
+      "[START_DIR]/snapshot",
+      "-builder-id",
+      "fuchsia/ci/garnet-x64-qemu_kvm"
     ],
     "name": "hello"
   },

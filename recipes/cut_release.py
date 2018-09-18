@@ -73,7 +73,7 @@ def RunSteps(api, release_repository, release_names, release_targets,
       # Obtain the last-known-good-snapshot for the reference builder.
       api.lkgs(
           step_name='lkgs %s' % builder,
-          builder=builder,
+          builder=[builder],
           output_file=snapshot_file,
       )
 

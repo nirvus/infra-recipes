@@ -14,7 +14,7 @@ def RunSteps(api):
 
   api.lkgs(
       step_name='hello',
-      builder='fuchsia/ci/garnet-x64-qemu_kvm',
+      builder=['fuchsia/ci/garnet-x64-qemu_kvm'],
       output_file=api.path['start_dir'].join('snapshot'),
   )
 

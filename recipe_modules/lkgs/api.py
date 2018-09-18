@@ -17,29 +17,36 @@ class LkgsApi(recipe_api.RecipeApi):
 
     Args:
       step_name (str): The name of the step produced.
-      builder (str): A fully-qualified buildbucket v2 builder ID, consisting of
-        <project>/<project-namespaced bucket>/<builder name>. For example:
-        fuchsia/ci/garnet-x64-release-qemu_kvm.
+      builder (seq[str]): A list of fully-qualified buildbucket v2 builder ID,
+        consisting of <project>/<project-namespaced bucket>/<builder name>. For example:
+        ['fuchsia/ci/garnet-x64-release-qemu_kvm'].
       output_file (Path|Placeholder): The location to dump the retrieved
         snapshot.
     """
     assert self._lkgs_tool
-    return self.m.step(step_name, [
+
+    step_args = [
         self._lkgs_tool,
-        '-builder-id', builder,
-        '-output-file', output_file,
-    ])
+        '-output-file',
+        output_file,
+    ]
+
+    for b in builder:
+      step_args += [
+          '-builder-id',
+          b,
+      ]
+
+    return self.m.step(step_name, step_args)
 
   def ensure_lkgs(self, version=None):
     """Ensures that the lkgs tool is installed."""
     with self.m.step.nest('ensure_lkgs'):
       with self.m.context(infra_steps=True):
-        lkgs_package = ('fuchsia/infra/lkgs/%s' %
-            self.m.cipd.platform_suffix())
+        lkgs_package = ('fuchsia/infra/lkgs/%s' % self.m.cipd.platform_suffix())
         cipd_dir = self.m.path['start_dir'].join('cipd', 'lkgs')
 
-        self.m.cipd.ensure(cipd_dir,
-                           {lkgs_package: version or 'release'})
+        self.m.cipd.ensure(cipd_dir, {lkgs_package: version or 'release'})
         self._lkgs_tool = cipd_dir.join('lkgs')
 
         return self._lkgs_tool
