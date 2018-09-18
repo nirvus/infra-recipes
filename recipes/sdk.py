@@ -125,6 +125,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
 
     # Extract the archive to a directory for CIPD processing.
     with api.step.nest('extract chromium sdk'):
+      api.file.ensure_directory('create sdk dir', sdk_dir)
       api.tar.ensure_tar()
       api.tar.extract(
           step_name='unpack sdk archive',

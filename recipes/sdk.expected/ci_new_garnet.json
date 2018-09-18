@@ -626,6 +626,24 @@
     "name": "extract chromium sdk"
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CLEANUP]/chromium-sdk"
+    ],
+    "infra_step": true,
+    "name": "extract chromium sdk.create sdk dir",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "extract chromium sdk.ensure bsdtar",
     "~followup_annotations": [
