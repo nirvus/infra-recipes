@@ -29,6 +29,8 @@ DEPS = [
 
 PROJECTS = ['garnet', 'topaz']
 
+TARGETS = ('arm64', 'x64')
+
 BUILD_TYPE = 'release'
 
 PROPERTIES = {
@@ -75,43 +77,33 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
 
   # Build fuchsia for each target.
   builds = {}
-  for target in ('arm64', 'x64'):
+  for target in TARGETS:
     with api.step.nest('build ' + target):
       sdk_build_package = '%s/packages/sdk/%s' % (project, project)
       builds[target] = api.fuchsia.build(
           target=target,
           build_type=BUILD_TYPE,
-          packages=[sdk_build_package],
-          gn_args=['build_sdk_archives=true'])
-
-  # Merge the SDK archives for each target into a single archive.
-  # Note that "alpha" and "beta" below have no particular meaning.
-  merge_path = api.path['start_dir'].join('scripts', 'sdk', 'merger', 'merge.py')
-  full_archive_path = api.path['cleanup'].join('merged_sdk_archive.tar.gz')
-  api.python('merge sdk archives',
-      merge_path,
-      args=[
-        '--alpha-archive',
-        builds['x64'].fuchsia_build_dir.join('sdk', '%s.tar.gz' % project),
-        '--beta-archive',
-        builds['arm64'].fuchsia_build_dir.join('sdk', '%s.tar.gz' % project),
-        '--output-archive',
-        full_archive_path,
-      ])
+          packages=[sdk_build_package])
 
   if project == 'topaz':
-    script_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel', 'generate-plus-plus.py')
+    script_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel', 'generate.py')
     sdk_dir = api.path['cleanup'].join('sdk-bazel')
 
-    api.python('create bazel sdk',
-        script_path,
-        args=[
-          '--archive',
-          full_archive_path,
-          '--output',
-          sdk_dir,
-        ],
-    )
+    # If |overlay| is false, the --output directory is deleted before producing
+    # the SDK; if true, the script verifies that the --output directory exists
+    # before overlaying content in it.
+    overlay = False
+    for target in TARGETS:
+        api.python('create bazel sdk',
+            script_path,
+            args=[
+              '--manifest',
+              builds[target].fuchsia_build_dir.join('sdk-manifests', 'topaz'),
+              '--output',
+              sdk_dir,
+            ] + (['--overlay'] if overlay else []),
+        )
+        overlay = True
 
     if not api.properties.get('tryjob'):
       with api.step.nest('upload bazel sdk'):

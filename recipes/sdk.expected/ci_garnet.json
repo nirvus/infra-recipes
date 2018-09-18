@@ -309,7 +309,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/garnet\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false build_sdk_archives=true"
+      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"garnet/packages/sdk/garnet\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -493,7 +493,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/garnet\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false build_sdk_archives=true"
+      "--args=target_cpu=\"x64\" fuchsia_packages=[\"garnet/packages/sdk/garnet\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -579,20 +579,6 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@3@@@"
     ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/sdk/merger/merge.py",
-      "--alpha-archive",
-      "[START_DIR]/out/release-x64/sdk/garnet.tar.gz",
-      "--beta-archive",
-      "[START_DIR]/out/release-arm64/sdk/garnet.tar.gz",
-      "--output-archive",
-      "[CLEANUP]/merged_sdk_archive.tar.gz"
-    ],
-    "name": "merge sdk archives"
   },
   {
     "cmd": [],
