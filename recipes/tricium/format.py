@@ -59,17 +59,16 @@ PROPERTIES = {
 
 
 def RunSteps(api, project, manifest, formatters):
-  if manifest:
-    api.jiri.ensure_jiri()
-    api.jiri.init()
-    api.jiri.import_manifest(
-        manifest,
-        api.tricium.repository,
-        name=project,
-        revision=api.tricium.ref)
-    api.jiri.update(run_hooks=False)
-  else:
-    api.git.checkout(api.tricium.repository, ref=api.tricium.ref)
+  api.jiri.ensure_jiri()
+  with api.context(infra_steps=True):
+    api.jiri.checkout(
+        manifest=manifest,
+        remote=api.tricium.repository,
+        project=project,
+        revision='HEAD',
+        patch_ref=api.tricium.ref,
+        patch_gerrit_url='https://fuchsia-review.googlesource.com',
+        patch_project=project)
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
@@ -78,60 +77,63 @@ def RunSteps(api, project, manifest, formatters):
           'fuchsia/clang/${platform}': 'goma',
       })
 
-  for f in api.tricium.paths:
-    _, ext = api.path.splitext(f)
-    if ext not in EXT_TO_FORMATTER:
-      continue
+  project_dir = api.path['start_dir'].join(*project.split('/'))
 
-    for formatter in EXT_TO_FORMATTER[ext]:
-      # Check that this formatter is on for this run.
-      if formatter.category not in formatters:
+  with api.context(cwd=project_dir):
+    paths = api.git(
+        'show',
+        '--name-only',
+        '--pretty=',
+        name='get changed files',
+        stdout=api.raw_io.output()).stdout.strip().split('\n')
+
+    for f in paths:
+      _, ext = api.path.splitext(f)
+      if ext not in EXT_TO_FORMATTER:
         continue
 
-      # Run the formatter tool.
-      cmd = [cipd_dir.join(*formatter.path)] + formatter.args + [f]
-      api.step('formatting %s' % f, cmd)
-      diff_result = api.git(
-          'diff',
-          '--name-only',
-          name='check %s formatting' % f,
-          stdout=api.raw_io.output())
+      for formatter in EXT_TO_FORMATTER[ext]:
+        # Check that this formatter is on for this run.
+        if formatter.category not in formatters:
+          continue  # pragma: no cover
 
-      if diff_result.stdout:
-        api.tricium.add_comment('Format/%s' % formatter.category,
-                                formatter.warning % f, f)
-        api.git('reset', '--hard', name='reset %s' % f)
+        # Run the formatter tool.
+        cmd = [cipd_dir.join(*formatter.path)] + formatter.args + [f]
+        api.step('formatting %s' % f, cmd)
+        diff_result = api.git(
+            'diff',
+            '--name-only',
+            name='check %s formatting' % f,
+            stdout=api.raw_io.output())
+
+        if diff_result.stdout:
+          api.tricium.add_comment('Format/%s' % formatter.category,
+                                  formatter.warning % f, f)
+          api.git('reset', '--hard', name='reset %s' % f)
 
   api.tricium.write_comments()
 
 
 def GenTests(api):
 
+  show_output = '''other/path/to/file.c\npath/to/file.h\n'''
   diff_output = '''path/to/file.h'''
 
-  yield (api.test('manifest') + api.properties(
+  yield (api.test('default') + api.properties(
       manifest='manifest/topaz',
       project='topaz',
       repository='https://fuchsia.googlesource.com/topaz',
-      ref='HEAD',
-      formatters=['ClangFormat'],
-      paths=['path/to/file.h', 'other/path/to/file.c']) + api.step_data(
-          'check path/to/file.h formatting',
-          api.raw_io.stream_output(diff_output)) + api.step_data(
-              'check other/path/to/file.c formatting',
-              api.raw_io.stream_output("")))
-
-  yield (api.test('git') + api.properties(
-      project='tools',
-      repository='https://fuchsia.googlesource.com/tools',
-      ref='HEAD',
-      formatters=['ClangFormat'],
-      paths=['path/to/file.h', 'other/path/to/file']) + api.step_data(
-          'check path/to/file.h formatting',
-          api.raw_io.stream_output(diff_output)))
+      ref='refs/changes/12345/2',
+      formatters=['ClangFormat']) + api.step_data(
+          'get changed files', api.raw_io.stream_output(show_output)) +
+         api.step_data('check path/to/file.h formatting',
+                       api.raw_io.stream_output(diff_output)) + api.step_data(
+                           'check other/path/to/file.c formatting',
+                           api.raw_io.stream_output("")))
 
   yield (api.test('no_formatters') + api.properties(
+      manifest='manifest/minimal',
       project='tools',
       repository='https://fuchsia.googlesource.com/tools',
-      ref='HEAD',
+      ref='refs/changes/12345/2',
       paths=['path/to/file.cpp']))
