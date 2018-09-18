@@ -17,6 +17,7 @@ DEPS = [
     'infra/gsutil',
     'infra/hash',
     'infra/jiri',
+    'infra/tar',
     'recipe_engine/context',
     'recipe_engine/file',
     'recipe_engine/json',
@@ -120,16 +121,21 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
 
   # Likewise for the Chromium SDK, but by other legacy means.
   elif project == 'garnet':
-    with api.step.nest('make chromium sdk'):
-      out_dir = api.path['cleanup'].join('chromium-sdk')
-      sdk = api.path['cleanup'].join('chromium-sdk.tgz')
-      api.go('run', api.path['start_dir'].join('scripts', 'sdk', 'foundation', 'makesdk.go'),
-             '-manifest', 'garnet', '-out-dir', out_dir, '-output', sdk, api.path['start_dir'])
+    sdk_dir = api.path['cleanup'].join('chromium-sdk')
+
+    # Extract the archive to a directory for CIPD processing.
+    with api.step.nest('extract chromium sdk'):
+      api.tar.ensure_tar()
+      api.tar.extract(
+          step_name='unpack sdk archive',
+          path=full_archive_path,
+          directory=sdk_dir,
+      )
 
     if not api.properties.get('tryjob'):
       with api.step.nest('upload chromium sdk'):
         # Upload the Chromium style SDK to GCS and CIPD.
-        UploadArchive(api, sdk, out_dir, remote, revision)
+        UploadArchive(api, full_archive_path, sdk_dir, remote, revision)
 
 # Given an SDK |sdk_name| with artifacts found in |staging_dir|, upload a
 # corresponding .cipd file to CIPD and GCS.

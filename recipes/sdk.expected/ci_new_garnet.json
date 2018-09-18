@@ -623,25 +623,52 @@
   },
   {
     "cmd": [],
-    "name": "make chromium sdk"
+    "name": "extract chromium sdk"
+  },
+  {
+    "cmd": [],
+    "name": "extract chromium sdk.ensure bsdtar",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/go/bin/go",
-      "run",
-      "[START_DIR]/scripts/sdk/foundation/makesdk.go",
-      "-manifest",
-      "garnet",
-      "-out-dir",
-      "[CLEANUP]/chromium-sdk",
-      "-output",
-      "[CLEANUP]/chromium-sdk.tgz",
-      "[START_DIR]"
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/tools/bsdtar/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
-    "env": {
-      "GOROOT": "[START_DIR]/cipd/go"
-    },
-    "name": "make chromium sdk.go run",
+    "infra_step": true,
+    "name": "extract chromium sdk.ensure bsdtar.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bsdtar",
+      "--extract",
+      "--verbose",
+      "-f",
+      "[CLEANUP]/merged_sdk_archive.tar.gz",
+      "-C",
+      "[CLEANUP]/chromium-sdk"
+    ],
+    "name": "extract chromium sdk.unpack sdk archive",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -657,7 +684,7 @@
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
       "-a",
       "sha1",
-      "[CLEANUP]/chromium-sdk.tgz"
+      "[CLEANUP]/merged_sdk_archive.tar.gz"
     ],
     "infra_step": true,
     "name": "upload chromium sdk.hash archive",
@@ -676,7 +703,7 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[CLEANUP]/chromium-sdk.tgz",
+      "[CLEANUP]/merged_sdk_archive.tar.gz",
       "gs://fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
     ],
     "infra_step": true,
