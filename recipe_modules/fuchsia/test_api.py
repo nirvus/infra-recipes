@@ -152,33 +152,51 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
   def images_step_data(self, has_data_template=True):
     """Returns mock step data for the image manifest."""
     mock_image_manifest = [
-          {'name': 'zircon-a',
-          'type': 'zbi',
-          'path': 'fuchsia.zbi'},
-          {'name': 'storage-full',
-          'type': 'blk',
-          'path': 'fvm.blk'},
-          {'name': 'storage-sparse',
-          'type': 'blk',
-          'path': 'fvm.sparse.blk'},
-          {'name': 'qemu-kernel',
-          'type': 'bin',
-          'path': 'boot.bin'},
-          {'name': 'efi',
-          'type': 'blk',
-          'path': 'efi.blk'},
-          {'name': 'netboot',
-          'type': 'zbi',
-          'path': 'netboot.zbi'},
-      ]
+        {
+            'name': 'zircon-a',
+            'type': 'zbi',
+            'path': 'fuchsia.zbi'
+        },
+        {
+            'name': 'storage-full',
+            'type': 'blk',
+            'path': 'fvm.blk'
+        },
+        {
+            'name': 'storage-sparse',
+            'type': 'blk',
+            'path': 'fvm.sparse.blk'
+        },
+        {
+            'name': 'qemu-kernel',
+            'type': 'bin',
+            'path': 'boot.bin'
+        },
+        {
+            'name': 'efi',
+            'type': 'blk',
+            'path': 'efi.blk'
+        },
+        {
+            'name': 'netboot',
+            'type': 'zbi',
+            'path': 'netboot.zbi'
+        },
+    ]
 
     if has_data_template:
-      return self.step_data('read image manifest', self.m.json.output(mock_image_manifest
-        + [{'name': 'data-template',
-          'type': 'blk',
-          'path': 'fvm.data.sparse.blk'},]))
+      return self.step_data(
+          'read image manifest',
+          self.m.json.output(mock_image_manifest + [
+              {
+                  'name': 'data-template',
+                  'type': 'blk',
+                  'path': 'fvm.data.sparse.blk'
+              },
+          ]))
     else:
-      return self.step_data('read image manifest', self.m.json.output(mock_image_manifest))
+      return self.step_data('read image manifest',
+                            self.m.json.output(mock_image_manifest))
 
   def task_step_data(self,
                      output='',
@@ -281,22 +299,20 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     """
     step_data = []
     secret_name = 'auth-token'
-    step_data.append(self.step_data(
-        'process secret specs.list',
-        self.m.file.listdir([
-            '%s.json' % secret_name,
-            'ciphertext' # the 'ciphertext' subdir, which will be skipped.
-        ])
-    ))
-    step_data.append(self.step_data(
-        'process secret specs.read spec for %s' % secret_name,
-        self.m.json.output({
-            'cloudkms_key_path': 'key-path',
-        })
-    ))
-    step_data.append(self.step_data(
-        'process secret specs.decrypt secret for %s' % secret_name,
-        self.m.raw_io.output_text('plaintext')
-    ))
+    step_data.append(
+        self.step_data(
+            'process secret specs.list',
+            self.m.file.listdir([
+                '%s.json' % secret_name,
+                'ciphertext'  # the 'ciphertext' subdir, which will be skipped.
+            ])))
+    step_data.append(
+        self.step_data('process secret specs.read spec for %s' % secret_name,
+                       self.m.json.output({
+                           'cloudkms_key_path': 'key-path',
+                       })))
+    step_data.append(
+        self.step_data(
+            'process secret specs.decrypt secret for %s' % secret_name,
+            self.m.raw_io.output_text('plaintext')))
     return step_data
-

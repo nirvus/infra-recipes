@@ -14,7 +14,9 @@ TARGETS = ['arm64', 'x64']
 
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
-DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE', 'HiKey 960']
+DEVICES = [
+    'QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE', 'HiKey 960'
+]
 
 DEPS = [
     'infra/cipd',
@@ -107,9 +109,9 @@ PROPERTIES = {
     # Properties pertaining to testing.
     'test_pool':
         Property(
-          kind=str,
-          help='Swarming pool from which a test task will be drawn',
-          default='fuchsia.tests'),
+            kind=str,
+            help='Swarming pool from which a test task will be drawn',
+            default='fuchsia.tests'),
     'run_tests':
         Property(kind=bool, help='Whether to run target tests', default=False),
     'runtests_args':
@@ -137,7 +139,7 @@ PROPERTIES = {
         Property(
             kind=bool,
             help='Whether to pave images the device for testing. (Ignored if'
-                 ' device_type == QEMU)',
+            ' device_type == QEMU)',
             default=True),
     'test_timeout_secs':
         Property(
@@ -164,16 +166,23 @@ PROPERTIES = {
             ' upload a snapshot if this property is blank or if tryjob'
             ' is True.',
             default='fuchsia-archive'),
+    'include_cherrypicks':
+        Property(
+            kind=bool,
+            help='Whether to look for a cherrypicks file',
+            default=False,
+        )
 }
 
 
 def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              repository, patch_gerrit_url, patch_issue, patch_project,
              patch_ref, patch_repository_url, target, build_type, packages,
-             variant, gn_args, test_pool, run_tests, runtests_args, run_host_tests,
-             device_type, networking_for_tests, pave, ninja_targets,
-             test_timeout_secs, requires_secrets, archive_gcs_bucket,
-             upload_breakpad_symbols, snapshot_gcs_bucket):
+             variant, gn_args, test_pool, run_tests, runtests_args,
+             run_host_tests, device_type, networking_for_tests, pave,
+             ninja_targets, test_timeout_secs, requires_secrets,
+             archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket,
+             include_cherrypicks):
   tryjob = api.properties.get('tryjob')
 
   # Don't upload snapshots for tryjobs.
@@ -190,17 +199,14 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
     if tryjob or device_type != 'QEMU':
       raise api.step.InfraFailure(
           'networking for tests is not available for tryjobs and '
-          'is not yet implemented for non-QEMU tests'
-      )
+          'is not yet implemented for non-QEMU tests')
 
   # Handle illegal settings around secrets.
   if requires_secrets:
     if tryjob or not networking_for_tests or device_type != 'QEMU':
       raise api.step.InfraFailure(
           'the secrets pipeline is only supported in tryjobs, ' +
-          'when networking for tests enabled, and ' +
-          'and on QEMU'
-      )
+          'when networking for tests enabled, and ' + 'and on QEMU')
 
   if checkout_snapshot:
     if api.properties.get('tryjob'):
@@ -210,9 +216,10 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
           patch_project=patch_project,
           patch_ref=patch_ref,
           patch_repository_url=patch_repository_url,
+          include_cherrypicks=include_cherrypicks,
       )
     else:
-      api.fuchsia.checkout_snapshot(repository, revision)
+      api.fuchsia.checkout_snapshot(repository, revision, include_cherrypicks)
   else:
     assert manifest
     assert remote
@@ -230,9 +237,10 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
   if project:
     with api.step.nest('ensure_packages'):
       with api.context(infra_steps=True):
-        json_validator_dir = api.path['start_dir'].join('tools', 'json_validator')
+        json_validator_dir = api.path['start_dir'].join('tools',
+                                                        'json_validator')
         api.cipd.ensure(json_validator_dir, {
-          'fuchsia/tools/json_validator/${platform}': 'latest',
+            'fuchsia/tools/json_validator/${platform}': 'latest',
         })
 
     validator = json_validator_dir.join('json_validator')
@@ -258,7 +266,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
         'verify FIDL namespaces',
         api.path['start_dir'].join('scripts', 'style',
                                    'verify-fidl-libraries.py'),
-        args=layer_args+namespace_args)
+        args=layer_args + namespace_args)
 
     api.python(
         'verify build packages',

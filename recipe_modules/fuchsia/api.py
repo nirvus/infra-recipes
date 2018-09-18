@@ -225,7 +225,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
                patch_gerrit_url=None,
                patch_project=None,
                snapshot_gcs_bucket=None,
-               timeout_secs=20 * 60):
+               timeout_secs=20 * 60,
+               include_cherrypicks=False):
     """Uses Jiri to check out a Fuchsia project.
 
     The patch_* arguments must all be set, or none at all.
@@ -263,7 +264,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.jiri.snapshot(snapshot_file)
       return self._finalize_checkout(snapshot_file, snapshot_gcs_bucket)
 
-  def checkout_snapshot(self, repository, revision, timeout_secs=20 * 60):
+  def checkout_snapshot(self,
+                        repository,
+                        revision,
+                        timeout_secs=20 * 60,
+                        include_cherrypicks=False):
     """Uses Jiri to check out Fuchsia from a Jiri snapshot.
 
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
@@ -290,7 +295,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
           path=snapshot_repo_dir,
       )
 
-      return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
+      return self._checkout_snapshot(
+          snapshot_repo_dir=snapshot_repo_dir,
+          include_cherrypicks=include_cherrypicks)
 
   def checkout_patched_snapshot(self,
                                 patch_gerrit_url,
@@ -298,7 +305,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
                                 patch_project,
                                 patch_ref,
                                 patch_repository_url,
-                                timeout_secs=20 * 60):
+                                timeout_secs=20 * 60,
+                                include_cherrypicks=False):
     """Uses Jiri to check out Fuchsia from a Jiri snapshot from a Gerrit patch.
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
@@ -347,15 +355,28 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.git('fetch', patch_repository_url, details['branch'])
         self.m.git('rebase', 'FETCH_HEAD')
 
-      return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
+      return self._checkout_snapshot(
+          snapshot_repo_dir=snapshot_repo_dir,
+          include_cherrypicks=include_cherrypicks)
 
-  def _checkout_snapshot(self, snapshot_repo_dir):
+  def _checkout_snapshot(self, snapshot_repo_dir, include_cherrypicks=False):
     # Read the snapshot so it shows up in the step presentation.
     snapshot_file = snapshot_repo_dir.join('snapshot')
+    cherrypick_file = snapshot_repo_dir.join('cherrypick.json')
 
     # Perform a jiri checkout from the snapshot.
     self.m.jiri.ensure_jiri()
     self.m.jiri.checkout_snapshot(snapshot_file)
+
+    # Perform cherrypicks if there is a cherrypick file.
+    if include_cherrypicks:
+      cherrypick_json = self.m.file.read_raw(
+          'read cherrypick file', cherrypick_file, '{\"topaz\":[\"test\"]}')
+      cherrypick_dict = self.m.json.loads(cherrypick_json)
+      for project, cherrypicks in cherrypick_dict.items():
+        for cherrypick in cherrypicks:
+          self.m.jiri.patch(project=project, ref=cherrypick, cherrypick=True)
+
     return self._finalize_checkout(
         snapshot_file=snapshot_file,
         # This method should never upload a snapshot because the point is that
@@ -841,7 +862,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # image_paths collects the paths to all artifacts consumed by bonanist.
     # Paving builds will add additional paths.
     image_paths = [
-      zbi_path,
+        zbi_path,
     ]
 
     # If we're paving, ensure we add the additional necessary artifacts.
@@ -853,12 +874,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
       storage_sparse_name = self.m.path.basename(storage_sparse_path)
 
       image_paths.extend([
-        efi_path,
-        storage_sparse_path,
+          efi_path,
+          storage_sparse_path,
       ])
       botanist_cmd.extend([
-        '-efi', efi_name,
-        '-fvm', storage_sparse_name,
+          '-efi',
+          efi_name,
+          '-fvm',
+          storage_sparse_name,
       ])
 
       data_template_path = images.get('data-template', None)
@@ -867,7 +890,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
         image_paths.extend([data_template_path])
         botanist_cmd.extend([
-          '-fvm', data_template_name,
+            '-fvm',
+            data_template_name,
         ])
 
     # Add the kernel command line arg for invoking runcmds.
@@ -1521,7 +1545,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         'public-read',
         output_dir,
         'gs://%s/%s' % (self._test_coverage_gcs_bucket, dst),
-        name='upload coverage', multithreaded=True)
+        name='upload coverage',
+        multithreaded=True)
     step_result.presentation.links['index.html'] = self.m.gsutil._http_url(
         self._test_coverage_gcs_bucket, self.m.gsutil.join(dst, 'index.html'),
         True)

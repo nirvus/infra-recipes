@@ -48,6 +48,11 @@ PROPERTIES = {
             kind=str,
             help='Snapshot revision in the repository to check out from',
             default=None),
+    'include_cherrypicks':
+        Property(
+            kind=bool,
+            help='Whether to look for a cherrypicks file',
+            default=False),
 
     # Properties for patching a jiri checkout or snapshot.
     'patch_gerrit_url':
@@ -121,7 +126,7 @@ PROPERTIES = {
         Property(
             kind=bool,
             help='Whether to pave the primary (default) disk on the device.'
-                 ' Has no meaning if device_type == "QEMU".',
+            ' Has no meaning if device_type == "QEMU".',
             default=True),
 
     # Misc. additional properties.
@@ -135,13 +140,13 @@ PROPERTIES = {
 }
 
 
-def RunSteps(
-    api, project, manifest, remote, checkout_snapshot, snapshot_repository,
-    snapshot_revision, patch_gerrit_url, patch_issue, patch_project, patch_ref,
-    patch_repository_url, target, build_type, packages, variants, gn_args,
-    ninja_targets, run_tests, runtests_args, device_type, run_host_tests,
-    networking_for_tests, requires_secrets, snapshot_gcs_bucket,
-    upload_breakpad_symbols, pave):
+def RunSteps(api, project, manifest, remote, checkout_snapshot,
+             snapshot_repository, snapshot_revision, patch_gerrit_url,
+             patch_issue, patch_project, patch_ref, patch_repository_url,
+             target, build_type, packages, variants, gn_args, ninja_targets,
+             run_tests, runtests_args, device_type, run_host_tests,
+             networking_for_tests, requires_secrets, snapshot_gcs_bucket,
+             upload_breakpad_symbols, pave, include_cherrypicks):
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       checkout = api.fuchsia.checkout_patched_snapshot(
@@ -150,11 +155,13 @@ def RunSteps(
           patch_project=patch_project,
           patch_ref=patch_ref,
           patch_repository_url=patch_repository_url,
+          include_cherrypicks=include_cherrypicks,
       )
     else:
       checkout = api.fuchsia.checkout_snapshot(
           repository=snapshot_repository,
           revision=snapshot_revision,
+          include_cherrypicks=include_cherrypicks,
       )
   else:
     checkout = api.fuchsia.checkout(
@@ -393,6 +400,19 @@ def GenTests(api):
           packages=['topaz/packages/default'],
       ),
   )
+  yield api.fuchsia.test(
+      'checkout_snapshot_with_cherrypicks',
+      clear_default_properties=True,
+      properties=dict(
+          checkout_snapshot=True,
+          snapshot_repository='https://fuchsia.googlesource.com/snapshots',
+          snapshot_revision='69acf9677ff075e15329cc860d968c1f70be5e6a',
+          gerrit_project='snapshots',
+          target='x64',
+          packages=['topaz/packages/default'],
+          include_cherrypicks=True,
+      ),
+  )
 
   # Test cases for generating symbol files during the build.
   yield api.fuchsia.test(
@@ -435,7 +455,7 @@ def GenTests(api):
   yield api.fuchsia.test(
       'upload_build_metrics',
       build_metrics_gcs_bucket="###fake-bucket###",
-          properties=dict(
+      properties=dict(
           build_type='release',
           target='x64',
           run_tests=True,
@@ -446,7 +466,7 @@ def GenTests(api):
   yield api.fuchsia.test(
       'upload_test_coverage',
       test_coverage_gcs_bucket="###fake-bucket###",
-          properties=dict(
+      properties=dict(
           build_type='release',
           target='x64',
           run_tests=True,
@@ -459,5 +479,4 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.images_step_data(has_data_template=False),
-      ]
-  )
+      ])

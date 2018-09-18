@@ -32,12 +32,10 @@ class JiriApi(recipe_api.RecipeApi):
   def ensure_jiri(self, version=None):
     with self.m.step.nest('ensure_jiri'):
       with self.m.context(infra_steps=True):
-        jiri_package = ('fuchsia/tools/jiri/%s' %
-            self.m.cipd.platform_suffix())
+        jiri_package = ('fuchsia/tools/jiri/%s' % self.m.cipd.platform_suffix())
         cipd_dir = self.m.path['start_dir'].join('cipd', 'jiri')
 
-        self.m.cipd.ensure(cipd_dir,
-                           {jiri_package: version or 'stable'})
+        self.m.cipd.ensure(cipd_dir, {jiri_package: version or 'stable'})
         self._jiri_executable = cipd_dir.join('jiri')
 
         return self._jiri_executable
@@ -48,11 +46,12 @@ class JiriApi(recipe_api.RecipeApi):
 
   def init(self, dir=None, **kwargs):
     cmd = [
-      'init',
-      '-analytics-opt=false',
-      '-rewrite-sso-to-https=true',
-      '-cache', self.m.path['cache'].join('git'),
-      '-shared',
+        'init',
+        '-analytics-opt=false',
+        '-rewrite-sso-to-https=true',
+        '-cache',
+        self.m.path['cache'].join('git'),
+        '-shared',
     ]
     if dir:
       cmd.append(dir)
@@ -85,30 +84,39 @@ class JiriApi(recipe_api.RecipeApi):
       A step to provide structured info on existing projects and branches.
     """
     cmd = [
-      'project',
-      '-json-output', self.m.json.output(leak_to=out),
+        'project',
+        '-json-output',
+        self.m.json.output(leak_to=out),
     ] + projects
 
     if test_data is None:
-      test_data = [{
-          'name': p,
-          # Specify a path under start_dir to satisfy consumers that expect a
-          # "realistic" path, such as LUCI's PathApi.abs_to_path.
-          'path': str(self.m.path['start_dir'].join('path','to',p)),
-          'remote': 'https://fuchsia.googlesource.com/' + p,
-          'revision': 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
-          'current_branch': '',
-          'branches': [ '(HEAD detached at c22471f)' ]
-      } for p in projects]
+      test_data = [
+          {
+              'name': p,
+              # Specify a path under start_dir to satisfy consumers that expect a
+              # "realistic" path, such as LUCI's PathApi.abs_to_path.
+              'path': str(self.m.path['start_dir'].join('path', 'to', p)),
+              'remote': 'https://fuchsia.googlesource.com/' + p,
+              'revision': 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127',
+              'current_branch': '',
+              'branches': ['(HEAD detached at c22471f)']
+          } for p in projects
+      ]
 
     return self(*cmd, step_test_data=lambda: self.test_api.project(test_data))
 
-  def update(self, gc=False, rebase_tracked=False, local_manifest=False,
-             run_hooks=True, snapshot=None, attempts=3, **kwargs):
+  def update(self,
+             gc=False,
+             rebase_tracked=False,
+             local_manifest=False,
+             run_hooks=True,
+             snapshot=None,
+             attempts=3,
+             **kwargs):
     cmd = [
-      'update',
-      '-autoupdate=false',
-      '-attempts=%d' % attempts,
+        'update',
+        '-autoupdate=false',
+        '-attempts=%d' % attempts,
     ]
     if gc:
       cmd.append('-gc=true')
@@ -125,8 +133,8 @@ class JiriApi(recipe_api.RecipeApi):
 
   def run_hooks(self, local_manifest=False, attempts=3):
     cmd = [
-      'run-hooks',
-      '-attempts=%d' % attempts,
+        'run-hooks',
+        '-attempts=%d' % attempts,
     ]
     if local_manifest:
       cmd.append('-local-manifest=true')
@@ -134,15 +142,20 @@ class JiriApi(recipe_api.RecipeApi):
 
   def clean(self, all=False, **kwargs):
     cmd = [
-      'project',
-      '-clean-all' if all else '-clean',
+        'project',
+        '-clean-all' if all else '-clean',
     ]
     kwargs.setdefault('name', 'jiri project clean')
 
     return self(*cmd, **kwargs)
 
-  def import_manifest(self, manifest, remote, name=None, revision=None,
-                      overwrite=False, **kwargs):
+  def import_manifest(self,
+                      manifest,
+                      remote,
+                      name=None,
+                      revision=None,
+                      overwrite=False,
+                      **kwargs):
     """Imports manifest into Jiri project.
 
     Args:
@@ -154,7 +167,7 @@ class JiriApi(recipe_api.RecipeApi):
     Returns:
       A step result.
     """
-    cmd = [ 'import' ]
+    cmd = ['import']
     if name:
       cmd.extend(['-name', name])
     if revision:
@@ -165,7 +178,11 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd, **kwargs)
 
-  def edit_manifest(self, manifest, projects=None, imports=None, test_data=None,
+  def edit_manifest(self,
+                    manifest,
+                    projects=None,
+                    imports=None,
+                    test_data=None,
                     **kwargs):
     """Creates a step to edit a Jiri manifest.
 
@@ -183,8 +200,9 @@ class JiriApi(recipe_api.RecipeApi):
     """
 
     cmd = [
-      'edit',
-      '-json-output', self.m.json.output(),
+        'edit',
+        '-json-output',
+        self.m.json.output(),
     ]
     # Test data consisting of (name, revision) tuples of imports to edit in the
     # given manifest.
@@ -220,14 +238,21 @@ class JiriApi(recipe_api.RecipeApi):
           projects=test_projects,
       )
 
-    step = self(*cmd,
-                step_test_data=lambda: self.m.json.test_api.output(test_data),
-                **kwargs)
+    step = self(
+        *cmd,
+        step_test_data=lambda: self.m.json.test_api.output(test_data),
+        **kwargs)
     return step.json.output
 
-  def patch(self, ref, host=None, project=None, delete=False, force=False,
-            rebase=False):
-    cmd = [ 'patch' ]
+  def patch(self,
+            ref,
+            host=None,
+            project=None,
+            delete=False,
+            force=False,
+            rebase=False,
+            cherrypick=False):
+    cmd = ['patch']
     if host:
       cmd.extend(['-host', host])
     if project:
@@ -238,18 +263,23 @@ class JiriApi(recipe_api.RecipeApi):
       cmd.extend(['-force=true'])
     if rebase:  # pragma: no cover
       cmd.extend(['-rebase=true'])
+    if cherrypick:  # pragma: no cover
+      cmd.extend(['-cherrypick=true'])
     cmd.extend([ref])
 
     return self(*cmd)
 
   def snapshot(self, file=None, test_data=None, **kwargs):
     cmd = [
-      'snapshot',
-      self.m.raw_io.output(name='snapshot', leak_to=file),
+        'snapshot',
+        self.m.raw_io.output(name='snapshot', leak_to=file),
     ]
     if test_data is None:
       test_data = self.test_api.example_snapshot
-    step = self(*cmd, step_test_data=lambda: self.test_api.snapshot(test_data), **kwargs)
+    step = self(
+        *cmd,
+        step_test_data=lambda: self.test_api.snapshot(test_data),
+        **kwargs)
     return step.raw_io.output
 
   def source_manifest(self, file=None, test_data=None, **kwargs):
@@ -262,12 +292,15 @@ class JiriApi(recipe_api.RecipeApi):
       The contents of the source manifest as a Python dictionary.
     """
     cmd = [
-      'source-manifest',
-      self.m.json.output(name='source manifest', leak_to=file),
+        'source-manifest',
+        self.m.json.output(name='source manifest', leak_to=file),
     ]
     if test_data is None:
       test_data = self.test_api.example_source_manifest
-    step = self(*cmd, step_test_data=lambda: self.test_api.source_manifest(test_data), **kwargs)
+    step = self(
+        *cmd,
+        step_test_data=lambda: self.test_api.source_manifest(test_data),
+        **kwargs)
     return step.json.output
 
   def emit_source_manifest(self):
@@ -275,8 +308,14 @@ class JiriApi(recipe_api.RecipeApi):
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
 
-  def checkout(self, manifest, remote, project=None, revision=None,
-               patch_ref=None, patch_gerrit_url=None, patch_project=None,
+  def checkout(self,
+               manifest,
+               remote,
+               project=None,
+               revision=None,
+               patch_ref=None,
+               patch_gerrit_url=None,
+               patch_project=None,
                timeout_secs=None):
     """Initializes and populates a jiri checkout from a remote manifest.
 
@@ -299,18 +338,13 @@ class JiriApi(recipe_api.RecipeApi):
     self.update(run_hooks=False, timeout=timeout_secs)
     if patch_ref:
       self.patch(
-        patch_ref,
-        host=patch_gerrit_url,
-        project=patch_project,
-        rebase=True
-      )
+          patch_ref, host=patch_gerrit_url, project=patch_project, rebase=True)
       self.update(
-        gc=True,
-        rebase_tracked=True,
-        local_manifest=True,
-        run_hooks=False,
-        timeout=timeout_secs
-      )
+          gc=True,
+          rebase_tracked=True,
+          local_manifest=True,
+          run_hooks=False,
+          timeout=timeout_secs)
     self.run_hooks(local_manifest=patch_ref is not None)
     self.emit_source_manifest()
 
@@ -356,7 +390,7 @@ class JiriApi(recipe_api.RecipeApi):
       # make it easy to parse into a dict.  The template contains the fields in
       # a manifest <project>.  See //jiri/project/manifest.go for the original
       # definition.  Add fields to this template as-needed.
-      template='''
+      template = '''
       {
         "gerrithost": "{{.GerritHost}}",
         "githooks": "{{.GitHooks}}",
@@ -372,7 +406,7 @@ class JiriApi(recipe_api.RecipeApi):
       assert element_type == 'import'
       # This template contains the fields in a manifest <import>. See
       # //jiri/project/manifest.go for the original definition.
-      template='''
+      template = '''
       {
         "manifest": "{{.Manifest}}",
         "name": "{{.Name}}",
@@ -383,7 +417,7 @@ class JiriApi(recipe_api.RecipeApi):
       }
       '''
     # Parse the result as JSON
-    with self.m.step.nest('read_manifest_'+element_name):
+    with self.m.step.nest('read_manifest_' + element_name):
       element_json = self.__manifest(
           manifest=manifest,
           element_name=element_name,
@@ -392,7 +426,7 @@ class JiriApi(recipe_api.RecipeApi):
       ).stdout
 
     # Strip whitespace from any attribute values.  Discard empty values.
-    return {k:v.strip() for k,v in element_json.iteritems() if v.strip()}
+    return {k: v.strip() for k, v in element_json.iteritems() if v.strip()}
 
   def __manifest(self, manifest, element_name, template, **kwargs):
     """Reads information about a <project> or <import> from a manifest file.
@@ -430,11 +464,5 @@ class JiriApi(recipe_api.RecipeApi):
       a value for some field in the template, the empty string is filled-in for
       that field.
     """
-    return self(
-      'manifest',
-      '-element', element_name,
-      '-template', template,
-      manifest,
-      **kwargs
-    )
-
+    return self('manifest', '-element', element_name, '-template', template,
+                manifest, **kwargs)
