@@ -53,7 +53,7 @@ TARGET_TO_KERNEL_IMAGE = dict(zip(
 ARCHS = ('x86_64', 'aarch64')
 
 # Supported device types for testing.
-DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE', 'HiKey 960']
+DEVICES = ('QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE', 'HiKey 960')
 
 # toolchain: (['make', 'args'], 'builddir-suffix')
 TOOLCHAINS = {
@@ -702,17 +702,26 @@ def GenTests(api):
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
-  yield (api.test('ci_device') +
-      api.properties(project='zircon',
-                     manifest='manifest',
-                     remote='https://fuchsia.googlesource.com/zircon',
-                     target='x64',
-                     toolchain='gcc',
-                     device_type='Intel NUC Kit NUC6i3SYK') +
-      booted_tests_trigger_data +
-      api.step_data('collect', api.swarming.collect(
-          task_data=[api.swarming.task_success(outputs=['out.tar'])],
-      )))
+
+  # Exercise all device types, since some recipe logic changes for certain
+  # devices.
+  for device_type in DEVICES:
+    if device_type == 'QEMU':
+      # QEMU is the default, well-exercised by other tests.
+      continue
+    test_name = 'ci_device_' + re.sub(r'\s+', '_', device_type)
+    yield (api.test(test_name) +
+        api.properties(project='zircon',
+                       manifest='manifest',
+                       remote='https://fuchsia.googlesource.com/zircon',
+                       target='x64',
+                       toolchain='gcc',
+                       device_type=device_type) +
+        booted_tests_trigger_data +
+        api.step_data('collect', api.swarming.collect(
+            task_data=[api.swarming.task_success(outputs=['out.tar'])],
+        )))
+
   yield (api.test('task_failure') +
       api.properties(project='zircon',
                      manifest='manifest',
