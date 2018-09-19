@@ -598,7 +598,7 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/scripts/sdk/bazel/generate-plus-plus.py",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
       "--archive",
       "[CLEANUP]/merged_sdk_archive.tar.gz",
       "--output",

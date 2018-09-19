@@ -101,7 +101,7 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
       ])
 
   if project == 'topaz':
-    script_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel', 'generate-plus-plus.py')
+    script_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel', 'generate.py')
     sdk_dir = api.path['cleanup'].join('sdk-bazel')
 
     api.python('create bazel sdk',
