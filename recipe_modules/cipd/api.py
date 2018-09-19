@@ -286,7 +286,8 @@ class CIPDApi(recipe_api.RecipeApi):
     refs = refs or []
     tags = tags or {}
     check_list_type('refs', refs, str)
-    check_dict_type('tags', tags, str, str)
+    check_dict_type('tags', tags, str, basestring)
+    tags = { k: str(v) for k, v in tags.items() }
     cmd = [
       self.executable,
       'create',

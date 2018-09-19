@@ -225,7 +225,7 @@ Args:
   pkg_def (Path) - The path to the yaml file.
   output_package (Path) - the file to write the package to.
 
-&mdash; **def [create\_from\_pkg](/recipe_modules/cipd/api.py#330)(self, pkg_def, refs=None, tags=None):**
+&mdash; **def [create\_from\_pkg](/recipe_modules/cipd/api.py#331)(self, pkg_def, refs=None, tags=None):**
 
 Builds and uploads a package based on a PackageDefinition object.
 
@@ -243,7 +243,7 @@ Returns the JSON 'result' section, e.g.: {
   "instance_id": "433bfdf86c0bb82d1eee2d1a0473d3709c25d2c4"
 }
 
-&mdash; **def [create\_from\_yaml](/recipe_modules/cipd/api.py#310)(self, pkg_def, refs=None, tags=None):**
+&mdash; **def [create\_from\_yaml](/recipe_modules/cipd/api.py#311)(self, pkg_def, refs=None, tags=None):**
 
 Builds and uploads a package based on on-disk YAML package definition
 file.
@@ -261,9 +261,9 @@ Returns the JSON 'result' section, e.g.: {
   "instance_id": "433bfdf86c0bb82d1eee2d1a0473d3709c25d2c4"
 }
 
-&mdash; **def [describe](/recipe_modules/cipd/api.py#425)(self, package_name, version, test_data_refs=None, test_data_tags=None):**
+&mdash; **def [describe](/recipe_modules/cipd/api.py#426)(self, package_name, version, test_data_refs=None, test_data_tags=None):**
 
-&mdash; **def [ensure](/recipe_modules/cipd/api.py#351)(self, root, packages):**
+&mdash; **def [ensure](/recipe_modules/cipd/api.py#352)(self, root, packages):**
 
 Ensures that packages are installed in a given root dir.
 
@@ -287,11 +287,11 @@ parameters will be used.
 
 &mdash; **def [register](/recipe_modules/cipd/api.py#266)(self, package_name, package_path, refs=None, tags=None):**
 
-&mdash; **def [search](/recipe_modules/cipd/api.py#409)(self, package_name, tag):**
+&mdash; **def [search](/recipe_modules/cipd/api.py#410)(self, package_name, tag):**
 
-&mdash; **def [set\_ref](/recipe_modules/cipd/api.py#391)(self, package_name, version, refs):**
+&mdash; **def [set\_ref](/recipe_modules/cipd/api.py#392)(self, package_name, version, refs):**
 
-&mdash; **def [set\_tag](/recipe_modules/cipd/api.py#373)(self, package_name, version, tags):**
+&mdash; **def [set\_tag](/recipe_modules/cipd/api.py#374)(self, package_name, version, tags):**
 ### *recipe_modules* / [clang\_tidy](/recipe_modules/clang_tidy)
 
 [DEPS](/recipe_modules/clang_tidy/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
