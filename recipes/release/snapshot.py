@@ -74,7 +74,7 @@ def RunSteps(api, branch, builders, remote):
       tag = GetNextReleaseTag(api)
       api.git('add', snapshot_file)
       api.git.commit(message=COMMIT_MESSAGE.format(tag=tag))
-      api.git('tag', tag, '-am', tag)
+      api.git('tag', tag)
       api.git('push', 'origin', 'HEAD:%s' % branch)
       api.git('push', '--tags')
 

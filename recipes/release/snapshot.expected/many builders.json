@@ -172,8 +172,6 @@
     "cmd": [
       "git",
       "tag",
-      "20120514_00_RC00",
-      "-am",
       "20120514_00_RC00"
     ],
     "cwd": "[START_DIR]/releases",
