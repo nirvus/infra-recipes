@@ -160,7 +160,7 @@
       "git",
       "commit",
       "-m",
-      "[release] %s_%02d_RC%02d\n"
+      "[release] 20120514_00_RC00\n"
     ],
     "cwd": "[START_DIR]/releases",
     "infra_step": true,
@@ -170,9 +170,9 @@
     "cmd": [
       "git",
       "tag",
-      "%s_%02d_RC%02d",
+      "20120514_00_RC00",
       "-am",
-      "%s_%02d_RC%02d"
+      "20120514_00_RC00"
     ],
     "cwd": "[START_DIR]/releases",
     "infra_step": true,

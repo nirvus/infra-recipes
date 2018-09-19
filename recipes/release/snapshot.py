@@ -33,7 +33,7 @@ PROPERTIES = {
             default=None),
 }
 
-TAG_FORMAT = """%s_%02d_RC%02d"""
+TAG_FORMAT = """{date}_{release:0>2}_RC{release_candidate:0>2}"""
 
 COMMIT_MESSAGE = """\
 [release] {tag}
@@ -44,7 +44,7 @@ COMMIT_MESSAGE = """\
 # existing tags and incrementing the release number.
 def GetNextReleaseTag(api):
   date = api.time.utcnow().date().strftime('%Y%m%d')
-  return TAG_FORMAT.format(date, 0, 0)
+  return TAG_FORMAT.format(date=date, release=0, release_candidate=0)
 
 
 def RunSteps(api, branch, builders, remote):
