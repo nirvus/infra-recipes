@@ -1,0 +1,8 @@
+[
+  {
+    "name": "$result",
+    "reason": "No cherry-picks supplied",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]

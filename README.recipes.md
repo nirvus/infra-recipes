@@ -73,6 +73,7 @@
   * [qemu](#recipes-qemu) &mdash; Recipe for building QEMU.
   * [qemu:examples/full](#recipes-qemu_examples_full)
   * [recipes](#recipes-recipes) &mdash; Recipe for testing Recipes.
+  * [release/cherry-pick](#recipes-release_cherry-pick) &mdash; Recipe for cherry-picking changes into a release.
   * [release/snapshot](#recipes-release_snapshot) &mdash; Recipe for automatically creating jiri snapshots from manifest commit.
   * [rust_toolchain](#recipes-rust_toolchain) &mdash; Recipe for building Rust toolchain.
   * [sdk](#recipes-sdk) &mdash; Recipe for building Fuchsia SDKs.
@@ -1644,6 +1645,13 @@ Recipe for building QEMU.
 Recipe for testing Recipes.
 
 &mdash; **def [RunSteps](/recipes/recipes.py#30)(api, patch_gerrit_url, patch_project, patch_ref, project, manifest, remote, revision):**
+### *recipes* / [release/cherry-pick](/recipes/release/cherry-pick.py)
+
+[DEPS](/recipes/release/cherry-pick.py#13): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
+
+Recipe for cherry-picking changes into a release.
+
+&mdash; **def [RunSteps](/recipes/release/cherry-pick.py#59)(api, branch, cherry_picks, repository, project, version):**
 ### *recipes* / [release/snapshot](/recipes/release/snapshot.py)
 
 [DEPS](/recipes/release/snapshot.py#9): [git](#recipe_modules-git), [lkgs](#recipe_modules-lkgs), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/time][recipe_engine/recipe_modules/time]
