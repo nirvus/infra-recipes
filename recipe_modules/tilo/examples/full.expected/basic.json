@@ -1,0 +1,122 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_go"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/go",
+      "-ensure-file",
+      "infra/go/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_go.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/go/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "ensure_go (2)"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/go",
+      "-ensure-file",
+      "infra/go/${platform} go_version:1.6",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_go.ensure_installed (2)",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-go_version:1.6--\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/go/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "fuchsia.googlesource.com/foo"
+    ],
+    "env": {
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "go build"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "test",
+      "fuchsia.googlesource.com/foo"
+    ],
+    "env": {
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "go test"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "run",
+      "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Printf(\"Hello, world.\n\")\n}"
+    ],
+    "env": {
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "go run"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "run",
+      "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Printf(\"Hello, world.\n\")\n}"
+    ],
+    "env": {
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "go run (2)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@go.inline@package main@@@",
+      "@@@STEP_LOG_LINE@go.inline@@@@",
+      "@@@STEP_LOG_LINE@go.inline@import \"fmt\"@@@",
+      "@@@STEP_LOG_LINE@go.inline@@@@",
+      "@@@STEP_LOG_LINE@go.inline@func main() {@@@",
+      "@@@STEP_LOG_LINE@go.inline@\tfmt.Printf(\"Hello, world.@@@",
+      "@@@STEP_LOG_LINE@go.inline@\")@@@",
+      "@@@STEP_LOG_LINE@go.inline@}@@@",
+      "@@@STEP_LOG_END@go.inline@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
