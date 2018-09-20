@@ -35,6 +35,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       properties: A required dict of properties to override for this test.
       steps: An optional sequence of RecipeTestApi.step_data objects to append to
           the output of this function.
+      paths: An optional sequence of PathApi paths to mark as existing and to append
+          to the output of this function.
 
     Returns:
       TestData object.

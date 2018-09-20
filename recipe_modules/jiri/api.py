@@ -264,7 +264,7 @@ class JiriApi(recipe_api.RecipeApi):
     if rebase:  # pragma: no cover
       cmd.extend(['-rebase=true'])
     if cherrypick:  # pragma: no cover
-      cmd.extend(['-cherrypick=true'])
+      cmd.extend(['-cherry-pick=true'])
     cmd.extend([ref])
 
     return self(*cmd)

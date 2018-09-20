@@ -208,7 +208,7 @@
       "-time",
       "-project",
       "topaz",
-      "-cherrypick=true",
+      "-cherry-pick=true",
       "test"
     ],
     "infra_step": true,
