@@ -192,7 +192,7 @@
       "git",
       "commit",
       "-m",
-      "[Cherrypick] Cherry-pick onto 20180830_00_RC00\n                                 Cherry-picks:\n                                 topaz/fc4dc762688d2263b254208f444f5c0a4b91bc07\nChange-Id: Iabc123\n",
+      "[Cherrypick] Cherry-pick onto 20180830_00_RC00\nCherry-picks:\ntopaz/fc4dc762688d2263b254208f444f5c0a4b91bc07\n\nChange-Id: Iabc123\n",
       "-a"
     ],
     "cwd": "[START_DIR]/releases",
@@ -280,10 +280,9 @@
     "cmd": [
       "git",
       "tag",
-      "20180830_00_RC1",
-      "-am",
-      "20180830_00_RC1"
+      "20180830_00_RC01"
     ],
+    "cwd": "[START_DIR]/releases",
     "infra_step": true,
     "name": "git tag"
   },
@@ -294,6 +293,7 @@
       "origin",
       "HEAD:master"
     ],
+    "cwd": "[START_DIR]/releases",
     "infra_step": true,
     "name": "git push (2)"
   },
@@ -303,6 +303,7 @@
       "push",
       "--tags"
     ],
+    "cwd": "[START_DIR]/releases",
     "infra_step": true,
     "name": "git push (3)"
   },

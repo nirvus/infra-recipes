@@ -51,8 +51,9 @@ PROPERTIES = {
 }
 
 COMMIT_MESSAGE = """[Cherrypick] Cherry-pick onto {version}
-                                 Cherry-picks:
-                                 {cherry_picks}"""
+Cherry-picks:
+{cherry_picks}
+"""
 
 
 def RunSteps(api, branch, cherry_picks, remote, project, version):
@@ -68,15 +69,23 @@ def RunSteps(api, branch, cherry_picks, remote, project, version):
 
     cherry_pick_file = release_path.join('cherrypick.json')
     existing_cherry_picks = None
+
+    # Read existing cherry-picks if they exist
     if api.path.exists(cherry_pick_file):
       existing_cherry_picks = api.json.read(
           name='read cherry-pick file', path=cherry_pick_file).json.output
+
+    # If the cherry pick file is empty or didn't exist, create an empty dict
     if existing_cherry_picks is None:
       existing_cherry_picks = {}
+
+    # For each cherry pick passed as a recipe property
     for cherry_pick in cherry_picks:
       project, ref = cherry_pick.split("/")
+      # If the project doesn't exist add it
       if project not in existing_cherry_picks:
         existing_cherry_picks[project] = []
+      # If the ref doesn't exist add it
       if ref not in existing_cherry_picks[project]:
         existing_cherry_picks[project].append(ref)
 
@@ -93,12 +102,16 @@ def RunSteps(api, branch, cherry_picks, remote, project, version):
         dry_run=True,
     )
 
+    # Extract the version into TWO match groups
     m = re.match(r"^(\d{8}_\d{2}_RC)(\d{2})$", version)
-    tag = m.groups()[0] + str(int(m.groups()[1]) + 1)
+    # Increment the RC # in the second match group
+    # Recombine to form the new version
+    tag = m.groups()[0] + str(int(m.groups()[1]) + 1).zfill(2)
 
-    api.git('tag', tag, '-am', tag)
-    api.git('push', 'origin', 'HEAD:%s' % branch)
-    api.git('push', '--tags')
+    with api.context(cwd=release_path):
+      api.git('tag', tag)
+      api.git('push', 'origin', 'HEAD:%s' % branch)
+      api.git('push', '--tags')
 
 
 def GenTests(api):
