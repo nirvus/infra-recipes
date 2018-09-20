@@ -5,6 +5,7 @@
 **[Recipe Modules](#Recipe-Modules)**
   * [authutil](#recipe_modules-authutil)
   * [auto_roller](#recipe_modules-auto_roller)
+  * [bazel](#recipe_modules-bazel)
   * [catapult](#recipe_modules-catapult)
   * [cipd](#recipe_modules-cipd)
   * [clang_tidy](#recipe_modules-clang_tidy)
@@ -30,6 +31,7 @@
 **[Recipes](#Recipes)**
   * [authutil:examples/full](#recipes-authutil_examples_full)
   * [auto_roller:examples/full](#recipes-auto_roller_examples_full) &mdash; Example recipe for auto-rolling.
+  * [bazel:examples/full](#recipes-bazel_examples_full)
   * [bloaty](#recipes-bloaty) &mdash; Recipe for building Bloaty.
   * [breakpad_tools](#recipes-breakpad_tools) &mdash; Recipe for building some Breakpad tools.
   * [catapult:examples/full](#recipes-catapult_examples_full)
@@ -156,6 +158,28 @@ Defined by the input property with the same name.
 Returns how many seconds roll() will poll for.
 
 Defined by the input property with the same name.
+### *recipe_modules* / [bazel](/recipe_modules/bazel)
+
+[DEPS](/recipe_modules/bazel/__init__.py#5): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [BazelApi](/recipe_modules/bazel/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+Provides steps to run bazel.
+
+&mdash; **def [ensure\_bazel](/recipe_modules/bazel/api.py#16)(self, version='latest'):**
+
+Ensures that bazel is installed, returning its path.
+
+Additional calls with the same version are no-ops.
+Additional calls with a different version are errors.
+
+Args:
+  version: The CIPD version to install.
+Returns:
+  The Path to the bazel binary.
+Raises:
+  AssertionError: if this method has already been called with a different
+      version.
 ### *recipe_modules* / [catapult](/recipe_modules/catapult)
 
 [DEPS](/recipe_modules/catapult/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1257,6 +1281,11 @@ Sets the path to the zbi tool.
 Example recipe for auto-rolling.
 
 &mdash; **def [RunSteps](/recipe_modules/auto_roller/examples/full.py#31)(api, project, remote, commit_untracked_files, dry_run):**
+### *recipes* / [bazel:examples/full](/recipe_modules/bazel/examples/full.py)
+
+[DEPS](/recipe_modules/bazel/examples/full.py#7): [bazel](#recipe_modules-bazel), [tar](#recipe_modules-tar), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+&mdash; **def [RunSteps](/recipe_modules/bazel/examples/full.py#21)(api, bazel_version):**
 ### *recipes* / [bloaty](/recipes/bloaty.py)
 
 [DEPS](/recipes/bloaty.py#9): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [go](#recipe_modules-go), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
