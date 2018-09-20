@@ -49,7 +49,7 @@ def GetNextReleaseTag(api, remote):
   # This does not require being inside a git checkout,
   # ls-remote functions outside of the tree when given
   # a remote.
-  output = api.git(
+  step_result = api.git(
       'ls-remote',
       '-q',
       '-t',
@@ -57,10 +57,13 @@ def GetNextReleaseTag(api, remote):
       '*%s*' % date,
       stdout=api.raw_io.output(),
       step_test_data=
-      lambda: api.raw_io.test_api.stream_output('cc83301b8cf7ee60828623904bbf0bd310fde349	refs/tags/20180920_00_RC00')
-  ).stdout
+      lambda: api.raw_io.test_api.stream_output('''
+      cc83301b8cf7ee60828623904bbf0bd310fde349	refs/tags/20180920_00_RC00
+      2bdcf7c40c23c3526092f708e28b0ba98f8fe4cd	refs/tags/20180920_00_RC01''')
+  )
+  step_result.presentation.logs['stdout'] = step_result.stdout.split('\n')
   # Find all the current release_versions
-  m = re.findall(r"\d{8}_(\d{2})_RC00$", output)
+  m = re.findall(r'\d{8}_(\d{2})_RC00$', step_result.stdout, re.MULTILINE)
   # Find the max release_version
   release_version = -1
   for match in m:

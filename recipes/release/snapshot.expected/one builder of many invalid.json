@@ -158,7 +158,13 @@
     ],
     "infra_step": true,
     "name": "git ls-remote",
-    "stdout": "/path/to/tmp/"
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@stdout@@@@",
+      "@@@STEP_LOG_LINE@stdout@      cc83301b8cf7ee60828623904bbf0bd310fde349\trefs/tags/20180920_00_RC00@@@",
+      "@@@STEP_LOG_LINE@stdout@      2bdcf7c40c23c3526092f708e28b0ba98f8fe4cd\trefs/tags/20180920_00_RC01@@@",
+      "@@@STEP_LOG_END@stdout@@@"
+    ]
   },
   {
     "cmd": [
