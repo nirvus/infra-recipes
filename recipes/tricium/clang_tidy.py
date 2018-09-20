@@ -13,6 +13,7 @@ DEPS = [
     'infra/fuchsia',
     'infra/git',
     'infra/goma',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -46,7 +47,7 @@ def RunSteps(api, project, manifest, checks):
     checkout_dir = api.fuchsia.checkout(
         manifest=manifest,
         remote=api.tricium.repository,
-        revision=api.tricium.ref,
+        build_input=api.buildbucket.build.input,
     ).root_dir
   else:
     api.git.checkout(api.tricium.repository, ref=api.tricium.ref)
@@ -98,7 +99,11 @@ newline output
       'FilePath': 'path/to/file'
   }]
 
-  yield (api.test('manifest') + api.properties(
+  yield (api.test('manifest') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz',
+    ) +
+    api.properties(
       manifest='project/topaz',
       project='topaz',
       repository='https://fuchsia.googlesource.com/topaz',
@@ -109,7 +114,11 @@ newline output
              'clang-tidy.other/path/to/file.load yaml',
              stdout=api.json.output(has_errors_json)))
 
-  yield (api.test('git') + api.properties(
+  yield (api.test('git') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz',
+    ) +
+    api.properties(
       project='tools',
       repository='https://fuchsia.googlesource.com/tools',
       ref='HEAD',
