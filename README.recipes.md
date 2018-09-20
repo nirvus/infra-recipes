@@ -1651,7 +1651,7 @@ Recipe for testing Recipes.
 
 Recipe for cherry-picking changes into a release.
 
-&mdash; **def [RunSteps](/recipes/release/cherry-pick.py#59)(api, branch, cherry_picks, repository, project, version):**
+&mdash; **def [RunSteps](/recipes/release/cherry-pick.py#58)(api, branch, cherry_picks, remote, project, version):**
 ### *recipes* / [release/snapshot](/recipes/release/snapshot.py)
 
 [DEPS](/recipes/release/snapshot.py#9): [git](#recipe_modules-git), [lkgs](#recipe_modules-lkgs), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/time][recipe_engine/recipe_modules/time]

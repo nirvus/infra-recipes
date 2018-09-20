@@ -36,13 +36,12 @@ PROPERTIES = {
     'cherry_picks':
         Property(
             kind=List(basestring),
-            help='List of cherry-picks to apply',
+            help='List of cherry-picks to apply in the form ["project1/ref1", "project2/ref2"]',
             default=None),
-    'repository':
+    'remote':
         Property(
             kind=str,
-            help=
-            'Repository to checkout the snapshot form ["project/ref", "project2/ref2"]',
+            help='Remote snapshot repository to checkout',
             default=None),
     'project':
         Property(
@@ -56,13 +55,13 @@ COMMIT_MESSAGE = """[Cherrypick] Cherry-pick onto {version}
                                  {cherry_picks}"""
 
 
-def RunSteps(api, branch, cherry_picks, repository, project, version):
+def RunSteps(api, branch, cherry_picks, remote, project, version):
   with api.context(infra_steps=True):
     if len(cherry_picks) == 0:
       raise api.step.StepFailure('No cherry-picks supplied')
     release_path = api.path['start_dir'].join('releases')
     api.git.checkout(
-        url=repository,
+        url=remote,
         path=release_path,
         ref=version,
     )
@@ -107,7 +106,7 @@ def GenTests(api):
       branch="master",
       version="20180830_00_RC00",
       cherry_picks=['topaz/fc4dc762688d2263b254208f444f5c0a4b91bc07'],
-      repository="https://fuchsia.googlesource.com/releases",
+      remote="https://fuchsia.googlesource.com/releases",
       project="releases") + api.step_data('check if done (0)',
                                           api.auto_roller.success())
 
@@ -115,14 +114,14 @@ def GenTests(api):
       branch="master",
       version="20180830_00_RC00",
       cherry_picks=[],
-      repository="https://fuchsia.googlesource.com/releases",
+      remote="https://fuchsia.googlesource.com/releases",
       project="releases")
 
   yield api.test('has cherrypick file') + api.properties(
       branch="master",
       version="20180830_00_RC00",
       cherry_picks=['topaz/fc4dc762688d2263b254208f444f5c0a4b91bc07'],
-      repository="https://fuchsia.googlesource.com/releases",
+      remote="https://fuchsia.googlesource.com/releases",
       project="releases") + api.step_data(
           'check if done (0)', api.auto_roller.success()) + api.path.exists(
               api.path['start_dir'].join('releases', 'cherrypick.json'))
