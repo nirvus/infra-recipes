@@ -84,7 +84,7 @@
       "-project",
       "tools",
       "-rebase=true",
-      "refs/changes/12345/2"
+      "refs/changes/56/123456/7"
     ],
     "infra_step": true,
     "name": "jiri patch"

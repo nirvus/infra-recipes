@@ -12,6 +12,7 @@ DEPS = [
     'infra/cipd',
     'infra/git',
     'infra/jiri',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/path',
     'recipe_engine/properties',
@@ -65,10 +66,7 @@ def RunSteps(api, project, manifest, formatters):
         manifest=manifest,
         remote=api.tricium.repository,
         project=project,
-        revision='HEAD',
-        patch_ref=api.tricium.ref,
-        patch_gerrit_url='https://fuchsia-review.googlesource.com',
-        patch_project=project)
+        build_input=api.buildbucket.build.input)
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
@@ -119,7 +117,11 @@ def GenTests(api):
   show_output = '''other/path/to/file.c\npath/to/file.h\n'''
   diff_output = '''path/to/file.h'''
 
-  yield (api.test('default') + api.properties(
+  yield (api.test('default') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz',
+    ) +
+    api.properties(
       manifest='manifest/topaz',
       project='topaz',
       repository='https://fuchsia.googlesource.com/topaz',
@@ -131,7 +133,11 @@ def GenTests(api):
                            'check other/path/to/file.c formatting',
                            api.raw_io.stream_output("")))
 
-  yield (api.test('no_formatters') + api.properties(
+  yield (api.test('no_formatters') +
+    api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/tools',
+    ) +
+    api.properties(
       manifest='manifest/minimal',
       project='tools',
       repository='https://fuchsia.googlesource.com/tools',
