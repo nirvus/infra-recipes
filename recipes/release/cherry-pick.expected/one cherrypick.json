@@ -230,7 +230,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"topaz~master~Iabc123\", \"input\": {\"labels\": {\"Commit-Queue\": 1}}, \"revision_id\": \"current\"}",
+      "{\"change_id\": \"None~master~Iabc123\", \"input\": {\"labels\": {\"Commit-Queue\": 1}}, \"revision_id\": \"current\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -249,7 +249,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"topaz~master~Iabc123\"}",
+      "{\"change_id\": \"None~master~Iabc123\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -274,7 +274,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"topaz~master~Iabc123\"}",
+      "{\"change_id\": \"None~master~Iabc123\"}",
       "-output",
       "/path/to/tmp/json"
     ],

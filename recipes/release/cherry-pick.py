@@ -43,7 +43,7 @@ PROPERTIES = {
             kind=str,
             help='Remote snapshot repository to checkout',
             default=None),
-    'project':
+    'gerrit_project':
         Property(
             kind=str,
             help='Name of the Gerrit project corresponding to the repository',
@@ -56,7 +56,7 @@ Cherry-picks:
 """
 
 
-def RunSteps(api, branch, cherry_picks, remote, project, version):
+def RunSteps(api, branch, cherry_picks, remote, gerrit_project, version):
   with api.context(infra_steps=True):
     if len(cherry_picks) == 0:
       raise api.step.StepFailure('No cherry-picks supplied')
@@ -96,7 +96,7 @@ def RunSteps(api, branch, cherry_picks, remote, project, version):
         cherry_picks=''.join(cherry_picks), version=version)
 
     api.auto_roller.attempt_roll(
-        gerrit_project=project,
+        gerrit_project=gerrit_project,
         repo_dir=release_path,
         commit_message=message,
         # This 'git add's all files in the git checkout.  We should ensure
