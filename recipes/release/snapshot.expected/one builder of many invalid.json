@@ -150,6 +150,19 @@
   {
     "cmd": [
       "git",
+      "ls-remote",
+      "-q",
+      "-t",
+      "http://fuchsia.googlesource.com/garnet",
+      "*20120514*"
+    ],
+    "infra_step": true,
+    "name": "git ls-remote",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "git",
       "add",
       "[START_DIR]/releases/snapshot"
     ],
@@ -162,7 +175,7 @@
       "git",
       "commit",
       "-m",
-      "[release] 20120514_00_RC00\n"
+      "[release] 20120514_01_RC00\n"
     ],
     "cwd": "[START_DIR]/releases",
     "infra_step": true,
@@ -172,7 +185,7 @@
     "cmd": [
       "git",
       "tag",
-      "20120514_00_RC00"
+      "20120514_01_RC00"
     ],
     "cwd": "[START_DIR]/releases",
     "infra_step": true,

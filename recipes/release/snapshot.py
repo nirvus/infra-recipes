@@ -6,12 +6,15 @@
 from recipe_engine.config import List
 from recipe_engine.recipe_api import Property
 
+import re
+
 DEPS = [
     'infra/git',
     'infra/lkgs',
     'recipe_engine/context',
     'recipe_engine/path',
     'recipe_engine/properties',
+    'recipe_engine/raw_io',
     'recipe_engine/time',
 ]
 
@@ -40,11 +43,32 @@ COMMIT_MESSAGE = """\
 """
 
 
-# TODO(nmulcahey): Allow multiple cuts a day by fetching
-# existing tags and incrementing the release number.
-def GetNextReleaseTag(api):
+def GetNextReleaseTag(api, remote):
   date = api.time.utcnow().date().strftime('%Y%m%d')
-  return TAG_FORMAT.format(date=date, release=0, release_candidate=0)
+  # Get current tags for today.
+  # This does not require being inside a git checkout,
+  # ls-remote functions outside of the tree when given
+  # a remote.
+  output = api.git(
+      'ls-remote',
+      '-q',
+      '-t',
+      remote,
+      '*%s*' % date,
+      stdout=api.raw_io.output(),
+      step_test_data=
+      lambda: api.raw_io.test_api.stream_output('cc83301b8cf7ee60828623904bbf0bd310fde349	refs/tags/20180920_00_RC00')
+  ).stdout
+  # Find all the current release_versions
+  m = re.findall(r"\d{8}_(\d{2})_RC00$", output)
+  # Find the max release_version
+  release_version = -1
+  for match in m:
+    release_version = max(int(match), release_version)
+
+  # Increment the release_version for this cut
+  return TAG_FORMAT.format(
+      date=date, release=str(release_version + 1), release_candidate=0)
 
 
 def RunSteps(api, branch, builders, remote):
@@ -69,9 +93,9 @@ def RunSteps(api, branch, builders, remote):
 
     # TODO(nmulcahey): Fetch previous snapshot, ensure today's is newer, else exit.
 
+    tag = GetNextReleaseTag(api, remote)
     # Commit and push the snapshot.
     with api.context(cwd=release_path):
-      tag = GetNextReleaseTag(api)
       api.git('add', snapshot_file)
       api.git.commit(message=COMMIT_MESSAGE.format(tag=tag))
       api.git('tag', tag)
