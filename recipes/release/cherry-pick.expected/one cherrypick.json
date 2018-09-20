@@ -155,7 +155,8 @@
       "ls-files",
       "--modified",
       "--deleted",
-      "--exclude-standard"
+      "--exclude-standard",
+      "--others"
     ],
     "cwd": "[START_DIR]/releases",
     "infra_step": true,
@@ -190,10 +191,19 @@
   {
     "cmd": [
       "git",
+      "add",
+      "-A"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git add"
+  },
+  {
+    "cmd": [
+      "git",
       "commit",
       "-m",
-      "[Cherrypick] Cherry-pick onto 20180830_00_RC00\nCherry-picks:\ntopaz/fc4dc762688d2263b254208f444f5c0a4b91bc07\n\nChange-Id: Iabc123\n",
-      "-a"
+      "[Cherrypick] Cherry-pick onto 20180830_00_RC00\nCherry-picks:\ntopaz/fc4dc762688d2263b254208f444f5c0a4b91bc07\n\nChange-Id: Iabc123\n"
     ],
     "cwd": "[START_DIR]/releases",
     "infra_step": true,

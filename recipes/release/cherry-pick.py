@@ -99,6 +99,9 @@ def RunSteps(api, branch, cherry_picks, remote, project, version):
         gerrit_project=project,
         repo_dir=release_path,
         commit_message=message,
+        # This 'git add's all files in the git checkout.  We should ensure
+        # that the checkout is clean before calling attempt_roll.
+        commit_untracked=True,
         dry_run=True,
     )
 
