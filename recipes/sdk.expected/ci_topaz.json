@@ -586,9 +586,9 @@
       "-u",
       "[START_DIR]/scripts/sdk/merger/merge.py",
       "--alpha-archive",
-      "[START_DIR]/out/release-x64/sdk/topaz.tar.gz",
+      "[START_DIR]/out/release-x64/sdk/archive/topaz.tar.gz",
       "--beta-archive",
-      "[START_DIR]/out/release-arm64/sdk/topaz.tar.gz",
+      "[START_DIR]/out/release-arm64/sdk/archive/topaz.tar.gz",
       "--output-archive",
       "[CLEANUP]/merged_sdk_archive.tar.gz"
     ],

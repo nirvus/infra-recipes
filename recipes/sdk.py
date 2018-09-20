@@ -87,21 +87,25 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
 
   # Merge the SDK archives for each target into a single archive.
   # Note that "alpha" and "beta" below have no particular meaning.
-  merge_path = api.path['start_dir'].join('scripts', 'sdk', 'merger', 'merge.py')
+  merge_path = api.path['start_dir'].join('scripts', 'sdk', 'merger',
+                                          'merge.py')
   full_archive_path = api.path['cleanup'].join('merged_sdk_archive.tar.gz')
   api.python('merge sdk archives',
       merge_path,
       args=[
         '--alpha-archive',
-        builds['x64'].fuchsia_build_dir.join('sdk', '%s.tar.gz' % project),
+        builds['x64'].fuchsia_build_dir.join('sdk', 'archive', '%s.tar.gz' %
+                                             project),
         '--beta-archive',
-        builds['arm64'].fuchsia_build_dir.join('sdk', '%s.tar.gz' % project),
+        builds['arm64'].fuchsia_build_dir.join('sdk', 'archive', '%s.tar.gz' %
+                                               project),
         '--output-archive',
         full_archive_path,
       ])
 
   if project == 'topaz':
-    script_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel', 'generate.py')
+    script_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel',
+                                             'generate.py')
     sdk_dir = api.path['cleanup'].join('sdk-bazel')
 
     api.python('create bazel sdk',
