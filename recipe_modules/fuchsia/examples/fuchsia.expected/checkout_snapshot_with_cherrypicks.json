@@ -201,18 +201,44 @@
     "name": "read cherrypick file"
   },
   {
+    "cmd": [],
+    "infra_step": true,
+    "name": "read_manifest_topaz"
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
-      "patch",
+      "manifest",
       "-v",
       "-time",
-      "-project",
+      "-element",
       "topaz",
-      "-cherry-pick=true",
-      "test"
+      "-template",
+      "\n      {\n        \"gerrithost\": \"{{.GerritHost}}\",\n        \"githooks\": \"{{.GitHooks}}\",\n        \"historydepth\": \"{{.HistoryDepth}}\",\n        \"name\": \"{{.Name}}\",\n        \"path\": \"{{.Path}}\",\n        \"remote\": \"{{.Remote}}\",\n        \"remotebranch\": \"{{.RemoteBranch}}\",\n        \"revision\": \"{{.Revision}}\"\n      }\n      ",
+      "[CLEANUP]/snapshot_repo/snapshot"
     ],
     "infra_step": true,
-    "name": "jiri patch"
+    "name": "read_manifest_topaz.jiri manifest",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"path\": \"topaz\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "-C",
+      "[START_DIR]/topaz",
+      "cherry-pick",
+      "test",
+      "--keep-redundant-commits"
+    ],
+    "infra_step": true,
+    "name": "git -C"
   },
   {
     "cmd": [

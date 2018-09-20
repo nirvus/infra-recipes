@@ -18,6 +18,7 @@ DEPS = [
     'infra/fuchsia',
     'infra/goma',
     'infra/swarming',
+    'infra/jiri',
     'recipe_engine/json',
     'recipe_engine/path',
     'recipe_engine/properties',
@@ -406,7 +407,12 @@ def GenTests(api):
           packages=['topaz/packages/default'],
       ),
       paths=[api.path['cleanup'].join('snapshot_repo', 'cherrypick.json')],
-  )
+  ) + api.jiri.read_manifest_element(
+      api=api,
+      manifest=api.path['cleanup'].join('snapshot_repo', 'snapshot'),
+      element_type='project',
+      element_name='topaz',
+      test_output={'path': 'topaz'})
 
   # Test cases for generating symbol files during the build.
   yield api.fuchsia.test(

@@ -360,12 +360,23 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # Perform cherrypicks if there is a cherrypick file.
     if self.m.path.exists(cherrypick_file):
+      # Get the cherrypick json
       cherrypick_json = self.m.file.read_raw(
           'read cherrypick file', cherrypick_file, '{\"topaz\":[\"test\"]}')
       cherrypick_dict = self.m.json.loads(cherrypick_json)
+
       for project, cherrypicks in cherrypick_dict.items():
+        # Get the project relative checkout path and join it to the start_dir.
+        # path always exists in the snapshot file, so we don't need to check for its existance.
+        project_path = self.m.path['start_dir'].join(
+            self.m.jiri.read_manifest_element(
+                manifest=snapshot_file,
+                element_type='project',
+                element_name=project)['path'])
+
         for cherrypick in cherrypicks:
-          self.m.jiri.patch(project=project, ref=cherrypick, cherrypick=True)
+          self.m.git('-C', project_path, 'cherry-pick', cherrypick,
+                     '--keep-redundant-commits')
 
     return self._finalize_checkout(
         snapshot_file=snapshot_file,
