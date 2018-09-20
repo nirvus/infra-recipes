@@ -19,6 +19,7 @@ DEPS = [
     'infra/goma',
     'infra/swarming',
     'recipe_engine/json',
+    'recipe_engine/path',
     'recipe_engine/properties',
     'recipe_engine/raw_io',
 ]
@@ -48,11 +49,6 @@ PROPERTIES = {
             kind=str,
             help='Snapshot revision in the repository to check out from',
             default=None),
-    'include_cherrypicks':
-        Property(
-            kind=bool,
-            help='Whether to look for a cherrypicks file',
-            default=False),
 
     # Properties for patching a jiri checkout or snapshot.
     'patch_gerrit_url':
@@ -146,7 +142,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
              target, build_type, packages, variants, gn_args, ninja_targets,
              run_tests, runtests_args, device_type, run_host_tests,
              networking_for_tests, requires_secrets, snapshot_gcs_bucket,
-             upload_breakpad_symbols, pave, include_cherrypicks):
+             upload_breakpad_symbols, pave):
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       checkout = api.fuchsia.checkout_patched_snapshot(
@@ -155,13 +151,11 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,
           patch_project=patch_project,
           patch_ref=patch_ref,
           patch_repository_url=patch_repository_url,
-          include_cherrypicks=include_cherrypicks,
       )
     else:
       checkout = api.fuchsia.checkout_snapshot(
           repository=snapshot_repository,
           revision=snapshot_revision,
-          include_cherrypicks=include_cherrypicks,
       )
   else:
     checkout = api.fuchsia.checkout(
@@ -410,8 +404,8 @@ def GenTests(api):
           gerrit_project='snapshots',
           target='x64',
           packages=['topaz/packages/default'],
-          include_cherrypicks=True,
       ),
+      paths=[api.path['cleanup'].join('snapshot_repo', 'cherrypick.json')],
   )
 
   # Test cases for generating symbol files during the build.

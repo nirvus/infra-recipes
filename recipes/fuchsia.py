@@ -165,13 +165,7 @@ PROPERTIES = {
             help='The GCS bucket to upload build artifacts to. Will not'
             ' upload a snapshot if this property is blank or if tryjob'
             ' is True.',
-            default='fuchsia-archive'),
-    'include_cherrypicks':
-        Property(
-            kind=bool,
-            help='Whether to look for a cherrypicks file',
-            default=False,
-        )
+            default='fuchsia-archive')
 }
 
 
@@ -181,8 +175,7 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
              variant, gn_args, test_pool, run_tests, runtests_args,
              run_host_tests, device_type, networking_for_tests, pave,
              ninja_targets, test_timeout_secs, requires_secrets,
-             archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket,
-             include_cherrypicks):
+             archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket):
   tryjob = api.properties.get('tryjob')
 
   # Don't upload snapshots for tryjobs.
@@ -216,10 +209,9 @@ def RunSteps(api, project, manifest, remote, revision, checkout_snapshot,
           patch_project=patch_project,
           patch_ref=patch_ref,
           patch_repository_url=patch_repository_url,
-          include_cherrypicks=include_cherrypicks,
       )
     else:
-      api.fuchsia.checkout_snapshot(repository, revision, include_cherrypicks)
+      api.fuchsia.checkout_snapshot(repository, revision)
   else:
     assert manifest
     assert remote

@@ -16,7 +16,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
            build_metrics_gcs_bucket=None,
            test_coverage_gcs_bucket=None,
            properties=None,
-           steps=()):  # pragma: no cover
+           steps=(),
+           paths=()):  # pragma: no cover
     """Returns a test case appropriate for yielding from GenTests().
 
     Provides default property values for the common cases.
@@ -126,6 +127,9 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       ret += self.m.properties.tryserver(**final_properties)
     else:
       ret += self.m.properties(**final_properties)
+
+    for path in paths:
+      ret += self.m.path.exists(path)
 
     for s in extra_steps:
       ret += s

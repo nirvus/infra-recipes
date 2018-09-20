@@ -9,7 +9,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[TMP_BASE]/snapshot_repo_tmp_1"
+      "[CLEANUP]/snapshot_repo"
     ],
     "infra_step": true,
     "name": "makedirs"
@@ -19,7 +19,7 @@
       "git",
       "init"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "git init"
   },
@@ -31,7 +31,7 @@
       "origin",
       "https://fuchsia-review.googlesource.com/snapshots"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "git remote"
   },
@@ -42,7 +42,7 @@
       "origin",
       "refs/changes/89/456789/12"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "git fetch"
   },
@@ -53,7 +53,7 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "git checkout"
   },
@@ -63,7 +63,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "git rev-parse",
     "stdout": "/path/to/tmp/",
@@ -79,7 +79,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "git clean"
   },
@@ -89,7 +89,7 @@
       "submodule",
       "sync"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "submodule sync"
   },
@@ -100,7 +100,7 @@
       "update",
       "--init"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "submodule update"
   },
@@ -162,7 +162,7 @@
       "https://fuchsia.googlesource.com/snapshots",
       "master"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "git fetch (2)"
   },
@@ -172,7 +172,7 @@
       "rebase",
       "FETCH_HEAD"
     ],
-    "cwd": "[TMP_BASE]/snapshot_repo_tmp_1",
+    "cwd": "[CLEANUP]/snapshot_repo",
     "infra_step": true,
     "name": "git rebase"
   },
@@ -230,7 +230,7 @@
       "-time",
       "-autoupdate=false",
       "-attempts=3",
-      "[TMP_BASE]/snapshot_repo_tmp_1/snapshot"
+      "[CLEANUP]/snapshot_repo/snapshot"
     ],
     "infra_step": true,
     "name": "jiri update"
@@ -267,7 +267,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/snapshot_repo_tmp_1/snapshot",
+      "[CLEANUP]/snapshot_repo/snapshot",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -284,7 +284,7 @@
       "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
       "-a",
       "sha1",
-      "[TMP_BASE]/snapshot_repo_tmp_1/snapshot"
+      "[CLEANUP]/snapshot_repo/snapshot"
     ],
     "infra_step": true,
     "name": "hash snapshot",

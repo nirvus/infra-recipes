@@ -225,8 +225,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
                patch_gerrit_url=None,
                patch_project=None,
                snapshot_gcs_bucket=None,
-               timeout_secs=20 * 60,
-               include_cherrypicks=False):
+               timeout_secs=20 * 60):
     """Uses Jiri to check out a Fuchsia project.
 
     The patch_* arguments must all be set, or none at all.
@@ -264,11 +263,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.jiri.snapshot(snapshot_file)
       return self._finalize_checkout(snapshot_file, snapshot_gcs_bucket)
 
-  def checkout_snapshot(self,
-                        repository,
-                        revision,
-                        timeout_secs=20 * 60,
-                        include_cherrypicks=False):
+  def checkout_snapshot(self, repository, revision, timeout_secs=20 * 60):
     """Uses Jiri to check out Fuchsia from a Jiri snapshot.
 
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
@@ -285,7 +280,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A FuchsiaCheckoutResults containing details of the checkout.
     """
     with self.m.context(infra_steps=True):
-      snapshot_repo_dir = self.m.path.mkdtemp('snapshot_repo')
+      snapshot_repo_dir = self.m.path['cleanup'].join('snapshot_repo')
 
       # Without any patch information, we just want to fetch whatever we're
       # told via repository and revision.
@@ -295,9 +290,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           path=snapshot_repo_dir,
       )
 
-      return self._checkout_snapshot(
-          snapshot_repo_dir=snapshot_repo_dir,
-          include_cherrypicks=include_cherrypicks)
+      return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
 
   def checkout_patched_snapshot(self,
                                 patch_gerrit_url,
@@ -305,8 +298,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
                                 patch_project,
                                 patch_ref,
                                 patch_repository_url,
-                                timeout_secs=20 * 60,
-                                include_cherrypicks=False):
+                                timeout_secs=20 * 60):
     """Uses Jiri to check out Fuchsia from a Jiri snapshot from a Gerrit patch.
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
@@ -323,7 +315,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A FuchsiaCheckoutResults containing details of the checkout.
     """
     with self.m.context(infra_steps=True):
-      snapshot_repo_dir = self.m.path.mkdtemp('snapshot_repo')
+      snapshot_repo_dir = self.m.path['cleanup'].join('snapshot_repo')
 
       # 1) Check out the patch from Gerrit (initializing the repo also).
       # 2) Learn the destination branch for the Gerrit change.
@@ -355,11 +347,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.git('fetch', patch_repository_url, details['branch'])
         self.m.git('rebase', 'FETCH_HEAD')
 
-      return self._checkout_snapshot(
-          snapshot_repo_dir=snapshot_repo_dir,
-          include_cherrypicks=include_cherrypicks)
+      return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
 
-  def _checkout_snapshot(self, snapshot_repo_dir, include_cherrypicks=False):
+  def _checkout_snapshot(self, snapshot_repo_dir):
     # Read the snapshot so it shows up in the step presentation.
     snapshot_file = snapshot_repo_dir.join('snapshot')
     cherrypick_file = snapshot_repo_dir.join('cherrypick.json')
@@ -369,7 +359,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.jiri.checkout_snapshot(snapshot_file)
 
     # Perform cherrypicks if there is a cherrypick file.
-    if include_cherrypicks:
+    if self.m.path.exists(cherrypick_file):
       cherrypick_json = self.m.file.read_raw(
           'read cherrypick file', cherrypick_file, '{\"topaz\":[\"test\"]}')
       cherrypick_dict = self.m.json.loads(cherrypick_json)

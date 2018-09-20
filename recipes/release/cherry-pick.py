@@ -36,7 +36,8 @@ PROPERTIES = {
     'cherry_picks':
         Property(
             kind=List(basestring),
-            help='List of cherry-picks to apply in the form ["project1/ref1", "project2/ref2"]',
+            help=
+            'List of cherry-picks to apply in the form ["project1/ref1", "project2/ref2"]',
             default=None),
     'remote':
         Property(
@@ -50,7 +51,8 @@ PROPERTIES = {
             default=None),
 }
 
-COMMIT_MESSAGE = """[Cherrypick] Cherry-pick onto {version}
+COMMIT_MESSAGE = """[cherrypick] Cherry-pick onto {version}
+
 Cherry-picks:
 {cherry_picks}
 """
