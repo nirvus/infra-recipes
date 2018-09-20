@@ -11,6 +11,7 @@ from recipe_engine.recipe_api import Property
 import collections
 
 DEPS = [
+    'infra/bazel',
     'infra/cipd',
     'infra/fuchsia',
     'infra/go',
@@ -104,12 +105,11 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
       ])
 
   if project == 'topaz':
-    script_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel',
-                                             'generate.py')
+    scripts_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel')
     sdk_dir = api.path['cleanup'].join('sdk-bazel')
 
     api.python('create bazel sdk',
-        script_path,
+        scripts_path.join('generate.py'),
         args=[
           '--archive',
           full_archive_path,
@@ -117,6 +117,28 @@ def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
           sdk_dir,
         ],
     )
+
+    with api.step.nest('test sdk'):
+      test_workspace_dir = api.path['cleanup'].join('tests')
+      api.python('create test workspace',
+          scripts_path.join('generate-tests.py'),
+          args=[
+            '--sdk',
+            sdk_dir,
+            '--output',
+            test_workspace_dir,
+          ],
+      )
+
+      bazel_path = api.bazel.ensure_bazel()
+
+      api.python('run tests',
+          test_workspace_dir.join('run.py'),
+          args=[
+            '--bazel',
+            bazel_path,
+          ],
+      )
 
     if not api.properties.get('tryjob'):
       with api.step.nest('upload bazel sdk'):

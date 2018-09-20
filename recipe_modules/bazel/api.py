@@ -36,10 +36,10 @@ class BazelApi(recipe_api.RecipeApi):
         with self.m.context(infra_steps=True):
           cipd_package = (
               'fuchsia/third_party/bazel/' + self.m.cipd.platform_suffix())
-          cipd_root = self.m.path['start_dir'].join('cipd')
+          bazel_root = self.m.path['start_dir'].join('cipd', 'bazel')
 
-          self.m.cipd.ensure(cipd_root, {cipd_package: version})
-          self._bazel_path = cipd_root.join('bazel')
+          self.m.cipd.ensure(bazel_root, {cipd_package: version})
+          self._bazel_path = bazel_root.join('bazel')
           self._bazel_version = version
 
     return self._bazel_path

@@ -8,7 +8,7 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd",
+      "[START_DIR]/cipd/bazel",
       "-ensure-file",
       "fuchsia/third_party/bazel/linux-amd64 latest",
       "-json-output",
