@@ -789,11 +789,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Fuchsia will mount it and write test output to.
     minfs_image_name = 'output.fs'
 
-    # Create MinFS image (which will hold test output). We choose 16MB for the
+    # Create MinFS image (which will hold test output). We choose 1G for the
     # MinFS image arbitrarily, and it appears it can hold our test output
     # comfortably without going overboard on size.
     minfs_image_path = self.m.path['start_dir'].join(minfs_image_name)
-    self.m.minfs.create(minfs_image_path, '16M', name='create test image')
+    self.m.minfs.create(minfs_image_path, '1G', name='create test image')
 
     botanist_cmd = [
       './botanist/botanist',
