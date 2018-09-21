@@ -227,7 +227,7 @@
     "cmd": [],
     "name": "write results",
     "~followup_annotations": [
-      "@@@SET_BUILD_PROPERTY@tricium@{\"comments\": [{\"category\": \"Format/ClangFormat\", \"end_char\": 0, \"end_line\": 0, \"message\": \"File not formatted properly.\\nRun the following to format:\\n\\nclang-format -i path/to/file.h\", \"path\": \"path/to/file.h\", \"start_char\": 0, \"start_line\": 0, \"suggestion\": [], \"url\": \"\"}]}@@@"
+      "@@@SET_BUILD_PROPERTY@tricium@\"{\\\"comments\\\": [{\\\"category\\\": \\\"Format/ClangFormat\\\", \\\"end_char\\\": 0, \\\"end_line\\\": 0, \\\"message\\\": \\\"File not formatted properly.\\\\nRun the following to format:\\\\n\\\\nclang-format -i path/to/file.h\\\", \\\"path\\\": \\\"path/to/file.h\\\", \\\"start_char\\\": 0, \\\"start_line\\\": 0, \\\"suggestion\\\": [], \\\"url\\\": \\\"\\\"}]}\"@@@"
     ]
   },
   {

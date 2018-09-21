@@ -116,7 +116,7 @@ def RunSteps(api, project, manifest, formatters):
                                   formatter.warning % f, f)
           api.git('reset', '--hard', name='reset %s' % f)
 
-  api.tricium.write_comments()
+  api.tricium.write_comments(dump=True)
 
 
 def GenTests(api):
