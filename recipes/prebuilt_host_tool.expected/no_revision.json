@@ -52,8 +52,6 @@
       "-time",
       "-name",
       "build",
-      "-revision",
-      "9bb87e3415a943a91b62a7003d870b7f2d354c57",
       "manifest/build",
       "https://fuchsia.googlesource.com/build"
     ],
@@ -106,6 +104,34 @@
       "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
       "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "-v",
+      "-time",
+      "-json-output",
+      "/path/to/tmp/json",
+      "build"
+    ],
+    "infra_step": true,
+    "name": "jiri project",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"build\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/build\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/build\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
@@ -292,15 +318,18 @@
       "search",
       "fuchsia/tools/json_validator/linux-amd64",
       "-tag",
-      "git_revision:9bb87e3415a943a91b62a7003d870b7f2d354c57",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:9bb87e3415a943a91b62a7003d870b7f2d354c57",
+    "name": "cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"Packages: fuchsia/tools/json_validator/linux-amd64:9bb87e3415a943a91b62a7003d870b7f2d354c57\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/json_validator/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
