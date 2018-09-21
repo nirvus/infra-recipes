@@ -114,7 +114,7 @@
       "-name",
       "topaz",
       "-revision",
-      "a1b2c3",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "manifest/topaz",
       "https://fuchsia.googlesource.com/topaz"
     ],
@@ -616,11 +616,11 @@
       "search",
       "fuchsia/sdk/bazel/linux-amd64",
       "-tag",
-      "git_revision:a1b2c3",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 git_revision:a1b2c3",
+    "name": "upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",

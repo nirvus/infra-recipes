@@ -113,8 +113,6 @@
       "-time",
       "-name",
       "topaz",
-      "-revision",
-      "a1b2c3",
       "manifest/topaz",
       "https://fuchsia.googlesource.com/topaz"
     ],
@@ -142,11 +140,11 @@
       "-v",
       "-time",
       "-host",
-      "https://fuchsia-review.googlesource.com",
+      "fuchsia-review.googlesource.com",
       "-project",
       "topaz",
       "-rebase=true",
-      "refs/changes/56/123456/7"
+      "refs/changes/89/456789/12"
     ],
     "infra_step": true,
     "name": "jiri patch"
@@ -245,6 +243,35 @@
     "infra_step": true,
     "name": "hash snapshot",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "-v",
+      "-time",
+      "-json-output",
+      "/path/to/tmp/json",
+      "topaz"
+    ],
+    "infra_step": true,
+    "name": "jiri project",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"topaz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/topaz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/topaz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@"
+    ]
   },
   {
     "cmd": [],

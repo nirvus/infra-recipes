@@ -114,7 +114,7 @@
       "-name",
       "garnet",
       "-revision",
-      "a1b2c3",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "manifest/garnet",
       "https://fuchsia.googlesource.com/garnet"
     ],
@@ -695,13 +695,13 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/merged_sdk_archive.tar.gz",
-      "gs://fuchsia/sdk/linux-amd64/a1b2c3"
+      "gs://fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
     ],
     "infra_step": true,
-    "name": "upload chromium sdk.upload fuchsia-sdk a1b2c3",
+    "name": "upload chromium sdk.upload fuchsia-sdk 27a0c185de8bb5dba483993ff1e362bc9e2c7643",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@archive@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/a1b2c3@@@"
+      "@@@STEP_LINK@archive@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
     ]
   },
   {
@@ -728,13 +728,13 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/jiri.snapshot",
-      "gs://fuchsia-snapshots/a1b2c3"
+      "gs://fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643"
     ],
     "infra_step": true,
     "name": "upload chromium sdk.upload jiri.snapshot",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/a1b2c3@@@"
+      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/27a0c185de8bb5dba483993ff1e362bc9e2c7643@@@"
     ]
   },
   {
@@ -745,7 +745,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "a1b2c3",
+      "27a0c185de8bb5dba483993ff1e362bc9e2c7643",
       "[CLEANUP]/digest"
     ],
     "infra_step": true,
@@ -780,11 +780,11 @@
       "search",
       "fuchsia/sdk/chromium/linux-amd64",
       "-tag",
-      "git_revision:a1b2c3",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "upload chromium sdk.cipd search fuchsia/sdk/chromium/linux-amd64 git_revision:a1b2c3",
+    "name": "upload chromium sdk.cipd search fuchsia/sdk/chromium/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",

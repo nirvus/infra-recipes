@@ -18,7 +18,6 @@ DEPS = [
     'infra/hash',
     'infra/jiri',
     'infra/tar',
-    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/file',
     'recipe_engine/json',
@@ -34,26 +33,46 @@ PROJECTS = ['garnet', 'topaz']
 BUILD_TYPE = 'release'
 
 PROPERTIES = {
+    'patch_gerrit_url':
+        Property(kind=str, help='Gerrit host', default=None),
+    'patch_project':
+        Property(kind=str, help='Gerrit project', default=None),
+    'patch_ref':
+        Property(kind=str, help='Gerrit patch ref', default=None),
+    'patch_storage':
+        Property(kind=str, help='Patch location', default=None),
+    'patch_repository_url':
+        Property(kind=str, help='URL to a Git repository', default=None),
     'project':
         Property(kind=Enum(*PROJECTS), help='Jiri remote manifest project'),
     'manifest':
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
+    'revision':
+        Property(kind=str, help='Revision of manifest to import', default=None),
 }
 
-def RunSteps(api, project, manifest, remote):
+def RunSteps(api, patch_gerrit_url, patch_project, patch_ref,
+             patch_storage, patch_repository_url, project, manifest, remote,
+             revision):
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
-
-  build_input = api.buildbucket.build.input
-  revision = build_input.gitiles_commit.id
 
   api.fuchsia.checkout(
       manifest=manifest,
       remote=remote,
       project=project,
-      build_input=build_input)
+      revision=revision,
+      patch_ref=patch_ref,
+      patch_gerrit_url=patch_gerrit_url,
+      patch_project=patch_project)
+
+  with api.context(infra_steps=True):
+    if not revision:
+      # api.fuchsia.checkout() will have ensured that jiri exists.
+      revision = api.jiri.project([project]).json.output[0]['revision']
+      api.step.active_result.presentation.properties['got_revision'] = revision
 
   # Build fuchsia for each target.
   builds = {}
@@ -101,7 +120,6 @@ def RunSteps(api, project, manifest, remote):
 
     if not api.properties.get('tryjob'):
       with api.step.nest('upload bazel sdk'):
-        assert revision
         # Upload the SDK to CIPD and GCS.
         UploadPackage(api, 'bazel', sdk_dir, remote, revision)
 
@@ -121,7 +139,6 @@ def RunSteps(api, project, manifest, remote):
 
     if not api.properties.get('tryjob'):
       with api.step.nest('upload chromium sdk'):
-        assert revision
         # Upload the Chromium style SDK to GCS and CIPD.
         UploadArchive(api, full_archive_path, sdk_dir, remote, revision)
 
@@ -228,73 +245,47 @@ def UploadArchive(api, sdk, out_dir, remote, revision):
 
 # yapf: disable
 def GenTests(api):
-  revision = 'a1b2c3'
-
   yield (api.test('ci_garnet') +
-      api.buildbucket.ci_build(
-        git_repo='https://fuchsia.googlesource.com/garnet',
-        revision=revision,
-      ) +
       api.properties(
           project='garnet',
           manifest='manifest/garnet',
           remote='https://fuchsia.googlesource.com/garnet',
-      ) +
+          revision=api.jiri.example_revision) +
       api.step_data('upload chromium sdk.hash archive',
-                    api.hash(revision)))
-
+                    api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
   yield (api.test('ci_topaz') +
-      api.buildbucket.ci_build(
-        git_repo='https://fuchsia.googlesource.com/topaz',
-        revision=revision,
-      ) +
       api.properties(
           project='topaz',
           manifest='manifest/topaz',
           remote='https://fuchsia.googlesource.com/topaz',
-      )
-  )
-
+          revision=api.jiri.example_revision))
   yield (api.test('ci_new_garnet') +
-      api.buildbucket.ci_build(
-        git_repo='https://fuchsia.googlesource.com/garnet',
-        revision=revision,
-      ) +
       api.properties(
           project='garnet',
           manifest='manifest/garnet',
           remote='https://fuchsia.googlesource.com/garnet') +
       api.step_data('upload chromium sdk.cipd search fuchsia/sdk/chromium/linux-amd64 ' +
-                    'git_revision:' + revision,
+                    'git_revision:' + api.jiri.example_revision,
                      api.json.output({'result': []})) +
       api.step_data('upload chromium sdk.hash archive',
-                    api.hash(revision)))
-
+                    api.hash('27a0c185de8bb5dba483993ff1e362bc9e2c7643')))
   yield (api.test('ci_new_topaz') +
-      api.buildbucket.ci_build(
-        git_repo='https://fuchsia.googlesource.com/topaz',
-        revision=revision,
-      ) +
       api.properties(
           project='topaz',
           manifest='manifest/topaz',
           remote='https://fuchsia.googlesource.com/topaz') +
       api.step_data('upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 ' +
-                    'git_revision:' + revision,
+                    'git_revision:' + api.jiri.example_revision,
                      api.json.output({'result': []})))
-
   yield (api.test('cq_try') +
-      api.buildbucket.try_build(
-        git_repo='https://fuchsia.googlesource.com/topaz',
-        revision=revision,
-      ) +
       api.properties(
           project='topaz',
           manifest='manifest/topaz',
           remote='https://fuchsia.googlesource.com/topaz') +
       api.properties.tryserver(
+          project='topaz',
           manifest='manifest/topaz',
           remote='https://fuchsia.googlesource.com/topaz',
-          tryjob=True)
-  )
+          patch_gerrit_url='fuchsia-review.googlesource.com',
+          tryjob=True))
 # yapf: enable
