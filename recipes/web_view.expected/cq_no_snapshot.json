@@ -311,7 +311,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" fuchsia_packages=[\"third_party/webkit/packages/webkit\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
+      "--args=target_cpu=\"arm64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false fuchsia_packages=[\"third_party/webkit/packages/webkit\"]"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -496,7 +496,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"third_party/webkit/packages/webkit\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
+      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false fuchsia_packages=[\"third_party/webkit/packages/webkit\"]"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [

@@ -312,7 +312,7 @@
       "gen",
       "[START_DIR]/out/debug-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"topaz/packages/default\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true select_variant=[\"host_asan\"]"
+      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true fuchsia_packages=[\"topaz/packages/default\"] select_variant=[\"host_asan\"]"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [

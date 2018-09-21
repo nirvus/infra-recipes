@@ -290,8 +290,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     if gitiles_commit:
       repository = repository or 'https://%s/%s' % (
-        gitiles_commit.host,
-        gitiles_commit.project,
+          gitiles_commit.host,
+          gitiles_commit.project,
       )
       revision = revision or gitiles_commit.id
 
@@ -337,16 +337,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
       patch_issue = patch_issue or gerrit_change.change
       patch_project = patch_project or gerrit_change.project
       patch_ref = patch_ref or self.m.gerrit.get_change_ref(
-        gerrit_change.change,
-        gerrit_change.patchset
-      )
+          gerrit_change.change, gerrit_change.patchset)
 
       git_host = gerrit_change.host
       gs_suffix = '-review.googlesource.com'
       assert git_host.endswith(gs_suffix)
       git_host = '%s.googlesource.com' % git_host[:-len(gs_suffix)]
       patch_repository_url = patch_repository_url or 'https://%s/%s' % (
-        git_host, gerrit_change.project)
+          git_host, gerrit_change.project)
 
     with self.m.context(infra_steps=True):
       snapshot_repo_dir = self.m.path['cleanup'].join('snapshot_repo')
@@ -470,16 +468,32 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.step('zircon', cmd)
 
   def _build_fuchsia(self, build, build_type, packages, variants, gn_args,
-                     ninja_targets):
+                     ninja_targets, boards, products):
     """Builds fuchsia given a FuchsiaBuildResults and other GN options."""
     with self.m.step.nest('build fuchsia'):
       args = [
           'target_cpu="%s"' % build.target,
-          'fuchsia_packages=[%s]' % ','.join('"%s"' % pkg for pkg in packages),
           'use_goma=true',
           'goma_dir="%s"' % self.m.goma.goma_dir,
           'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
       ]
+
+      if boards:
+        args.append(' '.join('import("//%s")' % board for board in boards))
+
+      if packages:
+        fuchsia_packages_format = 'fuchsia_packages=[%s]'
+        # if boards is set, append to fuchsia_packages.
+        # boards set fuchsia_packages, we don't want to overwrite.
+        if boards:
+          fuchsia_packages_format = 'fuchsia_packages+=[%s]'
+
+        args.append(fuchsia_packages_format % ','.join(
+            '"%s"' % pkg for pkg in packages))
+
+      if products:
+        args.append('fuchsia_products=[%s]' % ','.join(
+            '"%s"' % product for product in products))
 
       args += {
           'lto': [
@@ -528,7 +542,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
             packages,
             variants=(),
             gn_args=[],
-            ninja_targets=()):
+            ninja_targets=(),
+            boards=[],
+            products=[]):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -541,6 +557,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         to GN in `select_variant`
       gn_args (sequence[str]): Additional arguments to pass to GN
       ninja_targets (sequence[str]): Additional target args to pass to ninja
+      boards (sequence[str]): A sequence of boards to pass to GN to build
+      products (sequence[str]): A sequence of products to pass to GN to build
 
     Returns:
       A FuchsiaBuildResults, representing the recently completed build.
@@ -568,7 +586,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
             packages=packages,
             variants=variants,
             gn_args=gn_args,
-            ninja_targets=ninja_targets)
+            ninja_targets=ninja_targets,
+            boards=boards,
+            products=products)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
     self.m.zbi.zbi_path = out_dir.join('build-zircon', 'tools', 'zbi')
 

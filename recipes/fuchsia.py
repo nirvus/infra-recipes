@@ -79,6 +79,10 @@ PROPERTIES = {
             kind=bool,
             help='Whether to upload breakpad symbol files',
             default=False),
+    'boards':
+        Property(kind=List(basestring), help='Boards to build', default=[]),
+    'products':
+        Property(kind=List(basestring), help='Products to build', default=[]),
 
     # Properties pertaining to testing.
     'test_pool':
@@ -143,11 +147,12 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, project, manifest, remote, checkout_snapshot,target,
+def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variant, gn_args, test_pool, run_tests,
              runtests_args, run_host_tests, device_type, networking_for_tests,
              pave, ninja_targets, test_timeout_secs, requires_secrets,
-             archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket):
+             archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket,
+             boards, products):
   tryjob = api.properties.get('tryjob')
 
   # Don't upload snapshots for tryjobs.
@@ -180,12 +185,9 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,target,
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       api.fuchsia.checkout_patched_snapshot(
-        gerrit_change=build_input.gerrit_changes[0],
-      )
+          gerrit_change=build_input.gerrit_changes[0],)
     else:
-      api.fuchsia.checkout_snapshot(
-        gitiles_commit=build_input.gitiles_commit,
-      )
+      api.fuchsia.checkout_snapshot(gitiles_commit=build_input.gitiles_commit,)
   else:
     assert manifest
     assert remote
@@ -201,7 +203,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,target,
     with api.context(infra_steps=True):
       json_validator_dir = api.path['start_dir'].join('tools', 'json_validator')
       api.cipd.ensure(json_validator_dir, {
-        'fuchsia/tools/json_validator/${platform}': 'latest',
+          'fuchsia/tools/json_validator/${platform}': 'latest',
       })
 
   validator = json_validator_dir.join('json_validator')
@@ -228,7 +230,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,target,
         'verify FIDL namespaces',
         api.path['start_dir'].join('scripts', 'style',
                                    'verify-fidl-libraries.py'),
-        args=layer_args+namespace_args)
+        args=layer_args + namespace_args)
 
     api.python(
         'verify build packages',
@@ -245,6 +247,8 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot,target,
       variants=variant,
       gn_args=gn_args,
       ninja_targets=ninja_targets,
+      boards=boards,
+      products=products,
   )
 
   if run_tests:

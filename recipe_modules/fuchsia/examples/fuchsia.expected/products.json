@@ -223,58 +223,6 @@
   },
   {
     "cmd": [],
-    "name": "ensure_packages"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/tools/json_validator",
-      "-ensure-file",
-      "fuchsia/tools/json_validator/${platform} latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_packages.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/json_validator/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/style/verify-fidl-libraries.py",
-      "--layer",
-      "topaz"
-    ],
-    "name": "verify FIDL namespaces"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/packages/verify_layer.py",
-      "--layer",
-      "topaz",
-      "--json-validator",
-      "[START_DIR]/tools/json_validator/json_validator"
-    ],
-    "name": "verify build packages"
-  },
-  {
-    "cmd": [],
     "name": "build"
   },
   {
@@ -363,7 +311,7 @@
       "gen",
       "[START_DIR]/out/debug-x64",
       "--check",
-      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true fuchsia_packages=[\"topaz/packages/default\"]"
+      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true fuchsia_packages=[\"topaz/packages/default\"] fuchsia_products=[\"topaz/products/default\"]"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -376,8 +324,7 @@
       "-C",
       "[START_DIR]/out/debug-x64",
       "-j",
-      "20",
-      "build/gn:host_tests"
+      "20"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -449,45 +396,6 @@
     "name": "build.post_goma.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/build/gn_run_binary.sh",
-      "[START_DIR]/buildtools/linux-x64/clang/bin",
-      "[START_DIR]/out/build-zircon/build-x64/tools/runtests",
-      "-o",
-      "[START_DIR]/test_results/host",
-      "[START_DIR]/out/debug-x64/host_tests"
-    ],
-    "name": "run host tests"
-  },
-  {
-    "cmd": [],
-    "name": "test results",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"[START_DIR]/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"PASS\"}]}@@@",
-      "@@@STEP_LOG_END@summary.json@@@",
-      "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",
-      "@@@STEP_LOG_END@goodbye-txt@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "test results.//hello",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@stdio@hello@@@",
-      "@@@STEP_LOG_END@stdio@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "test results.benchmark.catapult_json",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@stdio@[\"dummy_catapult_data\"]@@@",
-      "@@@STEP_LOG_END@stdio@@@"
     ]
   },
   {
@@ -602,12 +510,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/fuchsia.tar.gz",
-      "gs://fuchsia-archive/builds/5555555555/fuchsia.tar.gz"
+      "gs://###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz"
     ],
     "infra_step": true,
     "name": "upload fuchsia.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/builds/5555555555/fuchsia.tar.gz@@@"
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz@@@"
     ]
   },
   {
@@ -634,12 +542,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/fuchsia.tar.gz",
-      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+      "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
     "name": "upload fuchsia.tar.gz (hash)",
     "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {
@@ -674,12 +582,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/packages.tar.gz",
-      "gs://fuchsia-archive/builds/5555555555/packages.tar.gz"
+      "gs://###fake-artifact-bucket###/builds/5555555555/packages.tar.gz"
     ],
     "infra_step": true,
     "name": "upload packages.tar.gz",
     "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/fuchsia-archive/builds/5555555555/packages.tar.gz@@@"
+      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/packages.tar.gz@@@"
     ]
   },
   {
@@ -706,12 +614,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/packages.tar.gz",
-      "gs://fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
+      "gs://###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909"
     ],
     "infra_step": true,
     "name": "upload packages.tar.gz (hash)",
     "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/fuchsia-archive/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
+      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/cd963da3f17c3acc611a9b9c1b272fcd6ae39909@@@"
     ]
   },
   {

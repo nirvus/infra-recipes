@@ -198,7 +198,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" fuchsia_packages=[\"build/packages/json_validator\"] use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false"
+      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false fuchsia_packages=[\"build/packages/json_validator\"]"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [

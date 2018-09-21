@@ -63,6 +63,10 @@ PROPERTIES = {
             kind=List(basestring),
             help='Extra target args to pass to ninja',
             default=[]),
+    'boards':
+        Property(kind=List(basestring), help='Boards to build', default=[]),
+    'products':
+        Property(kind=List(basestring), help='Products to build', default=[]),
 
     # Properties related to testing Fuchsia.
     'run_tests':
@@ -117,18 +121,16 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variants, gn_args, ninja_targets, run_tests,
              runtests_args, device_type, run_host_tests, networking_for_tests,
              requires_secrets, snapshot_gcs_bucket, upload_breakpad_symbols,
-             pave):
+             pave, boards, products):
   build_input = api.buildbucket.build.input
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       assert len(build_input.gerrit_changes) == 1
       checkout = api.fuchsia.checkout_patched_snapshot(
-        gerrit_change=build_input.gerrit_changes[0],
-      )
+          gerrit_change=build_input.gerrit_changes[0],)
     else:
       checkout = api.fuchsia.checkout_snapshot(
-        gitiles_commit=build_input.gitiles_commit,
-      )
+          gitiles_commit=build_input.gitiles_commit,)
   else:
     checkout = api.fuchsia.checkout(
         manifest=manifest,
@@ -148,7 +150,8 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       variants=variants,
       gn_args=gn_args,
       ninja_targets=ninja_targets,
-  )
+      boards=boards,
+      products=products)
 
   if run_tests:
     test_results = api.fuchsia.test(
@@ -338,6 +341,20 @@ def GenTests(api):
   yield api.fuchsia.test(
       'ninja_targets',
       properties=dict(ninja_targets=['//target:one', '//target:two']),
+  )
+  yield api.fuchsia.test(
+      'boards',
+      properties=dict(boards=['path/to/board1.gni', 'path/to/board2.gni']),
+  )
+  yield api.fuchsia.test(
+      'boards_with_packages',
+      properties=dict(
+          boards=['path/to/board1.gni', 'path/to/board2.gni'],
+          packages=['topaz/packages/default']),
+  )
+  yield api.fuchsia.test(
+      'products',
+      properties=dict(products=['topaz/products/default']),
   )
 
   # Test cases for checking out Fuchsia from a snapshot.
