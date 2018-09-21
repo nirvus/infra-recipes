@@ -61,7 +61,13 @@ PROPERTIES = {
 
 def RunSteps(api, project, manifest, formatters):
   api.jiri.ensure_jiri()
+
   with api.context(infra_steps=True):
+    # TODO(juliehockett): This is a hack to make the checkout work as expected, since
+    # Tricium still uses the v1 scheduling API and thus doesn't set the Gerrit project.
+    # Remove this once we fully switch Tricium over to the v2 API.
+    api.buildbucket.build.input.gerrit_changes[0].project = project
+
     api.jiri.checkout(
         manifest=manifest,
         remote=api.tricium.repository,
@@ -117,29 +123,23 @@ def GenTests(api):
   show_output = '''other/path/to/file.c\npath/to/file.h\n'''
   diff_output = '''path/to/file.h'''
 
-  yield (api.test('default') +
-    api.buildbucket.try_build(
-      git_repo='https://fuchsia.googlesource.com/topaz',
-    ) +
-    api.properties(
-      manifest='manifest/topaz',
-      project='topaz',
-      repository='https://fuchsia.googlesource.com/topaz',
-      ref='refs/changes/12345/2',
-      formatters=['ClangFormat']) + api.step_data(
-          'get changed files', api.raw_io.stream_output(show_output)) +
+  yield (api.test('default') + api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz',) + api.properties(
+          manifest='manifest/topaz',
+          project='topaz',
+          repository='https://fuchsia.googlesource.com/topaz',
+          ref='refs/changes/12345/2',
+          formatters=['ClangFormat']) + api.step_data(
+              'get changed files', api.raw_io.stream_output(show_output)) +
          api.step_data('check path/to/file.h formatting',
                        api.raw_io.stream_output(diff_output)) + api.step_data(
                            'check other/path/to/file.c formatting',
                            api.raw_io.stream_output("")))
 
-  yield (api.test('no_formatters') +
-    api.buildbucket.try_build(
-      git_repo='https://fuchsia.googlesource.com/tools',
-    ) +
-    api.properties(
-      manifest='manifest/minimal',
-      project='tools',
-      repository='https://fuchsia.googlesource.com/tools',
-      ref='refs/changes/12345/2',
-      paths=['path/to/file.cpp']))
+  yield (api.test('no_formatters') + api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/tools',) + api.properties(
+          manifest='manifest/minimal',
+          project='tools',
+          repository='https://fuchsia.googlesource.com/tools',
+          ref='refs/changes/12345/2',
+          paths=['path/to/file.cpp']))

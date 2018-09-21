@@ -8,11 +8,10 @@ from contextlib import contextmanager
 from recipe_engine.recipe_api import Property
 
 DEPS = [
-    'infra/cipd',
     'infra/clang_tidy',
-    'infra/fuchsia',
     'infra/git',
     'infra/goma',
+    'infra/jiri',
     'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/json',
@@ -43,16 +42,21 @@ def RunSteps(api, project, manifest, checks):
   api.goma.ensure_goma()
   api.clang_tidy.ensure_clang()
 
-  if manifest:
-    checkout_dir = api.fuchsia.checkout(
+  api.jiri.ensure_jiri()
+
+  with api.context(infra_steps=True):
+    # TODO(juliehockett): This is a hack to make the checkout work as expected, since
+    # Tricium still uses the v1 scheduling API and thus doesn't set the Gerrit project.
+    # Remove this once we fully switch Tricium over to the v2 API.
+    api.buildbucket.build.input.gerrit_changes[0].project = project
+
+    api.jiri.checkout(
         manifest=manifest,
         remote=api.tricium.repository,
-        build_input=api.buildbucket.build.input,
-    ).root_dir
-  else:
-    api.git.checkout(api.tricium.repository, ref=api.tricium.ref)
-    checkout_dir = api.path['start_dir'].join(project)
+        project=project,
+        build_input=api.buildbucket.build.input)
 
+  checkout_dir = api.path['start_dir'].join(project)
   compile_commands = api.clang_tidy.gen_compile_commands(checkout_dir)
 
   errors = []
@@ -99,31 +103,14 @@ newline output
       'FilePath': 'path/to/file'
   }]
 
-  yield (api.test('manifest') +
-    api.buildbucket.try_build(
-      git_repo='https://fuchsia.googlesource.com/topaz',
-    ) +
-    api.properties(
-      manifest='project/topaz',
-      project='topaz',
-      repository='https://fuchsia.googlesource.com/topaz',
-      ref='HEAD',
-      paths=['path/to/file', 'other/path/to/file']) + api.step_data(
-          'clang-tidy.path/to/file.load yaml', stdout=api.json.output('')) +
-         api.step_data(
-             'clang-tidy.other/path/to/file.load yaml',
-             stdout=api.json.output(has_errors_json)))
-
-  yield (api.test('git') +
-    api.buildbucket.try_build(
-      git_repo='https://fuchsia.googlesource.com/topaz',
-    ) +
-    api.properties(
-      project='tools',
-      repository='https://fuchsia.googlesource.com/tools',
-      ref='HEAD',
-      paths=['path/to/file', 'other/path/to/file']) + api.step_data(
-          'clang-tidy.path/to/file.load yaml', stdout=api.json.output('')) +
+  yield (api.test('default') + api.buildbucket.try_build(
+      git_repo='https://fuchsia.googlesource.com/topaz',) + api.properties(
+          manifest='project/topaz',
+          project='topaz',
+          repository='https://fuchsia.googlesource.com/topaz',
+          ref='HEAD',
+          paths=['path/to/file', 'other/path/to/file']) + api.step_data(
+              'clang-tidy.path/to/file.load yaml', stdout=api.json.output('')) +
          api.step_data(
              'clang-tidy.other/path/to/file.load yaml',
              stdout=api.json.output(has_errors_json)))
