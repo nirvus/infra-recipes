@@ -261,7 +261,7 @@ def RunTestsInQEMU(api, target, build_dir, use_kvm):
   # compresses the image before uploading.
   minfs_image_name = 'output.fs'
   minfs_image = api.path['start_dir'].join(minfs_image_name)
-  api.minfs.create(minfs_image, '16M', name='create minfs image')
+  api.minfs.create(minfs_image, '1G', name='create minfs image')
 
   # Generate the botanist QEMU commands.
   base_botanist_cmd = [
