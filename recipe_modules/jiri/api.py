@@ -319,7 +319,8 @@ class JiriApi(recipe_api.RecipeApi):
                patch_ref=None,
                patch_gerrit_url=None,
                patch_project=None,
-               timeout_secs=None):
+               timeout_secs=None,
+               run_hooks=True):
     """Initializes and populates a jiri checkout from a remote manifest.
 
     Emits a source manifest for the build.
@@ -335,6 +336,7 @@ class JiriApi(recipe_api.RecipeApi):
       patch_gerrit_url (str): The Gerrit URL for the patch to apply.
       patch_project (str): The Gerrit project where the patch lives.
       timeout_secs (int): A timeout for jiri update in seconds.
+      run_hooks (bool): Whether or not to run the hooks.
     """
     self.init()
 
@@ -365,7 +367,8 @@ class JiriApi(recipe_api.RecipeApi):
           local_manifest=True,
           run_hooks=False,
           timeout=timeout_secs)
-    self.run_hooks(local_manifest=patch_ref is not None)
+    if run_hooks:
+      self.run_hooks(local_manifest=patch_ref is not None)
     self.emit_source_manifest()
 
   def checkout_snapshot(self, snapshot, timeout_secs=None):

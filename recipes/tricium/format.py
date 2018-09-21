@@ -72,7 +72,8 @@ def RunSteps(api, project, manifest, formatters):
         manifest=manifest,
         remote=api.tricium.repository,
         project=project,
-        build_input=api.buildbucket.build.input)
+        build_input=api.buildbucket.build.input,
+        run_hooks=False)
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
