@@ -83,6 +83,12 @@ PROPERTIES = {
         Property(kind=List(basestring), help='Boards to build', default=[]),
     'products':
         Property(kind=List(basestring), help='Products to build', default=[]),
+    'zircon_args':
+        Property(
+            kind=List(basestring),
+            help=
+            'Additional args to pass to zircon build using standard FOO=bar syntax.',
+            default=[]),
 
     # Properties pertaining to testing.
     'test_pool':
@@ -152,7 +158,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              runtests_args, run_host_tests, device_type, networking_for_tests,
              pave, ninja_targets, test_timeout_secs, requires_secrets,
              archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket,
-             boards, products):
+             boards, products, zircon_args):
   tryjob = api.properties.get('tryjob')
 
   # Don't upload snapshots for tryjobs.
@@ -249,6 +255,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       ninja_targets=ninja_targets,
       boards=boards,
       products=products,
+      zircon_args=zircon_args,
   )
 
   if run_tests:

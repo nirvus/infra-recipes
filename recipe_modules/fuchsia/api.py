@@ -450,7 +450,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         snapshot_file=snapshot_file,
         snapshot_file_sha1=digest)
 
-  def _build_zircon(self, target, variants):
+  def _build_zircon(self, target, variants, zircon_args):
     """Builds zircon for the specified target."""
     cmd = [
         self.m.path['start_dir'].join('scripts', 'build-zircon.sh'),
@@ -465,6 +465,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self.m.goma.jobs,
         'GOMACC=%s' % self.m.goma.goma_dir.join('gomacc'),
     ]
+    if zircon_args:
+      cmd.append(' '.join(zircon_arg for zircon_arg in zircon_args))
     self.m.step('zircon', cmd)
 
   def _build_fuchsia(self, build, build_type, packages, variants, gn_args,
@@ -544,7 +546,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
             gn_args=[],
             ninja_targets=(),
             boards=[],
-            products=[]):
+            products=[],
+            zircon_args=[]):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -579,7 +582,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     with self.m.step.nest('build'):
       self.m.goma.ensure_goma()
       with self.m.goma.build_with_goma():
-        self._build_zircon(target, variants)
+        self._build_zircon(target, variants, zircon_args)
         self._build_fuchsia(
             build=build,
             build_type=build_type,

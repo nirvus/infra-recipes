@@ -67,6 +67,12 @@ PROPERTIES = {
         Property(kind=List(basestring), help='Boards to build', default=[]),
     'products':
         Property(kind=List(basestring), help='Products to build', default=[]),
+    'zircon_args':
+        Property(
+            kind=List(basestring),
+            help=
+            'Additional args to pass to zircon build using standard FOO=bar syntax.',
+            default=[]),
 
     # Properties related to testing Fuchsia.
     'run_tests':
@@ -121,7 +127,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variants, gn_args, ninja_targets, run_tests,
              runtests_args, device_type, run_host_tests, networking_for_tests,
              requires_secrets, snapshot_gcs_bucket, upload_breakpad_symbols,
-             pave, boards, products):
+             pave, boards, products, zircon_args):
   build_input = api.buildbucket.build.input
   if checkout_snapshot:
     if api.properties.get('tryjob'):
@@ -151,7 +157,8 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       gn_args=gn_args,
       ninja_targets=ninja_targets,
       boards=boards,
-      products=products)
+      products=products,
+      zircon_args=zircon_args)
 
   if run_tests:
     test_results = api.fuchsia.test(
@@ -323,6 +330,10 @@ def GenTests(api):
           target='arm64',
           variants=['host_asan', 'asan'],
       ),
+  )
+  yield api.fuchsia.test(
+      'zircon_args',
+      properties=dict(zircon_args=['FOO=BAR']),
   )
 
   yield api.fuchsia.test(
