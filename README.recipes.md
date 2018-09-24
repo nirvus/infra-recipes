@@ -35,6 +35,7 @@
   * [bloaty](#recipes-bloaty) &mdash; Recipe for building Bloaty.
   * [breakpad_tools](#recipes-breakpad_tools) &mdash; Recipe for building some Breakpad tools.
   * [catapult:examples/full](#recipes-catapult_examples_full)
+  * [chromium_roller](#recipes-chromium_roller) &mdash; Recipe for rolling chromium prebuilts into Fuchsia.
   * [cipd:examples/full](#recipes-cipd_examples_full)
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
   * [clang_tidy](#recipes-clang_tidy) &mdash; Recipe for running CQ-blocking clang-tidy checks.
@@ -1314,6 +1315,15 @@ Recipe for building some Breakpad tools.
 [DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
 &mdash; **def [RunSteps](/recipe_modules/catapult/examples/full.py#13)(api):**
+### *recipes* / [chromium\_roller](/recipes/chromium_roller.py)
+
+[DEPS](/recipes/chromium_roller.py#11): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe for rolling chromium prebuilts into Fuchsia.
+
+&mdash; **def [GetVersionsFromCIPD](/recipes/chromium_roller.py#38)(api, cipd_pkg):**
+
+&mdash; **def [RunSteps](/recipes/chromium_roller.py#46)(api, dry_run):**
 ### *recipes* / [cipd:examples/full](/recipe_modules/cipd/examples/full.py)
 
 [DEPS](/recipe_modules/cipd/examples/full.py#8): [cipd](#recipe_modules-cipd), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1448,14 +1458,14 @@ Recipe for building libffmpeg and uploading it and required source files.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#152)(api, project, manifest, remote, checkout_snapshot, target, build_type, packages, variant, gn_args, test_pool, run_tests, runtests_args, run_host_tests, device_type, networking_for_tests, pave, ninja_targets, test_timeout_secs, requires_secrets, archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket, boards, products, zircon_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#156)(api, project, manifest, remote, checkout_snapshot, target, build_type, packages, variant, gn_args, test_pool, run_tests, runtests_args, run_host_tests, device_type, networking_for_tests, pave, ninja_targets, test_timeout_secs, requires_secrets, archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket, boards, products, zircon_args):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#17): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [swarming](#recipe_modules-swarming), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#122)(api, project, manifest, remote, checkout_snapshot, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, run_host_tests, networking_for_tests, requires_secrets, snapshot_gcs_bucket, upload_breakpad_symbols, pave, boards, products, zircon_args):**
+&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#126)(api, project, manifest, remote, checkout_snapshot, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, run_host_tests, networking_for_tests, requires_secrets, snapshot_gcs_bucket, upload_breakpad_symbols, pave, boards, products, zircon_args):**
 ### *recipes* / [fuchsia\_perf](/recipes/fuchsia_perf.py)
 
 [DEPS](/recipes/fuchsia_perf.py#27): [catapult](#recipe_modules-catapult), [fuchsia](#recipe_modules-fuchsia), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
