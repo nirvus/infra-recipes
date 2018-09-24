@@ -426,11 +426,6 @@
       "@@@STEP_LOG_LINE@json.output@    \"name\": \"netboot\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"path\": \"netboot.zbi\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"data-template\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fvm.data.sparse.blk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"blk\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",
       "@@@STEP_LOG_END@json.output@@@"
@@ -522,9 +517,7 @@
       "-files",
       "[START_DIR]/out/debug-arm64:efi.blk",
       "-files",
-      "[START_DIR]/out/debug-arm64:fvm.sparse.blk",
-      "-files",
-      "[START_DIR]/out/debug-arm64:fvm.data.sparse.blk"
+      "[START_DIR]/out/debug-arm64:fvm.sparse.blk"
     ],
     "name": "archive"
   },
@@ -535,7 +528,7 @@
       "-server",
       "https://chromium-swarm.appspot.com",
       "-json-input",
-      "{\"requests\": [{\"expiration_secs\": \"300\", \"name\": \"all tests\", \"priority\": \"200\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"zedboot\", \"-properties\", \"/etc/botanist/config.json\", \"-kernel\", \"test-infra.zbi\", \"-results-dir\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"-efi\", \"efi.blk\", \"-fvm\", \"fvm.sparse.blk\", \"-fvm\", \"fvm.data.sparse.blk\", \"zircon.autorun.system=/boot/bin/sh+/boot/infra/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"Intel NUC Kit NUC6i3SYK\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"2400\", \"grace_period_secs\": \"30\", \"idempotent\": false, \"inputs_ref\": {\"isolated\": \"[dummy hash]\", \"isolatedserver\": \"https://isolateserver.appspot.com\", \"namespace\": \"default-gzip\"}, \"io_timeout_secs\": \"60\", \"outputs\": [\"out.tar\"]}}]}",
+      "{\"requests\": [{\"expiration_secs\": \"300\", \"name\": \"all tests\", \"priority\": \"200\", \"properties\": {\"cipd_input\": {\"packages\": [{\"package_name\": \"fuchsia/infra/botanist/linux-amd64\", \"path\": \"botanist\", \"version\": \"latest\"}]}, \"command\": [\"./botanist/botanist\", \"zedboot\", \"-properties\", \"/etc/botanist/config.json\", \"-kernel\", \"test-infra.zbi\", \"-results-dir\", \"/tmp/infra-test-output\", \"-out\", \"out.tar\", \"-efi\", \"efi.blk\", \"-fvm\", \"fvm.sparse.blk\", \"zircon.autorun.system=/boot/bin/sh+/boot/infra/runcmds\"], \"dimensions\": [{\"key\": \"device_type\", \"value\": \"Intel NUC Kit NUC6i3SYK\"}, {\"key\": \"pool\", \"value\": \"fuchsia.tests\"}], \"execution_timeout_secs\": \"2400\", \"grace_period_secs\": \"30\", \"idempotent\": false, \"inputs_ref\": {\"isolated\": \"[dummy hash]\", \"isolatedserver\": \"https://isolateserver.appspot.com\", \"namespace\": \"default-gzip\"}, \"io_timeout_secs\": \"60\", \"outputs\": [\"out.tar\"]}}]}",
       "-json-output",
       "/path/to/tmp/json"
     ],

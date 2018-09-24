@@ -925,16 +925,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
           storage_sparse_name,
       ])
 
-      data_template_path = images.get('data-template', None)
-      if data_template_path:
-        data_template_name = self.m.path.basename(data_template_path)
-
-        image_paths.extend([data_template_path])
-        botanist_cmd.extend([
-            '-fvm',
-            data_template_name,
-        ])
-
     # Add the kernel command line arg for invoking runcmds.
     botanist_cmd.append(
         'zircon.autorun.system=/boot/bin/sh+/boot/%s' % RUNCMDS_BOOTFS_PATH)

@@ -501,11 +501,6 @@
       "@@@STEP_LOG_LINE@json.output@    \"name\": \"netboot\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"path\": \"netboot.zbi\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"data-template\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fvm.data.sparse.blk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"blk\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",
       "@@@STEP_LOG_END@json.output@@@"

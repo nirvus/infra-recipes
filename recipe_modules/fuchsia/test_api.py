@@ -174,7 +174,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     return self.step_data('read symbol file summary',
                           self.m.json.output(summary_json))
 
-  def images_step_data(self, has_data_template=True):
+  def images_step_data(self):
     """Returns mock step data for the image manifest."""
     mock_image_manifest = [
         {
@@ -209,19 +209,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
         },
     ]
 
-    if has_data_template:
-      return self.step_data(
-          'read image manifest',
-          self.m.json.output(mock_image_manifest + [
-              {
-                  'name': 'data-template',
-                  'type': 'blk',
-                  'path': 'fvm.data.sparse.blk'
-              },
-          ]))
-    else:
-      return self.step_data('read image manifest',
-                            self.m.json.output(mock_image_manifest))
+    return self.step_data('read image manifest',
+                          self.m.json.output(mock_image_manifest))
 
   def task_mock_data(self,
                      id='39927049b6ee7010',

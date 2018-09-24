@@ -495,14 +495,6 @@ def GenTests(api):
       ),
   )
 
-  # Test case for missing data template
-  yield api.fuchsia.test(
-      'has_no_data_template',
-      properties=dict(run_tests=True),
-      steps=[
-          api.fuchsia.images_step_data(has_data_template=False),
-      ])
-
   # Test cases for testing in shards.
   yield api.fuchsia.test(
       'test_in_shards',
