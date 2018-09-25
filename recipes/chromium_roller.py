@@ -83,18 +83,32 @@ def RunSteps(api, dry_run):
     ensure_contents = api.file.read_text(
         name='read cipd.ensure', source=ensure_file)
 
-    # Replace the CIPD instance_id for each package
+    cipd_api_ensure_file = api.cipd.EnsureFile()
+
     for cipd_pkg in chromium_cipd_pkgs:
         with api.step.nest('update %s' % cipd_pkg):
-            pattern = re.compile(
+            # Extract 'subdir' for each package
+            subdir_pattern = re.compile(
+                r'@Subdir (?P<subdir>[A-Za-z0-9\.\/\_]+)\n' + re.escape(cipd_pkg), re.MULTILINE)
+            subdir = re.search(subdir_pattern, ensure_contents).group('subdir')
+
+            # Replace the CIPD instance_id for each package
+            version_instance_id = pins[cipd_pkg]
+            version_pattern = re.compile(
                 re.escape(cipd_pkg) + r' [A-Za-z0-9_\-]+', re.MULTILINE)
-            repl = cipd_pkg + ' ' + pins[cipd_pkg]
-            ensure_contents = re.sub(pattern, repl, ensure_contents)
+            repl = cipd_pkg + ' ' + version_instance_id
+            ensure_contents = re.sub(version_pattern, repl, ensure_contents)
+
+            # Add each package to CipdApi EnsureFile object
+            cipd_api_ensure_file.add_package(name=cipd_pkg, version=version_instance_id, subdir=subdir)
 
     api.file.write_text(
         name='write cipd.ensure',
         dest=ensure_file,
         text_data=ensure_contents)
+
+    # Ensure packages
+    api.cipd.ensure(topaz_path, cipd_api_ensure_file)
 
     # Update //topaz/runtime/chromium/chromium_web_sources.gni
     update_web_sources_path = topaz_path.join(

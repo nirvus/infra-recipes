@@ -369,6 +369,45 @@
   },
   {
     "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/topaz",
+      "-ensure-file",
+      "@Subdir third_party/chromium/arch/arm64\nchromium/fuchsia/webrunner-arm64 mKI1nni0SW4F1cQAuYnkYU_RtDv47noSKO9vGHJVjzYC\n@Subdir third_party/chromium/arch/x64\nchromium/fuchsia/webrunner-amd64 r2S5xldLzzfJa2VzOYgoC6TsIWePSDLBI5FRywd_gHAC\n@Subdir third_party/chromium/fidl/chromium.web\nchromium/fuchsia/fidl GDGGW7Xs89z2apGaYf1mDvbQuHfYIoPexfedNzvKodUC",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"third_party/chromium/arch/arm64\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-mKI1nni0SW4F1cQA\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"chromium/fuchsia/webrunner-arm64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"third_party/chromium/arch/x64\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-r2S5xldLzzfJa2Vz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"chromium/fuchsia/webrunner-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"third_party/chromium/fidl/chromium.web\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-GDGGW7Xs89z2apGa\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"chromium/fuchsia/fidl\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/topaz/runtime/chromium/update_chromium_web_sources.py"
     ],
     "infra_step": true,
