@@ -19,13 +19,79 @@ https://fuchsia.googlesource.com/infra/infra/+/master/cmd/testsharder/
 from recipe_engine import recipe_api
 
 
+class Test(object):
+  """Represents a test binary which tests Fuchsia."""
+
+  @staticmethod
+  def from_json(jsond):
+    """Creates a new Test from a JSON-compatible dict."""
+    return Test(
+        name=jsond.get('name', ''),
+        location=jsond['location'])
+
+  def __init__(self, name, location):
+    """Initializes a Test.
+
+    Args:
+      name (str): The name of the test.
+      location (str): The location of the test on a running Fuchsia instance.
+    """
+    self.name = name
+    self.location = location
+
+  def render_to_json(self):
+    """Returns a JSON-compatible dict representing the Test.
+
+    The format follows the format found here:
+    https://fuchsia.googlesource.com/infra/infra/+/master/fuchsia/testexec/shard.go
+    """
+    return {
+        'name': self.name,
+        'location': self.location,
+    }
+
+class Shard(object):
+  """Represents a shard of several tests with one common environment."""
+
+  @staticmethod
+  def from_json(jsond):
+    """Creates a new Shard from a JSON-compatible Python dict."""
+    return Shard(
+        name=jsond['name'],
+        tests=[Test.from_json(test) for test in jsond['tests']],
+        device_type=jsond['environment']['device']['type'])
+
+  def __init__(self, name, tests, device_type):
+    """Initializes a Shard.
+
+    Args:
+      name (str): The name of the shard.
+      tests (seq[Test]): A sequence of tests.
+      device_type (str): The type of device which the tests will run on.
+    """
+    self.name = name
+    self.tests = tests
+    self.device_type = device_type
+
+  def render_to_json(self):
+    """Returns a JSON-compatible dict representing the Shard.
+
+    The format follows the format found here:
+    https://fuchsia.googlesource.com/infra/infra/+/master/fuchsia/testexec/shard.go
+    """
+    return {
+        'name': self.name,
+        'tests': [test.render_to_json() for test in self.tests],
+        'environment': {'device': {'type': self.device_type}},
+    }
+
+
 class TestsharderApi(recipe_api.RecipeApi):
   """Module for interacting with the Testsharder tool.
 
   The testsharder tool accepts a set of test specifications and produces
   a file containing shards of execution.
   """
-
   def __init__(self, *args, **kwargs):
     super(TestsharderApi, self).__init__(*args, **kwargs)
     self._testsharder_path = None
@@ -67,9 +133,7 @@ class TestsharderApi(recipe_api.RecipeApi):
       shard_prefix (str): optional prefix for shard names.
 
     Returns:
-      A dict representing a JSON-encoded set of shards. The format for said
-      shards may be found here:
-      https://fuchsia.googlesource.com/infra/infra/+/master/fuchsia/testexec/shard.go
+      A list of Shards, each representing one test shard.
     """
     assert self._testsharder_path
     cmd = [
@@ -81,4 +145,5 @@ class TestsharderApi(recipe_api.RecipeApi):
     ]
     if shard_prefix:
       cmd.extend(['-shard-prefix', shard_prefix])
-    return self.m.step(step_name, cmd).json.output
+    result = self.m.step(step_name, cmd).json.output
+    return [Shard.from_json(shard) for shard in result['shards']]

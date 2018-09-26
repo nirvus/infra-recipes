@@ -20,6 +20,15 @@ def RunSteps(api):
       output_file=api.path['start_dir'].join('leak_output_here'),
   )
 
+  # One may access a number of different aspects of the shard easily as it is a
+  # Python object.
+  for shard in shards:
+    shard.name
+    shard.device_type
+    for test in shard.tests:
+      test.name
+      test.location
+
   # You can add a shard prefix also.
   shards = api.testsharder.execute(
       'shard test specs with shard prefix',
@@ -32,4 +41,22 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  yield api.test('basic')
+  step_data = lambda name: api.testsharder.execute(
+       step_name=name,
+       shards=[
+          api.testsharder.shard(
+        name='0000',
+        device_type='QEMU',
+        tests=[api.testsharder.test(
+            name='test1', location='/path/to/test1')],
+      ),
+      api.testsharder.shard(
+        name='0001',
+        device_type='NUC',
+        tests=[api.testsharder.test(
+            name='test1', location='/path/to/test1')],
+      ),
+  ])
+  yield (api.test('basic') +
+         step_data('shard test specs') +
+         step_data('shard test specs with shard prefix'))

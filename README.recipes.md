@@ -1259,16 +1259,16 @@ https://fuchsia.googlesource.com/infra/infra/+/master/fuchsia/testexec/test_plat
 Testsharder tool:
 https://fuchsia.googlesource.com/infra/infra/+/master/cmd/testsharder/
 
-#### **class [TestsharderApi](/recipe_modules/testsharder/api.py#22)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [TestsharderApi](/recipe_modules/testsharder/api.py#89)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 Module for interacting with the Testsharder tool.
 
 The testsharder tool accepts a set of test specifications and produces
 a file containing shards of execution.
 
-&mdash; **def [ensure\_testsharder](/recipe_modules/testsharder/api.py#33)(self, version='latest'):**
+&mdash; **def [ensure\_testsharder](/recipe_modules/testsharder/api.py#99)(self, version='latest'):**
 
-&mdash; **def [execute](/recipe_modules/testsharder/api.py#46)(self, step_name, target_arch, platforms_file, fuchsia_build_dir, output_file=None, shard_prefix=None):**
+&mdash; **def [execute](/recipe_modules/testsharder/api.py#112)(self, step_name, target_arch, platforms_file, fuchsia_build_dir, output_file=None, shard_prefix=None):**
 
 Executes the testsharder tool.
 
@@ -1285,9 +1285,7 @@ Args:
   shard_prefix (str): optional prefix for shard names.
 
 Returns:
-  A dict representing a JSON-encoded set of shards. The format for said
-  shards may be found here:
-  https://fuchsia.googlesource.com/infra/infra/+/master/fuchsia/testexec/shard.go
+  A list of Shards, each representing one test shard.
 ### *recipe_modules* / [zbi](/recipe_modules/zbi)
 
 [DEPS](/recipe_modules/zbi/__init__.py#1): [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
