@@ -112,6 +112,11 @@ PROPERTIES = {
             help='Whether to pave the primary (default) disk on the device.'
             ' Has no meaning if device_type == "QEMU".',
             default=True),
+    'test_in_shards':
+        Property(
+            kind=bool,
+            help='Whether to run tests in shards',
+            default=False),
 
     # Misc. additional properties.
     'snapshot_gcs_bucket':
@@ -128,7 +133,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variants, gn_args, ninja_targets, run_tests,
              runtests_args, device_type, run_host_tests, networking_for_tests,
              requires_secrets, snapshot_gcs_bucket, upload_breakpad_symbols,
-             pave, boards, products, zircon_args):
+             pave, boards, products, zircon_args, test_in_shards):
   build_input = api.buildbucket.build.input
   if checkout_snapshot:
     if api.properties.get('tryjob'):
@@ -161,21 +166,28 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       zircon_args=zircon_args)
 
   if run_tests:
-    test_results = api.fuchsia.test(
-        build=build,
-        test_pool='fuchsia.tests',
-        pave=pave,
-        device_type=device_type,
-        test_cmds=['runtests' + runtests_args] if run_tests else None,
-        external_network=networking_for_tests,
-        requires_secrets=requires_secrets)
-    # Ensure failed_test_outputs gets filled out when tests fail.
-    if test_results.summary and test_results.failed_test_outputs:
-      assert test_results.failed_test_outputs['/hello']
-    # Ensure passed_test_outputs gets filled out when tests pass.
-    if test_results.summary and test_results.passed_test_outputs:
-      assert test_results.passed_test_outputs['/hello']
-    api.fuchsia.analyze_test_results(test_results)
+    if test_in_shards:
+      all_results = api.fuchsia.test_in_shards(
+          test_pool='fuchsia.tests',
+          build=build)
+      for test_results in all_results:
+        api.fuchsia.analyze_test_results(test_results)
+    else:
+      test_results = api.fuchsia.test(
+          build=build,
+          test_pool='fuchsia.tests',
+          pave=pave,
+          device_type=device_type,
+          test_cmds=['runtests' + runtests_args] if run_tests else None,
+          external_network=networking_for_tests,
+          requires_secrets=requires_secrets)
+      # Ensure failed_test_outputs gets filled out when tests fail.
+      if test_results.summary and test_results.failed_test_outputs:
+        assert test_results.failed_test_outputs['/hello']
+      # Ensure passed_test_outputs gets filled out when tests pass.
+      if test_results.summary and test_results.passed_test_outputs:
+        assert test_results.passed_test_outputs['/hello']
+      api.fuchsia.analyze_test_results(test_results)
 
   if run_host_tests:
     test_results = api.fuchsia.test_on_host(build)
@@ -490,4 +502,40 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.images_step_data(has_data_template=False),
+      ])
+
+  # Test cases for testing in shards.
+  yield api.fuchsia.test(
+      'test_in_shards',
+      clear_default_steps=True,
+      properties=dict(
+          run_tests=True,
+          test_in_shards=True,
+      ),
+      steps=[
+          api.fuchsia.images_step_data(),
+          api.fuchsia.shards_step_data(shards=[
+              api.testsharder.shard(
+                  name='fuchsia-0000',
+                  tests=[api.testsharder.test(
+                      name='test0',
+                      location='/path/to/test0',
+                  )],
+                  device_type='QEMU',
+              ),
+              api.testsharder.shard(
+                  name='fuchsia-0001',
+                  tests=[api.testsharder.test(
+                      name='test1',
+                      location='/path/to/test1',
+                  )],
+                  device_type='NUC',
+              ),
+          ]),
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(id='610', name='fuchsia-0000'),
+              api.fuchsia.task_mock_data(id='710', name='fuchsia-0001'),
+          ),
+          api.fuchsia.test_step_data(shard_name='fuchsia-0000'),
+          api.fuchsia.test_step_data(shard_name='fuchsia-0001'),
       ])

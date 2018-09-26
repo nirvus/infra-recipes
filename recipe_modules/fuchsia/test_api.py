@@ -291,6 +291,23 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     return self.step_data(
         'collect', self.m.swarming.collect(task_data=task_data))
 
+  def shards_step_data(self, shards):
+    """Returns mock step data for test shards.
+
+    This should be used by any test which calls api.fuchsia.test*() and expects
+    to shard tests.
+
+    Args:
+      shards (seq[api.testsharder.Shard]): A set of example shards which should
+        be used as step data for the result of invoking the testsharder.
+
+    Returns:
+      RecipeTestApi.step_data for the extract_results step.
+    """
+    return self.m.testsharder.execute(
+        step_name='create test shards',
+        shards=shards)
+
   def test_step_data(self, failure=False, host_results=False, shard_name=''):
     """Returns mock step data for test results.
 
@@ -310,7 +327,10 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     if host_results:
       step_name = 'run host tests'
     else:
-      step_name = 'extract results'
+      if shard_name:
+        step_name = 'extract %s results' % shard_name
+      else:
+        step_name = 'extract results'
 
     test_name_prefix = '[START_DIR]' if host_results else ''
     summary_json = self.m.json.dumps({

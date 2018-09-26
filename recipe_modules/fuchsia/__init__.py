@@ -10,6 +10,7 @@ DEPS = [
     'infra/qemu',
     'infra/swarming',
     'infra/tar',
+    'infra/testsharder',
     'infra/zbi',
     'recipe_engine/cipd',
     'recipe_engine/buildbucket',

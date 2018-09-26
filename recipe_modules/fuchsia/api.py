@@ -967,7 +967,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
                         'latest')],
     )
 
-  def _extract_test_results(self, device_type, archive_path, leak_to=None):
+  def _extract_test_results(self, device_type, archive_path, shard_name='', leak_to=None):
     """Extracts test results from an archive.
 
     The format of the archive depends on device_type, so that is used to
@@ -978,12 +978,17 @@ class FuchsiaApi(recipe_api.RecipeApi):
       archive_path (Path): The path to the archive which contains test results.
       leak_to (Path): Optionally leak the contents of the archive to a
         directory.
+      shard_name (str): The optional name of the shard for which we're
+        extracting test results. This will be included in the step name for
+        testing purposes.
 
     Returns:
       A dict mapping a filepath relative to the root of the archive to the
       contents of that file in the archive.
     """
     step_name = 'extract results'
+    if shard_name:
+      step_name = 'extract %s results' % shard_name
     if device_type == 'QEMU':
       return self.m.minfs.copy_image(
           step_name=step_name,
@@ -1178,6 +1183,148 @@ class FuchsiaApi(recipe_api.RecipeApi):
         outputs=test_results_map,
         json_api=self.m.json,
     )
+
+  # TODO(mknyszek): Rename to test and delete test when this is stable.
+  def test_in_shards(self, test_pool, build, timeout_secs=40 * 60):
+    """Tests a Fuchsia build by sharding.
+
+    Expects the build and artifacts to be at the same place they were at
+    the end of the build.
+
+    Args:
+      test_pool (str): The Swarming pool to schedule test tasks in.
+      build (FuchsiaBuildResults): The Fuchsia build to test.
+      timeout_secs (int): The amount of seconds to wait for the tests to
+        execute before giving up.
+
+    Returns:
+      A list of FuchsiaTestResults representing the completed test tasks.
+    """
+    images = self._image_paths(build)
+
+    # Run the testsharder to collect test specifications and shard them.
+    self.m.testsharder.ensure_testsharder()
+    shards = self.m.testsharder.execute(
+        'create test shards',
+        target_arch=build.target,
+        # TODO(IN-647): Write a real platforms file that's part of the Fuchsia
+        # source.
+        platforms_file=self.m.json.input([
+            {'name': 'QEMU', 'arch': '*'},
+            {'name': 'Intel NUC Kit NUC6i3SYK', 'arch': 'x64'},
+            {'name': 'Intel NUC Kit NUC7i5DNHE', 'arch': 'x64'},
+        ]),
+        fuchsia_build_dir=build.fuchsia_build_dir,
+    )
+
+    # Generate Swarming task requests.
+    task_requests = []
+    shard_name_to_device_type = {}
+    for shard in shards:
+      shard_name_to_device_type[shard.name] = shard.device_type
+
+      # Produce runtests file for shard.
+      test_locations = []
+      for test in shard.tests:
+        test_locations.append(test.location)
+      runtests_file = self.m.path['cleanup'].join('tests-%s' % shard.name)
+      self.m.file.write_text(
+          name='write %s test list' % shard.name,
+          dest=runtests_file,
+          text_data='\n'.join(test_locations) + '\n',
+      )
+
+      # Produce runcmds script for shard.
+      runtests_file_bootfs_path = 'infra/shard.run'
+      runcmds_path = self.m.path['cleanup'].join('runcmds-%s' % shard.name)
+      self._create_runcmds_script(
+          device_type=shard.device_type,
+          test_cmds=[
+              'runtests -o %s -f /boot/%s' % (
+                  self.results_dir_on_target,
+                  runtests_file_bootfs_path,
+              )
+          ],
+          output_path=runcmds_path,
+      )
+
+      # Create new zbi image for shard.
+      shard_zbi_path = build.fuchsia_build_dir.join('fuchsia-%s.zbi' % shard.name)
+      self.m.zbi.copy_and_extend(
+        step_name='create zbi for %s' % shard.name,
+        # TODO(IN-655): Add support for using the netboot image in non-paving
+        # cases.
+        input_image=images['zircon-a'],
+        output_image=shard_zbi_path,
+        manifest={
+            RUNCMDS_BOOTFS_PATH: runcmds_path,
+            runtests_file_bootfs_path: runtests_file,
+        },
+      )
+
+      if shard.device_type == 'QEMU':
+        task_requests.append(self._construct_qemu_task_request(
+            task_name=shard.name,
+            zbi_path=shard_zbi_path,
+            test_pool=test_pool,
+            build=build,
+            images=images,
+            timeout_secs=timeout_secs,
+            # TODO(IN-654): Add support for external_network and secret_bytes.
+            external_network=False,
+            secret_bytes='',
+        ))
+      else:
+        task_requests.append(self._construct_device_task_request(
+            task_name=shard.name,
+            test_pool=test_pool,
+            device_type=shard.device_type,
+            zbi_path=shard_zbi_path,
+            build=build,
+            images=images,
+            timeout_secs=timeout_secs,
+            # TODO(IN-655): Add support for non-paving tests.
+            pave=True,
+        ))
+
+    with self.m.context(infra_steps=True):
+      # Spawn tasks.
+      requests_json = self.m.swarming.spawn_tasks(tasks=task_requests)
+
+      # Collect results.
+      results = self.m.swarming.collect(
+          requests_json=self.m.json.input(requests_json))
+
+      # Iterate over all task results, check them, and collect test results.
+      fuchsia_test_results = []
+      for result in results:
+        # Figure out what happened to the swarming tasks.
+        self.analyze_collect_result(
+            step_name='%s task results' % result.name,
+            result=result,
+            build_dir=build.fuchsia_build_dir,
+        )
+        # Extract test results (there should only be one archive).
+        assert len(result.outputs) == 1
+        archive_name = result.outputs.keys()[0]
+        results_dir = self.results_dir_on_host.join(result.id)
+        test_results_map = self._extract_test_results(
+            shard_name=result.name,
+            device_type=shard_name_to_device_type[result.name],
+            archive_path=result.outputs[archive_name],
+            # Write test results to the a subdirectory of |results_dir_on_host|
+            # so as not to collide with host test results.
+            leak_to=results_dir,
+        )
+        fuchsia_test_results.append(self.FuchsiaTestResults(
+            name=shard.name,
+            build_dir=build.fuchsia_build_dir,
+            results_dir=results_dir,
+            zircon_kernel_log=result.output,
+            outputs=test_results_map,
+            json_api=self.m.json,
+        ))
+    return fuchsia_test_results
 
   def analyze_collect_result(self, step_name, result, build_dir):
     """Analyzes a swarming.CollectResult and reports results as a step.

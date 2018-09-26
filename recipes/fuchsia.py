@@ -25,6 +25,7 @@ DEPS = [
     'infra/hash',
     'infra/jiri',
     'infra/tar',
+    'infra/testsharder',
     'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/file',
@@ -135,6 +136,11 @@ PROPERTIES = {
             kind=bool,
             help='Whether any plaintext needs to be supplied to the tests',
             default=False),
+    'test_in_shards':
+        Property(
+            kind=bool,
+            help='Whether to run tests as shards',
+            default=False),
 
     # Properties pertaining to uploading build artifacts.
     'snapshot_gcs_bucket':
@@ -158,8 +164,8 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variant, gn_args, test_pool, run_tests,
              runtests_args, run_host_tests, device_type, networking_for_tests,
              pave, ninja_targets, test_timeout_secs, requires_secrets,
-             archive_gcs_bucket, upload_breakpad_symbols, snapshot_gcs_bucket,
-             boards, products, zircon_args):
+             test_in_shards, archive_gcs_bucket, upload_breakpad_symbols,
+             snapshot_gcs_bucket, boards, products, zircon_args):
   tryjob = api.properties.get('tryjob')
 
   # Don't upload snapshots for tryjobs.
@@ -260,22 +266,30 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
   )
 
   if run_tests:
-    test_results = api.fuchsia.test(
-        build=build,
-        test_pool=test_pool,
-        timeout_secs=test_timeout_secs,
-        pave=pave,
-        test_cmds=[
-            'runtests -o %s %s' % (
-                api.fuchsia.results_dir_on_target,
-                runtests_args,
-            ),
-        ],
-        device_type=device_type,
-        external_network=networking_for_tests,
-        requires_secrets=requires_secrets,
-    )
-    api.fuchsia.analyze_test_results(test_results)
+    if test_in_shards:
+      all_results = api.fuchsia.test_in_shards(
+          test_pool=test_pool,
+          build=build,
+          timeout_secs=test_timeout_secs,
+      )
+    else:
+      all_results = [api.fuchsia.test(
+          build=build,
+          test_pool=test_pool,
+          timeout_secs=test_timeout_secs,
+          pave=pave,
+          test_cmds=[
+              'runtests -o %s %s' % (
+                  api.fuchsia.results_dir_on_target,
+                  runtests_args,
+              ),
+          ],
+          device_type=device_type,
+          external_network=networking_for_tests,
+          requires_secrets=requires_secrets,
+      )]
+    for test_results in all_results:
+      api.fuchsia.analyze_test_results(test_results)
   else:
     # Bloaty is run during the testing phase for performance reasons, but we
     # also want to run it on build-only bots if specified.
@@ -482,3 +496,39 @@ def GenTests(api):
           device_type='Intel NUC Kit NUC6i3SYK',
       ),
   )
+
+  # Test cases for testing in shards.
+  yield api.fuchsia.test(
+      'test_in_shards',
+      clear_default_steps=True,
+      properties=dict(
+          run_tests=True,
+          test_in_shards=True,
+      ),
+      steps=[
+          api.fuchsia.images_step_data(),
+          api.fuchsia.shards_step_data(shards=[
+              api.testsharder.shard(
+                  name='fuchsia-0000',
+                  tests=[api.testsharder.test(
+                      name='test0',
+                      location='/path/to/test0',
+                  )],
+                  device_type='QEMU',
+              ),
+              api.testsharder.shard(
+                  name='fuchsia-0001',
+                  tests=[api.testsharder.test(
+                      name='test1',
+                      location='/path/to/test1',
+                  )],
+                  device_type='NUC',
+              ),
+          ]),
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(id='610', name='fuchsia-0000'),
+              api.fuchsia.task_mock_data(id='710', name='fuchsia-0001'),
+          ),
+          api.fuchsia.test_step_data(shard_name='fuchsia-0000'),
+          api.fuchsia.test_step_data(shard_name='fuchsia-0001'),
+      ])
