@@ -515,7 +515,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"https://fuchsia-review.googlesource.com/topaz~master~Iabc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
+      "{\"change_id\": \"topaz~master~Iabc123\", \"input\": {\"labels\": {\"Code-Review\": 2, \"Commit-Queue\": 2}}, \"revision_id\": \"current\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -534,7 +534,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"https://fuchsia-review.googlesource.com/topaz~master~Iabc123\"}",
+      "{\"change_id\": \"topaz~master~Iabc123\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -557,7 +557,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"https://fuchsia-review.googlesource.com/topaz~master~Iabc123\"}",
+      "{\"change_id\": \"topaz~master~Iabc123\"}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -567,7 +567,7 @@
       "@@@STEP_LOG_END@json.output (invalid)@@@",
       "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
       "@@@STEP_LOG_END@json.output (exception)@@@",
-      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/https://fuchsia-review.googlesource.com/topaz~master~Iabc123@@@"
+      "@@@STEP_LINK@gerrit link@https://fuchsia-review.googlesource.com/q/topaz~master~Iabc123@@@"
     ]
   },
   {

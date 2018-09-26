@@ -119,7 +119,7 @@ def RunSteps(api, dry_run):
 
     # Land the changes.
     api.auto_roller.attempt_roll(
-        gerrit_project='https://fuchsia-review.googlesource.com/topaz',
+        gerrit_project='topaz',
         repo_dir=topaz_path,
         commit_message=message,
         dry_run=dry_run,
