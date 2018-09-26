@@ -139,6 +139,36 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure_packages"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "go/cmd/github.com/golang/dep/${platform} version:0.3.2",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_packages.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:0.3.2---\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"go/cmd/github.com/golang/dep/${platform}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "project",
@@ -148,7 +178,9 @@
       "/path/to/tmp/json",
       "infra/infra"
     ],
-    "infra_step": true,
+    "env": {
+      "GOPATH": "[START_DIR]/go"
+    },
     "name": "jiri project",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@[@@@",
@@ -168,13 +200,24 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/go/bin/go",
-      "test",
-      "-v",
-      "./..."
+      "[START_DIR]/cipd/dep",
+      "ensure",
+      "-v"
     ],
     "cwd": "[START_DIR]/path/to/infra/infra",
     "env": {
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "dep_ensure"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "test",
+      "fuchsia.googlesource.com/infra/infra/..."
+    ],
+    "env": {
+      "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
     "name": "go test"
@@ -187,10 +230,10 @@
       "[TMP_BASE]/infra_tmp_1/catapult",
       "fuchsia.googlesource.com/infra/infra/cmd/catapult"
     ],
-    "cwd": "[START_DIR]/path/to/infra/infra",
     "env": {
       "GOARCH": "amd64",
       "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
     "name": "go build"
@@ -205,10 +248,10 @@
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]/path/to/infra/infra",
     "env": {
       "GOARCH": "amd64",
-      "GOOS": "linux"
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
     },
     "name": "cipd search fuchsia/infra/catapult/linux-amd64 git_revision:a1b2c3",
     "~followup_annotations": [
@@ -233,10 +276,10 @@
       "-tag",
       "git_revision:a1b2c3"
     ],
-    "cwd": "[START_DIR]/path/to/infra/infra",
     "env": {
       "GOARCH": "amd64",
-      "GOOS": "linux"
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
     },
     "name": "create fuchsia/infra/catapult/linux-amd64",
     "~followup_annotations": [
@@ -258,10 +301,10 @@
       "[TMP_BASE]/infra_tmp_1/catapult",
       "fuchsia.googlesource.com/infra/infra/cmd/catapult"
     ],
-    "cwd": "[START_DIR]/path/to/infra/infra",
     "env": {
       "GOARCH": "arm64",
       "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
     "name": "go build (2)"
@@ -276,10 +319,10 @@
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "cwd": "[START_DIR]/path/to/infra/infra",
     "env": {
       "GOARCH": "arm64",
-      "GOOS": "linux"
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
     },
     "name": "cipd search fuchsia/infra/catapult/linux-arm64 git_revision:a1b2c3",
     "~followup_annotations": [
@@ -296,10 +339,10 @@
   },
   {
     "cmd": [],
-    "cwd": "[START_DIR]/path/to/infra/infra",
     "env": {
       "GOARCH": "arm64",
-      "GOOS": "linux"
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
     },
     "name": "Package is up-to-date"
   },

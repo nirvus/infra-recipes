@@ -7,6 +7,9 @@ This recipe builds one or more Go binaries in the specified project and
 publishes them all to CIPD.  If one or more tests for any package in the
 project fail, or one or more packages fail to build, execution stops and no
 packages are uploaded.
+
+This recipe uses golang/dep to manage dependencies, so the given project is
+expected to have a Gopkg.toml file specifying its dependency restrictions.
 """
 
 from recipe_engine.recipe_api import Property
@@ -41,6 +44,13 @@ PROPERTIES = {
     'packages':
         Property(kind=List(str), help='The list of packages to build'),
 }
+
+# The tag referencing the golang/dep CIPD package used to install dependencies.
+#
+# Do not confuse this with the version of https://github.com/golang/dep itself.
+# The CIPD package referenced by this version should provide the same version
+# of https://github.com/golang/dep that is used for local development
+DEP_VERSION = 'version:0.3.2'
 
 # The Go import path for Fuchsia's infra tools project.
 PKG_NAME = 'fuchsia.googlesource.com/infra/infra'
@@ -84,6 +94,7 @@ def RunSteps(api, project, manifest, remote, packages):
   api.go.ensure_go()
 
   gopath = api.path['start_dir'].join('go')
+
   build_input = api.buildbucket.build.input
 
   # Checkout the project at the specified patch.
@@ -92,13 +103,29 @@ def RunSteps(api, project, manifest, remote, packages):
                       remote=remote,
                       project=project,
                       build_input=build_input)
-    path = api.jiri.project([project]).json.output[0]['path']
 
-  with api.context(cwd=api.path.abs_to_path(path)):
+  # Install golang/dep for dependencies.
+  with api.step.nest('ensure_packages'):
+    with api.context(infra_steps=True):
+      cipd_dir = api.path['start_dir'].join('cipd')
+      api.cipd.ensure(cipd_dir, {
+          'go/cmd/github.com/golang/dep/${platform}': DEP_VERSION,
+      })
+
+  with api.context(env={'GOPATH': gopath}):
+    # A string representing the absolute path where Jiri places the project.
+    abs_project_path = api.jiri.project([project]).json.output[0]['path']
+
+    with api.context(cwd=api.path.abs_to_path(abs_project_path)):
+      # Download dependencies.
+      dep_exe = cipd_dir.join('dep')
+      api.step('dep_ensure', [dep_exe, 'ensure', '-v'])
+
     # Run all tests in the project.
-    api.go('test', '-v', './...')
+    api.go('test', api.url.join(PKG_NAME, '...'))
 
     bin_dir = api.path.mkdtemp('infra')
+
 
     # Build all tools for both x64 and arm64.
     for arch in ['amd64', 'arm64']:
