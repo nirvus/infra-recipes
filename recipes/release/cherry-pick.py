@@ -12,6 +12,7 @@ from recipe_engine.recipe_api import Property
 
 DEPS = [
     'infra/git',
+    'infra/jiri',
     'infra/auto_roller',
     'recipe_engine/context',
     'recipe_engine/file',
@@ -39,6 +40,12 @@ PROPERTIES = {
             help=
             'List of cherry-picks to apply in the form ["project1/ref1", "project2/ref2"]',
             default=None),
+    'pins':
+        Property(
+            kind=List(basestring),
+            help=
+            'List of snapshot pins to update in the form ["project1/ref1", "project2/ref2"]',
+            default=None),
     'remote':
         Property(
             kind=str,
@@ -55,13 +62,17 @@ COMMIT_MESSAGE = """[cherrypick] Cherry-pick onto {version}
 
 Cherry-picks:
 {cherry_picks}
+Pin rolls:
+{pins}
 """
 
 
-def RunSteps(api, branch, cherry_picks, remote, gerrit_project, version):
+def RunSteps(api, branch, cherry_picks, pins, remote, gerrit_project, version):
+  api.jiri.ensure_jiri()
   with api.context(infra_steps=True):
-    if len(cherry_picks) == 0:
+    if len(cherry_picks) + len(pins) == 0:
       raise api.step.StepFailure('No cherry-picks supplied')
+
     release_path = api.path['start_dir'].join('releases')
     api.git.checkout(
         url=remote,
@@ -69,33 +80,42 @@ def RunSteps(api, branch, cherry_picks, remote, gerrit_project, version):
         ref=version,
     )
 
-    cherry_pick_file = release_path.join('cherrypick.json')
-    existing_cherry_picks = None
+    if len(cherry_picks):
+        cherry_pick_file = release_path.join('cherrypick.json')
+        existing_cherry_picks = None
 
-    # Read existing cherry-picks if they exist
-    if api.path.exists(cherry_pick_file):
-      existing_cherry_picks = api.json.read(
-          name='read cherry-pick file', path=cherry_pick_file).json.output
+        # Read existing cherry-picks if they exist
+        if api.path.exists(cherry_pick_file):
+            existing_cherry_picks = api.json.read(
+                name='read cherry-pick file', path=cherry_pick_file).json.output
 
-    # If the cherry pick file is empty or didn't exist, create an empty dict
-    if existing_cherry_picks is None:
-      existing_cherry_picks = {}
+        # If the cherry pick file is empty or didn't exist, create an empty dict
+        if existing_cherry_picks is None:
+            existing_cherry_picks = {}
 
-    # For each cherry pick passed as a recipe property
-    for cherry_pick in cherry_picks:
-      project, ref = cherry_pick.split("/")
-      # If the project doesn't exist add it
-      if project not in existing_cherry_picks:
-        existing_cherry_picks[project] = []
-      # If the ref doesn't exist add it
-      if ref not in existing_cherry_picks[project]:
-        existing_cherry_picks[project].append(ref)
+        # For each cherry pick passed as a recipe property
+        for cherry_pick in cherry_picks:
+            project, ref = cherry_pick.split("/")
+            # If the project doesn't exist add it
+            if project not in existing_cherry_picks:
+                existing_cherry_picks[project] = []
+            # If the ref doesn't exist add it
+            if ref not in existing_cherry_picks[project]:
+                existing_cherry_picks[project].append(ref)
 
-    api.file.write_raw('write cherry-pick file', cherry_pick_file,
-                       json.dumps(existing_cherry_picks))
+        api.file.write_raw('write cherry-pick file', cherry_pick_file,
+                        json.dumps(existing_cherry_picks))
+
+    if len(pins):
+        snapshot_file = release_path.join('snapshot')
+        project_edits = []
+        for pin in pins:
+            project, ref = pin.split("/")
+            project_edits.append((project, ref))
+        api.jiri.edit_manifest(snapshot_file, projects=project_edits)
 
     message = COMMIT_MESSAGE.format(
-        cherry_picks=''.join(cherry_picks), version=version)
+        cherry_picks=''.join(cherry_picks), pins=''.join(pins), version=version)
 
     api.auto_roller.attempt_roll(
         gerrit_project=gerrit_project,
@@ -124,6 +144,16 @@ def GenTests(api):
       branch="master",
       version="20180830_00_RC00",
       cherry_picks=['topaz/fc4dc762688d2263b254208f444f5c0a4b91bc07'],
+      pins=[],
+      remote="https://fuchsia.googlesource.com/releases",
+      project="releases") + api.step_data('check if done (0)',
+                                          api.auto_roller.success())
+
+  yield api.test('one roll') + api.properties(
+      branch="master",
+      version="20180830_00_RC00",
+      cherry_picks=[],
+      pins=['topaz/fc4dc762688d2263b254208f444f5c0a4b91bc07'],
       remote="https://fuchsia.googlesource.com/releases",
       project="releases") + api.step_data('check if done (0)',
                                           api.auto_roller.success())
@@ -132,6 +162,7 @@ def GenTests(api):
       branch="master",
       version="20180830_00_RC00",
       cherry_picks=[],
+      pins=[],
       remote="https://fuchsia.googlesource.com/releases",
       project="releases")
 
@@ -139,6 +170,7 @@ def GenTests(api):
       branch="master",
       version="20180830_00_RC00",
       cherry_picks=['topaz/fc4dc762688d2263b254208f444f5c0a4b91bc07'],
+      pins=[],
       remote="https://fuchsia.googlesource.com/releases",
       project="releases") + api.step_data(
           'check if done (0)', api.auto_roller.success()) + api.path.exists(

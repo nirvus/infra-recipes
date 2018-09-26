@@ -1,5 +1,35 @@
 [
   {
+    "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "python",
       "-u",
@@ -203,7 +233,7 @@
       "git",
       "commit",
       "-m",
-      "[cherrypick] Cherry-pick onto 20180830_00_RC00\n\nCherry-picks:\ntopaz/fc4dc762688d2263b254208f444f5c0a4b91bc07\n\nChange-Id: Iabc123\n"
+      "[cherrypick] Cherry-pick onto 20180830_00_RC00\n\nCherry-picks:\ntopaz/fc4dc762688d2263b254208f444f5c0a4b91bc07\nPin rolls:\n\n\nChange-Id: Iabc123\n"
     ],
     "cwd": "[START_DIR]/releases",
     "infra_step": true,

@@ -1694,11 +1694,11 @@ Recipe for testing Recipes.
 &mdash; **def [RunSteps](/recipes/recipes.py#28)(api, project, manifest, remote):**
 ### *recipes* / [release/cherry-pick](/recipes/release/cherry-pick.py)
 
-[DEPS](/recipes/release/cherry-pick.py#13): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
+[DEPS](/recipes/release/cherry-pick.py#13): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
 
 Recipe for cherry-picking changes into a release.
 
-&mdash; **def [RunSteps](/recipes/release/cherry-pick.py#61)(api, branch, cherry_picks, remote, gerrit_project, version):**
+&mdash; **def [RunSteps](/recipes/release/cherry-pick.py#70)(api, branch, cherry_picks, pins, remote, gerrit_project, version):**
 ### *recipes* / [release/snapshot](/recipes/release/snapshot.py)
 
 [DEPS](/recipes/release/snapshot.py#11): [git](#recipe_modules-git), [lkgs](#recipe_modules-lkgs), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/time][recipe_engine/recipe_modules/time]

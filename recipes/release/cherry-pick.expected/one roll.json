@@ -136,33 +136,33 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[START_DIR]/releases/cherrypick.json",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "read cherry-pick file",
-    "~followup_annotations": [
-      "@@@STEP_LOG_END@json.output (invalid)@@@",
-      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
-      "@@@STEP_LOG_END@json.output (exception)@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
+      "[START_DIR]/cipd/jiri/jiri",
+      "edit",
+      "-v",
+      "-time",
+      "-json-output",
       "/path/to/tmp/json",
-      "copy",
-      "{\"topaz\": [\"fc4dc762688d2263b254208f444f5c0a4b91bc07\"]}",
-      "[START_DIR]/releases/cherrypick.json"
+      "-project",
+      "topaz=fc4dc762688d2263b254208f444f5c0a4b91bc07",
+      "[START_DIR]/releases/snapshot"
     ],
     "infra_step": true,
-    "name": "write cherry-pick file"
+    "name": "jiri edit",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"imports\": [], @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"projects\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"topaz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"new_revision\": \"fc4dc762688d2263b254208f444f5c0a4b91bc07\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"old_revision\": \"[OLD_REVISION]\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"path\": \"/path/to/topaz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"remote\": \"http://example.com\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
   },
   {
     "cmd": [],
@@ -249,7 +249,7 @@
       "git",
       "commit",
       "-m",
-      "[cherrypick] Cherry-pick onto 20180830_00_RC00\n\nCherry-picks:\ntopaz/fc4dc762688d2263b254208f444f5c0a4b91bc07\nPin rolls:\n\n\nChange-Id: Iabc123\n"
+      "[cherrypick] Cherry-pick onto 20180830_00_RC00\n\nCherry-picks:\n\nPin rolls:\ntopaz/fc4dc762688d2263b254208f444f5c0a4b91bc07\n\nChange-Id: Iabc123\n"
     ],
     "cwd": "[START_DIR]/releases",
     "infra_step": true,
