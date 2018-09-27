@@ -107,9 +107,9 @@ def RunSteps(api, project, manifest, remote, packages, run_gndoc):
 
   build_input = api.buildbucket.build.input
   api.fuchsia.checkout(
+      build_input=build_input,
       manifest=manifest,
       remote=remote,
-      build_input=build_input,
       project=project,
   )
 

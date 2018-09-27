@@ -29,10 +29,10 @@ PROPERTIES = {
 
 def RunSteps(api, project, remote, manifest):
   checkout = api.fuchsia.checkout(
+      build_input=api.buildbucket.build.input,
       manifest=manifest,
       remote=remote,
       project=project,
-      build_input=api.buildbucket.build.input,
   )
   licenses_path = checkout.root_dir.join('topaz', 'tools', 'check-licenses.sh')
   with api.context(cwd=checkout.root_dir):

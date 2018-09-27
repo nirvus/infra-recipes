@@ -215,10 +215,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
         'test_coverage_gcs_bucket')
 
   def checkout(self,
+               build_input,
                manifest,
                remote,
                project=None,
-               build_input=None,
                snapshot_gcs_buckets=(),
                timeout_secs=20 * 60):
     """Uses Jiri to check out a Fuchsia project.
@@ -226,11 +226,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
     Args:
+      build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
+        build.
       manifest (str): A path to the manifest in the remote (e.g. manifest/minimal)
       remote (str): A URL to the remote repository which Jiri will be pointed at
       project (str): The name of the project
-      build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
-        build.
       snapshot_gcs_buckets (seq of str): The GCS buckets to upload the Jiri
           snapshot to. None/empty elements are ignored.
       timeout_secs (int): How long to wait for the checkout to complete

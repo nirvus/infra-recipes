@@ -47,10 +47,10 @@ def RunSteps(api, project, manifest, remote, checks):
   api.clang_tidy.ensure_clang()
 
   checkout_dir = api.fuchsia.checkout(
+      build_input=api.buildbucket.build.input,
       manifest=manifest,
       remote=remote,
       project=project,
-      build_input=api.buildbucket.build.input
   ).root_dir
   compile_commands = api.clang_tidy.gen_compile_commands(checkout_dir)
 

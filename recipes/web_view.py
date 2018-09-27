@@ -39,9 +39,9 @@ def RunSteps(api, snapshot_gcs_bucket):
 
   build_input = api.buildbucket.build.input
   checkout = api.fuchsia.checkout(
+      build_input=build_input,
       manifest='webkit',
       remote='https://fuchsia.googlesource.com/third_party/webkit',
-      build_input=build_input,
       snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
   # For historical reasons, webview prebuilts use a hash of the snapshot file

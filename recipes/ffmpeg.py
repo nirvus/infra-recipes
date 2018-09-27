@@ -44,10 +44,10 @@ def RunSteps(api, project, snapshot_gcs_bucket):
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
+      build_input=build_input,
       manifest='manifest/ffmpeg',
       remote='https://fuchsia.googlesource.com/third_party/ffmpeg',
       project=project,
-      build_input=build_input,
       snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
 

@@ -211,10 +211,10 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
     if snapshot_gcs_bucket:
         buckets = (snapshot_gcs_bucket, archive_gcs_bucket)
     api.fuchsia.checkout(
+        build_input=build_input,
         manifest=manifest,
         remote=remote,
         project=project,
-        build_input=build_input,
         snapshot_gcs_buckets=buckets,
     )
 

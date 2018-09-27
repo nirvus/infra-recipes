@@ -146,10 +146,10 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   if api.properties.get('tryjob'):
     snapshot_gcs_bucket = None
   api.fuchsia.checkout(
+      build_input=api.buildbucket.build.input,
       manifest=manifest,
       remote=remote,
       project=project,
-      build_input=api.buildbucket.build.input,
       snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
 

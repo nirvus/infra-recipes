@@ -145,10 +145,10 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
           gitiles_commit=build_input.gitiles_commit,)
   else:
     checkout = api.fuchsia.checkout(
+        build_input=build_input,
         manifest=manifest,
         remote=remote,
         project=project,
-        build_input=build_input,
         snapshot_gcs_buckets=[snapshot_gcs_bucket],
     )
   assert checkout.root_dir

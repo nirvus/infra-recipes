@@ -49,10 +49,10 @@ def RunSteps(api, project, manifest, remote):
 
   build_input = api.buildbucket.build.input
   api.fuchsia.checkout(
+      build_input=build_input,
       manifest=manifest,
       remote=remote,
-      project=project,
-      build_input=build_input)
+      project=project)
 
   with api.context(infra_steps=True):
     revision = build_input.gitiles_commit.id
