@@ -53,7 +53,7 @@
       "-name",
       "build",
       "-revision",
-      "9bb87e3415a943a91b62a7003d870b7f2d354c57",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "manifest/build",
       "https://fuchsia.googlesource.com/build"
     ],
@@ -293,11 +293,11 @@
       "search",
       "fuchsia/tools/json_validator/linux-amd64",
       "-tag",
-      "git_revision:9bb87e3415a943a91b62a7003d870b7f2d354c57",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:9bb87e3415a943a91b62a7003d870b7f2d354c57",
+    "name": "cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -318,7 +318,7 @@
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/build",
       "-tag",
-      "git_revision:9bb87e3415a943a91b62a7003d870b7f2d354c57"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "name": "create fuchsia/tools/json_validator/linux-amd64",
     "~followup_annotations": [

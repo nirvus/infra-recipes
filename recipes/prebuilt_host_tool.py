@@ -10,6 +10,7 @@ DEPS = [
     'infra/cipd',
     'infra/fuchsia',
     'infra/jiri',
+    'recipe_engine/buildbucket',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/properties',
@@ -31,18 +32,10 @@ PROPERTIES = {
             default=[]),
     'packages':
         Property(kind=List(basestring), help='Packages to build', default=[]),
-    'patch_gerrit_url':
-        Property(kind=str, help='Gerrit host', default=None),
-    'patch_project':
-        Property(kind=str, help='Gerrit project', default=None),
-    'patch_ref':
-        Property(kind=str, help='Gerrit patch ref', default=None),
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
-    'revision':
-        Property(kind=str, help='Revision of manifest to import', default=None),
 }
 
 
@@ -102,21 +95,19 @@ def GetBinPathComponents(build_dir, ninja_target):
 
 
 def RunSteps(api, cipd_pkg_prefix, manifest, ninja_targets, packages,
-             patch_gerrit_url, patch_project, patch_ref, project, remote,
-             revision):
+             project, remote):
   api.jiri.ensure_jiri()
 
+  build_input = api.buildbucket.build.input
   with api.context(infra_steps=True):
     api.jiri.checkout(
         manifest=manifest,
         remote=remote,
         project=project,
-        revision=revision,
-        patch_ref=patch_ref,
-        patch_gerrit_url=patch_gerrit_url,
-        patch_project=patch_project)
-    if not revision:
-      revision = api.jiri.project([project]).json.output[0]['revision']
+        build_input=build_input)
+
+    revision = build_input.gitiles_commit.id
+    assert revision
 
   # TODO(IN-580): Extract ninja build functionality into its own recipe_module
   build = api.fuchsia.build(
@@ -133,52 +124,47 @@ def RunSteps(api, cipd_pkg_prefix, manifest, ninja_targets, packages,
 
 
 def GenTests(api):
-  yield api.test('default') + api.properties(
+  revision = api.jiri.example_revision
+  ci_build = api.buildbucket.ci_build(
+    git_repo='https://fuchsia.googlesource.com/build',
+    revision=revision,
+  )
+
+  yield api.test('default') + ci_build + api.properties(
       cipd_pkg_prefix='fuchsia/tools',
       manifest='manifest/build',
       ninja_targets=['tools/json_validator'],
       packages=['build/packages/json_validator'],
       project='build',
       remote='https://fuchsia.googlesource.com/build',
-      revision='9bb87e3415a943a91b62a7003d870b7f2d354c57',
   ) + api.step_data(
       # Mock api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
       # by expanding the internal step name and providing a result for the step
-      'cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:9bb87e3415a943a91b62a7003d870b7f2d354c57',
+      'cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:%s' % revision,
       api.json.output({
           'result': []
       }),
   )
-  yield api.test('cipd_has_revision') + api.properties(
+  yield api.test('cipd_has_revision') + ci_build + api.properties(
       cipd_pkg_prefix='fuchsia/tools',
       manifest='manifest/build',
       ninja_targets=['tools/json_validator'],
       packages=['build/packages/json_validator'],
       project='build',
       remote='https://fuchsia.googlesource.com/build',
-      revision='9bb87e3415a943a91b62a7003d870b7f2d354c57',
   ) + api.step_data(
-      'cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:9bb87e3415a943a91b62a7003d870b7f2d354c57',
+      'cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:%s' % revision,
       api.json.output({
           'result': [
-              'Packages: fuchsia/tools/json_validator/linux-amd64:9bb87e3415a943a91b62a7003d870b7f2d354c57'
+              'Packages: fuchsia/tools/json_validator/linux-amd64:%s' % revision
           ]
       }),
   )
-  yield api.test('no_revision') + api.properties(
+  yield api.test('no_revision') + ci_build + api.properties(
       cipd_pkg_prefix='fuchsia/tools',
       manifest='manifest/build',
       ninja_targets=['tools/json_validator'],
       packages=['build/packages/json_validator'],
       project='build',
       remote='https://fuchsia.googlesource.com/build',
-  )
-  yield api.test('tryjob') + api.properties.tryserver(
-      manifest='manifest/build',
-      ninja_targets=['tools/json_validator'],
-      packages=['build/packages/json_validator'],
-      project='build',
-      remote='https://fuchsia.googlesource.com/build',
-      revision='9bb87e3415a943a91b62a7003d870b7f2d354c57',
-      tryjob=True,
   )
