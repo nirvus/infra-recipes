@@ -336,6 +336,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       patch_gerrit_url = patch_gerrit_url or 'https://%s' % gerrit_change.host
       patch_issue = patch_issue or gerrit_change.change
       patch_project = patch_project or gerrit_change.project
+      patch_ref = patch_ref or self.m.gerrit.get_change_ref(
+          gerrit_change.change, gerrit_change.patchset)
 
       git_host = gerrit_change.host
       gs_suffix = '-review.googlesource.com'
@@ -359,32 +361,20 @@ class FuchsiaApi(recipe_api.RecipeApi):
       # via the Gerrit recipe module because CQ does not provide this
       # information. This is the canonical way in which other Chrome Infra
       # tryjob recipes are able to rebase onto the destination branch.
-      self.m.gerrit.ensure_gerrit()
-      details = self.m.gerrit.change_details(
-          name='get change details',
-          change_id='%s~%s' % (patch_project, patch_issue),
-          gerrit_host=patch_gerrit_url,
-          test_data=self.m.json.test_api.output({
-              'branch': 'master',
-              'current_revision': 'a1b2c3',
-              'revisions': {
-                  'a1b2c3': {
-                      'ref': 'refs/changes/00/100/5'
-                  }
-              }
-          }),
-      )
-
-      if not patch_ref:
-        current_revision = details['current_revision']
-        patch_ref = details['revisions'][current_revision]['ref']
-
       self.m.git.checkout(
           url='%s/%s' % (patch_gerrit_url, patch_project),
           ref=patch_ref,
           path=snapshot_repo_dir,
       )
-
+      self.m.gerrit.ensure_gerrit()
+      details = self.m.gerrit.change_details(
+          name='get destination branch',
+          change_id='%s~%s' % (patch_project, patch_issue),
+          gerrit_host=patch_gerrit_url,
+          test_data=self.m.json.test_api.output({
+              'branch': 'master'
+          }),
+      )
       with self.m.context(cwd=snapshot_repo_dir):
         self.m.git('fetch', patch_repository_url, details['branch'])
         self.m.git('rebase', 'FETCH_HEAD')
