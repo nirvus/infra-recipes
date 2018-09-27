@@ -219,15 +219,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
                remote,
                project=None,
                build_input=None,
-               revision=None,
-               patch_ref=None,
-               patch_gerrit_url=None,
-               patch_project=None,
                snapshot_gcs_buckets=(),
                timeout_secs=20 * 60):
     """Uses Jiri to check out a Fuchsia project.
 
-    The patch_* arguments must all be set, or none at all.
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
     Args:
@@ -236,10 +231,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
       project (str): The name of the project
       build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
         build.
-      revision (str): The revision of the remote repository to import
-      patch_ref (str): A reference ID to the patch in Gerrit to apply
-      patch_gerrit_url (str): A URL of the patch in Gerrit to apply
-      patch_project (str): The name of Gerrit project
       snapshot_gcs_buckets (seq of str): The GCS buckets to upload the Jiri
           snapshot to. None/empty elements are ignored.
       timeout_secs (int): How long to wait for the checkout to complete
@@ -255,10 +246,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
           remote,
           project=project,
           build_input=build_input,
-          revision=revision,
-          patch_ref=patch_ref,
-          patch_gerrit_url=patch_gerrit_url,
-          patch_project=patch_project,
           timeout_secs=timeout_secs,
       )
 
@@ -310,41 +297,19 @@ class FuchsiaApi(recipe_api.RecipeApi):
       return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
 
   def checkout_patched_snapshot(self,
-                                gerrit_change=None,
-                                patch_gerrit_url=None,
-                                patch_issue=None,
-                                patch_project=None,
-                                patch_ref=None,
-                                patch_repository_url=None,
+                                gerrit_change,
                                 timeout_secs=20 * 60):
     """Uses Jiri to check out Fuchsia from a Jiri snapshot from a Gerrit patch.
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
     Args:
       gerrit_change (buildbucket.common_pb2.GerritChange): A Gerrit change.
-      patch_gerrit_url (str): A URL of the patch in Gerrit to apply.
-      patch_issue (str): The issue number for Gerrit CL.
-      patch_project (str): The name of Gerrit project.
-      patch_ref (str): A reference ID to the patch in Gerrit to apply.
-      patch_repository_url (str): The repository the change is for.
       timeout_secs (int): How long to wait for the checkout to complete
           before failing
 
     Returns:
       A FuchsiaCheckoutResults containing details of the checkout.
     """
-    if gerrit_change:
-      patch_gerrit_url = patch_gerrit_url or 'https://%s' % gerrit_change.host
-      patch_issue = patch_issue or gerrit_change.change
-      patch_project = patch_project or gerrit_change.project
-
-      git_host = gerrit_change.host
-      gs_suffix = '-review.googlesource.com'
-      assert git_host.endswith(gs_suffix)
-      git_host = '%s.googlesource.com' % git_host[:-len(gs_suffix)]
-      patch_repository_url = patch_repository_url or 'https://%s/%s' % (
-          git_host, gerrit_change.project)
-
     with self.m.context(infra_steps=True):
       snapshot_repo_dir = self.m.path['cleanup'].join('snapshot_repo')
 
@@ -363,8 +328,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       self.m.gerrit.ensure_gerrit()
       details = self.m.gerrit.change_details(
           name='get change details',
-          change_id='%s~%s' % (patch_project, patch_issue),
-          gerrit_host=patch_gerrit_url,
+          change_id='%s~%s' % (gerrit_change.project, gerrit_change.change),
+          gerrit_host='https://%s' % gerrit_change.host,
           query_params=["CURRENT_REVISION"],
           test_data=self.m.json.test_api.output({
               'branch': 'master',
@@ -377,18 +342,24 @@ class FuchsiaApi(recipe_api.RecipeApi):
           }),
       )
 
-      if not patch_ref:
-        current_revision = details['current_revision']
-        patch_ref = details['revisions'][current_revision]['ref']
+      current_revision = details['current_revision']
 
       self.m.git.checkout(
-          url='%s/%s' % (patch_gerrit_url, patch_project),
-          ref=patch_ref,
+          url='https://%s/%s' % (gerrit_change.host, gerrit_change.project),
+          ref=details['revisions'][current_revision]['ref'],
           path=snapshot_repo_dir,
       )
 
       with self.m.context(cwd=snapshot_repo_dir):
-        self.m.git('fetch', patch_repository_url, details['branch'])
+        git_host = gerrit_change.host
+        gs_suffix = '-review.googlesource.com'
+        assert git_host.endswith(gs_suffix)
+        git_host = '%s.googlesource.com' % git_host[:-len(gs_suffix)]
+        self.m.git(
+          'fetch',
+          'https://%s/%s' % (git_host, gerrit_change.project),
+          details['branch'],
+        )
         self.m.git('rebase', 'FETCH_HEAD')
 
       return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
@@ -428,9 +399,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         # we obtain a checkout from an existing snapshot. The snapshot is
         # already readily available in the repository from whence it was
         # retrieved. Note also that the checkout will never be patched by this
-        # method, unlike checkout(). This is because the purpose of the
-        # patch_* arguments is to patch the snapshot itself (e.g. to CQ a
-        # snapshot update).
+        # method, unlike checkout().
         snapshot_gcs_buckets=(),
     )
 

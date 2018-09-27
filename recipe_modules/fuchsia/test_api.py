@@ -44,7 +44,6 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     # Tests shouldn't try to create their own tryjob environment, in the same way
     # that cr-buildbucket builders shouldn't specify tryjob-related properties.
     if 'tryjob' in properties:
-      # TODO(dbort): Maybe check for patch_ properties, too.
       raise ValueError('Test "%s": Do not specify a "tryjob" property; '
                        'use the tryjob arg.' % name)  # pragma: no cover
 
@@ -58,7 +57,6 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
           project=project,
           target='x64',
           packages=['%s/packages/default' % project],
-          revision=self.m.jiri.example_revision,
       )
     if 'buildbucket' in properties:
       # Re-evaluate this restriction if a test really needs to specify its
@@ -102,9 +100,9 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     if tryjob:
       final_properties.update(
           dict(
-              # properties.tryserver will add patch_* properties based on
-              # these gerrit_* properties.
-              gerrit_url='https://fuchsia-review.googlesource.com',
+              # TODO(joshuaseaton): Figure out why removing this results in
+              # `project` not being supplied to the recipe in certain test
+              # cases.
               gerrit_project=project,
               tryjob=True,
           ))
