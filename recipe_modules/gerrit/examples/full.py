@@ -35,10 +35,6 @@ def RunSteps(api):
       gerrit_host='https://chromium-review.googlesource.com',
   )
 
-  # Validate the change reference ID.
-  change_ref = api.gerrit.get_change_ref(change=309, patchset=6)
-  assert 'refs/changes/09/309/6' == change_ref
-
   # Set review.
   api.gerrit.set_review(
       '-1',
