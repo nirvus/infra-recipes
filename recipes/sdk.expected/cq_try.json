@@ -106,6 +106,62 @@
     "name": "jiri init"
   },
   {
+    "cmd": [],
+    "infra_step": true,
+    "name": "ensure_gerrit"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gerrit",
+      "-ensure-file",
+      "infra/tools/luci/gerrit/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gerrit.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gerrit/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-detail",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"topaz~123456\", \"params\": {\"o\": [\"CURRENT_REVISION\"]}}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "get change details",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"current_revision\": \"a1b2c3\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"revisions\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"a1b2c3\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"ref\": \"refs/changes/00/100/5\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
@@ -113,6 +169,8 @@
       "-time",
       "-name",
       "topaz",
+      "-revision",
+      "HEAD",
       "manifest/topaz",
       "https://fuchsia.googlesource.com/topaz"
     ],
@@ -140,11 +198,11 @@
       "-v",
       "-time",
       "-host",
-      "fuchsia-review.googlesource.com",
+      "https://fuchsia-review.googlesource.com",
       "-project",
       "topaz",
       "-rebase=true",
-      "refs/changes/89/456789/12"
+      "refs/changes/00/100/5"
     ],
     "infra_step": true,
     "name": "jiri patch"
@@ -717,6 +775,41 @@
       "[START_DIR]/cipd/bazel/bazel"
     ],
     "name": "test sdk.run tests",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload bazel sdk"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/sdk/bazel/linux-amd64",
+      "-tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sdk/bazel/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload bazel sdk.Package is up-to-date",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
