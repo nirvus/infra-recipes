@@ -900,7 +900,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#313)(self, manifest, remote, project=None, build_input=None, revision=None, patch_ref=None, patch_gerrit_url=None, patch_project=None, timeout_secs=None, run_hooks=True):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#311)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -912,14 +912,10 @@ Args:
   project (str): The name that jiri should assign to the project.
   build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
     build.
-  revision (str): A revision to checkout for the remote.
-  patch_ref (str): The ref at which a patch lives.
-  patch_gerrit_url (str): The Gerrit URL for the patch to apply.
-  patch_project (str): The Gerrit project where the patch lives.
   timeout_secs (int): A timeout for jiri update in seconds.
   run_hooks (bool): Whether or not to run the hooks.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#392)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#387)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -997,7 +993,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#409)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#404)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 

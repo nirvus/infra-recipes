@@ -118,6 +118,8 @@
       "import",
       "-v",
       "-time",
+      "-revision",
+      "HEAD",
       "fuchsia",
       "https://fuchsia.googlesource.com/manifest"
     ],

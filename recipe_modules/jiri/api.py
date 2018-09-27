@@ -308,17 +308,11 @@ class JiriApi(recipe_api.RecipeApi):
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
 
-  # TODO(IN-617) Once all api.jiri.checkout() instances have been moved over to
-  # using build_input, remove `remote` and `patch_*` arguments.
   def checkout(self,
                manifest,
                remote,
                project=None,
                build_input=None,
-               revision=None,
-               patch_ref=None,
-               patch_gerrit_url=None,
-               patch_project=None,
                timeout_secs=None,
                run_hooks=True):
     """Initializes and populates a jiri checkout from a remote manifest.
@@ -331,54 +325,55 @@ class JiriApi(recipe_api.RecipeApi):
       project (str): The name that jiri should assign to the project.
       build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
         build.
-      revision (str): A revision to checkout for the remote.
-      patch_ref (str): The ref at which a patch lives.
-      patch_gerrit_url (str): The Gerrit URL for the patch to apply.
-      patch_project (str): The Gerrit project where the patch lives.
       timeout_secs (int): A timeout for jiri update in seconds.
       run_hooks (bool): Whether or not to run the hooks.
     """
     self.init()
 
+    revision = 'HEAD'
+    gerrit_change = None
+
     if build_input:
       # Proto messages like build_input cannot have None members.
       gitiles_commit = build_input.gitiles_commit
-      revision = revision or gitiles_commit.id
+      revision = gitiles_commit.id or revision
 
       if build_input.gerrit_changes:
         assert len(build_input.gerrit_changes) == 1
-        cl = build_input.gerrit_changes[0]
-        revision = revision or 'HEAD'
-        patch_project = patch_project or cl.project
-        patch_gerrit_url = patch_gerrit_url or 'https://%s' % cl.host
-        if not patch_ref:
-            self.m.gerrit.ensure_gerrit()
-            details = self.m.gerrit.change_details(
-                name='get change details',
-                change_id='%s~%s' % (cl.project, cl.change),
-                gerrit_host='https://%s' % cl.host,
-                query_params=['CURRENT_REVISION'],
-                test_data=self.m.json.test_api.output({
-                    'current_revision': 'a1b2c3',
-                    'revisions': {
-                        'a1b2c3': {
-                            'ref': 'refs/changes/00/100/5'
-                        }
-                    }
-                }),
-            )
-
-            current_revision = details['current_revision']
-            patch_ref = details['revisions'][current_revision]['ref']
-
+        gerrit_change = build_input.gerrit_changes[0]
 
     self.import_manifest(manifest, remote, name=project, revision=revision)
     # Note that timeout is not a jiri commandline argument, but a param
     # that will get passed to self.m.step() via kwargs.
     self.update(run_hooks=False, timeout=timeout_secs)
-    if patch_ref:
+
+    if gerrit_change:
+      self.m.gerrit.ensure_gerrit()
+      details = self.m.gerrit.change_details(
+          name='get change details',
+          change_id='%s~%s' % (
+              gerrit_change.project,
+              gerrit_change.change,
+          ),
+          gerrit_host='https://%s' % gerrit_change.host,
+          query_params=['CURRENT_REVISION'],
+          test_data=self.m.json.test_api.output({
+              'current_revision': 'a1b2c3',
+              'revisions': {
+                  'a1b2c3': {
+                      'ref': 'refs/changes/00/100/5'
+                  }
+              }
+          }),
+      )
+      current_revision = details['current_revision']
+
       self.patch(
-          patch_ref, host=patch_gerrit_url, project=patch_project, rebase=True)
+        details['revisions'][current_revision]['ref'],
+        host='https://%s' % gerrit_change.host,
+        project=gerrit_change.project,
+        rebase=True,
+      )
       self.update(
           gc=True,
           rebase_tracked=True,
@@ -386,7 +381,7 @@ class JiriApi(recipe_api.RecipeApi):
           run_hooks=False,
           timeout=timeout_secs)
     if run_hooks:
-      self.run_hooks(local_manifest=patch_ref is not None)
+      self.run_hooks(local_manifest=gerrit_change is not None)
     self.emit_source_manifest()
 
   def checkout_snapshot(self, snapshot, timeout_secs=None):
