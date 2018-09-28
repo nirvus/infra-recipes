@@ -87,6 +87,24 @@
   {
     "cmd": [
       "[START_DIR]/cipd/gerrit/gerrit",
+      "change-detail",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"some id\", \"params\": {\"o\": [\"CURRENT_REVISION\", \"DOWNLOAD_COMMANDS\"]}}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "get details (3)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_LOG_LINE@json.output (exception)@No JSON object could be decoded@@@",
+      "@@@STEP_LOG_END@json.output (exception)@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
       "set-review",
       "-host",
       "https://fuchsia-review.googlesource.com",

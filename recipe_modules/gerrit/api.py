@@ -149,7 +149,8 @@ class GerritApi(recipe_api.RecipeApi):
         test_data=test_data,
     )
 
-  def change_details(self, name, change_id, gerrit_host=None, test_data=None):
+  def change_details(self, name, change_id, gerrit_host=None, query_params=[],
+                     test_data=None):
     """Returns a JSON dict of details regarding a specific change.
 
     Args:
@@ -157,13 +158,19 @@ class GerritApi(recipe_api.RecipeApi):
       change_id (str): A change ID that uniquely defines a change on the host.
       gerrit_host (str): The Gerrit host to make the query against. Overrides
         the recipe module's global host property.
+      query_params (list): A list of Gerrit REST query parameters (strings).
+        Documented at
+        https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#query-options
       test_data (recipe_test_api.StepTestData): Test JSON output data for this
         step.
     """
+    input_json={'change_id': change_id}
+    if query_params:
+      input_json['params'] = {'o': query_params}
     return self(
         name=name,
         subcmd='change-detail',
-        input_json={'change_id': change_id},
+        input_json=input_json,
         gerrit_host=gerrit_host,
         test_data=test_data,
     )

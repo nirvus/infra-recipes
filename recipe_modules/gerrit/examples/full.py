@@ -35,6 +35,13 @@ def RunSteps(api):
       gerrit_host='https://chromium-review.googlesource.com',
   )
 
+  # Get change details with specific query parameters.
+  api.gerrit.change_details(
+      name='get details',
+      change_id=change_id,
+      query_params=['CURRENT_REVISION', 'DOWNLOAD_COMMANDS'],
+  )
+
   # Validate the change reference ID.
   change_ref = api.gerrit.get_change_ref(change=309, patchset=6)
   assert 'refs/changes/09/309/6' == change_ref

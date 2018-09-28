@@ -603,7 +603,7 @@ Args:
   message (str): A message explaining the reason for abandoning the change.
   test_data (recipe_test_api.StepTestData): Test JSON output data for this step.
 
-&mdash; **def [change\_details](/recipe_modules/gerrit/api.py#152)(self, name, change_id, gerrit_host=None, test_data=None):**
+&mdash; **def [change\_details](/recipe_modules/gerrit/api.py#152)(self, name, change_id, gerrit_host=None, query_params=[], test_data=None):**
 
 Returns a JSON dict of details regarding a specific change.
 
@@ -612,6 +612,9 @@ Args:
   change_id (str): A change ID that uniquely defines a change on the host.
   gerrit_host (str): The Gerrit host to make the query against. Overrides
     the recipe module's global host property.
+  query_params (list): A list of Gerrit REST query parameters (strings).
+    Documented at
+    https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#query-options
   test_data (recipe_test_api.StepTestData): Test JSON output data for this
     step.
 
@@ -632,7 +635,7 @@ Args:
 
 &mdash; **def [ensure\_gerrit](/recipe_modules/gerrit/api.py#42)(self, version=None):**
 
-&mdash; **def [get\_change\_ref](/recipe_modules/gerrit/api.py#172)(self, change, patchset):**
+&mdash; **def [get\_change\_ref](/recipe_modules/gerrit/api.py#179)(self, change, patchset):**
 
 Returns the reference ID to a given Gerrit change.
 
