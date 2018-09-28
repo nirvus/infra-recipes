@@ -351,8 +351,26 @@ class JiriApi(recipe_api.RecipeApi):
         revision = revision or 'HEAD'
         patch_project = patch_project or cl.project
         patch_gerrit_url = patch_gerrit_url or 'https://%s' % cl.host
-        patch_ref = patch_ref or self.m.gerrit.get_change_ref(
-          cl.change, cl.patchset)
+        if not patch_ref:
+            self.m.gerrit.ensure_gerrit()
+            details = self.m.gerrit.change_details(
+                name='get change details',
+                change_id='%s~%s' % (cl.project, cl.change),
+                gerrit_host='https://%s' % cl.host,
+                query_params=['CURRENT_REVISION'],
+                test_data=self.m.json.test_api.output({
+                    'current_revision': 'a1b2c3',
+                    'revisions': {
+                        'a1b2c3': {
+                            'ref': 'refs/changes/00/100/5'
+                        }
+                    }
+                }),
+            )
+
+            current_revision = details['current_revision']
+            patch_ref = details['revisions'][current_revision]['ref']
+
 
     self.import_manifest(manifest, remote, name=project, revision=revision)
     # Note that timeout is not a jiri commandline argument, but a param
