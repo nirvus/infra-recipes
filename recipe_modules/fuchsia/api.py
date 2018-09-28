@@ -1077,9 +1077,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
                                                '%s.ciphertext' % secret_name)
 
         key_path = secret_spec['cloudkms_key_path']
-        plaintext_file = self.m.path.mkdtemp('plaintext').join(secret_name)
-        self.m.cloudkms.decrypt('decrypt secret for %s' % secret_name, key_path,
-                                ciphertext_file, plaintext_file)
         secrets_map[secret_name] = self.m.cloudkms.decrypt(
             'decrypt secret for %s' % secret_name, key_path, ciphertext_file,
             self.m.raw_io.output()).raw_io.output
