@@ -180,6 +180,7 @@ class SwarmingApi(recipe_api.RecipeApi):
     super(SwarmingApi, self).__init__(*args, **kwargs)
     self._swarming_server = swarming_server
     self._swarming_client = None
+    self._ensured = False
 
   def __call__(self, *args, **kwargs):
     """Return a swarming command step."""
@@ -189,17 +190,19 @@ class SwarmingApi(recipe_api.RecipeApi):
 
   def ensure_swarming(self, version=None):
     """Ensures that swarming client is installed."""
-    with self.m.step.nest('ensure_swarming'):
-      with self.m.context(infra_steps=True):
-        swarming_package = ('infra/tools/luci/swarming/%s' %
-            self.m.cipd.platform_suffix())
-        luci_dir = self.m.path['start_dir'].join('cipd', 'luci', 'swarming')
+    if not self._ensured:
+      with self.m.step.nest('ensure_swarming'):
+        with self.m.context(infra_steps=True):
+          swarming_package = ('infra/tools/luci/swarming/%s' %
+              self.m.cipd.platform_suffix())
+          luci_dir = self.m.path['start_dir'].join('cipd', 'luci', 'swarming')
 
-        self.m.cipd.ensure(luci_dir,
-                           {swarming_package: version or 'release'})
-        self._swarming_client = luci_dir.join('swarming')
+          self.m.cipd.ensure(luci_dir,
+                             {swarming_package: version or 'release'})
+          self._swarming_client = luci_dir.join('swarming')
 
-        return self._swarming_client
+          self._ensured = True
+          return self._swarming_client
 
   @property
   def swarming_client(self):
