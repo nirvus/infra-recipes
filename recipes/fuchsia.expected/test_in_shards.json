@@ -639,7 +639,11 @@
       "[CLEANUP]/tests-fuchsia-0000"
     ],
     "infra_step": true,
-    "name": "write fuchsia-0000 test list"
+    "name": "write fuchsia-0000 test list",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@tests-fuchsia-0000@/path/to/test0@@@",
+      "@@@STEP_LOG_END@tests-fuchsia-0000@@@"
+    ]
   },
   {
     "cmd": [
@@ -718,7 +722,11 @@
       "[CLEANUP]/tests-fuchsia-0001"
     ],
     "infra_step": true,
-    "name": "write fuchsia-0001 test list"
+    "name": "write fuchsia-0001 test list",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@tests-fuchsia-0001@/path/to/test1@@@",
+      "@@@STEP_LOG_END@tests-fuchsia-0001@@@"
+    ]
   },
   {
     "cmd": [

@@ -1223,6 +1223,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           dest=runtests_file,
           text_data='\n'.join(test_locations) + '\n',
       )
+      self.m.step.active_result.presentation.logs['tests-%s' % shard.name] = test_locations
 
       # Produce runcmds script for shard.
       runtests_file_bootfs_path = 'infra/shard.run'
