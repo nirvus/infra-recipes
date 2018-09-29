@@ -390,7 +390,7 @@ Returns:
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1320)(self, step_name, result, build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1321)(self, step_name, result, build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -403,7 +403,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1368)(self, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1369)(self, test_results):**
 
 Analyzes test results represented by a FuchsiaTestResults.
 
@@ -484,7 +484,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1390)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1391)(self, test_results):**
 
 Logs individual test results in separate steps.
 
@@ -503,7 +503,7 @@ separate subdirectories so as not to collide.
 
 The directory on target to which target test results will be written.
 
-&mdash; **def [run\_bloaty](/recipe_modules/fuchsia/api.py#1796)(self, build_results):**
+&mdash; **def [run\_bloaty](/recipe_modules/fuchsia/api.py#1797)(self, build_results):**
 
 Runs bloaty on the specified build results.
 
@@ -559,7 +559,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1609)(self, build_results, bucket, upload_breakpad_symbols=False):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1610)(self, build_results, bucket, upload_breakpad_symbols=False):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 

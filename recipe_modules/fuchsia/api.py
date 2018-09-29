@@ -1211,72 +1211,73 @@ class FuchsiaApi(recipe_api.RecipeApi):
     task_requests = []
     shard_name_to_device_type = {}
     for shard in shards:
-      shard_name_to_device_type[shard.name] = shard.device_type
+      with self.m.step.nest('shard %s' % shard.name):
+        shard_name_to_device_type[shard.name] = shard.device_type
 
-      # Produce runtests file for shard.
-      test_locations = []
-      for test in shard.tests:
-        test_locations.append(test.location)
-      runtests_file = self.m.path['cleanup'].join('tests-%s' % shard.name)
-      self.m.file.write_text(
-          name='write %s test list' % shard.name,
-          dest=runtests_file,
-          text_data='\n'.join(test_locations) + '\n',
-      )
-      self.m.step.active_result.presentation.logs['tests-%s' % shard.name] = test_locations
+        # Produce runtests file for shard.
+        test_locations = []
+        for test in shard.tests:
+          test_locations.append(test.location)
+        runtests_file = self.m.path['cleanup'].join('tests-%s' % shard.name)
+        self.m.file.write_text(
+            name='write test list',
+            dest=runtests_file,
+            text_data='\n'.join(test_locations) + '\n',
+        )
+        self.m.step.active_result.presentation.logs['tests-%s' % shard.name] = test_locations
 
-      # Produce runcmds script for shard.
-      runtests_file_bootfs_path = 'infra/shard.run'
-      runcmds_path = self.m.path['cleanup'].join('runcmds-%s' % shard.name)
-      self._create_runcmds_script(
-          device_type=shard.device_type,
-          test_cmds=[
-              'runtests -o %s -f /boot/%s' % (
-                  self.results_dir_on_target,
-                  runtests_file_bootfs_path,
-              )
-          ],
-          output_path=runcmds_path,
-      )
-
-      # Create new zbi image for shard.
-      shard_zbi_path = build.fuchsia_build_dir.join('fuchsia-%s.zbi' % shard.name)
-      self.m.zbi.copy_and_extend(
-        step_name='create zbi for %s' % shard.name,
-        # TODO(IN-655): Add support for using the netboot image in non-paving
-        # cases.
-        input_image=images['zircon-a'],
-        output_image=shard_zbi_path,
-        manifest={
-            RUNCMDS_BOOTFS_PATH: runcmds_path,
-            runtests_file_bootfs_path: runtests_file,
-        },
-      )
-
-      if shard.device_type == 'QEMU':
-        task_requests.append(self._construct_qemu_task_request(
-            task_name=shard.name,
-            zbi_path=shard_zbi_path,
-            test_pool=test_pool,
-            build=build,
-            images=images,
-            timeout_secs=timeout_secs,
-            # TODO(IN-654): Add support for external_network and secret_bytes.
-            external_network=False,
-            secret_bytes='',
-        ))
-      else:
-        task_requests.append(self._construct_device_task_request(
-            task_name=shard.name,
-            test_pool=test_pool,
+        # Produce runcmds script for shard.
+        runtests_file_bootfs_path = 'infra/shard.run'
+        runcmds_path = self.m.path['cleanup'].join('runcmds-%s' % shard.name)
+        self._create_runcmds_script(
             device_type=shard.device_type,
-            zbi_path=shard_zbi_path,
-            build=build,
-            images=images,
-            timeout_secs=timeout_secs,
-            # TODO(IN-655): Add support for non-paving tests.
-            pave=True,
-        ))
+            test_cmds=[
+                'runtests -o %s -f /boot/%s' % (
+                    self.results_dir_on_target,
+                    runtests_file_bootfs_path,
+                )
+            ],
+            output_path=runcmds_path,
+        )
+
+        # Create new zbi image for shard.
+        shard_zbi_path = build.fuchsia_build_dir.join('fuchsia-%s.zbi' % shard.name)
+        self.m.zbi.copy_and_extend(
+          step_name='create zbi',
+          # TODO(IN-655): Add support for using the netboot image in non-paving
+          # cases.
+          input_image=images['zircon-a'],
+          output_image=shard_zbi_path,
+          manifest={
+              RUNCMDS_BOOTFS_PATH: runcmds_path,
+              runtests_file_bootfs_path: runtests_file,
+          },
+        )
+
+        if shard.device_type == 'QEMU':
+          task_requests.append(self._construct_qemu_task_request(
+              task_name=shard.name,
+              zbi_path=shard_zbi_path,
+              test_pool=test_pool,
+              build=build,
+              images=images,
+              timeout_secs=timeout_secs,
+              # TODO(IN-654): Add support for external_network and secret_bytes.
+              external_network=False,
+              secret_bytes='',
+          ))
+        else:
+          task_requests.append(self._construct_device_task_request(
+              task_name=shard.name,
+              test_pool=test_pool,
+              device_type=shard.device_type,
+              zbi_path=shard_zbi_path,
+              build=build,
+              images=images,
+              timeout_secs=timeout_secs,
+              # TODO(IN-655): Add support for non-paving tests.
+              pave=True,
+          ))
 
     with self.m.context(infra_steps=True):
       # Spawn tasks.
