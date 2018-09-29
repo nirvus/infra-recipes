@@ -170,8 +170,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       all_results = api.fuchsia.test_in_shards(
           test_pool='fuchsia.tests',
           build=build)
-      for test_results in all_results:
-        api.fuchsia.analyze_test_results(test_results)
+      api.fuchsia.analyze_test_results(all_results)
     else:
       test_results = api.fuchsia.test(
           build=build,
@@ -187,7 +186,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       # Ensure passed_test_outputs gets filled out when tests pass.
       if test_results.summary and test_results.passed_test_outputs:
         assert test_results.passed_test_outputs['/hello']
-      api.fuchsia.analyze_test_results(test_results)
+      api.fuchsia.analyze_test_results([test_results])
 
   if run_host_tests:
     test_results = api.fuchsia.test_on_host(build)
@@ -197,7 +196,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
     # Ensure passed_test_outputs gets filled out when tests pass.
     if test_results.summary and test_results.passed_test_outputs:
       assert test_results.passed_test_outputs['[START_DIR]/hello']
-    api.fuchsia.analyze_test_results(test_results)
+    api.fuchsia.analyze_test_results([test_results])
 
   api.fuchsia.upload_build_artifacts(
       build_results=build,

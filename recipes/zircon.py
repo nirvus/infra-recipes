@@ -158,7 +158,7 @@ def RunTestsOnHost(api, build_dir):
 
   # Extract test results.
   test_results_map = api.step.active_result.raw_io.output_dir
-  api.fuchsia.analyze_test_results(
+  api.fuchsia.analyze_test_results([
       api.fuchsia.FuchsiaTestResults(
           name='host',
           build_dir=build_dir,
@@ -167,7 +167,7 @@ def RunTestsOnHost(api, build_dir):
           outputs=test_results_map,
           json_api=api.json,
       )
-  )
+  ])
 
 
 def RunTestsOnDevice(api, target, build_dir, device_type):
@@ -228,7 +228,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     ).raw_io.output_dir
 
   # Analyze the test results and report them in the presentation.
-  api.fuchsia.analyze_test_results(
+  api.fuchsia.analyze_test_results([
     api.fuchsia.FuchsiaTestResults(
         name='booted',
         build_dir=build_dir,
@@ -237,7 +237,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
         outputs=test_results_map,
         json_api=api.json,
     )
-  )
+  ])
 
 def RunTestsInQEMU(api, target, build_dir, use_kvm):
   """Executes Zircon tests in QEMU on a different machine.
@@ -434,7 +434,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   ).raw_io.output_dir
 
   # Analyze the test results and report them in the presentation.
-  api.fuchsia.analyze_test_results(
+  api.fuchsia.analyze_test_results([
     api.fuchsia.FuchsiaTestResults(
         name='booted',
         build_dir=build_dir,
@@ -442,7 +442,8 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
         zircon_kernel_log=booted_result.output,
         outputs=test_results_map,
         json_api=api.json,
-  ))
+    )
+  ])
 
 
 def _BlockDeviceTestExtraUserManifestLines(api, tmp_dir, block_device_path):

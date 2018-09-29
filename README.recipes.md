@@ -405,10 +405,10 @@ Raises:
 
 &mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1369)(self, test_results):**
 
-Analyzes test results represented by a FuchsiaTestResults.
+Analyzes test results represented by FuchsiaTestResults objects.
 
 Args:
-  test_results (FuchsiaTestResults): The test results.
+  test_results (list(FuchsiaTestResults)): List of test result sets.
 
 Raises:
   A StepFailure if any of the discovered tests failed.
@@ -484,7 +484,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1391)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1395)(self, test_results):**
 
 Logs individual test results in separate steps.
 
@@ -503,7 +503,7 @@ separate subdirectories so as not to collide.
 
 The directory on target to which target test results will be written.
 
-&mdash; **def [run\_bloaty](/recipe_modules/fuchsia/api.py#1797)(self, build_results):**
+&mdash; **def [run\_bloaty](/recipe_modules/fuchsia/api.py#1801)(self, build_results):**
 
 Runs bloaty on the specified build results.
 
@@ -559,7 +559,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1610)(self, build_results, bucket, upload_breakpad_symbols=False):**
+&mdash; **def [upload\_build\_artifacts](/recipe_modules/fuchsia/api.py#1614)(self, build_results, bucket, upload_breakpad_symbols=False):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
@@ -1836,7 +1836,7 @@ Recipe for building libwebkit.so.
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#481)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
+&mdash; **def [Build](/recipes/zircon.py#482)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
 
 Builds zircon and returns a path to the build output directory.
 
@@ -1850,7 +1850,7 @@ Args:
   booted_task (str): The swarming task ID of the task running booted tests.
   build_dir (Path): A path to the directory containing build artifacts.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#565)(api, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#566)(api, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
 
 &mdash; **def [RunTestsInQEMU](/recipes/zircon.py#242)(api, target, build_dir, use_kvm):**
 

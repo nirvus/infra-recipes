@@ -1367,26 +1367,30 @@ class FuchsiaApi(recipe_api.RecipeApi):
             'Found kernel panic. See symbolized output for details.')
 
   def analyze_test_results(self, test_results):
-    """Analyzes test results represented by a FuchsiaTestResults.
+    """Analyzes test results represented by FuchsiaTestResults objects.
 
     Args:
-      test_results (FuchsiaTestResults): The test results.
+      test_results (list(FuchsiaTestResults)): List of test result sets.
 
     Raises:
       A StepFailure if any of the discovered tests failed.
     """
-    with self.m.step.nest('%s test results' % test_results.name):
-      # Log the results of each test.
-      self.report_test_results(test_results)
+    failed_tests = []
+    for result_set in test_results:
+      with self.m.step.nest('%s test results' % result_set.name):
+        # Log the results of each test.
+        self.report_test_results(result_set)
 
-      if self._test_coverage_gcs_bucket:
-        symbolize_dump = self.m.path['cleanup'].join('symbolize-dump.json')
-        self._process_coverage(test_results, symbolize_dump)
+        if self._test_coverage_gcs_bucket:
+          symbolize_dump = self.m.path['cleanup'].join('symbolize-dump.json')
+          self._process_coverage(result_set, symbolize_dump)
 
-      if test_results.failed_test_outputs:
-        # Halt with a step failure.
-        raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(
-            test_results.failed_test_outputs.keys()))
+        if result_set.failed_test_outputs:
+          failed_tests += result_set.failed_test_outputs.keys()
+
+    if failed_tests:
+      # Halt with a step failure.
+      raise self.m.step.StepFailure('Test failure(s): ' + ', '.join(failed_tests))
 
   def report_test_results(self, test_results):
     """Logs individual test results in separate steps.
