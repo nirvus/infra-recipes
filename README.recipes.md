@@ -880,24 +880,24 @@ HashApi provides file hashing functionality.
 
 APIs for interacting with isolates.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/isolated/api.py#18)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/isolated/api.py#19)(self, \*args, \*\*kwargs):**
 
 Return an isolate command step.
 
-&mdash; **def [ensure\_isolated](/recipe_modules/isolated/api.py#24)(self, version=None):**
+&mdash; **def [ensure\_isolated](/recipe_modules/isolated/api.py#25)(self, version=None):**
 
 Ensures that isolate client is installed.
 
-&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolated/api.py#46)(self, value):**
+&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolated/api.py#49)(self, value):**
 
 Changes URL of Isolate server to use.
 
-&mdash; **def [isolated](/recipe_modules/isolated/api.py#51)(self):**
+&mdash; **def [isolated](/recipe_modules/isolated/api.py#54)(self):**
 
 Returns an Isolated object that can be used to archive a set of files
 and directories.
 
-&emsp; **@property**<br>&mdash; **def [isolated\_client](/recipe_modules/isolated/api.py#37)(self):**
+&emsp; **@property**<br>&mdash; **def [isolated\_client](/recipe_modules/isolated/api.py#40)(self):**
 ### *recipe_modules* / [jiri](/recipe_modules/jiri)
 
 [DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
