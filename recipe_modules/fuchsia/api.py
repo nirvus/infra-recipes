@@ -465,6 +465,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """Builds zircon for the specified target."""
     cmd = [
         self.m.path['start_dir'].join('scripts', 'build-zircon.sh'),
+        '-v', # level one verbosity
         '-t',
         target,
     ]
