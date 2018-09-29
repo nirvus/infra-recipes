@@ -1204,6 +1204,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
         fuchsia_build_dir=build.fuchsia_build_dir,
     )
 
+    self.m.swarming.ensure_swarming()
+    self.m.isolated.ensure_isolated()
+
     # Generate Swarming task requests.
     task_requests = []
     shard_name_to_device_type = {}
