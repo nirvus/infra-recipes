@@ -1204,8 +1204,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
         fuchsia_build_dir=build.fuchsia_build_dir,
     )
 
-    self.m.swarming.ensure_swarming()
-    self.m.isolated.ensure_isolated()
+    self.m.swarming.ensure_swarming(version='latest')
+    self.m.isolated.ensure_isolated(version='latest')
 
     # Generate Swarming task requests.
     task_requests = []
