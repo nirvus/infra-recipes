@@ -61,6 +61,7 @@ sysconfdir = "etc"
 
 [rust]
 optimize = true
+channel = "nightly"
 
 [target.x86_64-fuchsia]
 cc = "{cc}"
