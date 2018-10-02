@@ -45,7 +45,7 @@ def GenTests(api):
       git_repo='https://fuchsia.googlesource.com/infra/recipes'
     ) +
     api.properties.tryserver(
-        manifest='infra',
-        remote='https://fuchsia.googlesource.com/manifest',
+        manifest='manifest/minimal',
+        remote='https://fuchsia.googlesource.com/infra/recipes',
     )
   )

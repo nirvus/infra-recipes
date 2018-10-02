@@ -52,8 +52,8 @@
       "-time",
       "-revision",
       "HEAD",
-      "infra",
-      "https://fuchsia.googlesource.com/manifest"
+      "manifest/minimal",
+      "https://fuchsia.googlesource.com/infra/recipes"
     ],
     "infra_step": true,
     "name": "jiri import"
