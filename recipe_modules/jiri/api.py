@@ -155,6 +155,7 @@ class JiriApi(recipe_api.RecipeApi):
                       name=None,
                       revision=None,
                       overwrite=False,
+                      remote_branch=None,
                       **kwargs):
     """Imports manifest into Jiri project.
 
@@ -163,6 +164,8 @@ class JiriApi(recipe_api.RecipeApi):
       remote (str): A remote manifest repository address.
       name (str): The name of the remote manifest project.
       revision (str): A revision to checkout for the remote.
+      remote_branch (str): A branch of the remote manifest repository
+        to checkout.  If a revision is specified, this value is ignored.
 
     Returns:
       A step result.
@@ -174,6 +177,8 @@ class JiriApi(recipe_api.RecipeApi):
       cmd.extend(['-revision', revision])
     if overwrite:
       cmd.extend(['-overwrite=true'])
+    if remote_branch:
+      cmd.extend(['-remote-branch', remote_branch])
     cmd.extend([manifest, remote])
 
     return self(*cmd, **kwargs)
@@ -332,6 +337,7 @@ class JiriApi(recipe_api.RecipeApi):
 
     revision = 'HEAD'
     gerrit_change = None
+    branch = None
 
     if build_input:
       # Proto messages like build_input cannot have None members.
@@ -342,32 +348,36 @@ class JiriApi(recipe_api.RecipeApi):
         assert len(build_input.gerrit_changes) == 1
         gerrit_change = build_input.gerrit_changes[0]
 
-    self.import_manifest(manifest, remote, name=project, revision=revision)
+        self.m.gerrit.ensure_gerrit()
+        details = self.m.gerrit.change_details(
+            name='get change details',
+            change_id='%s~%s' % (
+                gerrit_change.project,
+                gerrit_change.change,
+            ),
+            gerrit_host='https://%s' % gerrit_change.host,
+            query_params=['CURRENT_REVISION'],
+            test_data=self.m.json.test_api.output({
+                'branch': 'master',
+                'current_revision': 'a1b2c3',
+                'revisions': {
+                    'a1b2c3': {
+                        'ref': 'refs/changes/00/100/5'
+                    }
+                }
+            }),
+        )
+        # revision must be None in order to pass branch successfully
+        revision = None
+        branch = details['branch']
+        current_revision = details['current_revision']
+
+    self.import_manifest(manifest, remote, name=project, revision=revision, remote_branch=branch)
     # Note that timeout is not a jiri commandline argument, but a param
     # that will get passed to self.m.step() via kwargs.
     self.update(run_hooks=False, timeout=timeout_secs)
 
     if gerrit_change:
-      self.m.gerrit.ensure_gerrit()
-      details = self.m.gerrit.change_details(
-          name='get change details',
-          change_id='%s~%s' % (
-              gerrit_change.project,
-              gerrit_change.change,
-          ),
-          gerrit_host='https://%s' % gerrit_change.host,
-          query_params=['CURRENT_REVISION'],
-          test_data=self.m.json.test_api.output({
-              'current_revision': 'a1b2c3',
-              'revisions': {
-                  'a1b2c3': {
-                      'ref': 'refs/changes/00/100/5'
-                  }
-              }
-          }),
-      )
-      current_revision = details['current_revision']
-
       self.patch(
         details['revisions'][current_revision]['ref'],
         host='https://%s' % gerrit_change.host,
@@ -375,11 +385,12 @@ class JiriApi(recipe_api.RecipeApi):
         rebase=True,
       )
       self.update(
-          gc=True,
-          rebase_tracked=True,
-          local_manifest=True,
-          run_hooks=False,
-          timeout=timeout_secs)
+        gc=True,
+        rebase_tracked=True,
+        local_manifest=True,
+        run_hooks=False,
+        timeout=timeout_secs)
+
     if run_hooks:
       self.run_hooks(local_manifest=gerrit_change is not None)
     self.emit_source_manifest()

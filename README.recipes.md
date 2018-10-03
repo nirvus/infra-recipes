@@ -900,7 +900,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#311)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#316)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -915,7 +915,7 @@ Args:
   timeout_secs (int): A timeout for jiri update in seconds.
   run_hooks (bool): Whether or not to run the hooks.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#387)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#398)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -927,7 +927,7 @@ Args:
 
 &mdash; **def [clean](/recipe_modules/jiri/api.py#143)(self, all=False, \*\*kwargs):**
 
-&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#181)(self, manifest, projects=None, imports=None, test_data=None, \*\*kwargs):**
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#186)(self, manifest, projects=None, imports=None, test_data=None, \*\*kwargs):**
 
 Creates a step to edit a Jiri manifest.
 
@@ -943,13 +943,13 @@ Args:
 Returns:
   A step to edit the manifest.
 
-&mdash; **def [emit\_source\_manifest](/recipe_modules/jiri/api.py#306)(self):**
+&mdash; **def [emit\_source\_manifest](/recipe_modules/jiri/api.py#311)(self):**
 
 Emits a source manifest for this build for the current jiri checkout.
 
 &mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#32)(self, version=None):**
 
-&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#152)(self, manifest, remote, name=None, revision=None, overwrite=False, \*\*kwargs):**
+&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#152)(self, manifest, remote, name=None, revision=None, overwrite=False, remote_branch=None, \*\*kwargs):**
 
 Imports manifest into Jiri project.
 
@@ -958,6 +958,8 @@ Args:
   remote (str): A remote manifest repository address.
   name (str): The name of the remote manifest project.
   revision (str): A revision to checkout for the remote.
+  remote_branch (str): A branch of the remote manifest repository
+    to checkout.  If a revision is specified, this value is ignored.
 
 Returns:
   A step result.
@@ -966,7 +968,7 @@ Returns:
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#43)(self):**
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#247)(self, ref, host=None, project=None, delete=False, force=False, rebase=False, cherrypick=False):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#252)(self, ref, host=None, project=None, delete=False, force=False, rebase=False, cherrypick=False):**
 
 &mdash; **def [project](/recipe_modules/jiri/api.py#61)(self, projects=[], out=None, test_data=None):**
 
@@ -993,7 +995,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#404)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#415)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -1015,9 +1017,9 @@ Returns:
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#134)(self, local_manifest=False, attempts=3):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#272)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#277)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#285)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#290)(self, file=None, test_data=None, \*\*kwargs):**
 
 Generates a source manifest JSON file.
 
