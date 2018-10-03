@@ -1075,6 +1075,34 @@
   },
   {
     "cmd": [],
+    "name": "fuchsia-0000 test results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"PASS\"}]}@@@",
+      "@@@STEP_LOG_END@summary.json@@@",
+      "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",
+      "@@@STEP_LOG_END@goodbye-txt@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "fuchsia-0000 test results./hello",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@stdio@hello@@@",
+      "@@@STEP_LOG_END@stdio@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "fuchsia-0000 test results.benchmark.catapult_json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@stdio@[\"dummy_catapult_data\"]@@@",
+      "@@@STEP_LOG_END@stdio@@@"
+    ]
+  },
+  {
+    "cmd": [],
     "name": "fuchsia-0001 test results",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"PASS\"}]}@@@",
@@ -1095,34 +1123,6 @@
   {
     "cmd": [],
     "name": "fuchsia-0001 test results.benchmark.catapult_json",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@stdio@[\"dummy_catapult_data\"]@@@",
-      "@@@STEP_LOG_END@stdio@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "fuchsia-0001 test results (2)",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@summary.json@{\"outputs\": {\"goodbye-txt\": \"goodbye.txt\"}, \"tests\": [{\"name\": \"/hello\", \"output_file\": \"hello.out\", \"result\": \"PASS\"}, {\"name\": \"benchmark.catapult_json\", \"output_file\": \"benchmark.catapult_json\", \"result\": \"PASS\"}]}@@@",
-      "@@@STEP_LOG_END@summary.json@@@",
-      "@@@STEP_LOG_LINE@goodbye-txt@goodbye@@@",
-      "@@@STEP_LOG_END@goodbye-txt@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "fuchsia-0001 test results./hello (2)",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@stdio@hello@@@",
-      "@@@STEP_LOG_END@stdio@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "fuchsia-0001 test results.benchmark.catapult_json (2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@stdio@[\"dummy_catapult_data\"]@@@",

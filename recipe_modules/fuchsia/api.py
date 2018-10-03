@@ -1309,7 +1309,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             leak_to=results_dir,
         )
         fuchsia_test_results.append(self.FuchsiaTestResults(
-            name=shard.name,
+            name=result.name,
             build_dir=build.fuchsia_build_dir,
             results_dir=results_dir,
             zircon_kernel_log=result.output,
