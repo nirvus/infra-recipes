@@ -110,9 +110,11 @@ def RunSteps(api, project, snapshot_gcs_bucket):
           ffmpeg_dir,
           pkg_dir.join('pkg', 'ffmpeg', 'include'),
       ] + SOURCE_PATTERNS)
-  api.file.copy('copy docs',
+  docs_dir = pkg_dir.join('pkg', 'ffmpeg', 'docs')
+  api.file.ensure_directory('create docs dir', docs_dir)
+  api.file.copy('copy license',
                 ffmpeg_dir.join('LICENSE.md'),
-                pkg_dir.join('pkg', 'ffmpeg', 'docs'))
+                docs_dir.join('LICENSE.md'))
 
   cipd_pkg_name = 'fuchsia/lib/ffmpeg/fuchsia'
   pkg_def = api.cipd.PackageDefinition(

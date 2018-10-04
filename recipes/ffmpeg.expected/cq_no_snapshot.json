@@ -1551,12 +1551,27 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/third_party/ffmpeg/LICENSE.md",
+      "ensure-directory",
+      "--mode",
+      "0777",
       "[TMP_BASE]/ffmpeg_tmp_1/root/pkg/ffmpeg/docs"
     ],
     "infra_step": true,
-    "name": "copy docs"
+    "name": "create docs dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/third_party/ffmpeg/LICENSE.md",
+      "[TMP_BASE]/ffmpeg_tmp_1/root/pkg/ffmpeg/docs/LICENSE.md"
+    ],
+    "infra_step": true,
+    "name": "copy license"
   },
   {
     "cmd": [
