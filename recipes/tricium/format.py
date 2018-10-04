@@ -1,7 +1,7 @@
 # Copyright 2018 The Fuchsia Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-"""Recipe for running Tricium clang-format analyzer."""
+"""Recipe for running Tricium FuchsiaFormat analyzer."""
 
 from recipe_engine.config import Enum, List
 from recipe_engine.recipe_api import Property
@@ -9,10 +9,10 @@ from recipe_engine.recipe_api import Property
 import collections
 
 DEPS = [
-    'infra/cipd',
     'infra/git',
     'infra/jiri',
     'recipe_engine/buildbucket',
+    'recipe_engine/cipd',
     'recipe_engine/context',
     'recipe_engine/path',
     'recipe_engine/properties',
@@ -36,6 +36,16 @@ ClangFormat = Formatter(
     'File not formatted properly.\nRun the following to format:\n\nclang-format -i %s',
 )
 
+# TODO(juliehockett): Come up with a plan for addressing and integrating
+# upstream formatter changes.
+GNFormat = Formatter(
+    category='GNFormat',
+    args=['format'],
+    path=['gn'],
+    warning=
+    'File not formatted properly.\nRun the following to format:\n\ngn format %s',
+)
+
 FORMATTERS = [ClangFormat]
 
 EXT_TO_FORMATTER = {
@@ -45,6 +55,8 @@ EXT_TO_FORMATTER = {
     '.h': [ClangFormat],
     '.hh': [ClangFormat],
     '.hpp': [ClangFormat],
+    '.gn': [GNFormat],
+    '.gni': [GNFormat],
     '.ts': [ClangFormat],
 }
 
@@ -78,9 +90,10 @@ def RunSteps(api, project, manifest, formatters):
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
       cipd_dir = api.path['start_dir'].join('cipd')
-      api.cipd.ensure(cipd_dir, {
-          'fuchsia/clang/${platform}': 'goma',
-      })
+      pkgs = api.cipd.EnsureFile()
+      pkgs.add_package('fuchsia/clang/${platform}', 'goma')
+      pkgs.add_package('gn/gn/${platform}', 'latest')
+      api.cipd.ensure(cipd_dir, pkgs)
 
   project_dir = api.path['start_dir'].join(*project.split('/'))
 
@@ -121,7 +134,7 @@ def RunSteps(api, project, manifest, formatters):
 
 def GenTests(api):
 
-  show_output = '''other/path/to/file.c\npath/to/file.h\n'''
+  show_output = '''other/path/to/file.c\npath/to/file.h\ngnfile.gn\n'''
   diff_output = '''path/to/file.h'''
 
   yield (api.test('default') + api.buildbucket.try_build(
@@ -130,7 +143,7 @@ def GenTests(api):
           project='topaz',
           repository='https://fuchsia.googlesource.com/topaz',
           ref='refs/changes/12345/2',
-          formatters=['ClangFormat']) + api.step_data(
+          formatters=['ClangFormat', 'GNFormat']) + api.step_data(
               'get changed files', api.raw_io.stream_output(show_output)) +
          api.step_data('check path/to/file.h formatting',
                        api.raw_io.stream_output(diff_output)) + api.step_data(

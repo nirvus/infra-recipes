@@ -87,7 +87,7 @@
   * [third_party_rust_licenses](#recipes-third_party_rust_licenses) &mdash; Recipe for checking licenses in the repo hosting third-party Rust crates.
   * [tools](#recipes-tools) &mdash; Recipe for building and publishing tools.
   * [tricium/clang_tidy](#recipes-tricium_clang_tidy) &mdash; Recipe for running Tricium clang-format analyzer.
-  * [tricium/format](#recipes-tricium_format) &mdash; Recipe for running Tricium clang-format analyzer.
+  * [tricium/format](#recipes-tricium_format) &mdash; Recipe for running Tricium FuchsiaFormat analyzer.
   * [web_view](#recipes-web_view) &mdash; Recipe for building libwebkit.
   * [zbi:examples/full](#recipes-zbi_examples_full)
   * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
@@ -1815,11 +1815,11 @@ Recipe for running Tricium clang-format analyzer.
 &mdash; **def [RunSteps](/recipes/tricium/clang_tidy.py#41)(api, project, manifest, checks):**
 ### *recipes* / [tricium/format](/recipes/tricium/format.py)
 
-[DEPS](/recipes/tricium/format.py#11): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
+[DEPS](/recipes/tricium/format.py#11): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
 
-Recipe for running Tricium clang-format analyzer.
+Recipe for running Tricium FuchsiaFormat analyzer.
 
-&mdash; **def [RunSteps](/recipes/tricium/format.py#62)(api, project, manifest, formatters):**
+&mdash; **def [RunSteps](/recipes/tricium/format.py#74)(api, project, manifest, formatters):**
 ### *recipes* / [web\_view](/recipes/web_view.py)
 
 [DEPS](/recipes/web_view.py#9): [fuchsia](#recipe_modules-fuchsia), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]

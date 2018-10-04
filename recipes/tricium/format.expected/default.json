@@ -197,7 +197,7 @@
       "-root",
       "[START_DIR]/cipd",
       "-ensure-file",
-      "fuchsia/clang/${platform} goma",
+      "fuchsia/clang/${platform} goma\ngn/gn/${platform} latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -206,12 +206,18 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/clang/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-goma------------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/clang/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"gn/gn/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -279,6 +285,25 @@
     ],
     "cwd": "[START_DIR]/topaz",
     "name": "reset path/to/file.h"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gn",
+      "format",
+      "gnfile.gn"
+    ],
+    "cwd": "[START_DIR]/topaz",
+    "name": "formatting gnfile.gn"
+  },
+  {
+    "cmd": [
+      "git",
+      "diff",
+      "--name-only"
+    ],
+    "cwd": "[START_DIR]/topaz",
+    "name": "check gnfile.gn formatting",
+    "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [],
