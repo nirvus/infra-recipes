@@ -228,7 +228,7 @@ def UploadArchive(api, sdk, out_dir, remote, revision):
       unauthenticated_url=True)
 
   # Upload the SDK to CIPD as well.
-  cipd_pkg_name = 'fuchsia/sdk/chromium/' + api.cipd.platform_suffix()
+  cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
   step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
   if step.json.output['result']:
     api.step('Package is up-to-date', cmd=None)
@@ -284,7 +284,7 @@ def GenTests(api):
           project='garnet',
           manifest='manifest/garnet',
           remote='https://fuchsia.googlesource.com/garnet') +
-      api.step_data('upload chromium sdk.cipd search fuchsia/sdk/chromium/linux-amd64 ' +
+      api.step_data('upload chromium sdk.cipd search fuchsia/sdk/linux-amd64 ' +
                     'git_revision:%s' % revision,
                      api.json.output({'result': []})) +
       api.step_data('upload chromium sdk.hash archive', api.hash(revision))
