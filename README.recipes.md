@@ -1509,7 +1509,7 @@ Recipe for building Fuchsia and running tests.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#132)(api, project, manifest, remote, checkout_snapshot, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, run_host_tests, networking_for_tests, requires_secrets, snapshot_gcs_bucket, upload_breakpad_symbols, pave, boards, products, zircon_args, test_in_shards):**
+&mdash; **def [RunSteps](/recipe_modules/fuchsia/examples/fuchsia.py#118)(api, project, manifest, remote, checkout_snapshot, target, build_type, packages, variants, gn_args, ninja_targets, run_tests, runtests_args, device_type, run_host_tests, networking_for_tests, requires_secrets, pave, boards, products, zircon_args, test_in_shards):**
 ### *recipes* / [fuchsia\_perf](/recipes/fuchsia_perf.py)
 
 [DEPS](/recipes/fuchsia_perf.py#27): [catapult](#recipe_modules-catapult), [fuchsia](#recipe_modules-fuchsia), [minfs](#recipe_modules-minfs), [swarming](#recipe_modules-swarming), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]

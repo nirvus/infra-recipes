@@ -181,12 +181,31 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/jiri.snapshot",
-      "gs://fuchsia-snapshots/builds/5555555555/jiri.snapshot"
+      "gs://###fuchsia-snapshots###/builds/5555555555/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "upload jiri.snapshot to fuchsia-snapshots",
+    "name": "upload jiri.snapshot to ###fuchsia-snapshots###",
     "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/builds/5555555555/jiri.snapshot@@@"
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-snapshots###/builds/5555555555/jiri.snapshot@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/jiri.snapshot",
+      "gs://###fuchsia-archive###/builds/5555555555/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot to ###fuchsia-archive###",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/jiri.snapshot@@@"
     ]
   },
   {
@@ -415,13 +434,13 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/gn_trace.html",
-      "gs://###fake-bucket###/builds/5555555555/gn_trace.html"
+      "gs://###fuchsia-build###/builds/5555555555/gn_trace.html"
     ],
     "infra_step": true,
-    "name": "build.upload gn_trace.html to ###fake-bucket###",
+    "name": "build.upload gn_trace.html to ###fuchsia-build###",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@gn_trace.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/gn_trace.html@@@"
+      "@@@STEP_LINK@gn_trace.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/gn_trace.html@@@"
     ]
   },
   {
@@ -435,13 +454,13 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/ninja_trace.html",
-      "gs://###fake-bucket###/builds/5555555555/ninja_trace.html"
+      "gs://###fuchsia-build###/builds/5555555555/ninja_trace.html"
     ],
     "infra_step": true,
-    "name": "build.upload ninja_trace.html to ###fake-bucket###",
+    "name": "build.upload ninja_trace.html to ###fuchsia-build###",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@ninja_trace.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/ninja_trace.html@@@"
+      "@@@STEP_LINK@ninja_trace.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/ninja_trace.html@@@"
     ]
   },
   {
@@ -761,12 +780,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/bloaty.html",
-      "gs://###fake-bucket###/builds/5555555555/bloaty.html"
+      "gs://###fuchsia-build###/builds/5555555555/bloaty.html"
     ],
     "infra_step": true,
-    "name": "upload bloaty.html to ###fake-bucket###",
+    "name": "upload bloaty.html to ###fuchsia-build###",
     "~followup_annotations": [
-      "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fake-bucket###/builds/5555555555/bloaty.html@@@"
+      "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/bloaty.html@@@"
     ]
   },
   {
@@ -1023,12 +1042,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/fuchsia.tar.gz",
-      "gs://###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz"
+      "gs://###fuchsia-archive###/builds/5555555555/fuchsia.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload fuchsia.tar.gz to ###fake-artifact-bucket###",
+    "name": "upload fuchsia.tar.gz to ###fuchsia-archive###",
     "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/fuchsia.tar.gz@@@"
+      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/fuchsia.tar.gz@@@"
     ]
   },
   {
@@ -1063,12 +1082,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/packages.tar.gz",
-      "gs://###fake-artifact-bucket###/builds/5555555555/packages.tar.gz"
+      "gs://###fuchsia-archive###/builds/5555555555/packages.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload packages.tar.gz to ###fake-artifact-bucket###",
+    "name": "upload packages.tar.gz to ###fuchsia-archive###",
     "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fake-artifact-bucket###/builds/5555555555/packages.tar.gz@@@"
+      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/packages.tar.gz@@@"
     ]
   },
   {

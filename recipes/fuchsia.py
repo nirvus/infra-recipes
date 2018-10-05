@@ -400,17 +400,6 @@ def GenTests(api):
       properties=dict(project='vendor/foobar'),
   )
 
-  # Test cases for uploading snapshots.
-  yield api.fuchsia.test(
-      'cq_no_snapshot',
-      tryjob=True,
-      properties=dict(snapshot_gcs_bucket=None),
-  )
-  yield api.fuchsia.test(
-      'ci_no_snapshot',
-      properties=dict(snapshot_gcs_bucket=None),
-  )
-
   # Test cases for archiving artifacts.
   yield api.fuchsia.test(
       'cq_no_archive',
@@ -424,15 +413,6 @@ def GenTests(api):
   yield api.fuchsia.test(
       'ci_override_archive',
       properties=dict(archive_gcs_bucket='different-archive-bucket'),
-  )
-
-  # Test non-uploading CI job.
-  yield api.fuchsia.test(
-      'ci_no_snapshot_or_archive',
-      properties=dict(
-          snapshot_gcs_bucket='',
-          archive_gcs_bucket='',
-      ),
   )
 
   # Test cases for generating symbol files as part of the build

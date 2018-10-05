@@ -181,12 +181,31 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/jiri.snapshot",
-      "gs://fuchsia-snapshots/builds/5555555555/jiri.snapshot"
+      "gs://###fuchsia-snapshots###/builds/5555555555/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "upload jiri.snapshot to fuchsia-snapshots",
+    "name": "upload jiri.snapshot to ###fuchsia-snapshots###",
     "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/fuchsia-snapshots/builds/5555555555/jiri.snapshot@@@"
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-snapshots###/builds/5555555555/jiri.snapshot@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/jiri.snapshot",
+      "gs://###fuchsia-archive###/builds/5555555555/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot to ###fuchsia-archive###",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/jiri.snapshot@@@"
     ]
   },
   {

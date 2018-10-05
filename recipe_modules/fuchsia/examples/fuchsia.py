@@ -101,11 +101,6 @@ PROPERTIES = {
             kind=bool,
             help='Whether any plaintext needs to be supplied to the tests',
             default=False),
-    'upload_breakpad_symbols':
-        Property(
-            kind=bool,
-            help='Whether to upload breakpad symbol files',
-            default=False),
     'pave':
         Property(
             kind=bool,
@@ -117,23 +112,14 @@ PROPERTIES = {
             kind=bool,
             help='Whether to run tests in shards',
             default=False),
-
-    # Misc. additional properties.
-    'snapshot_gcs_bucket':
-        Property(
-            kind=str,
-            help='The GCS bucket to upload a jiri snapshot of the build'
-            ' to. Will not upload a snapshot if this property is'
-            ' blank or tryjob is True',
-            default='fuchsia-snapshots'),
 }
 
 
 def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variants, gn_args, ninja_targets, run_tests,
              runtests_args, device_type, run_host_tests, networking_for_tests,
-             requires_secrets, snapshot_gcs_bucket, upload_breakpad_symbols,
-             pave, boards, products, zircon_args, test_in_shards):
+             requires_secrets, pave, boards, products, zircon_args,
+             test_in_shards):
   build_input = api.buildbucket.build.input
   if checkout_snapshot:
     if api.properties.get('tryjob'):
@@ -149,7 +135,6 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
         manifest=manifest,
         remote=remote,
         project=project,
-        snapshot_gcs_buckets=[snapshot_gcs_bucket],
     )
   assert checkout.root_dir
   assert checkout.snapshot_file
@@ -198,10 +183,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       assert test_results.passed_test_outputs['[START_DIR]/hello']
     api.fuchsia.analyze_test_results([test_results])
 
-  api.fuchsia.upload_build_artifacts(
-      build_results=build,
-      bucket='###fake-artifact-bucket###',
-      upload_breakpad_symbols=upload_breakpad_symbols)
+  api.fuchsia.upload_build_artifacts(build_results=build)
 
 
 def GenTests(api):
@@ -364,16 +346,6 @@ def GenTests(api):
       'zircon_args',
       properties=dict(zircon_args=['FOO=BAR']),
   )
-
-  yield api.fuchsia.test(
-      'ci_no_snapshot',
-      properties=dict(snapshot_gcs_bucket=None),
-  )
-  yield api.fuchsia.test(
-      'cq_no_snapshot',
-      tryjob=True,
-      properties=dict(snapshot_gcs_bucket=None),
-  )
   yield api.fuchsia.test(
       'gn_args',
       properties=dict(gn_args=['super_arg=false', 'less_super_arg=true']),
@@ -439,12 +411,12 @@ def GenTests(api):
   # Test cases for generating symbol files during the build.
   yield api.fuchsia.test(
       'upload_breakpad_symbols',
+      upload_breakpad_symbols=True,
       properties=dict(
           # build_type and target determine the path used in the key of
           # fuchsia.breakpad_symbol_summary below.
           build_type='release',
           target='x64',
-          upload_breakpad_symbols=True,
           ninja_targets=['//build/gn:breakpad_symbols'],
       ),
       steps=[
@@ -452,23 +424,12 @@ def GenTests(api):
               '/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'
           })
       ])
-
-  yield api.fuchsia.test(
-      'dont_upload_breakpad_symbols',
-      properties=dict(
-          build_type='release',
-          target='x64',
-          upload_breakpad_symbols=False,
-          ninja_targets=['//build/gn:breakpad_symbols'],
-      ),
-  )
-
   yield api.fuchsia.test(
       'upload_but_symbol_files_missing',
+      upload_breakpad_symbols=True,
       properties=dict(
           build_type='release',
           target='x64',
-          upload_breakpad_symbols=True,
           ninja_targets=['//build/gn:breakpad_symbols'],
       ),
       steps=[api.fuchsia.breakpad_symbol_summary({})])
@@ -476,7 +437,7 @@ def GenTests(api):
   # Test case for generating build traces and bloaty analysis
   yield api.fuchsia.test(
       'upload_build_metrics',
-      build_metrics_gcs_bucket="###fake-bucket###",
+      upload_build_metrics=True,
       properties=dict(
           build_type='release',
           target='x64',
@@ -487,7 +448,7 @@ def GenTests(api):
   # Test case for generating test coverage
   yield api.fuchsia.test(
       'upload_test_coverage',
-      test_coverage_gcs_bucket="###fake-bucket###",
+      upload_test_coverage=True,
       properties=dict(
           build_type='release',
           target='x64',
