@@ -209,10 +209,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
   def __init__(self, fuchsia_properties, *args, **kwargs):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
+    self._snapshot_gcs_bucket = fuchsia_properties.get('snapshot_gcs_bucket')
+    self._archive_gcs_bucket = fuchsia_properties.get('archive_gcs_bucket')
     self._build_metrics_gcs_bucket = fuchsia_properties.get(
         'build_metrics_gcs_bucket')
     self._test_coverage_gcs_bucket = fuchsia_properties.get(
         'test_coverage_gcs_bucket')
+    self._upload_breakpad_symbols = fuchsia_properties.get(
+        'upload_breakpad_symbols')
 
   def checkout(self,
                build_input,
@@ -251,6 +255,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
       self.m.jiri.snapshot(snapshot_file)
+
+      # If we're uploading a snapshot, also upload it to the archive bucket.
+      # People downloading a build's artifacts may want to see the corresponding
+      # snapshot.
+      snapshot_gcs_buckets = (snapshot_gcs_buckets or
+          (self._snapshot_gcs_bucket, self._archive_gcs_bucket))
       return self._finalize_checkout(
           snapshot_file=snapshot_file,
           snapshot_gcs_buckets=snapshot_gcs_buckets)
@@ -1603,7 +1613,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
   def upload_build_artifacts(self,
                              build_results,
-                             bucket,
+                             bucket=None,
                              upload_breakpad_symbols=False):
     """Uploads artifacts from the build to Google Cloud Storage.
 
@@ -1619,26 +1629,29 @@ class FuchsiaApi(recipe_api.RecipeApi):
       upload_breakpad_symbols (bool): If true, uploads breakpad symbols to
         the bucket as well.
     """
-    assert bucket
+    bucket = bucket or self._archive_gcs_bucket
+    upload_breakpad_symbols = upload_breakpad_symbols or self._upload_breakpad_symbols
+    # TODO(INTK-593): Mave this logic return-if-no-bucket once migration is
+    # complete. This was done to step coverage purposes in the meantime.
+    if bucket:
+      self.m.gsutil.ensure_gsutil()
+      self.m.tar.ensure_tar()
 
-    self.m.gsutil.ensure_gsutil()
-    self.m.tar.ensure_tar()
+      # Upload Fuchsia boot data.
+      archive = self._tar_fuchsia_boot_data(build_results)
+      self._upload_file_to_gcs(archive, bucket)
 
-    # Upload Fuchsia boot data.
-    archive = self._tar_fuchsia_boot_data(build_results)
-    self._upload_file_to_gcs(archive, bucket)
+      # Upload fuchsia packages.
+      archive = self._tar_fuchsia_packages(build_results)
+      self._upload_file_to_gcs(archive, bucket)
 
-    # Upload fuchsia packages.
-    archive = self._tar_fuchsia_packages(build_results)
-    self._upload_file_to_gcs(archive, bucket)
-
-    # Upload breakpad symbol files.
-    if upload_breakpad_symbols:
-      symbol_files = self._get_breakpad_symbol_files(build_results)
-      if symbol_files:
-        archive = self._tar_breakpad_symbols(symbol_files,
-                                             build_results.fuchsia_build_dir)
-        self._upload_file_to_gcs(archive, bucket)
+      # Upload breakpad symbol files.
+      if upload_breakpad_symbols:
+        symbol_files = self._get_breakpad_symbol_files(build_results)
+        if symbol_files:
+          archive = self._tar_breakpad_symbols(symbol_files,
+                                               build_results.fuchsia_build_dir)
+          self._upload_file_to_gcs(archive, bucket)
 
   def _get_breakpad_symbol_files(self, build_results):
     """Extracts the list of generated symbol files.
