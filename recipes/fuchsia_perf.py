@@ -126,31 +126,20 @@ PROPERTIES = {
             help=
             'Whether to upload benchmark results. Make sure you set this to false when testing',
             default=True),
-    'snapshot_gcs_bucket':
-        Property(
-            kind=str,
-            help='The GCS bucket to upload a jiri snapshot of the build'
-            ' to. Will not upload a snapshot if this property is'
-            ' blank or tryjob is True',
-            default='fuchsia-snapshots'),
 }
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
              variant, gn_args, ninja_targets, test_pool, catapult_url,
              device_type, pave, dashboard_masters_name, dashboard_bots_name,
-             snapshot_gcs_bucket, upload_to_dashboard, benchmarks_package,
-             boards, products):
+             upload_to_dashboard, benchmarks_package, boards, products):
   api.catapult.ensure_catapult()
 
-  if api.properties.get('tryjob'):
-    snapshot_gcs_bucket = None
   api.fuchsia.checkout(
       build_input=api.buildbucket.build.input,
       manifest=manifest,
       remote=remote,
       project=project,
-      snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
 
   execution_timestamp_ms = api.time.ms_since_epoch()

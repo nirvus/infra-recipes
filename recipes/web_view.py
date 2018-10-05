@@ -20,22 +20,9 @@ DEPS = [
 
 TARGETS = ['arm64', 'x64']
 
-PROPERTIES = {
-    'snapshot_gcs_bucket':
-        Property(
-            kind=str,
-            help='The GCS bucket to upload a jiri snapshot of the build'
-            ' to. Will not upload a snapshot if this property is'
-            ' blank or tryjob is True',
-            default='fuchsia-snapshots'),
-}
 
-
-def RunSteps(api, snapshot_gcs_bucket):
+def RunSteps(api):
   api.gitiles.ensure_gitiles()
-
-  if api.properties.get('tryjob'):
-    snapshot_gcs_bucket = None
 
   build_input = api.buildbucket.build.input
   revision = build_input.gitiles_commit.id
@@ -46,7 +33,6 @@ def RunSteps(api, snapshot_gcs_bucket):
       build_input=None if revision else build_input,
       manifest='webkit',
       remote='https://fuchsia.googlesource.com/manifest',
-      snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
 
   # For historical reasons, webview prebuilts use a hash of the snapshot file
@@ -110,15 +96,4 @@ def GenTests(api):
       'cq',
       clear_default_properties=True,
       tryjob=True,
-  )
-  yield api.fuchsia.test(
-      'cq_no_snapshot',
-      clear_default_properties=True,
-      tryjob=True,
-      properties=dict(snapshot_gcs_bucket=''),
-  )
-  yield api.fuchsia.test(
-      'ci_no_snapshot',
-      clear_default_properties=True,
-      properties=dict(snapshot_gcs_bucket=''),
   )

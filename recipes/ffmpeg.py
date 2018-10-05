@@ -33,27 +33,17 @@ VARIANTS = ['lto', 'thinlto', 'profile', 'asan', 'ubsan']
 PROPERTIES = {
     'project':
         Property(kind=str, help='Jiri remote manifest project', default=None),
-    'snapshot_gcs_bucket':
-        Property(
-            kind=str,
-            help='The GCS bucket to upload a jiri snapshot of the build'
-            ' to. Will not upload a snapshot if this property is'
-            ' blank or tryjob is True',
-            default='fuchsia-snapshots'),
 }
 
 
-def RunSteps(api, project, snapshot_gcs_bucket):
+def RunSteps(api, project):
   build_input = api.buildbucket.build.input
 
-  if api.properties.get('tryjob'):
-    snapshot_gcs_bucket = None
   checkout = api.fuchsia.checkout(
       build_input=build_input,
       manifest='manifest/ffmpeg',
       remote=REPOSITORY,
       project=project,
-      snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
 
   staging_dir = api.path.mkdtemp('ffmpeg')
@@ -160,25 +150,13 @@ def GenTests(api):
                     api.jiri.example_revision,
                     api.cipd.example_search('fuchsia/lib/ffmpeg/fuchsia', [])))
   yield api.fuchsia.test(
+      'ci',
+      clear_default_properties=True,
+      properties=dict(project='third_party/ffmpeg'),
+  )
+  yield api.fuchsia.test(
       'cq',
       clear_default_properties=True,
       tryjob=True,
       properties=dict(project='third_party/ffmpeg'),
-  )
-  yield api.fuchsia.test(
-      'cq_no_snapshot',
-      clear_default_properties=True,
-      tryjob=True,
-      properties=dict(
-          project='third_party/ffmpeg',
-          snapshot_gcs_bucket='',
-      ),
-  )
-  yield api.fuchsia.test(
-      'ci_no_snapshot',
-      clear_default_properties=True,
-      properties=dict(
-          project='third_party/ffmpeg',
-          snapshot_gcs_bucket='',
-      ),
   )

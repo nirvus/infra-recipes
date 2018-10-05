@@ -75,11 +75,6 @@ PROPERTIES = {
             kind=List(basestring),
             help='Extra target args to pass to ninja',
             default=[]),
-    'upload_breakpad_symbols':
-        Property(
-            kind=bool,
-            help='Whether to upload breakpad symbol files',
-            default=False),
     'boards':
         Property(kind=List(basestring), help='Boards to build', default=[]),
     'products':
@@ -141,22 +136,6 @@ PROPERTIES = {
             kind=bool,
             help='Whether to run tests as shards',
             default=False),
-
-    # Properties pertaining to uploading build artifacts.
-    'snapshot_gcs_bucket':
-        Property(
-            kind=str,
-            help='The GCS bucket to upload a jiri snapshot of the build'
-            ' to. Will not upload a snapshot if this property is'
-            ' blank, tryjob is True, or checkout_snapshot is True.',
-            default='fuchsia-snapshots'),
-    'archive_gcs_bucket':
-        Property(
-            kind=str,
-            help='The GCS bucket to upload build artifacts to. Will not'
-            ' upload a snapshot if this property is blank or if tryjob'
-            ' is True.',
-            default='fuchsia-archive')
 }
 
 
@@ -164,14 +143,8 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variant, gn_args, test_pool, run_tests,
              runtests_args, run_host_tests, device_type, networking_for_tests,
              pave, ninja_targets, test_timeout_secs, requires_secrets,
-             test_in_shards, archive_gcs_bucket, upload_breakpad_symbols,
-             snapshot_gcs_bucket, boards, products, zircon_args):
+             test_in_shards, boards, products, zircon_args):
   tryjob = api.properties.get('tryjob')
-
-  # Don't upload snapshots for tryjobs.
-  if tryjob:
-    snapshot_gcs_bucket = None
-    archive_gcs_bucket = None
 
   # Handle illegal setting of networking_for_tests.
   if networking_for_tests:
@@ -204,18 +177,11 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
   else:
     assert manifest
     assert remote
-    # If we're uploading a snapshot, also upload it to the archive bucket.
-    # People downloading a build's artifacts may want to see the corresponding
-    # snapshot.
-    buckets = ()
-    if snapshot_gcs_bucket:
-        buckets = (snapshot_gcs_bucket, archive_gcs_bucket)
     api.fuchsia.checkout(
         build_input=build_input,
         manifest=manifest,
         remote=remote,
         project=project,
-        snapshot_gcs_buckets=buckets,
     )
 
   with api.step.nest('ensure_packages'):
@@ -305,12 +271,9 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
     api.fuchsia.analyze_test_results([test_results])
 
   # Upload an archive containing build artifacts if the properties say to do so.
-  # Note: if we ran tests, this will only execute if the tests passed.
-  if archive_gcs_bucket:
-    api.fuchsia.upload_build_artifacts(
-        build_results=build,
-        bucket=archive_gcs_bucket,
-        upload_breakpad_symbols=upload_breakpad_symbols)
+  # Note: this is a no-op if archive_gcs_bucket is unset on api.fuchsia;
+  # moreover, if we ran tests, this will only execute if the tests passed.
+  api.fuchsia.upload_build_artifacts(build_results=build)
 
 
 def GenTests(api):
@@ -400,30 +363,15 @@ def GenTests(api):
       properties=dict(project='vendor/foobar'),
   )
 
-  # Test cases for archiving artifacts.
-  yield api.fuchsia.test(
-      'cq_no_archive',
-      tryjob=True,
-      properties=dict(archive_gcs_bucket=''),
-  )
-  yield api.fuchsia.test(
-      'ci_no_archive',
-      properties=dict(archive_gcs_bucket=''),
-  )
-  yield api.fuchsia.test(
-      'ci_override_archive',
-      properties=dict(archive_gcs_bucket='different-archive-bucket'),
-  )
-
   # Test cases for generating symbol files as part of the build
   yield api.fuchsia.test(
       'upload_breakpad_symbols',
+      upload_breakpad_symbols=True,
       properties=dict(
           # build_type and target determine the path used in the key of
           # fuchsia.breakpad_symbol_summary below.
           build_type='release',
           target='x64',
-          upload_breakpad_symbols=True,
           ninja_targets=['build/gn:breakpad_symbols']),
       steps=[
           api.fuchsia.breakpad_symbol_summary({
