@@ -40,7 +40,7 @@ TEST_FS_PCI_ADDR = '06.0'
 
 # How long to wait (in seconds) before killing the test swarming task if there's
 # no output being produced.
-TEST_IO_TIMEOUT_SECS = 60
+TEST_IO_TIMEOUT_SECS = 180
 
 # The path in the BootFS manifest that we want runcmds to show up at.
 RUNCMDS_BOOTFS_PATH = 'infra/runcmds'
