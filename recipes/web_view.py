@@ -38,12 +38,17 @@ def RunSteps(api, snapshot_gcs_bucket):
     snapshot_gcs_bucket = None
 
   build_input = api.buildbucket.build.input
+  revision = build_input.gitiles_commit.id
+
   checkout = api.fuchsia.checkout(
-      build_input=build_input,
+      # jiri manifest lives in fuchsia/manifests, if this
+      # is a CI build, we just want to checkout at HEAD
+      build_input=None if revision else build_input,
       manifest='webkit',
-      remote='https://fuchsia.googlesource.com/third_party/webkit',
+      remote='https://fuchsia.googlesource.com/manifest',
       snapshot_gcs_buckets=[snapshot_gcs_bucket],
   )
+
   # For historical reasons, webview prebuilts use a hash of the snapshot file
   # as a GCS path component: this ensured that the binaries are versioned by
   # the code used to build them, even before all manifest entries were pinned.
@@ -68,9 +73,6 @@ def RunSteps(api, snapshot_gcs_bucket):
   # If this isn't a real run, don't pollute the storage.
   if api.properties.get('tryjob'):
     return
-
-  revision = build_input.gitiles_commit.id
-  assert revision
 
   # Upload the built library to Google Cloud Storage.
   # api.fuchsia.checkout() doesn't always ensure that gsutil exists.

@@ -81,7 +81,7 @@
       "-v",
       "-time",
       "-revision",
-      "a1b2c3",
+      "HEAD",
       "jiri",
       "https://fuchsia.googlesource.com/manifest"
     ],

@@ -82,9 +82,9 @@
       "-v",
       "-time",
       "-revision",
-      "a1b2c3",
+      "HEAD",
       "webkit",
-      "https://fuchsia.googlesource.com/third_party/webkit"
+      "https://fuchsia.googlesource.com/manifest"
     ],
     "infra_step": true,
     "name": "jiri import"

@@ -26,8 +26,6 @@ DEPS = [
 ]
 
 PROPERTIES = {
-  'project':
-      Property(kind=str, help='Jiri remote manifest project', default=None),
   'manifest': Property(kind=str, help='Jiri manifest to use'),
   'remote': Property(kind=str, help='Remote manifest repository'),
   'target': Property(kind=str, help='Target to build'),
@@ -69,18 +67,19 @@ def UploadPackage(api, revision, staging_dir):
   )
 
 
-def RunSteps(api, project, manifest, remote, target):
+def RunSteps(api, manifest, remote, target):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
 
   build_input = api.buildbucket.build.input
-  project = build_input.gitiles_commit.project
   revision = build_input.gitiles_commit.id
 
   with api.context(infra_steps=True):
     api.jiri.checkout(manifest=manifest,
                       remote=remote,
-                      build_input=build_input)
+                      # jiri manifest lives in fuchsia/manifests, if this
+                      # is a CI build, we just want to checkout at HEAD
+                      build_input=None if revision else build_input)
 
   staging_dir = api.path.mkdtemp('jiri')
   jiri_dir = api.path['start_dir'].join(
