@@ -77,7 +77,7 @@ TEST_FS_PCI_ADDR = '06.0'
 
 # How long to wait (in seconds) before killing the test swarming task if there's
 # no output being produced.
-TEST_IO_TIMEOUT_SECS = 60
+TEST_IO_TIMEOUT_SECS = 180
 
 # This string matches the one in //zircon/system/utest/core/main.c.
 CORE_TESTS_SUCCESS_STR = 'core-tests succeeded RZMm59f7zOSs6aZUIXZR'
@@ -640,7 +640,7 @@ def GenTests(api):
   )
   yield (api.test('ci_arm64') +
       ci_build +
-      api.properties(project='zircon', 
+      api.properties(project='zircon',
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='arm64',
