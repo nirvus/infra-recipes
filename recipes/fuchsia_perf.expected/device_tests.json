@@ -770,6 +770,8 @@
       "upload",
       "-url",
       "https://chromeperf.appspot.com",
+      "-timeout",
+      "60s",
       "[\"dummy_catapult_data\"]"
     ],
     "name": "upload benchmark.catapult_json.catapult upload",

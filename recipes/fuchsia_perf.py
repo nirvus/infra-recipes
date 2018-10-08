@@ -213,7 +213,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
         upload_to_dashboard):
       with api.step.nest(step_name):
         api.catapult.upload(
-            input_file=api.raw_io.input_text(file_data), url=catapult_url)
+            input_file=api.raw_io.input_text(file_data), url=catapult_url, timeout='60s')
 
   # Fail if any benchmarks failed.
   if len(test_results.failed_test_outputs) > 0:
