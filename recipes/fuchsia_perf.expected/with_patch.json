@@ -113,7 +113,7 @@
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-input",
-      "{\"change_id\": \"topaz~123456\", \"params\": {\"o\": [\"CURRENT_REVISION\"]}}",
+      "{\"change_id\": \"topaz~100\", \"params\": {\"o\": [\"CURRENT_REVISION\"]}}",
       "-output",
       "/path/to/tmp/json"
     ],
@@ -138,10 +138,12 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "topaz",
       "-remote-branch",
       "master",
-      "fuchsia",
-      "https://fuchsia.googlesource.com/manifest"
+      "manifest/minimal",
+      "https://fuchsia.googlesource.com/topaz"
     ],
     "infra_step": true,
     "name": "jiri import"
@@ -264,7 +266,7 @@
       "get",
       "-host",
       "cr-buildbucket.appspot.com",
-      "8945511751514863184"
+      "5555555555"
     ],
     "infra_step": true,
     "name": "buildbucket.get",
