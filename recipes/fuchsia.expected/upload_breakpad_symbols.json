@@ -399,6 +399,16 @@
       "@@@STEP_LOG_LINE@json.output@    \"name\": \"netboot\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"path\": \"netboot.zbi\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"archive\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"build-archive.tgz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"tgz\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"archive\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"build-archive.zip\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zip\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",
       "@@@STEP_LOG_END@json.output@@@"
@@ -418,6 +428,7 @@
       "boot.bin",
       "efi.blk",
       "netboot.zbi",
+      "build-archive.zip",
       "default"
     ],
     "name": "build.build fuchsia.ninja",
@@ -523,6 +534,41 @@
     ]
   },
   {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[START_DIR]/out/release-x64/build-archive.zip",
+      "gs://###fuchsia-archive###/builds/5555555555/build-archive.zip"
+    ],
+    "infra_step": true,
+    "name": "upload build-archive.zip to ###fuchsia-archive###",
+    "~followup_annotations": [
+      "@@@STEP_LINK@build-archive.zip@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/build-archive.zip@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/out/release-x64/breakpad_symbols/symbol_file_mappings.json",
+      "/path/to/tmp/json"
+    ],
+    "name": "read symbol file summary",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"/path/to/bin\": \"[START_DIR]/out/release-x64/bin.sym\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "ensure bsdtar"
   },
@@ -548,122 +594,6 @@
       "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
-      "[START_DIR]/out/release-x64",
-      "bootdata-blob-*.bin"
-    ],
-    "infra_step": true,
-    "name": "glob bootdata",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/out/release-x64/path/to/out/bootdata-blob-pc.bin@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "--create",
-      "-f",
-      "[CLEANUP]/fuchsia.tar.gz",
-      "--gzip",
-      "-C",
-      "[START_DIR]/out/build-zircon/build-x64",
-      "tools/bootserver",
-      "zircon.bin",
-      "-C",
-      "[START_DIR]/out/release-x64",
-      "images",
-      "path/to/out/bootdata-blob-pc.bin",
-      "ssh-keys",
-      "args.gn",
-      "image_paths.sh",
-      "zedboot_image_paths.sh"
-    ],
-    "name": "tar fuchsia"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/fuchsia.tar.gz",
-      "gs://###fuchsia-archive###/builds/5555555555/fuchsia.tar.gz"
-    ],
-    "infra_step": true,
-    "name": "upload fuchsia.tar.gz to ###fuchsia-archive###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@fuchsia.tar.gz@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/fuchsia.tar.gz@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "--create",
-      "-f",
-      "[CLEANUP]/packages.tar.gz",
-      "--gzip",
-      "-C",
-      "[START_DIR]/garnet/go/src/amber",
-      "keys",
-      "-C",
-      "[START_DIR]/out/release-x64",
-      "host_x64/amber-publish",
-      "host_x64/pm",
-      "-C",
-      "[START_DIR]/out/release-x64/amber-files/repository",
-      "targets",
-      "blobs"
-    ],
-    "name": "tar fuchsia packages"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/packages.tar.gz",
-      "gs://###fuchsia-archive###/builds/5555555555/packages.tar.gz"
-    ],
-    "infra_step": true,
-    "name": "upload packages.tar.gz to ###fuchsia-archive###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/packages.tar.gz@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[START_DIR]/out/release-x64/breakpad_symbols/symbol_file_mappings.json",
-      "/path/to/tmp/json"
-    ],
-    "name": "read symbol file summary",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"/path/to/bin\": \"[START_DIR]/out/release-x64/bin.sym\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]

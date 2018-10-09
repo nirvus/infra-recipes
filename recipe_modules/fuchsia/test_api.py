@@ -212,6 +212,17 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
             'type': 'zbi',
             'path': 'netboot.zbi'
         },
+        {
+          "name": "archive",
+          "path": "build-archive.tgz",
+          "type": "tgz"
+        },
+        {
+          "name": "archive",
+          "path": "build-archive.zip",
+          "type": "zip"
+        }
+
     ])
 
   def task_mock_data(self,
