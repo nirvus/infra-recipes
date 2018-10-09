@@ -55,6 +55,21 @@ VARIANTS_ZIRCON = [
     #('asan', '-A'),
 ]
 
+# Images needed for testing.
+IMAGES_FOR_TESTING = [
+    # Boot images.
+    'zircon-a',
+    'netboot',
+
+    # Images needed for running QEMU
+    'qemu-kernel',
+    'storage-full',
+
+    # Images needed for paving.
+    'efi',
+    'storage-sparse',
+]
+
 
 class FuchsiaCheckoutResults(object):
   """Represents a Fuchsia source checkout."""
@@ -82,6 +97,7 @@ class FuchsiaBuildResults(object):
     self._zircon_build_dir = zircon_build_dir
     self._fuchsia_build_dir = fuchsia_build_dir
     self._target = target
+    self._images = {}
 
   @property
   def target(self):
@@ -106,6 +122,12 @@ class FuchsiaBuildResults(object):
   @property
   def ids(self):
     return self._fuchsia_build_dir.join('ids.txt')
+
+  @property
+  def images(self):
+    """Mapping between the canonical name of an image produced by the Fuchsia
+       build to the path to that image on the local disk."""
+    return self._images
 
 
 class FuchsiaApi(recipe_api.RecipeApi):
@@ -517,13 +539,31 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       self.m.step('gn gen', gen_cmd)
 
+      # gn gen will have produced the image manifest. Read it in, ensure that
+      # images needed for testing will be built, and record the paths on disk
+      # where the produced images will be found.
+      image_manifest = self.m.json.read(
+          'read image manifest',
+          build.fuchsia_build_dir.join('images.json'),
+          step_test_data=lambda: self.test_api.mock_image_manifest(),
+      ).json.output
+
+      for image in image_manifest:
+        if image['name'] in IMAGES_FOR_TESTING:
+          ninja_targets.append(image['path'])
+          build.images[image['name']] = (
+              self.m.path.abs_to_path(self.m.path.realpath(
+                  build.fuchsia_build_dir.join(image['path']))
+              )
+          )
+
       self.m.step('ninja', [
           self.m.path['start_dir'].join('buildtools', 'ninja'),
           '-C',
           build.fuchsia_build_dir,
           '-j',
           self.m.goma.jobs,
-      ] + list(ninja_targets))
+      ] + ninja_targets)
 
     self._tracing_data(build)
 
@@ -578,7 +618,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             packages=packages,
             variants=variants,
             gn_args=gn_args,
-            ninja_targets=ninja_targets,
+            ninja_targets=list(ninja_targets),
             boards=boards,
             products=products)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
@@ -759,7 +799,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.step.active_result.presentation.logs['runcmds'] = runcmds
 
   def _construct_qemu_task_request(self, task_name, zbi_path, build, test_pool,
-                                   images, timeout_secs, external_network,
+                                   timeout_secs, external_network,
                                    secret_bytes):
     """Constructs a Swarming task request which runs Fuchsia tests inside QEMU.
 
@@ -769,9 +809,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Args:
       build (FuchsiaBuildResults): The Fuchsia build to test.
       test_pool (str): Swarming pool from which the test task will be drawn.
-      images (dict[string]Path): A map between the canonical name of an
-        image produced by the Fuchsia build to the path to that image on the
-        local disk.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
       external_network (bool): Whether to give Fuchsia inside QEMU access
@@ -787,8 +824,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # image. These dict keys come from the images.json format which is produced
     # by a Fuchsia build.
     # TODO(BLD-253): Point to the schema once there is one.
-    storage_full_path = images['storage-full']
-    qemu_kernel_path = images['qemu-kernel']
+    storage_full_path = build.images['storage-full']
+    qemu_kernel_path = build.images['qemu-kernel']
 
     # All the *_name references below act as relative paths to the corresponding
     # artifacts in the test Swarming task, since we isolate all of the artifacts
@@ -868,8 +905,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     )
 
   def _construct_device_task_request(self, task_name, device_type, zbi_path,
-                                     build, test_pool, images, pave,
-                                     timeout_secs):
+                                     build, test_pool, pave, timeout_secs):
     """Constructs a Swarming task request to run Fuchsia tests on a device.
 
     Expects the build and artifacts to be at the same place they were at
@@ -878,9 +914,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Args:
       build (FuchsiaBuildResults): The Fuchsia build to test.
       test_pool (str): Swarming pool from which the test task will be drawn.
-      images (dict[string]Path): A map between the canonical name of an
-        image produced by the Fuchsia build to the path to that image on the
-        local disk.
       pave (bool): Whether or not the build artifacts should be paved.
       timeout_secs (int): The amount of seconds to wait for the tests to
         execute before giving up.
@@ -916,10 +949,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     # If we're paving, ensure we add the additional necessary artifacts.
     if pave:
-      efi_path = images['efi']
+      efi_path = build.images['efi']
       efi_name = self.m.path.basename(efi_path)
 
-      storage_sparse_path = images['storage-sparse']
+      storage_sparse_path = build.images['storage-sparse']
       storage_sparse_name = self.m.path.basename(storage_sparse_path)
 
       image_paths.extend([
@@ -990,28 +1023,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
           path=archive_path,
           directory=self.m.raw_io.output_dir(leak_to=leak_to),
       ).raw_io.output_dir
-
-  def _image_paths(self, build):
-    """Produces a mapping of image name to Path in the build.
-
-    Args:
-      build (FuchsiaBuildResults): The build for which we want to get image
-        paths from.
-
-    Returns:
-      A dict mapping a canonical name for the image to its Path in the build
-        directory.
-    """
-    raw_images = self.m.json.read(
-        'read image manifest',
-        build.fuchsia_build_dir.join('images.json'),
-    ).json.output
-
-    return {
-        image['name']: self.m.path.abs_to_path(
-            self.m.path.realpath(build.fuchsia_build_dir.join(image['path'])))
-        for image in raw_images
-    }
 
   def _decrypt_secrets(self, build):
     """Decrypts the secrets included in the build.
@@ -1085,13 +1096,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
     runcmds_path = self.m.path['cleanup'].join('runcmds')
     self._create_runcmds_script(device_type, test_cmds, runcmds_path)
 
-    images = self._image_paths(build)
-
     # Inject the runcmds script into the bootfs image.
     if not pave and device_type != 'QEMU':
-      zbi_path = images['netboot']
+      zbi_path = build.images['netboot']
     else:
-      zbi_path = images['zircon-a']
+      zbi_path = build.images['zircon-a']
     new_zbi_path = build.fuchsia_build_dir.join('test-infra.zbi')
     self.m.zbi.copy_and_extend(
         step_name='create test zbi',
@@ -1109,7 +1118,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
           zbi_path=new_zbi_path,
           build=build,
           test_pool=test_pool,
-          images=images,
           timeout_secs=timeout_secs,
           external_network=external_network,
           secret_bytes=secret_bytes,
@@ -1121,7 +1129,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
           zbi_path=new_zbi_path,
           build=build,
           test_pool=test_pool,
-          images=images,
           pave=pave,
           timeout_secs=timeout_secs,
       )
@@ -1185,8 +1192,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       A list of FuchsiaTestResults representing the completed test tasks.
     """
-    images = self._image_paths(build)
-
     # Run the testsharder to collect test specifications and shard them.
     self.m.testsharder.ensure_testsharder()
     shards = self.m.testsharder.execute(
@@ -1244,7 +1249,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           step_name='create zbi',
           # TODO(IN-655): Add support for using the netboot image in non-paving
           # cases.
-          input_image=images['zircon-a'],
+          input_image=build.images['zircon-a'],
           output_image=shard_zbi_path,
           manifest={
               RUNCMDS_BOOTFS_PATH: runcmds_path,
@@ -1258,7 +1263,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
               zbi_path=shard_zbi_path,
               test_pool=test_pool,
               build=build,
-              images=images,
               timeout_secs=timeout_secs,
               # TODO(IN-654): Add support for external_network and secret_bytes.
               external_network=False,
@@ -1271,7 +1275,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
               device_type=shard.device_type,
               zbi_path=shard_zbi_path,
               build=build,
-              images=images,
               timeout_secs=timeout_secs,
               # TODO(IN-655): Add support for non-paving tests.
               pave=True,

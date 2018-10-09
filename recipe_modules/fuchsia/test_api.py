@@ -139,7 +139,6 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       if requires_secrets:
         extra_steps.extend(self.secrets_step_data())
       if run_tests:
-        extra_steps.append(self.images_step_data())
         if not expect_failure:
           extra_steps.append(
               self.tasks_step_data(self.task_mock_data(device=on_device)))
@@ -180,9 +179,9 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     return self.step_data('read symbol file summary',
                           self.m.json.output(summary_json))
 
-  def images_step_data(self):
-    """Returns mock step data for the image manifest."""
-    mock_image_manifest = [
+  def mock_image_manifest(self):
+    """Returns a mock image manifest."""
+    return self.m.json.output([
         {
             'name': 'zircon-a',
             'type': 'zbi',
@@ -213,10 +212,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
             'type': 'zbi',
             'path': 'netboot.zbi'
         },
-    ]
-
-    return self.step_data('read image manifest',
-                          self.m.json.output(mock_image_manifest))
+    ])
 
   def task_mock_data(self,
                      id='39927049b6ee7010',

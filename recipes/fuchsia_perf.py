@@ -244,7 +244,6 @@ def GenTests(api):
       benchmarks_package='topaz_benchmarks'
     ) +
     buildbucket_get_response +
-    api.fuchsia.images_step_data() +
     api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
     api.fuchsia.test_step_data()
   )
@@ -264,7 +263,6 @@ def GenTests(api):
     ) +
     buildbucket_get_response +
     api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
-    api.fuchsia.images_step_data() +
     api.fuchsia.test_step_data(failure=True)
   )
 
@@ -287,7 +285,6 @@ def GenTests(api):
       tryjob=True,
     ) +
     buildbucket_get_response +
-    api.fuchsia.images_step_data() +
     api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
     api.fuchsia.test_step_data()
   )
@@ -309,7 +306,6 @@ def GenTests(api):
       tryjob=True,
     ) +
     buildbucket_get_response +
-    api.fuchsia.images_step_data() +
     api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
     api.fuchsia.test_step_data()
   )
@@ -331,7 +327,6 @@ def GenTests(api):
       tryjob=False,
     ) +
     buildbucket_get_response +
-    api.fuchsia.images_step_data() +
     api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data(device=True)) +
     api.fuchsia.test_step_data()
   )
@@ -351,6 +346,5 @@ def GenTests(api):
     ) +
     buildbucket_get_response +
     api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()) +
-    api.fuchsia.images_step_data() +
     api.step_data('extract results', api.raw_io.output_dir({}))
   )

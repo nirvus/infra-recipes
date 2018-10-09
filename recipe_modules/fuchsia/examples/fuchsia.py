@@ -226,7 +226,6 @@ def GenTests(api):
       clear_default_steps=True,
       properties=dict(run_tests=True),
       steps=[
-          api.fuchsia.images_step_data(),
           api.fuchsia.tasks_step_data(api.fuchsia.task_mock_data()),
       ])
   yield api.fuchsia.test(
@@ -465,7 +464,6 @@ def GenTests(api):
           test_in_shards=True,
       ),
       steps=[
-          api.fuchsia.images_step_data(),
           api.fuchsia.shards_step_data(shards=[
               api.testsharder.shard(
                   name='fuchsia-0000',

@@ -439,7 +439,6 @@ def GenTests(api):
           test_in_shards=True,
       ),
       steps=[
-          api.fuchsia.images_step_data(),
           api.fuchsia.shards_step_data(shards=[
               api.testsharder.shard(
                   name='fuchsia-0000',
