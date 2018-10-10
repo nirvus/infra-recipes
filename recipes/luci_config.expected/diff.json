@@ -1,0 +1,208 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_jiri"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/jiri",
+      "-ensure-file",
+      "fuchsia/tools/jiri/linux-amd64 stable",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_jiri.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-stable----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "init",
+      "-v",
+      "-time",
+      "-analytics-opt=false",
+      "-rewrite-sso-to-https=true",
+      "-cache",
+      "[CACHE]/git",
+      "-shared"
+    ],
+    "infra_step": true,
+    "name": "jiri init"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "import",
+      "-v",
+      "-time",
+      "-revision",
+      "HEAD",
+      "manifest/infra",
+      "https://fuchsia.googlesource.com/manifest"
+    ],
+    "infra_step": true,
+    "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-run-hooks=false"
+    ],
+    "infra_step": true,
+    "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "run-hooks",
+      "-v",
+      "-time",
+      "-attempts=3"
+    ],
+    "infra_step": true,
+    "name": "jiri run-hooks"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "source-manifest",
+      "-v",
+      "-time",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "jiri source-manifest",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
+      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
+      "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "-v",
+      "-time",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "jiri project",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"fuchsia-infra/config\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"config\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/infra/config\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"prebuilt\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fuchsia-infra/prebuilt\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/infra/prebuilt\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/config/config/services",
+      "*buildbucket*.cfg"
+    ],
+    "infra_step": true,
+    "name": "glob buildbucket configs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/config/config/services/cr-buildbucket.cfg@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/fuchsia-infra/prebuilt/tools/flatten_buildbucket_cfg/flatten_buildbucket_cfg",
+      "[START_DIR]/config/config/services/cr-buildbucket.cfg"
+    ],
+    "name": "flatten cr-buildbucket.cfg",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/config/config/services/generated/cr-buildbucket.cfg",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read generated/cr-buildbucket.cfg"
+  },
+  {
+    "cmd": [],
+    "name": "diff cr-buildbucket.cfg",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@diff@*** generated/cr-buildbucket.cfg@@@",
+      "@@@STEP_LOG_LINE@diff@--- cr-buildbucket.cfg.flattened@@@",
+      "@@@STEP_LOG_LINE@diff@***************@@@",
+      "@@@STEP_LOG_LINE@diff@*** 1,3 ****@@@",
+      "@@@STEP_LOG_LINE@diff@  foo@@@",
+      "@@@STEP_LOG_LINE@diff@! bar@@@",
+      "@@@STEP_LOG_LINE@diff@  @@@",
+      "@@@STEP_LOG_LINE@diff@--- 1,3 ----@@@",
+      "@@@STEP_LOG_LINE@diff@  foo@@@",
+      "@@@STEP_LOG_LINE@diff@! baz@@@",
+      "@@@STEP_LOG_LINE@diff@  @@@",
+      "@@@STEP_LOG_END@diff@@@",
+      "@@@STEP_LOG_LINE@expected@foo@@@",
+      "@@@STEP_LOG_LINE@expected@bar@@@",
+      "@@@STEP_LOG_LINE@expected@@@@",
+      "@@@STEP_LOG_END@expected@@@",
+      "@@@STEP_LOG_LINE@flattened@foo@@@",
+      "@@@STEP_LOG_LINE@flattened@baz@@@",
+      "@@@STEP_LOG_LINE@flattened@@@@",
+      "@@@STEP_LOG_END@flattened@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "reason": "Found diff",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]

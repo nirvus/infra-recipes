@@ -70,6 +70,7 @@
   * [licenses](#recipes-licenses) &mdash; Recipe for checking license text in the source code.
   * [lkgs:examples/full](#recipes-lkgs_examples_full)
   * [llvm](#recipes-llvm) &mdash; Recipe for building LLVM.
+  * [luci_config](#recipes-luci_config) &mdash; Recipe for testing LUCI configs.
   * [minfs:examples/full](#recipes-minfs_examples_full)
   * [ovmf](#recipes-ovmf) &mdash; Recipe for building OVMF firmware and uploading them to CIPD.
   * [prebuilt_host_tool](#recipes-prebuilt_host_tool) &mdash; Recipe for building and publishing CIPD prebuilts.
@@ -1641,6 +1642,13 @@ Requires topaz source to be present in the manifest.
 Recipe for building LLVM.
 
 &mdash; **def [RunSteps](/recipes/llvm.py#57)(api, repository, branch, revision, platform):**
+### *recipes* / [luci\_config](/recipes/luci_config.py)
+
+[DEPS](/recipes/luci_config.py#9): [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe for testing LUCI configs.
+
+&mdash; **def [RunSteps](/recipes/luci_config.py#35)(api, config_project, manifest, remote):**
 ### *recipes* / [minfs:examples/full](/recipe_modules/minfs/examples/full.py)
 
 [DEPS](/recipe_modules/minfs/examples/full.py#5): [minfs](#recipe_modules-minfs), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
