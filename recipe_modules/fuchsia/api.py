@@ -528,34 +528,36 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       self.m.step('gn gen', gen_cmd)
 
-      # gn gen will have produced the image manifest. Read it in, ensure that
-      # images needed for testing will be built, and record the paths on disk
-      # where the produced images will be found.
-      image_manifest = self.m.json.read(
-          'read image manifest',
-          build.fuchsia_build_dir.join('images.json'),
-          step_test_data=lambda: self.test_api.mock_image_manifest(),
-      ).json.output
+      # If no ninja targets are provided, use all of those needed for testing.
+      if not len(ninja_targets):
+        # gn gen will have produced the image manifest. Read it in, ensure that
+        # images needed for testing will be built, and record the paths on disk
+        # where the produced images will be found.
+        image_manifest = self.m.json.read(
+            'read image manifest',
+            build.fuchsia_build_dir.join('images.json'),
+            step_test_data=lambda: self.test_api.mock_image_manifest(),
+        ).json.output
 
-      for image in image_manifest:
-        name = image['name']
-        path = image['path']
-        type = image['type']
+        for image in image_manifest:
+          name = image['name']
+          path = image['path']
+          type = image['type']
 
-        archive_for_upload = (
-            name == 'archive' and type == 'zip' and self._archive_gcs_bucket
-        )
-        if name in IMAGES_FOR_TESTING or archive_for_upload:
-          ninja_targets.append(path)
-          build.images[name] = (
-              self.m.path.abs_to_path(self.m.path.realpath(
-                  build.fuchsia_build_dir.join(path))
-              )
+          archive_for_upload = (
+              name == 'archive' and type == 'zip' and self._archive_gcs_bucket
           )
-      # The `default` ninja target is needed - but is not automatically included
-      # if other ninja targets are specified.
-      if len(ninja_targets):
-        ninja_targets.append('default')
+          if name in IMAGES_FOR_TESTING or archive_for_upload:
+            ninja_targets.append(path)
+            build.images[name] = (
+                self.m.path.abs_to_path(self.m.path.realpath(
+                    build.fuchsia_build_dir.join(path))
+                )
+            )
+        # The `default` ninja target is needed - but is not automatically included
+        # if other ninja targets are specified.
+        if len(ninja_targets):
+          ninja_targets.append('default')
 
       self.m.step('ninja', [
           self.m.path['start_dir'].join('buildtools', 'ninja'),
@@ -1505,8 +1507,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
       return
 
     self.m.gsutil.ensure_gsutil()
-    self._upload_file_to_gcs(build_results.images['archive'],
-                             self._archive_gcs_bucket)
+    if 'archive' in build_results.images:
+      self._upload_file_to_gcs(build_results.images['archive'],
+                               self._archive_gcs_bucket)
 
     # Upload breakpad symbol files.
     if self._upload_breakpad_symbols:

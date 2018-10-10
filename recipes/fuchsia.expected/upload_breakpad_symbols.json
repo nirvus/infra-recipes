@@ -360,76 +360,12 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[START_DIR]/out/release-x64/images.json",
-      "/path/to/tmp/json"
-    ],
-    "name": "build.build fuchsia.read image manifest",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@2@@@",
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"zircon-a\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fuchsia.zbi\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"storage-full\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fvm.blk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"blk\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"storage-sparse\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"fvm.sparse.blk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"blk\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"qemu-kernel\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"boot.bin\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"bin\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"efi\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"efi.blk\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"blk\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"netboot\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"netboot.zbi\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zbi\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"archive\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"build-archive.tgz\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"tgz\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"archive\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"build-archive.zip\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"type\": \"zip\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
       "[START_DIR]/buildtools/ninja",
       "-C",
       "[START_DIR]/out/release-x64",
       "-j",
       "20",
-      "build/gn:breakpad_symbols",
-      "fuchsia.zbi",
-      "fvm.blk",
-      "fvm.sparse.blk",
-      "boot.bin",
-      "efi.blk",
-      "netboot.zbi",
-      "build-archive.zip",
-      "default"
+      "build/gn:breakpad_symbols"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -531,25 +467,6 @@
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[START_DIR]/out/release-x64/build-archive.zip",
-      "gs://###fuchsia-archive###/builds/5555555555/build-archive.zip"
-    ],
-    "infra_step": true,
-    "name": "upload build-archive.zip to ###fuchsia-archive###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@build-archive.zip@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/build-archive.zip@@@"
     ]
   },
   {
