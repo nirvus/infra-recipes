@@ -717,28 +717,15 @@
       "--archive",
       "[CLEANUP]/merged_sdk_archive.tar.gz",
       "--output",
-      "[CLEANUP]/sdk-bazel"
+      "[CLEANUP]/sdk-bazel",
+      "--tests",
+      "[CLEANUP]/tests"
     ],
     "name": "create bazel sdk"
   },
   {
     "cmd": [],
     "name": "test sdk"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/scripts/sdk/bazel/generate-tests.py",
-      "--sdk",
-      "[CLEANUP]/sdk-bazel",
-      "--output",
-      "[CLEANUP]/tests"
-    ],
-    "name": "test sdk.create test workspace",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
   },
   {
     "cmd": [],

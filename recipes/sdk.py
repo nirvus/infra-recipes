@@ -93,6 +93,7 @@ def RunSteps(api, project, manifest, remote):
   if project == 'topaz':
     scripts_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel')
     sdk_dir = api.path['cleanup'].join('sdk-bazel')
+    test_workspace_dir = api.path['cleanup'].join('tests')
 
     api.python('create bazel sdk',
         scripts_path.join('generate.py'),
@@ -101,21 +102,12 @@ def RunSteps(api, project, manifest, remote):
           full_archive_path,
           '--output',
           sdk_dir,
+          '--tests',
+          test_workspace_dir,
         ],
     )
 
     with api.step.nest('test sdk'):
-      test_workspace_dir = api.path['cleanup'].join('tests')
-      api.python('create test workspace',
-          scripts_path.join('generate-tests.py'),
-          args=[
-            '--sdk',
-            sdk_dir,
-            '--output',
-            test_workspace_dir,
-          ],
-      )
-
       bazel_path = api.bazel.ensure_bazel()
 
       api.python('run tests',
