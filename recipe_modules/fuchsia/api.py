@@ -556,6 +556,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
                   build.fuchsia_build_dir.join(image['path']))
               )
           )
+      # The `default` ninja target is needed - but is not automatically included
+      # if other ninja targets are specified.
+      if len(ninja_targets):
+        ninja_targets.append('default')
 
       self.m.step('ninja', [
           self.m.path['start_dir'].join('buildtools', 'ninja'),

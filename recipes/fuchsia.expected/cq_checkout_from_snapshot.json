@@ -469,7 +469,8 @@
       "fvm.sparse.blk",
       "boot.bin",
       "efi.blk",
-      "netboot.zbi"
+      "netboot.zbi",
+      "default"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
