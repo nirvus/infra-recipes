@@ -26,92 +26,123 @@ DEPS = [
 ]
 
 PROPERTIES = {
-  'manifest': Property(kind=str, help='Jiri manifest to use'),
-  'remote': Property(kind=str, help='Remote manifest repository'),
-  'target': Property(kind=str, help='Target to build'),
+    'project':
+        Property(kind=str, help='Jiri remote manifest project', default=None),
+    'manifest':
+        Property(kind=str, help='Jiri manifest to use'),
+    'remote':
+        Property(kind=str, help='Remote manifest repository'),
 }
 
+# The current list of platforms that we build for.
+GO_OS_ARCH = (
+    ('linux', 'amd64'),
+    ('linux', 'arm64'),
+    ('darwin', 'amd64'),
+)
 
-def UploadPackage(api, revision, staging_dir):
-  api.gsutil.ensure_gsutil()
 
-  cipd_pkg_name = 'fuchsia/tools/jiri/' + api.cipd.platform_suffix()
-
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if step.json.output['result']:
+def upload_package(api, name, platform, staging_dir, revision, remote):
+  cipd_pkg_name = 'fuchsia/tools/%s/%s' % (name, platform)
+  api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if api.step.active_result.json.output['result']:
+    api.step('Package is up-to-date', cmd=None)
     return
 
-  cipd_pkg_file = api.path['cleanup'].join('jiri.cipd')
-
-  api.cipd.build(
-      input_dir=staging_dir,
+  pkg_def = api.cipd.PackageDefinition(
       package_name=cipd_pkg_name,
-      output_package=cipd_pkg_file,
+      package_root=staging_dir,
       install_mode='copy',
+  )
+  pkg_def.add_file(staging_dir.join(name))
+  pkg_def.add_version_file('.versions/%s.cipd_version' % name)
+
+  cipd_pkg_file = api.path['cleanup'].join('%s.cipd' % name)
+  api.cipd.build_from_pkg(
+      pkg_def=pkg_def,
+      output_package=cipd_pkg_file,
   )
   step_result = api.cipd.register(
       package_name=cipd_pkg_name,
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'git_repository': 'https://fuchsia.googlesource.com/jiri',
-        'git_revision': revision,
+          'git_repository': remote,
+          'git_revision': revision,
       },
   )
 
-  api.gsutil.upload(
-      'fuchsia',
-      cipd_pkg_file,
-      api.gsutil.join('jiri', api.cipd.platform_suffix(), step_result.json.output['result']['instance_id']),
-      unauthenticated_url=True
-  )
 
-
-def RunSteps(api, manifest, remote, target):
+def RunSteps(api, project, manifest, remote):
   api.jiri.ensure_jiri()
   api.go.ensure_go()
+  api.gsutil.ensure_gsutil()
 
   build_input = api.buildbucket.build.input
-  revision = build_input.gitiles_commit.id
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest=manifest,
-                      remote=remote,
-                      # jiri manifest lives in fuchsia/manifests, if this
-                      # is a CI build, we just want to checkout at HEAD
-                      build_input=None if revision else build_input)
+    api.jiri.checkout(
+        manifest=manifest,
+        remote=remote,
+        project=project,
+        build_input=build_input)
 
   staging_dir = api.path.mkdtemp('jiri')
-  jiri_dir = api.path['start_dir'].join(
-      'go', 'src', 'fuchsia.googlesource.com', 'jiri')
-
-  with api.step.nest('ensure_packages'):
-    with api.context(infra_steps=True):
-      cipd_dir = api.path['start_dir'].join('cipd')
-      api.cipd.ensure(cipd_dir, {
-        'infra/cmake/${platform}': 'version:3.9.1',
-        'infra/ninja/${platform}': 'version:1.7.2',
-      })
-
-  env = {
-    'CMAKE_PROGRAM': cipd_dir.join('bin', 'cmake'),
-    'NINJA_PROGRAM': cipd_dir.join('ninja'),
-    'GO_PROGRAM': api.go.go_executable
-  }
-  with api.context(cwd=staging_dir, env=env):
-    api.step('build jiri', [jiri_dir.join('scripts', 'build.sh')])
 
   gopath = api.path['start_dir'].join('go')
   with api.context(env={'GOPATH': gopath}):
-    api.go('test', 'fuchsia.googlesource.com/jiri/cmd/jiri')
+    # Run all the tests.
+    api.go('test', '-v', 'fuchsia.googlesource.com/jiri/...')
 
-  if not api.properties.get('tryjob', False):
-    assert revision
-    UploadPackage(api, revision, staging_dir)
+    for goos, goarch in GO_OS_ARCH:
+      with api.context(env={'GOOS': goos, 'GOARCH': goarch}):
+        platform = '%s-%s' % (goos.replace('darwin', 'mac'), goarch)
+
+        with api.step.nest(platform):
+          args = [
+            'build', '-v', '-o', staging_dir.join('jiri'),
+            'fuchsia.googlesource.com/jiri/cmd/jiri'
+          ]
+
+          if not api.properties.get('tryjob', False):
+            revision = build_input.gitiles_commit.id
+            assert revision
+
+            build_time = api.time.utcnow().isoformat()
+            ldflags = ' '.join([
+              '-X "fuchsia.googlesource.com/jiri/version.GitCommit=%s"' % revision,
+              '-X "fuchsia.googlesource.com/jiri/version.BuildTime=%s"' % build_time,
+            ])
+
+            args += ['-ldflags', ldflags]
+
+          # Build the package.
+          api.go(*args)
+
+          if not api.properties.get('tryjob', False):
+            upload_package(api, 'jiri', platform, staging_dir, revision, remote)
+
+            api.gsutil.upload(
+                'fuchsia-build',
+                staging_dir.join('jiri'),
+                api.gsutil.join('jiri', '%s-%s' % (goos, goarch), revision),
+                unauthenticated_url=True,
+                ok_ret=(0, 1),
+            )
 
 
 def GenTests(api):
   revision = 'a1b2c3'
+  cipd_search_step_data = []
+  for goos, goarch in GO_OS_ARCH:
+    platform = '%s-%s' % (goos.replace('darwin', 'mac'), goarch)
+    cipd_search_step_data.append(
+        api.step_data(
+            '{0}.cipd search fuchsia/tools/jiri/{0} git_revision:{1}'.
+            format(platform, revision),
+            api.json.output({
+                'result': []
+            })))
 
   yield (api.test('ci') +
     api.buildbucket.ci_build(
@@ -129,9 +160,7 @@ def GenTests(api):
     api.properties(manifest='jiri',
                    remote='https://fuchsia.googlesource.com/manifest',
                    target='linux-amd64') +
-    api.step_data('cipd search fuchsia/tools/jiri/linux-amd64 git_revision:' +
-                  revision,
-                  api.json.output({'result': []})))
+    reduce(lambda a, b: a + b, cipd_search_step_data))
   yield (api.test('cq_try') +
     api.buildbucket.try_build(
       git_repo='https://fuchsia.googlesource.com/jiri'

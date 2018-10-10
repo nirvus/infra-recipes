@@ -1612,9 +1612,9 @@ Args:
 
 Recipe for building Jiri.
 
-&mdash; **def [RunSteps](/recipes/jiri.py#70)(api, manifest, remote, target):**
+&mdash; **def [RunSteps](/recipes/jiri.py#76)(api, project, manifest, remote):**
 
-&mdash; **def [UploadPackage](/recipes/jiri.py#35)(api, revision, staging_dir):**
+&mdash; **def [upload\_package](/recipes/jiri.py#45)(api, name, platform, staging_dir, revision, remote):**
 ### *recipes* / [jiri:examples/full](/recipe_modules/jiri/examples/full.py)
 
 [DEPS](/recipe_modules/jiri/examples/full.py#7): [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -60,6 +60,36 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
@@ -227,62 +257,104 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_packages"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "infra/cmake/${platform} version:3.9.1\ninfra/ninja/${platform} version:1.7.2",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_packages.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.9.1---\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.7.2---\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/go/src/fuchsia.googlesource.com/jiri/scripts/build.sh"
-    ],
-    "cwd": "[TMP_BASE]/jiri_tmp_1",
-    "env": {
-      "CMAKE_PROGRAM": "[START_DIR]/cipd/bin/cmake",
-      "GO_PROGRAM": "[START_DIR]/cipd/go/bin/go",
-      "NINJA_PROGRAM": "[START_DIR]/cipd/ninja"
-    },
-    "name": "build jiri"
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "test",
-      "fuchsia.googlesource.com/jiri/cmd/jiri"
+      "-v",
+      "fuchsia.googlesource.com/jiri/..."
     ],
     "env": {
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
     "name": "go test"
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "linux-amd64"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-v",
+      "-o",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "fuchsia.googlesource.com/jiri/cmd/jiri"
+    ],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "linux-amd64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "linux-arm64"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-v",
+      "-o",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "fuchsia.googlesource.com/jiri/cmd/jiri"
+    ],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "linux-arm64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "mac-amd64"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-v",
+      "-o",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "fuchsia.googlesource.com/jiri/cmd/jiri"
+    ],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "mac-amd64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result",

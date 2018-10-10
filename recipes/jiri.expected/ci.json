@@ -60,6 +60,36 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure_gsutil"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gsutil",
+      "-ensure-file",
+      "infra/tools/gsutil latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gsutil.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
@@ -81,7 +111,7 @@
       "-v",
       "-time",
       "-revision",
-      "HEAD",
+      "a1b2c3",
       "jiri",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -137,56 +167,11 @@
     ]
   },
   {
-    "cmd": [],
-    "name": "ensure_packages"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "infra/cmake/${platform} version:3.9.1\ninfra/ninja/${platform} version:1.7.2",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_packages.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:3.9.1---\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/cmake/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-version:1.7.2---\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/ninja/${platform}\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/go/src/fuchsia.googlesource.com/jiri/scripts/build.sh"
-    ],
-    "cwd": "[TMP_BASE]/jiri_tmp_1",
-    "env": {
-      "CMAKE_PROGRAM": "[START_DIR]/cipd/bin/cmake",
-      "GO_PROGRAM": "[START_DIR]/cipd/go/bin/go",
-      "NINJA_PROGRAM": "[START_DIR]/cipd/ninja"
-    },
-    "name": "build jiri"
-  },
-  {
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "test",
-      "fuchsia.googlesource.com/jiri/cmd/jiri"
+      "-v",
+      "fuchsia.googlesource.com/jiri/..."
     ],
     "env": {
       "GOPATH": "[START_DIR]/go",
@@ -196,32 +181,33 @@
   },
   {
     "cmd": [],
-    "name": "ensure_gsutil"
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "linux-amd64"
   },
   {
     "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-v",
+      "-o",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "fuchsia.googlesource.com/jiri/cmd/jiri",
+      "-ldflags",
+      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=a1b2c3\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:21.500000\""
     ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "linux-amd64.go build",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -234,8 +220,14 @@
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/tools/jiri/linux-amd64 git_revision:a1b2c3",
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "linux-amd64.cipd search fuchsia/tools/jiri/linux-amd64 git_revision:a1b2c3",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -245,6 +237,237 @@
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "linux-amd64.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "gs://fuchsia-build/jiri/linux-amd64/a1b2c3"
+    ],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "infra_step": true,
+    "name": "linux-amd64.gsutil cp",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/linux-amd64/a1b2c3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "linux-arm64"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-v",
+      "-o",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "fuchsia.googlesource.com/jiri/cmd/jiri",
+      "-ldflags",
+      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=a1b2c3\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:23\""
+    ],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "linux-arm64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/tools/jiri/linux-arm64",
+      "-tag",
+      "git_revision:a1b2c3",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "linux-arm64.cipd search fuchsia/tools/jiri/linux-arm64 git_revision:a1b2c3",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/linux-arm64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "linux-arm64.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "gs://fuchsia-build/jiri/linux-arm64/a1b2c3"
+    ],
+    "env": {
+      "GOARCH": "arm64",
+      "GOOS": "linux",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "infra_step": true,
+    "name": "linux-arm64.gsutil cp",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/linux-arm64/a1b2c3@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "mac-amd64"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/go/bin/go",
+      "build",
+      "-v",
+      "-o",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "fuchsia.googlesource.com/jiri/cmd/jiri",
+      "-ldflags",
+      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=a1b2c3\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:24.500000\""
+    ],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go",
+      "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "name": "mac-amd64.go build",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/tools/jiri/mac-amd64",
+      "-tag",
+      "git_revision:a1b2c3",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "mac-amd64.cipd search fuchsia/tools/jiri/mac-amd64 git_revision:a1b2c3",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/jiri/mac-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "name": "mac-amd64.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[TMP_BASE]/jiri_tmp_1/jiri",
+      "gs://fuchsia-build/jiri/darwin-amd64/a1b2c3"
+    ],
+    "env": {
+      "GOARCH": "amd64",
+      "GOOS": "darwin",
+      "GOPATH": "[START_DIR]/go"
+    },
+    "infra_step": true,
+    "name": "mac-amd64.gsutil cp",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/darwin-amd64/a1b2c3@@@"
     ]
   },
   {
