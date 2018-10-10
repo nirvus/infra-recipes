@@ -237,6 +237,11 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       zircon_args=zircon_args,
   )
 
+  # Upload an archive containing build artifacts if the properties say to do so.
+  # Note: this is a no-op if archive_gcs_bucket is unset on api.fuchsia;
+  # moreover, if we ran tests, this will only execute if the tests passed.
+  api.fuchsia.upload_build_results(build_results=build)
+
   if run_tests:
     if test_in_shards:
       all_results = api.fuchsia.test_in_shards(
@@ -261,19 +266,10 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
           requires_secrets=requires_secrets,
       )]
     api.fuchsia.analyze_test_results(all_results)
-  else:
-    # Bloaty is run during the testing phase for performance reasons, but we
-    # also want to run it on build-only bots if specified.
-    api.fuchsia.run_bloaty(build)
 
   if run_host_tests:
     test_results = api.fuchsia.test_on_host(build)
     api.fuchsia.analyze_test_results([test_results])
-
-  # Upload an archive containing build artifacts if the properties say to do so.
-  # Note: this is a no-op if archive_gcs_bucket is unset on api.fuchsia;
-  # moreover, if we ran tests, this will only execute if the tests passed.
-  api.fuchsia.upload_build_artifacts(build_results=build)
 
 
 def GenTests(api):

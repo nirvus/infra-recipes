@@ -150,6 +150,8 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       products=products,
       zircon_args=zircon_args)
 
+  api.fuchsia.upload_build_results(build_results=build)
+
   if run_tests:
     if test_in_shards:
       all_results = api.fuchsia.test_in_shards(
@@ -182,8 +184,6 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
     if test_results.summary and test_results.passed_test_outputs:
       assert test_results.passed_test_outputs['[START_DIR]/hello']
     api.fuchsia.analyze_test_results([test_results])
-
-  api.fuchsia.upload_build_artifacts(build_results=build)
 
 
 def GenTests(api):
