@@ -209,6 +209,25 @@
     ]
   },
   {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/jiri.snapshot",
+      "gs://###fuchsia-build###/builds/5555555555/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "upload jiri.snapshot to ###fuchsia-build###",
+    "~followup_annotations": [
+      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/jiri.snapshot@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "build"
   },

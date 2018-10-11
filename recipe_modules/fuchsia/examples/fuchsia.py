@@ -112,6 +112,11 @@ PROPERTIES = {
             kind=bool,
             help='Whether to run tests in shards',
             default=False),
+    'gcs_bucket':
+        Property(
+            kind=str,
+            help='GCS bucket for uploading checkout, build, and test results',
+            default=''),
 }
 
 
@@ -119,7 +124,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variants, gn_args, ninja_targets, run_tests,
              runtests_args, device_type, run_host_tests, networking_for_tests,
              requires_secrets, pave, boards, products, zircon_args,
-             test_in_shards):
+             test_in_shards, gcs_bucket):
   build_input = api.buildbucket.build.input
   if checkout_snapshot:
     if api.properties.get('tryjob'):
@@ -136,6 +141,11 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
         remote=remote,
         project=project,
     )
+
+  # Upload checkout results (i.e., the jiri snapshot) if not a tryjob.
+  if not api.properties.get('tryjob') and gcs_bucket:
+    checkout.upload_results(gcs_bucket)
+
   assert checkout.root_dir
   assert checkout.snapshot_file
 
@@ -377,6 +387,7 @@ def GenTests(api):
           project='snapshots',
           target='x64',
           packages=['topaz/packages/default'],
+          gcs_bucket='###fuchsia-build###',
       ),
   )
   yield api.fuchsia.test(
@@ -398,6 +409,7 @@ def GenTests(api):
           checkout_snapshot=True,
           target='x64',
           packages=['topaz/packages/default'],
+          gcs_bucket='###fuchsia-build###',
       ),
       paths=[api.path['cleanup'].join('snapshot_repo', 'cherrypick.json')],
   ) + api.jiri.read_manifest_element(

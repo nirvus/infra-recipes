@@ -68,7 +68,8 @@ IMAGES_FOR_TESTING = [
 class FuchsiaCheckoutResults(object):
   """Represents a Fuchsia source checkout."""
 
-  def __init__(self, root_dir, snapshot_file):
+  def __init__(self, api, root_dir, snapshot_file):
+    self._api = api
     self._root_dir = root_dir
     self._snapshot_file = snapshot_file
 
@@ -81,6 +82,10 @@ class FuchsiaCheckoutResults(object):
   def snapshot_file(self):
     """The path to the jiri snapshot file."""
     return self._snapshot_file
+
+  def upload_results(self, gcs_bucket):
+    """Upload snapshot to a given GCS bucket."""
+    self._api._upload_file_to_gcs(self.snapshot_file, gcs_bucket)
 
 
 class FuchsiaBuildResults(object):
@@ -447,7 +452,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # TODO(dbort): Add some or all of the jiri.checkout() params if they
     # become useful.
     return FuchsiaCheckoutResults(
-        root_dir=self.m.path['start_dir'], snapshot_file=snapshot_file)
+        api=self, root_dir=self.m.path['start_dir'], snapshot_file=snapshot_file)
 
   def _build_zircon(self, target, variants, zircon_args):
     """Builds zircon for the specified target."""
@@ -1470,6 +1475,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       The upload step.
     """
+    self.m.gsutil.ensure_gsutil()
+
     # The destination path is based on the buildbucket ID and the basename
     # of the local file.
     if not self.m.buildbucket.build_id:  # pragma: no cover

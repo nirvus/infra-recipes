@@ -58,6 +58,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
           project=project,
           target='x64',
           packages=['%s/packages/default' % project],
+          gcs_bucket='###fuchsia-build###',
       )
     if 'buildbucket' in properties:
       # Re-evaluate this restriction if a test really needs to specify its
