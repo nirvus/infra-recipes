@@ -395,8 +395,7 @@
       "-C",
       "[START_DIR]/out/debug-x64",
       "-j",
-      "20",
-      "build-archive.zip"
+      "20"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -468,55 +467,6 @@
     "name": "build.post_goma.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure_gsutil"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[START_DIR]/out/debug-x64/build-archive.zip",
-      "gs://###fuchsia-archive###/builds/5555555555/build-archive.zip"
-    ],
-    "infra_step": true,
-    "name": "upload build-archive.zip to ###fuchsia-archive###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@build-archive.zip@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/build-archive.zip@@@"
     ]
   },
   {

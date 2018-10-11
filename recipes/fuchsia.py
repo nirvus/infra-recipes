@@ -258,8 +258,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       build_package_archive=upload_results and not run_host_tests,
   )
 
-  # TODO(IN-691): Make condition `if not tryjob and gcs_bucket` after migration
-  if not tryjob:
+  if not tryjob and gcs_bucket:
     build.upload_results(gcs_bucket, upload_breakpad_symbols)
 
   if run_tests:

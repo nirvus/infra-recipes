@@ -13,9 +13,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
            clear_default_steps=False,
            tryjob=False,
            expect_failure=False,
-           upload_build_metrics=False,
            upload_test_coverage=False,
-           upload_breakpad_symbols=False,
            properties={},
            steps=(),
            paths=()):  # pragma: no cover
@@ -109,20 +107,10 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
               tryjob=True,
           ))
     final_properties['$infra/fuchsia'] = {}
-    if not tryjob:
-      final_properties['$infra/fuchsia'] = {
-          'snapshot_gcs_bucket': '###fuchsia-snapshots###',
-          'archive_gcs_bucket' : '###fuchsia-archive###',
-      }
-    if upload_build_metrics:
-      final_properties['$infra/fuchsia']['build_metrics_gcs_bucket'] = (
-          '###fuchsia-build###')
+
     if upload_test_coverage:
       final_properties['$infra/fuchsia']['test_coverage_gcs_bucket'] = (
           '###fuchsia-build###')
-    final_properties['$infra/fuchsia']['upload_breakpad_symbols'] = (
-        upload_breakpad_symbols)
-
 
     # Provided properties override the defaults.
     final_properties.update(properties)

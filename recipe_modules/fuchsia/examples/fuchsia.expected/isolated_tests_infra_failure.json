@@ -141,7 +141,6 @@
   },
   {
     "cmd": [],
-    "infra_step": true,
     "name": "ensure_gsutil"
   },
   {
@@ -168,44 +167,6 @@
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://###fuchsia-snapshots###/builds/5555555555/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot to ###fuchsia-snapshots###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-snapshots###/builds/5555555555/jiri.snapshot@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://###fuchsia-archive###/builds/5555555555/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot to ###fuchsia-archive###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/jiri.snapshot@@@"
     ]
   },
   {
@@ -491,6 +452,76 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "ensure bsdtar"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/tools/bsdtar/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure bsdtar.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bsdtar",
+      "--create",
+      "-f",
+      "[CLEANUP]/packages.tar.gz",
+      "--gzip",
+      "-C",
+      "[START_DIR]/garnet/go/src/amber",
+      "keys",
+      "-C",
+      "[START_DIR]/out/debug-x64",
+      "host_x64/amber-publish",
+      "host_x64/pm",
+      "-C",
+      "[START_DIR]/out/debug-x64/amber-files/repository",
+      "targets",
+      "blobs"
+    ],
+    "name": "tar fuchsia packages"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/packages.tar.gz",
+      "gs://###fuchsia-build###/builds/5555555555/packages.tar.gz"
+    ],
+    "infra_step": true,
+    "name": "upload packages.tar.gz to ###fuchsia-build###",
+    "~followup_annotations": [
+      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/packages.tar.gz@@@"
+    ]
+  },
+  {
     "cmd": [
       "python",
       "-u",
@@ -656,76 +687,6 @@
     "name": "upload bloaty.html to ###fuchsia-build###",
     "~followup_annotations": [
       "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/bloaty.html@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "ensure bsdtar"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd",
-      "-ensure-file",
-      "fuchsia/tools/bsdtar/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure bsdtar.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/bsdtar",
-      "--create",
-      "-f",
-      "[CLEANUP]/packages.tar.gz",
-      "--gzip",
-      "-C",
-      "[START_DIR]/garnet/go/src/amber",
-      "keys",
-      "-C",
-      "[START_DIR]/out/debug-x64",
-      "host_x64/amber-publish",
-      "host_x64/pm",
-      "-C",
-      "[START_DIR]/out/debug-x64/amber-files/repository",
-      "targets",
-      "blobs"
-    ],
-    "name": "tar fuchsia packages"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/packages.tar.gz",
-      "gs://###fuchsia-build###/builds/5555555555/packages.tar.gz"
-    ],
-    "infra_step": true,
-    "name": "upload packages.tar.gz to ###fuchsia-build###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/packages.tar.gz@@@"
     ]
   },
   {

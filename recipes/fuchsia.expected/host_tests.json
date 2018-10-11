@@ -141,7 +141,6 @@
   },
   {
     "cmd": [],
-    "infra_step": true,
     "name": "ensure_gsutil"
   },
   {
@@ -168,44 +167,6 @@
       "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://###fuchsia-snapshots###/builds/5555555555/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot to ###fuchsia-snapshots###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-snapshots###/builds/5555555555/jiri.snapshot@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://###fuchsia-archive###/builds/5555555555/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot to ###fuchsia-archive###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/jiri.snapshot@@@"
     ]
   },
   {
@@ -441,8 +402,7 @@
       "[START_DIR]/out/debug-x64",
       "-j",
       "20",
-      "build/gn:host_tests",
-      "build-archive.zip"
+      "build/gn:host_tests"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -514,25 +474,6 @@
     "name": "build.post_goma.stop_goma",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@2@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[START_DIR]/out/debug-x64/build-archive.zip",
-      "gs://###fuchsia-build###/builds/5555555555/build-archive.zip"
-    ],
-    "infra_step": true,
-    "name": "upload build-archive.zip to ###fuchsia-build###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@build-archive.zip@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/build-archive.zip@@@"
     ]
   },
   {

@@ -135,8 +135,8 @@ class FuchsiaBuildResults(object):
 
   def upload_results(self, gcs_bucket, upload_breakpad_symbols=False):
     """Upload build results to a given GCS bucket."""
-    # TODO(IN-691) assert that `gcs_bucket` is nonempty after migration.
-    self._api.upload_build_results(self, gcs_bucket, upload_breakpad_symbols)
+    assert gcs_bucket
+    self._api._upload_build_results(self, gcs_bucket, upload_breakpad_symbols)
 
 
 class FuchsiaApi(recipe_api.RecipeApi):
@@ -240,14 +240,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
   def __init__(self, fuchsia_properties, *args, **kwargs):
     super(FuchsiaApi, self).__init__(*args, **kwargs)
-    self._snapshot_gcs_bucket = fuchsia_properties.get('snapshot_gcs_bucket')
-    self._archive_gcs_bucket = fuchsia_properties.get('archive_gcs_bucket')
-    self._build_metrics_gcs_bucket = fuchsia_properties.get(
-        'build_metrics_gcs_bucket')
     self._test_coverage_gcs_bucket = fuchsia_properties.get(
         'test_coverage_gcs_bucket')
-    self._upload_breakpad_symbols = fuchsia_properties.get(
-        'upload_breakpad_symbols')
 
   def checkout(self,
                build_input,
@@ -283,16 +277,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
       self.m.jiri.snapshot(snapshot_file)
-
-      # If we're uploading a snapshot, also upload it to the archive bucket.
-      # People downloading a build's artifacts may want to see the corresponding
-      # snapshot.
-      buckets = ()
-      if self._snapshot_gcs_bucket:
-          buckets = (self._snapshot_gcs_bucket, self._archive_gcs_bucket)
-      return self._finalize_checkout(
-          snapshot_file=snapshot_file,
-          snapshot_gcs_buckets=buckets)
+      return self._finalize_checkout(snapshot_file=snapshot_file)
 
   def checkout_snapshot(self,
                         repository=None,
@@ -432,37 +417,16 @@ class FuchsiaApi(recipe_api.RecipeApi):
           self.m.git('-C', project_path, 'cherry-pick', cherrypick,
                      '--keep-redundant-commits')
 
-    return self._finalize_checkout(
-        snapshot_file=snapshot_file,
-        # This method should never upload a snapshot because the point is that
-        # we obtain a checkout from an existing snapshot. The snapshot is
-        # already readily available in the repository from whence it was
-        # retrieved. Note also that the checkout will never be patched by this
-        # method, unlike checkout().
-        snapshot_gcs_buckets=(),
-    )
+    return self._finalize_checkout(snapshot_file=snapshot_file)
 
-  def _finalize_checkout(self, snapshot_file, snapshot_gcs_buckets):
-    """Finalizes a Fuchsia checkout.
+  def _finalize_checkout(self, snapshot_file):
+    """Finalizes a Fuchsia checkout; constructs a FuchsiaCheckoutResults object."""
 
-    Constructs a FuchsiaCheckoutResults to return and optionally uploads the
-    Jiri snapshot of the Fuchsia checkout to the given GCS buckets.
-    """
     snapshot_contents = self.m.file.read_text('read snapshot', snapshot_file)
     # Always log snapshot contents (even if uploading to GCS) to help debug
     # things like tryjob failures during roller-commits.
     snapshot_step_logs = self.m.step.active_result.presentation.logs
     snapshot_step_logs['snapshot_contents'] = snapshot_contents.split('\n')
-
-    # Upload the snapshot to all specified GCS buckets.
-    # Don't accidentally iterate over each character in a string.
-    assert not isinstance(snapshot_gcs_buckets, basestring)
-    # Ignore None/empty elements.
-    snapshot_gcs_buckets = [b for b in snapshot_gcs_buckets if b]
-    if snapshot_gcs_buckets:
-      self.m.gsutil.ensure_gsutil()
-      for bucket in snapshot_gcs_buckets:
-        self._upload_file_to_gcs(snapshot_file, bucket)
 
     # TODO(dbort): Add some or all of the jiri.checkout() params if they
     # become useful.
@@ -542,7 +506,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
           '--args=%s' % ' '.join(args + list(gn_args)),
       ]
 
-      if collect_build_metrics or self._build_metrics_gcs_bucket:
+      if collect_build_metrics:
         # Collect gn tracing data
         gen_cmd.append('--tracelog=' +
                        str(self.m.path['cleanup'].join('gn_trace.json')))
@@ -564,7 +528,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
         type = image['type']
 
         include_image = build_for_testing and name in IMAGES_FOR_TESTING
-        build_archive = build_archive or self._archive_gcs_bucket
         include_image = include_image or (
             name == 'archive' and type == 'zip' and build_archive
         )
@@ -1578,9 +1541,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
         link_name=basename,
         name='upload %s to %s' % (basename, bucket))
 
-  def upload_build_results(self,
+  def _upload_build_results(self,
                            build_results,
-                           gcs_bucket=None,
+                           gcs_bucket,
                            upload_breakpad_symbols=False):
     """Uploads artifacts from the build to Google Cloud Storage.
 
@@ -1598,27 +1561,27 @@ class FuchsiaApi(recipe_api.RecipeApi):
       gcs_bucket (str): GCS bucket name to upload build results to.
       upload_breakpad_symbols (bool): Whether to upload breakpad symbols.
     """
-    if gcs_bucket or self._archive_gcs_bucket:
-      self.m.gsutil.ensure_gsutil()
-      if 'archive' in build_results.images:
-        self._upload_file_to_gcs(build_results.images['archive'],
-                                 gcs_bucket or self._archive_gcs_bucket)
+    assert gcs_bucket
+    self.m.gsutil.ensure_gsutil()
+    if 'archive' in build_results.images:
+      self._upload_file_to_gcs(build_results.images['archive'], gcs_bucket)
 
-      if gcs_bucket or self._build_metrics_gcs_bucket:
-        self._upload_tracing_data(build_results, gcs_bucket or self._build_metrics_gcs_bucket)
-        self._run_bloaty(build_results, gcs_bucket or self._build_metrics_gcs_bucket)
+    # Upload fuchsia packages.
+    if build_results.includes_package_archive:
+      archive = self._tar_fuchsia_packages(build_results)
+      self._upload_file_to_gcs(archive, gcs_bucket)
 
-      if build_results.includes_package_archive and (gcs_bucket or self._archive_gcs_bucket):
-        archive = self._tar_fuchsia_packages(build_results)
-        self._upload_file_to_gcs(archive, gcs_bucket or self._archive_gcs_bucket)
+    # Upload build metrics.
+    self._upload_tracing_data(build_results, gcs_bucket)
+    self._run_bloaty(build_results, gcs_bucket)
 
-      # Upload breakpad symbol files.
-      if upload_breakpad_symbols or self._upload_breakpad_symbols:
-        symbol_files = self._get_breakpad_symbol_files(build_results)
-        if symbol_files:
-          archive = self._tar_breakpad_symbols(symbol_files,
-                                               build_results.fuchsia_build_dir)
-          self._upload_file_to_gcs(archive, gcs_bucket or self._archive_gcs_bucket)
+    # Upload breakpad symbol files.
+    if upload_breakpad_symbols:
+      symbol_files = self._get_breakpad_symbol_files(build_results)
+      if symbol_files:
+        archive = self._tar_breakpad_symbols(symbol_files,
+                                             build_results.fuchsia_build_dir)
+        self._upload_file_to_gcs(archive, gcs_bucket)
 
   def _get_breakpad_symbol_files(self, build_results):
     """Extracts the list of generated symbol files.
@@ -1704,10 +1667,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # Only upload if the bucket is specified.
     gn_data = self._extract_gn_tracing_data(build_results)
     ninja_data = self._extract_ninja_tracing_data(build_results)
-    self._upload_file_to_gcs(
-        gn_data, gcs_bucket or self._build_metrics_gcs_bucket, hash=False)
-    self._upload_file_to_gcs(
-        ninja_data, gcs_bucket or self._build_metrics_gcs_bucket, hash=False)
+    self._upload_file_to_gcs(gn_data, gcs_bucket, hash=False)
+    self._upload_file_to_gcs(ninja_data, gcs_bucket, hash=False)
 
   def _extract_gn_tracing_data(self, build_results):
     """Extracts the tracing data from this GN run.
@@ -1776,7 +1737,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       A Path to the file containing the resulting bloaty data.
     """
-    assert gcs_bucket or self._build_metrics_gcs_bucket
+    assert gcs_bucket
     with self.m.context(infra_steps=True):
       cipd_dir = self.m.path['start_dir'].join('cipd')
       pkgs = self.m.cipd.EnsureFile()
@@ -1806,5 +1767,4 @@ class FuchsiaApi(recipe_api.RecipeApi):
             '-jobs',
             str(min(self.m.platform.cpu_count, 32)),
         ])
-    self._upload_file_to_gcs(
-        bloaty_file, gcs_bucket or self._build_metrics_gcs_bucket, hash=False)
+    self._upload_file_to_gcs(bloaty_file, gcs_bucket, hash=False)

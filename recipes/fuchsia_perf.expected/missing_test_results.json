@@ -170,75 +170,6 @@
     ]
   },
   {
-    "cmd": [],
-    "infra_step": true,
-    "name": "ensure_gsutil"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gsutil",
-      "-ensure-file",
-      "infra/tools/gsutil latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/gsutil\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://###fuchsia-snapshots###/builds/5555555555/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot to ###fuchsia-snapshots###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-snapshots###/builds/5555555555/jiri.snapshot@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-vpython-spec",
-      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
-      "-u",
-      "[START_DIR]/cipd/gsutil/gsutil",
-      "-o",
-      "GSUtil:software_update_check_period=0",
-      "cp",
-      "[CLEANUP]/jiri.snapshot",
-      "gs://###fuchsia-archive###/builds/5555555555/jiri.snapshot"
-    ],
-    "infra_step": true,
-    "name": "upload jiri.snapshot to ###fuchsia-archive###",
-    "~followup_annotations": [
-      "@@@STEP_LINK@jiri.snapshot@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/jiri.snapshot@@@"
-    ]
-  },
-  {
     "cmd": [
       "buildbucket",
       "get",
@@ -428,7 +359,6 @@
       "boot.bin",
       "efi.blk",
       "netboot.zbi",
-      "build-archive.zip",
       "ids.txt"
     ],
     "name": "build.build fuchsia.ninja",
