@@ -476,12 +476,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[CLEANUP]/breakpad_symbols.tar.gz",
-      "gs://###fuchsia-archive###/builds/5555555555/breakpad_symbols.tar.gz"
+      "gs://###fuchsia-build###/builds/5555555555/breakpad_symbols.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload breakpad_symbols.tar.gz to ###fuchsia-archive###",
+    "name": "upload breakpad_symbols.tar.gz to ###fuchsia-build###",
     "~followup_annotations": [
-      "@@@STEP_LINK@breakpad_symbols.tar.gz@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/breakpad_symbols.tar.gz@@@"
+      "@@@STEP_LINK@breakpad_symbols.tar.gz@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/breakpad_symbols.tar.gz@@@"
     ]
   },
   {

@@ -160,7 +160,9 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       products=products,
       zircon_args=zircon_args)
 
-  api.fuchsia.upload_build_results(build_results=build)
+  # Upload checkout results (i.e., the jiri snapshot) if not a tryjob.
+  if not api.properties.get('tryjob') and gcs_bucket:
+    build.upload_results(gcs_bucket)
 
   if run_tests:
     if test_in_shards:

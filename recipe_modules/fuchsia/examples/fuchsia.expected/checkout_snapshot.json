@@ -507,12 +507,12 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[START_DIR]/out/debug-x64/build-archive.zip",
-      "gs://###fuchsia-archive###/builds/5555555555/build-archive.zip"
+      "gs://###fuchsia-build###/builds/5555555555/build-archive.zip"
     ],
     "infra_step": true,
-    "name": "upload build-archive.zip to ###fuchsia-archive###",
+    "name": "upload build-archive.zip to ###fuchsia-build###",
     "~followup_annotations": [
-      "@@@STEP_LINK@build-archive.zip@https://storage.cloud.google.com/###fuchsia-archive###/builds/5555555555/build-archive.zip@@@"
+      "@@@STEP_LINK@build-archive.zip@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/build-archive.zip@@@"
     ]
   },
   {
