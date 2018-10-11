@@ -14,7 +14,6 @@ class IsolatedApi(recipe_api.RecipeApi):
     super(IsolatedApi, self).__init__(*args, **kwargs)
     self._isolate_server = isolate_server
     self._isolated_client = None
-    self._ensured = False
 
   def __call__(self, *args, **kwargs):
     """Return an isolate command step."""
@@ -24,18 +23,19 @@ class IsolatedApi(recipe_api.RecipeApi):
 
   def ensure_isolated(self, version=None):
     """Ensures that isolate client is installed."""
-    if not self._ensured:
-      with self.m.step.nest('ensure_isolated'):
-        with self.m.context(infra_steps=True):
-          isolate_package = (
-              'infra/tools/luci/isolated/%s' % self.m.cipd.platform_suffix())
-          luci_dir = self.m.path['start_dir'].join('cipd', 'luci', 'isolate')
+    if self._isolated_client:
+      return self._isolated_client
 
-          self.m.cipd.ensure(luci_dir, {isolate_package: version or 'release'})
-          self._isolated_client = luci_dir.join('isolated')
+    with self.m.step.nest('ensure_isolated'):
+      with self.m.context(infra_steps=True):
+        isolate_package = (
+            'infra/tools/luci/isolated/%s' % self.m.cipd.platform_suffix())
+        luci_dir = self.m.path['start_dir'].join('cipd', 'luci', 'isolate')
 
-          self._ensured = True
-          return self._isolated_client
+        self.m.cipd.ensure(luci_dir, {isolate_package: version or 'release'})
+        self._isolated_client = luci_dir.join('isolated')
+
+        return self._isolated_client
 
   @property
   def isolated_client(self):

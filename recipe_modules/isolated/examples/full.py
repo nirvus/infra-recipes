@@ -14,6 +14,10 @@ DEPS = [
 
 def RunSteps(api):
   api.isolated.ensure_isolated()
+
+  # Ensuring again should have no effect.
+  api.isolated.ensure_isolated()
+
   assert api.isolated.isolated_client
 
   # Prepare files.

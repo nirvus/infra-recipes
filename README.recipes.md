@@ -891,11 +891,11 @@ HashApi provides file hashing functionality.
 
 APIs for interacting with isolates.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/isolated/api.py#19)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/isolated/api.py#18)(self, \*args, \*\*kwargs):**
 
 Return an isolate command step.
 
-&mdash; **def [ensure\_isolated](/recipe_modules/isolated/api.py#25)(self, version=None):**
+&mdash; **def [ensure\_isolated](/recipe_modules/isolated/api.py#24)(self, version=None):**
 
 Ensures that isolate client is installed.
 
