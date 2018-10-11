@@ -18,6 +18,9 @@ class TarApi(recipe_api.RecipeApi):
 
   def ensure_tar(self, version=None):
     """Ensures that bsdtar is installed."""
+    if self._bsdtar_path:
+      return self._bsdtar_path
+
     with self.m.step.nest('ensure bsdtar'):
       with self.m.context(infra_steps=True):
         bsdtar_package = ('fuchsia/tools/bsdtar/%s' %
@@ -27,6 +30,7 @@ class TarApi(recipe_api.RecipeApi):
         self.m.cipd.ensure(
             bsdtar_dir, {bsdtar_package: version or 'latest'})
         self._bsdtar_path = bsdtar_dir.join('bsdtar')
+        self._ensured = True
 
         return self._bsdtar_path
 

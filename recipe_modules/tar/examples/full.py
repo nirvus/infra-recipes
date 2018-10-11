@@ -16,6 +16,9 @@ def RunSteps(api):
   # Ensure that tar binary is installed.
   api.tar.ensure_tar()
 
+  # Ensuring again should have no effect.
+  api.tar.ensure_tar()
+
   # Prepare files.
   temp = api.path.mkdtemp('tar-example')
   api.step('touch a', ['touch', temp.join('a')])
