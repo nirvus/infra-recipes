@@ -136,6 +136,16 @@ PROPERTIES = {
             kind=bool,
             help='Whether to run tests as shards',
             default=False),
+      'gcs_bucket':
+          Property(
+              kind=str,
+              help='GCS bucket for uploading checkout, build, and test results',
+              default=''),
+      'upload_breakpad_symbols':
+          Property(
+              kind=bool,
+              help='Whether to upload breakpad_symbols',
+              default=False),
 }
 
 
@@ -143,8 +153,10 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variant, gn_args, test_pool, run_tests,
              runtests_args, run_host_tests, device_type, networking_for_tests,
              pave, ninja_targets, test_timeout_secs, requires_secrets,
-             test_in_shards, boards, products, zircon_args):
+             test_in_shards, boards, products, zircon_args, gcs_bucket,
+             upload_breakpad_symbols):
   tryjob = api.properties.get('tryjob')
+  upload_results = not tryjob and gcs_bucket
 
   # Handle illegal setting of networking_for_tests.
   if networking_for_tests:
@@ -170,19 +182,22 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
 
   if checkout_snapshot:
     if api.properties.get('tryjob'):
-      api.fuchsia.checkout_patched_snapshot(
+      checkout = api.fuchsia.checkout_patched_snapshot(
           gerrit_change=build_input.gerrit_changes[0],)
     else:
-      api.fuchsia.checkout_snapshot(gitiles_commit=build_input.gitiles_commit,)
+      checkout = api.fuchsia.checkout_snapshot(gitiles_commit=build_input.gitiles_commit,)
   else:
     assert manifest
     assert remote
-    api.fuchsia.checkout(
+    checkout = api.fuchsia.checkout(
         build_input=build_input,
         manifest=manifest,
         remote=remote,
         project=project,
     )
+
+  if upload_results:
+    checkout.upload_results(gcs_bucket)
 
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
@@ -235,12 +250,13 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       boards=boards,
       products=products,
       zircon_args=zircon_args,
+      collect_build_metrics=upload_results,
+      build_archive=upload_results,
   )
 
-  # Upload an archive containing build artifacts if the properties say to do so.
-  # Note: this is a no-op if archive_gcs_bucket is unset on api.fuchsia;
-  # moreover, if we ran tests, this will only execute if the tests passed.
-  api.fuchsia.upload_build_results(build_results=build)
+  # TODO(IN-691): Make condition `if not tryjob and gcs_bucket` after migration
+  if not tryjob:
+    build.upload_results(gcs_bucket, upload_breakpad_symbols)
 
   if run_tests:
     if test_in_shards:
@@ -362,13 +378,14 @@ def GenTests(api):
   # Test cases for generating symbol files as part of the build
   yield api.fuchsia.test(
       'upload_breakpad_symbols',
-      upload_breakpad_symbols=True,
       properties=dict(
           # build_type and target determine the path used in the key of
           # fuchsia.breakpad_symbol_summary below.
           build_type='release',
           target='x64',
-          ninja_targets=['build/gn:breakpad_symbols']),
+          ninja_targets=['build/gn:breakpad_symbols'],
+          upload_breakpad_symbols=True,
+      ),
       steps=[
           api.fuchsia.breakpad_symbol_summary({
               '/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'

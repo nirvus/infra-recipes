@@ -1534,7 +1534,7 @@ Recipe for building FFmpeg and uploading it and required source files.
 
 Recipe for building Fuchsia and running tests.
 
-&mdash; **def [RunSteps](/recipes/fuchsia.py#142)(api, project, manifest, remote, checkout_snapshot, target, build_type, packages, variant, gn_args, test_pool, run_tests, runtests_args, run_host_tests, device_type, networking_for_tests, pave, ninja_targets, test_timeout_secs, requires_secrets, test_in_shards, boards, products, zircon_args):**
+&mdash; **def [RunSteps](/recipes/fuchsia.py#152)(api, project, manifest, remote, checkout_snapshot, target, build_type, packages, variant, gn_args, test_pool, run_tests, runtests_args, run_host_tests, device_type, networking_for_tests, pave, ninja_targets, test_timeout_secs, requires_secrets, test_in_shards, boards, products, zircon_args, gcs_bucket, upload_breakpad_symbols):**
 ### *recipes* / [fuchsia:examples/fuchsia](/recipe_modules/fuchsia/examples/fuchsia.py)
 
 [DEPS](/recipe_modules/fuchsia/examples/fuchsia.py#17): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [swarming](#recipe_modules-swarming), [testsharder](#recipe_modules-testsharder), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
