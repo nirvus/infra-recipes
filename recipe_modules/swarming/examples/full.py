@@ -24,6 +24,10 @@ PROPERTIES = {
 
 def RunSteps(api, spawn_tasks):
   api.swarming.ensure_swarming()
+
+  # Ensuring again should have no effect
+  api.swarming.ensure_swarming()
+
   assert api.swarming.swarming_client
 
   api.swarming.swarming_server = 'chromium-swarm-dev.appspot.com'

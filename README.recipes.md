@@ -1165,7 +1165,7 @@ ServiceAccountApi provides access to service account keys.
 
 APIs for interacting with swarming.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#185)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#184)(self, \*args, \*\*kwargs):**
 
 Return a swarming command step.
 
@@ -1180,7 +1180,7 @@ Args:
   requests_json: load details about the task(s) from the json file.
   tasks: list of task ids to wait on.
 
-&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#191)(self, version=None):**
+&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#190)(self, version=None):**
 
 Ensures that swarming client is installed.
 
