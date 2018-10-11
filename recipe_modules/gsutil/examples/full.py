@@ -11,6 +11,9 @@ DEPS = [
 def RunSteps(api):
   api.gsutil.ensure_gsutil()
 
+  # Ensuring again should have no effect.
+  api.gsutil.ensure_gsutil()
+
   local_file = api.path['cleanup'].join('file')
   bucket = 'example'
   cloud_file = api.gsutil.join('path/', 'to', 'file/')

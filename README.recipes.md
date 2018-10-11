@@ -851,7 +851,7 @@ GSUtilApi provides support for GSUtil.
 
 Return a step to run arbitrary gsutil command.
 
-&mdash; **def [copy](/recipe_modules/gsutil/api.py#118)(self, src_bucket, src, dst_bucket, dst, link_name='gsutil.copy', unauthenticated_url=False, \*\*kwargs):**
+&mdash; **def [copy](/recipe_modules/gsutil/api.py#121)(self, src_bucket, src, dst_bucket, dst, link_name='gsutil.copy', unauthenticated_url=False, \*\*kwargs):**
 
 &mdash; **def [ensure\_gsutil](/recipe_modules/gsutil/api.py#99)(self, version=None):**
 
@@ -863,7 +863,7 @@ Constructs a GS path from composite parts.
 
 Normalize a GS URL using the gs:// URL prefix.
 
-&mdash; **def [upload](/recipe_modules/gsutil/api.py#110)(self, bucket, src, dst, link_name='gsutil.upload', unauthenticated_url=False, \*\*kwargs):**
+&mdash; **def [upload](/recipe_modules/gsutil/api.py#113)(self, bucket, src, dst, link_name='gsutil.upload', unauthenticated_url=False, \*\*kwargs):**
 ### *recipe_modules* / [hash](/recipe_modules/hash)
 
 [DEPS](/recipe_modules/hash/__init__.py#1): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]

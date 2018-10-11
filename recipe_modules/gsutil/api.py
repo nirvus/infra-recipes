@@ -97,6 +97,9 @@ class GSUtilApi(recipe_api.RecipeApi):
     return '%s-%s' % (provider_prefix, name)
 
   def ensure_gsutil(self, version=None):
+    if self._gsutil_tool:
+      return self._gsutil_tool
+
     with self.m.step.nest('ensure_gsutil'):
       with self.m.context(infra_steps=True):
         gsutil_dir = self.m.path['start_dir'].join('cipd', 'gsutil')
