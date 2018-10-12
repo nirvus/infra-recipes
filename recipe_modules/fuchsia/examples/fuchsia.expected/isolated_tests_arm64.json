@@ -318,7 +318,8 @@
       "gen",
       "[START_DIR]/out/debug-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true fuchsia_packages=[\"topaz/packages/default\"]"
+      "--args=target_cpu=\"arm64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true fuchsia_packages=[\"topaz/packages/default\"]",
+      "--tracelog=[CLEANUP]/gn_trace.json"
     ],
     "name": "build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -486,6 +487,174 @@
     "name": "upload build-archive.zip to ###fuchsia-build###",
     "~followup_annotations": [
       "@@@STEP_LINK@build-archive.zip@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/build-archive.zip@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/third_party/catapult/tracing/bin/trace2html",
+      "--output",
+      "[CLEANUP]/gn_trace.html",
+      "[CLEANUP]/gn_trace.json"
+    ],
+    "name": "trace2html"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/tools/ninjatrace/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/tools/ninjatrace/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/ninjatrace",
+      "-filename",
+      "[START_DIR]/out/debug-arm64/.ninja_log",
+      "-trace-json",
+      "[CLEANUP]/ninja_trace.json"
+    ],
+    "name": "ninja tracing",
+    "stdout": "[CLEANUP]/ninja_trace.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/third_party/catapult/tracing/bin/trace2html",
+      "--output",
+      "[CLEANUP]/ninja_trace.html",
+      "[CLEANUP]/ninja_trace.json"
+    ],
+    "name": "trace2html (2)"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/gn_trace.html",
+      "gs://###fuchsia-build###/builds/5555555555/gn_trace.html"
+    ],
+    "infra_step": true,
+    "name": "upload gn_trace.html to ###fuchsia-build###",
+    "~followup_annotations": [
+      "@@@STEP_LINK@gn_trace.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/gn_trace.html@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/ninja_trace.html",
+      "gs://###fuchsia-build###/builds/5555555555/ninja_trace.html"
+    ],
+    "infra_step": true,
+    "name": "upload ninja_trace.html to ###fuchsia-build###",
+    "~followup_annotations": [
+      "@@@STEP_LINK@ninja_trace.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/ninja_trace.html@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd",
+      "-ensure-file",
+      "fuchsia/tools/bloatalyzer/${platform} latest\nfuchsia/third_party/bloaty/${platform} latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_installed (2)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/third_party/bloaty/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"fuchsia/tools/bloatalyzer/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bloatalyzer",
+      "-bloaty",
+      "[START_DIR]/cipd/bloaty",
+      "-input",
+      "[START_DIR]/out/debug-arm64/ids.txt",
+      "-output",
+      "[CLEANUP]/bloaty.html",
+      "-top-files",
+      "50",
+      "-top-syms",
+      "50",
+      "-format",
+      "html",
+      "-jobs",
+      "2"
+    ],
+    "name": "bloaty"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/bloaty.html",
+      "gs://###fuchsia-build###/builds/5555555555/bloaty.html"
+    ],
+    "infra_step": true,
+    "name": "upload bloaty.html to ###fuchsia-build###",
+    "~followup_annotations": [
+      "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/bloaty.html@@@"
     ]
   },
   {

@@ -117,6 +117,11 @@ PROPERTIES = {
             kind=str,
             help='GCS bucket for uploading checkout, build, and test results',
             default=''),
+    'upload_breakpad_symbols':
+        Property(
+            kind=bool,
+            help='Whether to upload breakpad_symbols',
+            default=False),
 }
 
 
@@ -124,8 +129,10 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              build_type, packages, variants, gn_args, ninja_targets, run_tests,
              runtests_args, device_type, run_host_tests, networking_for_tests,
              requires_secrets, pave, boards, products, zircon_args,
-             test_in_shards, gcs_bucket):
+             test_in_shards, gcs_bucket, upload_breakpad_symbols):
+  upload_results = not api.properties.get('tryjob') and gcs_bucket
   build_input = api.buildbucket.build.input
+
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       assert len(build_input.gerrit_changes) == 1
@@ -143,7 +150,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
     )
 
   # Upload checkout results (i.e., the jiri snapshot) if not a tryjob.
-  if not api.properties.get('tryjob') and gcs_bucket:
+  if upload_results:
     checkout.upload_results(gcs_bucket)
 
   assert checkout.root_dir
@@ -158,11 +165,14 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       ninja_targets=ninja_targets,
       boards=boards,
       products=products,
-      zircon_args=zircon_args)
+      zircon_args=zircon_args,
+      collect_build_metrics=upload_results,
+      build_archive=upload_results,
+  )
 
   # Upload checkout results (i.e., the jiri snapshot) if not a tryjob.
-  if not api.properties.get('tryjob') and gcs_bucket:
-    build.upload_results(gcs_bucket)
+  if upload_results:
+    build.upload_results(gcs_bucket, upload_breakpad_symbols)
 
   if run_tests:
     if test_in_shards:
@@ -424,13 +434,13 @@ def GenTests(api):
   # Test cases for generating symbol files during the build.
   yield api.fuchsia.test(
       'upload_breakpad_symbols',
-      upload_breakpad_symbols=True,
       properties=dict(
           # build_type and target determine the path used in the key of
           # fuchsia.breakpad_symbol_summary below.
           build_type='release',
           target='x64',
           ninja_targets=['//build/gn:breakpad_symbols'],
+          upload_breakpad_symbols=True,
       ),
       steps=[
           api.fuchsia.breakpad_symbol_summary({
@@ -439,18 +449,17 @@ def GenTests(api):
       ])
   yield api.fuchsia.test(
       'upload_but_symbol_files_missing',
-      upload_breakpad_symbols=True,
       properties=dict(
           build_type='release',
           target='x64',
           ninja_targets=['//build/gn:breakpad_symbols'],
+          upload_breakpad_symbols=True,
       ),
       steps=[api.fuchsia.breakpad_symbol_summary({})])
 
   # Test case for generating build traces and bloaty analysis
   yield api.fuchsia.test(
       'upload_build_metrics',
-      upload_build_metrics=True,
       properties=dict(
           build_type='release',
           target='x64',

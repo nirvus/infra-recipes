@@ -124,10 +124,10 @@ class FuchsiaBuildResults(object):
        build to the path to that image on the local disk."""
     return self._images
 
-  def upload_results(self, gcs_bucket):
-    """ """
-    assert gcs_bucket
-    self._api.upload_build_results(self, gcs_bucket)
+  def upload_results(self, gcs_bucket, upload_breakpad_symbols=False):
+    """Upload build results to a given GCS bucket."""
+    # TODO(IN-691) assert that `gcs_bucket` is nonempty after migration.
+    self._api.upload_build_results(self, gcs_bucket, upload_breakpad_symbols)
 
 
 class FuchsiaApi(recipe_api.RecipeApi):
@@ -481,7 +481,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     self.m.step('zircon', cmd)
 
   def _build_fuchsia(self, build, build_type, packages, variants, gn_args,
-                     ninja_targets, boards, products):
+                     ninja_targets, boards, products, collect_build_metrics,
+                     build_archive):
     """Builds fuchsia given a FuchsiaBuildResults and other GN options."""
     with self.m.step.nest('build fuchsia'):
       args = [
@@ -532,8 +533,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
           '--args=%s' % ' '.join(args + list(gn_args)),
       ]
 
-      # Collect gn tracing data if specified.
-      if self._build_metrics_gcs_bucket:
+      if collect_build_metrics or self._build_metrics_gcs_bucket:
+        # Collect gn tracing data
         gen_cmd.append('--tracelog=' +
                        str(self.m.path['cleanup'].join('gn_trace.json')))
 
@@ -555,10 +556,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
           path = image['path']
           type = image['type']
 
-          archive_for_upload = (
-              name == 'archive' and type == 'zip' and self._archive_gcs_bucket
+          build_archive = build_archive or self._archive_gcs_bucket
+          include_archive = (
+              name == 'archive' and type == 'zip' and build_archive
           )
-          if name in IMAGES_FOR_TESTING or archive_for_upload:
+          if name in IMAGES_FOR_TESTING or include_archive:
             ninja_targets.append(path)
             build.images[name] = (
                 self.m.path.abs_to_path(self.m.path.realpath(
@@ -587,7 +589,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
             ninja_targets=(),
             boards=[],
             products=[],
-            zircon_args=[]):
+            zircon_args=[],
+            collect_build_metrics=False,
+            build_archive=False):
     """Builds Fuchsia from a Jiri checkout.
 
     Expects a Fuchsia Jiri checkout at api.path['start_dir'].
@@ -602,6 +606,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
       ninja_targets (sequence[str]): Additional target args to pass to ninja
       boards (sequence[str]): A sequence of boards to pass to GN to build
       products (sequence[str]): A sequence of products to pass to GN to build
+      zircon_args (sequence[str]): A sequence of Make arguments to pass when
+        building zircon.
+      collect_build_metrics (bool): Whether to collect build metrics.
+      build_archive (bool): Whether to build an image archive to be uploaded.
 
     Returns:
       A FuchsiaBuildResults, representing the recently completed build.
@@ -632,7 +640,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
             gn_args=gn_args,
             ninja_targets=list(ninja_targets),
             boards=boards,
-            products=products)
+            products=products,
+            collect_build_metrics=collect_build_metrics,
+            build_archive=build_archive)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
     self.m.zbi.zbi_path = out_dir.join('build-zircon', 'tools', 'zbi')
 
@@ -1497,7 +1507,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
         link_name=basename,
         name='upload %s to %s' % (basename, bucket))
 
-  def upload_build_results(self, build_results, gcs_bucket=None):
+  def upload_build_results(self,
+                           build_results,
+                           gcs_bucket=None,
+                           upload_breakpad_symbols=False):
     """Uploads artifacts from the build to Google Cloud Storage.
 
     More specifically, provided archive_gcs_bucket is set, this method uploads
@@ -1512,6 +1525,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
       build_results (FuchsiaBuildResults): The Fuchsia build results to get
         artifacts from.
       gcs_bucket (str): GCS bucket name to upload build results to.
+      upload_breakpad_symbols (bool): Whether to upload breakpad symbols.
     """
     if gcs_bucket or self._archive_gcs_bucket:
       self.m.gsutil.ensure_gsutil()
@@ -1519,12 +1533,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self._upload_file_to_gcs(build_results.images['archive'],
                                  gcs_bucket or self._archive_gcs_bucket)
 
-      if self._build_metrics_gcs_bucket:
-        self._upload_tracing_data(build_results, gcs_bucket)
-        self._run_bloaty(build_results, gcs_bucket)
+      if gcs_bucket or self._build_metrics_gcs_bucket:
+        self._upload_tracing_data(build_results, gcs_bucket or self._build_metrics_gcs_bucket)
+        self._run_bloaty(build_results, gcs_bucket or self._build_metrics_gcs_bucket)
 
       # Upload breakpad symbol files.
-      if self._upload_breakpad_symbols:
+      if upload_breakpad_symbols or self._upload_breakpad_symbols:
         symbol_files = self._get_breakpad_symbol_files(build_results)
         if symbol_files:
           archive = self._tar_breakpad_symbols(symbol_files,
@@ -1687,7 +1701,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       A Path to the file containing the resulting bloaty data.
     """
-    assert self._build_metrics_gcs_bucket
+    assert gcs_bucket or self._build_metrics_gcs_bucket
     with self.m.context(infra_steps=True):
       cipd_dir = self.m.path['start_dir'].join('cipd')
       pkgs = self.m.cipd.EnsureFile()
