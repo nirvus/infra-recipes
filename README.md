@@ -3,11 +3,11 @@
 This repository contains recipes for Fuchsia.
 
 A recipe is a Python script that runs a series of commands, using the
-[recipe engine](https://github.com/luci/recipes-py) framework from the LUCI
-project. We use recipes to automatically check out, build, and test Fuchsia in
-continuous integration jobs. The commands the recipes use are very similar to
-the ones you would use as a developer to check out, build, and test Fuchsia in
-your local environment.
+[recipe engine](https://chromium.googlesource.com/infra/luci/recipes-py/)
+framework from the LUCI project. We use recipes to automatically check out,
+build, and test Fuchsia in continuous integration jobs. The commands the recipes
+use are very similar to the ones you would use as a developer to check out,
+build, and test Fuchsia in your local environment.
 
 ## Setting up your environment
 
@@ -28,8 +28,8 @@ add to your PATH:
 Chrome's `depot_tools` repository provides these binaries, along with other
 tools necessary for interacting with the Chrome source and infrastructure.
 
-See the [`depot_tools`
-Tutorial](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up)
+See the
+[`depot_tools` Tutorial](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up)
 for installation instructions.
 
 ## Recipe concepts
@@ -56,8 +56,8 @@ steps.
 
 A step is basically just a command, represented as a Python list of the
 arguments. You give the step a name, specify the arguments, and the recipe
-engine will run it in a subprocess, capture its output, and mark the job as
-as failed if the command fails.
+engine will run it in a subprocess, capture its output, and mark the job as as
+failed if the command fails.
 
 Here's an example:
 
@@ -87,17 +87,16 @@ or "infra" to get it from this repo.
 
 ### Unit tests
 
-The reason it's important to only interact with the underlying machine via
-steps is for testing. The recipes framework provides a way to fake the results
-of the steps when testing the recipe, instead of actually running the commands.
-It produces an "expected" JSON file, which shows exactly what commands would
-have run, along with context such as working directory and environment
-variables.
+The reason it's important to only interact with the underlying machine via steps
+is for testing. The recipes framework provides a way to fake the results of the
+steps when testing the recipe, instead of actually running the commands. It
+produces an "expected" JSON file, which shows exactly what commands would have
+run, along with context such as working directory and environment variables.
 
 You write tests using the `GenTests` function. Inside `GenTests`, you can use
 the `yield` statement to declare individual test cases. `GenTests` takes an API
-object, which has functions on it allowing you to specify the properties to
-pass to the recipe, as well as mock results for individual steps.
+object, which has functions on it allowing you to specify the properties to pass
+to the recipe, as well as mock results for individual steps.
 
 Here's an example test case for a recipe that accepts input properties
 "manifest", "remote", "target", and "tests":
@@ -113,14 +112,14 @@ yield api.test('failed_tests') + api.properties(
 
 In this example:
 
-* `api.test` simply gives the test case a name, which will be used to name the
-  generated JSON "expected" file.
-* `api.properties` specifies the properties that will be passed to `RunSteps`.
-* `api.step_data` takes the name of one of the steps in the recipe, in this
-  case "run tests", and specifies how it should behave. This is where you can
-  make the fake commands produce your choice of fake output. Or, as in this
-  example, you can specify a return code, in order to cover error-handling code
-  branches in the recipe.
+*   `api.test` simply gives the test case a name, which will be used to name the
+    generated JSON "expected" file.
+*   `api.properties` specifies the properties that will be passed to `RunSteps`.
+*   `api.step_data` takes the name of one of the steps in the recipe, in this
+    case "run tests", and specifies how it should behave. This is where you can
+    make the fake commands produce your choice of fake output. Or, as in this
+    example, you can specify a return code, in order to cover error-handling
+    code branches in the recipe.
 
 To run the unit tests and generate the "expected" data, run the following
 command from the root of this repo:
@@ -132,7 +131,6 @@ python recipes.py test train
 # (default is infra/config/recipes.cfg)
 python recipes.py --package infra/config/recipes.cfg test train
 ```
-
 
 The name of the recipe is simply the name of the recipe's Python file minus the
 `.py` extension. So, for example, the recipe in `recipes/fuchsia.py` is called
@@ -205,8 +203,8 @@ Unit tests should be the first thing you try to verify that your code runs. But
 when writing a new recipe or making major changes, you'll also want to make sure
 the recipe works when you actually run it.
 
-To run the recipe locally, you need to be authorized to access LUCI services.
-If you've never logged in to any LUCI service (cipd, isolated, etc), login with:
+To run the recipe locally, you need to be authorized to access LUCI services. If
+you've never logged in to any LUCI service (cipd, isolated, etc), login with:
 
 ```sh
 cipd auth-login
@@ -219,8 +217,8 @@ python recipes.py run --properties-file test.json [recipe_name]
 ```
 
 For this command to work, you need to create a temporary file called `test.json`
-specifying what properties you want to run the recipe with. Here's an example
-of what that file might look like, for the `fuchsia.py` recipe:
+specifying what properties you want to run the recipe with. Here's an example of
+what that file might look like, for the `fuchsia.py` recipe:
 
 ```json
 {
@@ -246,18 +244,16 @@ work directory as is done on bots (`rm -rf .recipe_deps`).
 
 ## Debugging
 
-To run a test under [PDB (the Python DeBugger)](
-https://docs.python.org/library/pdb.html), run:
-```sh
-python recipes.py test debug --filter [recipe_name]
-```
+To run a test under
+[PDB (the Python DeBugger)](https://docs.python.org/library/pdb.html), run: `sh
+python recipes.py test debug --filter [recipe_name]`
 
 ## Developer workflow
 
 ### Formatting
 
 We format python code according to the Chrome team's style, using
-[yapf](https://github.com/google/yapf).  After committing your changes you can
+[yapf](https://github.com/google/yapf). After committing your changes you can
 format the files in your commit by running this in your recipes project root:
 (Make sure yapf is in your PATH)
 
@@ -265,10 +261,10 @@ format the files in your commit by running this in your recipes project root:
 git diff --name-only HEAD^ | grep -E '.py$' | xargs yapf -i
 ```
 
-* `--name-only` tells git to list file paths instead of contents.
-* `HEAD^` specifies only files that have changed in the latest commit.
-* `-E` enables regular expressions for grep.
-* `-i` instructs yapf to format files in-place instead of writing to stdout.
+*   `--name-only` tells git to list file paths instead of contents.
+*   `HEAD^` specifies only files that have changed in the latest commit.
+*   `-E` enables regular expressions for grep.
+*   `-i` instructs yapf to format files in-place instead of writing to stdout.
 
 ## Naming steps
 
@@ -276,16 +272,17 @@ Occasionally you'll be confronted with the task of naming a step. It's important
 that this name is informative as it will appear within the UI. Other than that,
 there are only two rules:
 
-1. Do not use the "." character in step names. Currently that is used for
-   indicating step nesting in the UI, but should hopefully change in the future.
-1. Step names must be unique within a single execution of a recipe. The reason
-   for this is because recipe engine relies on unique step names for mocking out
-   step data when testing. For this reason, step names will then be extended
-   with a number such as "(3)" which generally isn't very useful to a reader.
-   This is also subject to change in the future.
+1.  Do not use the "." character in step names. Currently that is used for
+    indicating step nesting in the UI, but should hopefully change in the
+    future.
+1.  Step names must be unique within a single execution of a recipe. The reason
+    for this is because recipe engine relies on unique step names for mocking
+    out step data when testing. For this reason, step names will then be
+    extended with a number such as "(3)" which generally isn't very useful to a
+    reader. This is also subject to change in the future.
 
 ## Existing Fuchsia recipes
 
-See [the generated documentation for our existing recipes and
-modules](https://fuchsia.googlesource.com/infra/recipes/+/master/README.recipes.md)
+See
+[the generated documentation for our existing recipes and modules](https://fuchsia.googlesource.com/infra/recipes/+/master/README.recipes.md)
 for more information on what they do and how to use them.
