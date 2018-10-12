@@ -177,6 +177,11 @@
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "name": "go test"
   },
   {
@@ -185,6 +190,11 @@
       "GOARCH": "amd64",
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "linux-amd64"
   },
@@ -204,6 +214,11 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "linux-amd64.go build",
     "~followup_annotations": [
@@ -225,6 +240,11 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "name": "linux-amd64.cipd search fuchsia/tools/jiri/linux-amd64 git_revision:a1b2c3",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
@@ -245,6 +265,11 @@
       "GOARCH": "amd64",
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "linux-amd64.Package is up-to-date",
     "~followup_annotations": [
@@ -269,6 +294,11 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "infra_step": true,
     "name": "linux-amd64.gsutil cp",
     "~followup_annotations": [
@@ -282,6 +312,11 @@
       "GOARCH": "arm64",
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "linux-arm64"
   },
@@ -301,6 +336,11 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "linux-arm64.go build",
     "~followup_annotations": [
@@ -322,6 +362,11 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "name": "linux-arm64.cipd search fuchsia/tools/jiri/linux-arm64 git_revision:a1b2c3",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
@@ -342,6 +387,11 @@
       "GOARCH": "arm64",
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "linux-arm64.Package is up-to-date",
     "~followup_annotations": [
@@ -366,6 +416,11 @@
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "infra_step": true,
     "name": "linux-arm64.gsutil cp",
     "~followup_annotations": [
@@ -379,6 +434,11 @@
       "GOARCH": "amd64",
       "GOOS": "darwin",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "mac-amd64"
   },
@@ -398,6 +458,11 @@
       "GOOS": "darwin",
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "mac-amd64.go build",
     "~followup_annotations": [
@@ -419,6 +484,11 @@
       "GOOS": "darwin",
       "GOPATH": "[START_DIR]/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "name": "mac-amd64.cipd search fuchsia/tools/jiri/mac-amd64 git_revision:a1b2c3",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
@@ -439,6 +509,11 @@
       "GOARCH": "amd64",
       "GOOS": "darwin",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "mac-amd64.Package is up-to-date",
     "~followup_annotations": [
@@ -462,6 +537,11 @@
       "GOARCH": "amd64",
       "GOOS": "darwin",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "infra_step": true,
     "name": "mac-amd64.gsutil cp",

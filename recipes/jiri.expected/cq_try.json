@@ -267,6 +267,11 @@
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "name": "go test"
   },
   {
@@ -275,6 +280,11 @@
       "GOARCH": "amd64",
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "linux-amd64"
   },
@@ -293,6 +303,11 @@
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "name": "linux-amd64.go build",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
@@ -304,6 +319,11 @@
       "GOARCH": "arm64",
       "GOOS": "linux",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "linux-arm64"
   },
@@ -322,6 +342,11 @@
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
     },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
+    },
     "name": "linux-arm64.go build",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
@@ -333,6 +358,11 @@
       "GOARCH": "amd64",
       "GOOS": "darwin",
       "GOPATH": "[START_DIR]/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "mac-amd64"
   },
@@ -350,6 +380,11 @@
       "GOOS": "darwin",
       "GOPATH": "[START_DIR]/go",
       "GOROOT": "[START_DIR]/cipd/go"
+    },
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/cipd/go/bin"
+      ]
     },
     "name": "mac-amd64.go build",
     "~followup_annotations": [

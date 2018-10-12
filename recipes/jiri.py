@@ -90,7 +90,8 @@ def RunSteps(api, project, manifest, remote):
   staging_dir = api.path.mkdtemp('jiri')
 
   gopath = api.path['start_dir'].join('go')
-  with api.context(env={'GOPATH': gopath}):
+  with api.context(env={'GOPATH': gopath},
+                   env_prefixes={'PATH': [api.go.go_root.join('bin')]}):
     # Run all the tests.
     api.go('test', '-v', 'fuchsia.googlesource.com/jiri/...')
 
