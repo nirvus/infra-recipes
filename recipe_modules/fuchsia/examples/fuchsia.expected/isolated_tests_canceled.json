@@ -1025,7 +1025,7 @@
       "@@@STEP_LOG_LINE@json.output@      \"name\": \"test\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"run_id\": \"39927049b6ee7011\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"started_ts\": \"2017-11-01T22:06:09.155530\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"state\": \"EXPIRED\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"state\": \"CANCELED\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"tags\": [@@@",
       "@@@STEP_LOG_LINE@json.output@        \"os:Debian\", @@@",
       "@@@STEP_LOG_LINE@json.output@        \"pool:Fuchsia\"@@@",
@@ -1043,7 +1043,7 @@
   },
   {
     "name": "$result",
-    "reason": "Timed out waiting for a bot to run on",
+    "reason": "The task was canceled before it could run",
     "recipe_result": null,
     "status_code": 1
   }

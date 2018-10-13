@@ -109,18 +109,15 @@
     "name": "collect",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ae7012\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"error\": \"something went wrong!\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"output0\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"39927049b6ee7010\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"error\": \"I could not contact the bot\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ae7012\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"39927049b6ee7010\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@Swarming task output: None@something went wrong!@@@",
+      "@@@STEP_LOG_LINE@Swarming task output: None@I could not contact the bot@@@",
       "@@@STEP_LOG_END@Swarming task output: None@@@"
     ]
   },

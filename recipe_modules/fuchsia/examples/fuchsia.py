@@ -290,7 +290,8 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.tasks_step_data(
-              api.fuchsia.task_mock_data(task_failure=True)),
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.TASK_FAILURE)),
       ])
   yield api.fuchsia.test(
       'isolated_tests_task_timed_out',
@@ -298,7 +299,9 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.tasks_step_data(
-              api.fuchsia.task_mock_data(timed_out=True)),
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.TIMED_OUT,
+              )),
       ])
   yield api.fuchsia.test(
       'isolated_tests_task_expired',
@@ -306,7 +309,9 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.tasks_step_data(
-              api.fuchsia.task_mock_data(expired=True)),
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.EXPIRED,
+              )),
       ])
   yield api.fuchsia.test(
       'isolated_tests_no_resource',
@@ -314,7 +319,39 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.tasks_step_data(
-              api.fuchsia.task_mock_data(no_resource=True)),
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.NO_RESOURCE,
+              )),
+      ])
+  yield api.fuchsia.test(
+      'isolated_tests_bot_died',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_tests=True),
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.BOT_DIED,
+              )),
+      ])
+  yield api.fuchsia.test(
+      'isolated_tests_canceled',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_tests=True),
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.CANCELED,
+              )),
+      ])
+  yield api.fuchsia.test(
+      'isolated_tests_killed',
+      expect_failure=True,  # Failure step injected below.
+      properties=dict(run_tests=True),
+      steps=[
+          api.fuchsia.tasks_step_data(
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.KILLED,
+              )),
       ])
   yield api.fuchsia.test(
       'isolated_tests_kernel_panic',
@@ -322,15 +359,20 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.tasks_step_data(
-              api.fuchsia.task_mock_data(timed_out=True, output='KERNEL PANIC')),
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.TIMED_OUT,
+                output='KERNEL PANIC',
+              )),
       ])
   yield api.fuchsia.test(
-      'isolated_tests_infra_failure',
+      'isolated_tests_rpc_failure',
       expect_failure=True,  # Failure step injected below.
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.tasks_step_data(
-              api.fuchsia.task_mock_data(infra_failure=True)),
+              api.fuchsia.task_mock_data(
+                state=api.swarming.TaskState.RPC_FAILURE,
+              )),
       ])
 
   # Test cases that run no tests.

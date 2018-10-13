@@ -494,7 +494,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1353)(self, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1359)(self, test_results):**
 
 Analyzes test results represented by FuchsiaTestResults objects.
 
@@ -580,7 +580,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1379)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1385)(self, test_results):**
 
 Logs individual test results in separate steps.
 
@@ -1265,15 +1265,15 @@ ServiceAccountApi provides access to service account keys.
 
 [DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolated](#recipe_modules-isolated), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [SwarmingApi](/recipe_modules/swarming/api.py#176)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [SwarmingApi](/recipe_modules/swarming/api.py#179)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 APIs for interacting with swarming.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#184)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/swarming/api.py#188)(self, \*args, \*\*kwargs):**
 
 Return a swarming command step.
 
-&mdash; **def [collect](/recipe_modules/swarming/api.py#334)(self, timeout=None, tasks_json=None, tasks=[]):**
+&mdash; **def [collect](/recipe_modules/swarming/api.py#338)(self, timeout=None, tasks_json=None, tasks=[]):**
 
 Waits on a set of Swarming tasks.
 
@@ -1284,11 +1284,11 @@ Args:
   tasks_json: load details about the task(s) from the json file.
   tasks: list of task ids to wait on.
 
-&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#190)(self, version=None):**
+&mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#194)(self, version=None):**
 
 Ensures that swarming client is installed.
 
-&mdash; **def [spawn\_tasks](/recipe_modules/swarming/api.py#293)(self, tasks=(), json_output=None):**
+&mdash; **def [spawn\_tasks](/recipe_modules/swarming/api.py#297)(self, tasks=(), json_output=None):**
 
 Spawns a set of Swarming tasks.
 
@@ -1302,20 +1302,20 @@ Returns:
   A Python dict representing the JSON spawn response that may be passed into
     collect().
 
-&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#207)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#211)(self):**
 
-&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#216)(self, value):**
+&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#220)(self, value):**
 
 Changes URL of Swarming server to use.
 
-&mdash; **def [task\_request](/recipe_modules/swarming/api.py#284)(self, \*args, \*\*kwargs):**
+&mdash; **def [task\_request](/recipe_modules/swarming/api.py#288)(self, \*args, \*\*kwargs):**
 
 Creates a new TaskRequest object.
 
 Passes down all arguments to the TaskRequest constructor with the exception
 of isolate_server, which is provided by the isolated recipe module.
 
-&mdash; **def [trigger](/recipe_modules/swarming/api.py#221)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, hard_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
+&mdash; **def [trigger](/recipe_modules/swarming/api.py#225)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, hard_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
 
 Triggers a Swarming task.
 

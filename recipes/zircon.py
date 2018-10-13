@@ -225,7 +225,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     api.tar.ensure_tar()
     test_results_map = api.tar.extract(
         step_name='extract results',
-        path=result[output_archive_name],
+        path=result.outputs[output_archive_name],
         directory=api.raw_io.output_dir(leak_to=test_results_dir),
     ).raw_io.output_dir
 
@@ -431,7 +431,7 @@ def FinalizeTestsTasks(api, core_task, booted_task, booted_task_output_image,
   test_results_dir = api.fuchsia.results_dir_on_host.join('target')
   test_results_map = api.minfs.copy_image(
       step_name='extract results',
-      image_path=booted_result[booted_task_output_image],
+      image_path=booted_result.outputs[booted_task_output_image],
       out_dir=test_results_dir,
   ).raw_io.output_dir
 
@@ -629,9 +629,11 @@ def GenTests(api):
       ),
   )
   # Step test data for collecting core and booted tasks.
-  core_task_datum = api.swarming.task_success(
-      id='10', output=CORE_TESTS_SUCCESS_STR, outputs=['output.fs'])
-  booted_task_datum = api.swarming.task_success(id='11', outputs=['output.fs'])
+  core_task_datum = api.swarming.task_data(
+      id='10', state=api.swarming.TaskState.SUCCESS,
+      output=CORE_TESTS_SUCCESS_STR, outputs=['output.fs'])
+  booted_task_datum = api.swarming.task_data(
+      id='11', state=api.swarming.TaskState.SUCCESS, outputs=['output.fs'])
   collect_data = api.step_data('collect', api.swarming.collect(
       task_data=(core_task_datum, booted_task_datum)))
   # Step test data for triggering the core tests task.
@@ -735,7 +737,7 @@ def GenTests(api):
                        device_type=device_type) +
         booted_tests_trigger_data +
         api.step_data('collect', api.swarming.collect(
-            task_data=[api.swarming.task_success(outputs=['out.tar'])],
+            task_data=[api.swarming.task_data(outputs=['out.tar'])],
         )))
 
   yield (api.test('task_failure') +
@@ -748,9 +750,10 @@ def GenTests(api):
       core_tests_trigger_data +
       booted_tests_trigger_data +
       api.step_data('collect', api.swarming.collect(
-          task_data=[api.swarming.task_failure(id='10'),
-                     api.swarming.task_failure(id='11')]
-      )))
+          task_data=[
+            api.swarming.task_data(id='10', state=api.swarming.TaskState.TASK_FAILURE),
+            api.swarming.task_data(id='11', state=api.swarming.TaskState.TASK_FAILURE),
+          ])))
   yield (api.test('asan') +
       ci_build +
      api.properties(project='zircon',
@@ -813,7 +816,7 @@ def GenTests(api):
 
   # This task should trigger a failure because its output does not contain
   # CORE_TESTS_SUCCESS_STR
-  failed_core_task_datum = api.swarming.task_success(
+  failed_core_task_datum = api.swarming.task_data(
       id='10', output='not success')
   core_tests_failed_collect_data = api.step_data(
       'collect',

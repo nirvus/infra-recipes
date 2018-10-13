@@ -1011,8 +1011,10 @@
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"39927049b6ee7010\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"output\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"outputs\": null, @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"output\": \"hello world!\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"output.fs\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"results\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"fuchsia-test-vm\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"bot_version\": \"f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c47f2\", @@@",
@@ -1034,7 +1036,9 @@
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LOG_LINE@Swarming task output: test@hello world!@@@",
+      "@@@STEP_LOG_END@Swarming task output: test@@@"
     ]
   },
   {

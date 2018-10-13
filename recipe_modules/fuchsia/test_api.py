@@ -205,53 +205,26 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
   def task_mock_data(self,
                      id='39927049b6ee7010',
                      name='test',
-                     output='',
-                     device=False,
-                     task_failure=False,
-                     infra_failure=False,
-                     expired=False,
-                     no_resource=False,
-                     timed_out=False):
+                     state=None,
+                     output='hello world!',
+                     device=False):
     """Returns mock data for task results.
 
     This should be used by any test which calls api.fuchsia.test*() and passed
     to tasks_step_data.
 
     Args:
+      state (api.swarming.TaskState): The collected task's state.
       output (str): The mock task's stdout/stderr.
       device (bool): Whether we're mocking testing on a hardware device.
-      task_failure (bool): Whether the task failed.
-      infra_failure (bool): Whether there was an infra failure in executing the
-        task.
-      timed_out (bool): Whether the task timed out.
-      expired (bool): Whether the task expired waiting for live bots to become
-        available and pick up the task.
-      no_resource (bool): Whether the task exited because no resource (bot) was
-        available to run the task.
 
     Returns:
       Mock data for a Swarming task result which ran Fuchsia tests.
     """
-    task_datum = None
     outputs = ['out.tar'] if device else ['output.fs']
-    if task_failure:
-      return self.m.swarming.task_failure(
-          id=id, name=name, output=output, outputs=outputs)
-    elif infra_failure:
-      # Don't allow setting output because we don't have a use case for it
-      # and we need to maintain full line coverage
-      assert not output
-      return self.m.swarming.task_infra_failure(id=id, outputs=outputs)
-    elif timed_out:
-      return self.m.swarming.task_timed_out(
-          id=id, name=name, output=output, outputs=outputs)
-    elif expired:
-      return self.m.swarming.task_expired(id=id, name=name)
-    elif no_resource:
-      return self.m.swarming.task_no_resource(id=id, name=name)
-    else:
-      return self.m.swarming.task_success(
-          id=id, name=name, output=output, outputs=outputs)
+    return self.m.swarming.task_data(
+          id=id, name=name, state=state or self.m.swarming.TaskState.SUCCESS,
+          output=output, outputs=outputs)
 
   def tasks_step_data(self, *task_data):
     """Returns mock step data for collecting Swarming test tasks.

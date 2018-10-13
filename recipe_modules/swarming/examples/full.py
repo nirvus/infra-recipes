@@ -73,19 +73,30 @@ def RunSteps(api, spawn_tasks):
   # Wait for its results.
   try:
     results = api.swarming.collect(timeout='1m', tasks_json=json)
-    if results[0].no_resource():
-      raise api.step.InfraFailure('Task cannot run on any known live bots!')
-    if results[0].expired():
-      raise api.step.StepTimeout('Task timed out waiting for a bot to run on!')
-    if not results[0].is_failure() and not results[0].is_infra_failure():
-      # Get the path of an output like this!
-      path = results[0]['out/hello.txt']
-    if results[0].is_failure() and results[0].timed_out():
-      raise api.step.StepTimeout('Timed out!')
+
+    if results[0].state == api.swarming.TaskState.RPC_FAILURE:
+      # name should be None.
+      assert results[0].name is None
+      raise api.step.InfraFailure('Failed to collect: %s' % results[0].output)
+    elif results[0].state == api.swarming.TaskState.TIMED_OUT:
+      raise api.step.StepTimeout('Timed out during execution', '180 seconds')
+    elif results[0].state == api.swarming.TaskState.NO_RESOURCE:
+      raise api.step.InfraFailure('Found no bots to run this task')
+    elif results[0].state == api.swarming.TaskState.EXPIRED:
+      raise api.step.InfraFailure('Timed out waiting for a bot to run on')
+    elif results[0].state == api.swarming.TaskState.BOT_DIED:
+      raise api.step.InfraFailure('The bot running this task died')
+    elif results[0].state == api.swarming.TaskState.CANCELED:
+      raise api.step.InfraFailure('The task was canceled before it could run')
+    elif results[0].state == api.swarming.TaskState.KILLED:
+      raise api.step.InfraFailure('The task was killed mid-execution')
+
     # You can grab the task's name.
     results[0].name
-    # You can grab the task's id.
+    # You can grab the task's ID.
     results[0].id
+    # You can grab the task's output.
+    results[0].output
     # You can also grab the outputs of the Swarming task as a map.
     results[0].outputs
   except:
@@ -99,23 +110,38 @@ def RunSteps(api, spawn_tasks):
 
 
 def GenTests(api):
-  yield api.test('basic') + api.step_data(
-      'collect', api.swarming.collect(task_data=[api.swarming.task_success(
-          output='hello', outputs=['out/hello.txt'])]))
-  yield api.test('task_failure') + api.step_data(
-      'collect', api.swarming.collect(task_data=[api.swarming.task_failure()]))
-  yield api.test('task_timeout') + api.step_data(
-      'collect', api.swarming.collect(task_data=[api.swarming.task_timed_out()]))
-  yield api.test('infra_failure') + api.step_data(
+  yield api.test('success') + api.step_data(
       'collect', api.swarming.collect(task_data=[
-          api.swarming.task_infra_failure(outputs=['output0'])]))
+        api.swarming.task_data(state=api.swarming.TaskState.SUCCESS,
+                               output='hello',
+                               outputs=['out/hello.txt'])]))
+  yield api.test('task_failure') + api.step_data(
+      'collect', api.swarming.collect(task_data=[
+        api.swarming.task_data(state=api.swarming.TaskState.TASK_FAILURE)]))
+  yield api.test('rpc_failure') + api.step_data(
+      'collect', api.swarming.collect(task_data=[
+          api.swarming.task_data(state=api.swarming.TaskState.RPC_FAILURE)]))
+  yield api.test('task_timeout') + api.step_data(
+      'collect', api.swarming.collect(task_data=[
+        api.swarming.task_data(state=api.swarming.TaskState.TIMED_OUT)]))
   yield api.test('task_expired') + api.step_data(
-      'collect', api.swarming.collect(task_data=[api.swarming.task_expired()]))
+      'collect', api.swarming.collect(task_data=[
+        api.swarming.task_data(state=api.swarming.TaskState.EXPIRED)]))
   yield api.test('no_resource') + api.step_data(
-      'collect', api.swarming.collect(task_data=[api.swarming.task_no_resource()]))
+      'collect', api.swarming.collect(task_data=[
+        api.swarming.task_data(state=api.swarming.TaskState.NO_RESOURCE)]))
+  yield api.test('bot_died') + api.step_data(
+      'collect', api.swarming.collect(task_data=[
+        api.swarming.task_data(state=api.swarming.TaskState.BOT_DIED)]))
+  yield api.test('task_canceled') + api.step_data(
+      'collect', api.swarming.collect(task_data=[
+        api.swarming.task_data(state=api.swarming.TaskState.CANCELED)]))
+  yield api.test('task_killed') + api.step_data(
+      'collect', api.swarming.collect(task_data=[
+        api.swarming.task_data(state=api.swarming.TaskState.KILLED)]))
   yield api.test('infra_failure_no_out') + api.step_data(
       'collect', api.json.output({}))
   yield api.test('basic_trigger') + api.step_data(
-      'collect', api.swarming.collect(task_data=[api.swarming.task_success(
+      'collect', api.swarming.collect(task_data=[api.swarming.task_data(
           output='hello', outputs=['out/hello.txt'])])) + api.properties(
               spawn_tasks=False)

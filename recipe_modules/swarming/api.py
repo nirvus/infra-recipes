@@ -3,6 +3,9 @@
 # found in the LICENSE file.
 
 import base64
+
+from state import TaskState
+
 from recipe_engine import recipe_api
 
 
@@ -12,10 +15,28 @@ class CollectResult(object):
   def __init__(self, m, id, raw_results, outdir):
     self._id = id
     self._raw_results = raw_results
-    self._is_error = 'error' in raw_results
     self._outputs = {}
-    if self._is_error:
-      self._output = self._raw_results['error']
+
+    self._state = TaskState.SUCCESS
+    if 'error' in raw_results:
+      self._state = TaskState.RPC_FAILURE
+    elif 'failure' in raw_results['results']:
+      self._state = TaskState.TASK_FAILURE
+    elif raw_results['results']['state'] == 'TIMED_OUT':
+      self._state = TaskState.TIMED_OUT
+    elif raw_results['results']['state'] == 'EXPIRED':
+      self._state = TaskState.EXPIRED
+    elif raw_results['results']['state'] == 'NO_RESOURCE':
+      self._state = TaskState.NO_RESOURCE
+    elif raw_results['results']['state'] == 'BOT_DIED':
+      self._state = TaskState.BOT_DIED
+    elif raw_results['results']['state'] == 'CANCELED':
+      self._state = TaskState.CANCELED
+    elif raw_results['results']['state'] == 'KILLED':
+      self._state = TaskState.KILLED
+
+    if self._state == TaskState.RPC_FAILURE:
+      self._output = raw_results['error']
     else:
       self._output = self._raw_results['output']
       if self._raw_results.get('outputs'):
@@ -24,37 +45,19 @@ class CollectResult(object):
             for output in self._raw_results['outputs']
         }
 
-  def is_failure(self):
-    return ((not self._is_error) and
-            ('failure' in self._raw_results['results']))
-
-  def is_infra_failure(self):
-    return ((self._is_error) or
-            ('internal_failure' in self._raw_results['results']))
-
-  def timed_out(self):
-    return ((not self._is_error) and
-            self._raw_results['results']['state'] == 'TIMED_OUT')
-
-  def expired(self):
-    return ((not self._is_error) and
-            self._raw_results['results']['state'] == 'EXPIRED')
-
-  def no_resource(self):
-    return ((not self._is_error) and
-            self._raw_results['results']['state'] == 'NO_RESOURCE')
-
-  # TODO(mknyszek): Remove this in favor of using outputs directly.
-  def __getitem__(self, key):
-    return self._outputs[key]
-
   @property
   def name(self):
-    return self._raw_results['results']['name'] if not self._is_error else None
+    if self._state != TaskState.RPC_FAILURE:
+      return self._raw_results['results']['name']
+    return None
 
   @property
   def id(self):
     return self._id
+
+  @property
+  def state(self):
+    return self._state
 
   @property
   def output(self):
@@ -175,6 +178,7 @@ class TaskRequest(object):
 
 class SwarmingApi(recipe_api.RecipeApi):
   """APIs for interacting with swarming."""
+  TaskState = TaskState
 
   def __init__(self, swarming_server, *args, **kwargs):
     super(SwarmingApi, self).__init__(*args, **kwargs)

@@ -2,10 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from state import TaskState
+
 from recipe_engine import recipe_test_api
 
 
 class SwarmingTestApi(recipe_test_api.RecipeTestApi):
+  TaskState = TaskState
 
   def trigger(self,
               name,
@@ -112,13 +115,15 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
     })
 
   @staticmethod
-  def task_success(id='39927049b6ee7010',
-                   name='test',
-                   output=None,
-                   outputs=()):
-    output = output or 'hello world!'
-    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
-    return {
+  def task_data(id='39927049b6ee7010',
+                name='test',
+                state=TaskState.SUCCESS,
+                output='hello world!',
+                outputs=()):
+    if state == TaskState.RPC_FAILURE:
+      return {'error' : 'I could not contact the bot', 'results' : {'task_id' : id}}
+
+    raw_results = {
         'output': output,
         'outputs': outputs,
         'results': {
@@ -133,8 +138,6 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
                 '2017-11-01T22:06:08.298510',
             'duration':
                 0.06629300117492676,
-            'exit_code':
-                '0',
             'modified_ts':
                 '2017-11-01T22:06:11.538070',
             'name':
@@ -143,8 +146,6 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
                 '39927049b6ee7011',
             'started_ts':
                 '2017-11-01T22:06:09.155530',
-            'state':
-                'COMPLETED',
             'tags': [
                 'os:Debian',
                 'pool:Fuchsia',
@@ -158,206 +159,39 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
         },
     }
 
-  @staticmethod
-  def task_failure(id='39927049b6ae7011',
-                   name='test',
-                   output=None,
-                   outputs=None):
-    output = output or 'hello world!'
-    outputs = outputs or ['out/hello.txt']
-    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
-    return {
-        'output': output,
-        'outputs': outputs,
-        'results': {
-            'bot_id':
-                'fuchsia-test-vm',
-            'bot_version': (
-                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c'
-                '47f2'),
-            'completed_ts':
-                '2017-11-01T22:06:11.538070',
-            'created_ts':
-                '2017-11-01T22:06:08.298510',
-            'duration':
-                0.06629300117492676,
-            'exit_code':
-                '1',
-            'failure':
-                True,
-            'modified_ts':
-                '2017-11-01T22:06:11.538070',
-            'name':
-                name,
-            'run_id':
-                '39927049b6ee7011',
-            'started_ts':
-                '2017-11-01T22:06:09.155530',
-            'state':
-                'COMPLETED',
-            'tags': [
-                'os:Debian',
-                'pool:Fuchsia',
-            ],
-            'task_id':
-                id,
-            'try_number':
-                '1',
-            'user':
-                'luci',
-        },
-    }
+    if state == TaskState.SUCCESS:
+      raw_results['results']['exit_code'] = '0'
+      raw_results['results']['state'] = 'COMPLETED'
+    elif state == TaskState.TASK_FAILURE:
+      raw_results['results']['exit_code'] = '1'
+      raw_results['results']['state'] = 'COMPLETED'
+      raw_results['results']['failure'] = True
+    elif state == TaskState.TIMED_OUT:
+      raw_results['results']['state'] = 'TIMED_OUT'
+    elif state == TaskState.EXPIRED:
+      raw_results['results']['state'] = 'EXPIRED'
+    elif state == TaskState.NO_RESOURCE:
+      raw_results['results']['state'] = 'NO_RESOURCE'
+    elif state == TaskState.BOT_DIED:
+      raw_results['results']['state'] = 'BOT_DIED'
+    elif state == TaskState.CANCELED:
+      raw_results['results']['state'] = 'CANCELED'
+    elif state == TaskState.KILLED:
+      raw_results['results']['state'] = 'KILLED'
 
-  @staticmethod
-  def task_infra_failure(id='39927049b6ae7012', outputs=None):
-    task_datum = {'error': 'something went wrong!', 'results': {'task_id': id,}}
-    if outputs:
-      task_datum['outputs'] = outputs
-    return task_datum
-
-  @staticmethod
-  def task_timed_out(id='39927049b6ae7013',
-                     name='test',
-                     output=None,
-                     outputs=None):
-    output = output or 'hello world!'
-    outputs = outputs or ['out/hello.txt']
-    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
-    return {
-        'output': output,
-        'outputs': outputs,
-        'results': {
-            'bot_id':
-                'fuchsia-test-vm',
-            'bot_version': (
-                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c'
-                '47f2'),
-            'completed_ts':
-                '2017-11-01T22:06:11.538070',
-            'created_ts':
-                '2017-11-01T22:06:08.298510',
-            'duration':
-                0.06629300117492676,
-            'failure':
-                True,
-            'modified_ts':
-                '2017-11-01T22:06:11.538070',
-            'name':
-                name,
-            'run_id':
-                '39927049b6ee7011',
-            'started_ts':
-                '2017-11-01T22:06:09.155530',
-            'state':
-                'TIMED_OUT',
-            'tags': [
-                'os:Debian',
-                'pool:Fuchsia',
-            ],
-            'task_id':
-                id,
-            'try_number':
-                '1',
-            'user':
-                'luci',
-        },
-    }
-
-  @staticmethod
-  def task_expired(id='39927049b6ae7013', name='test'):
-    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
-    return {
-        'output': '',
-        'outputs': None,
-        'results': {
-            'bot_id':
-                'fuchsia-test-vm',
-            'bot_version': (
-                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c'
-                '47f2'),
-            'completed_ts':
-                '2017-11-01T22:06:11.538070',
-            'created_ts':
-                '2017-11-01T22:06:08.298510',
-            'duration':
-                0.06629300117492676,
-            'modified_ts':
-                '2017-11-01T22:06:11.538070',
-            'name':
-                name,
-            'run_id':
-                '39927049b6ee7011',
-            'started_ts':
-                '2017-11-01T22:06:09.155530',
-            'state':
-                'EXPIRED',
-            'tags': [
-                'os:Debian',
-                'pool:Fuchsia',
-            ],
-            'task_id':
-                id,
-            'try_number':
-                '1',
-            'user':
-                'luci',
-        },
-    }
-
-  @staticmethod
-  def task_no_resource(id='39927049b6ae7013', name='test'):
-    # TODO(mknyszek): Create a helper to avoid copy-pasting this entire dict.
-    return {
-        'output': '',
-        'outputs': None,
-        'results': {
-            'bot_id':
-                'fuchsia-test-vm',
-            'bot_version': (
-                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c'
-                '47f2'),
-            'completed_ts':
-                '2017-11-01T22:06:11.538070',
-            'created_ts':
-                '2017-11-01T22:06:08.298510',
-            'duration':
-                0.06629300117492676,
-            'modified_ts':
-                '2017-11-01T22:06:11.538070',
-            'name':
-                name,
-            'run_id':
-                '39927049b6ee7011',
-            'started_ts':
-                '2017-11-01T22:06:09.155530',
-            'state':
-                'NO_RESOURCE',
-            'tags': [
-                'os:Debian',
-                'pool:Fuchsia',
-            ],
-            'task_id':
-                id,
-            'try_number':
-                '1',
-            'user':
-                'luci',
-        },
-    }
+    return raw_results
 
   def collect(self, task_data=None):
     """Generates test step data for the swarming API collect method.
 
     Args:
-      task_data (seq[dict]): A sequence of dicts based on the return value of
-        task_success(), task_failure(), task_infra_failure(), or
-        task_timed_out(). Must be a super-set of {'results': {'task_id': <str>}}
+      task_data (seq[dict]): A sequence of dicts encoding swarming task results.
 
     Returns:
       Step test data in the form of JSON output intended to mock a swarming API
       collect method call. If task_data is left unspecified, it returns a single
       collect result with an arbitrary task ID.
     """
-    task_data = task_data or [self.task_success()]
-    id_to_data = {datum['results']['task_id']: datum for datum in task_data}
+    task_data = task_data or [self.task_data()]
+    id_to_data = {datum['results']['task_id'] : datum for datum in task_data}
     return self.m.json.output(id_to_data)

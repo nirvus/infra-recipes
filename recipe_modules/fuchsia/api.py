@@ -1310,12 +1310,18 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A StepFailure if a kernel panic is detected, or if the tests timed out.
       An InfraFailure if the swarming task failed for a different reason.
     """
-    if result.is_infra_failure():
+    if result.state == self.m.swarming.TaskState.RPC_FAILURE:
       raise self.m.step.InfraFailure('Failed to collect: %s' % result.output)
-    elif result.no_resource():
+    elif result.state == self.m.swarming.TaskState.NO_RESOURCE:
       raise self.m.step.InfraFailure('Found no bots to run this task')
-    elif result.expired():
+    elif result.state == self.m.swarming.TaskState.EXPIRED:
       raise self.m.step.InfraFailure('Timed out waiting for a bot to run on')
+    elif result.state == self.m.swarming.TaskState.BOT_DIED:
+      raise self.m.step.InfraFailure('The bot running this task died')
+    elif result.state == self.m.swarming.TaskState.CANCELED:
+      raise self.m.step.InfraFailure('The task was canceled before it could run')
+    elif result.state == self.m.swarming.TaskState.KILLED:
+      raise self.m.step.InfraFailure('The task was killed mid-execution')
 
     with self.m.step.nest(step_name) as step_result:
       if result.output:
@@ -1334,21 +1340,21 @@ class FuchsiaApi(recipe_api.RecipeApi):
         raise self.m.step.StepFailure(
             'Found kernel panic. See symbolized output for details.')
 
-      if result.is_failure():
-        if result.timed_out():
-          # If we have a timeout with a successful collect, then this must be an
-          # io_timeout failure, since task timeout > collect timeout.
-          step_result.presentation.step_text = 'i/o timeout'
-          step_result.presentation.status = self.m.step.FAILURE
-          failure_lines = [
-              'I/O timed out, no output for %s seconds.' % TEST_IO_TIMEOUT_SECS,
-              'Last 10 lines of kernel output:',
-          ] + kernel_output_lines[-10:]
-          raise self.m.step.StepFailure('\n'.join(failure_lines))
-        # At this point its likely an infra issue with QEMU.
-        step_result.presentation.status = self.m.step.EXCEPTION
-        raise self.m.step.InfraFailure(
-            'Swarming task failed:\n%s' % result.output)
+      elif result.state == self.m.swarming.TaskState.TIMED_OUT:
+        # If we have a timeout with a successful collect, then this must be an
+        # io_timeout failure, since task timeout > collect timeout.
+        step_result.presentation.step_text = 'i/o timeout'
+        step_result.presentation.status = self.m.step.FAILURE
+        failure_lines = [
+            'I/O timed out. Last 10 lines of kernel output:',
+        ] + kernel_output_lines[-10:]
+        raise self.m.step.StepTimeout('\n'.join(failure_lines),
+                                      '%s seconds' % TEST_IO_TIMEOUT_SECS)
+
+      elif result.state == self.m.swarming.TaskState.TASK_FAILURE:
+         step_result.presentation.status = self.m.step.EXCEPTION
+         raise self.m.step.InfraFailure(
+             'Swarming task failed:\n%s' % result.output)
 
   def analyze_test_results(self, test_results):
     """Analyzes test results represented by FuchsiaTestResults objects.
