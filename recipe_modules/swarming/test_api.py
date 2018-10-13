@@ -134,7 +134,7 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'duration':
                 0.06629300117492676,
             'exit_code':
-                '2',
+                '0',
             'modified_ts':
                 '2017-11-01T22:06:11.538070',
             'name':
@@ -176,21 +176,21 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
                 'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c'
                 '47f2'),
             'completed_ts':
-                '2017-12-01T22:06:11.538070',
+                '2017-11-01T22:06:11.538070',
             'created_ts':
-                '2017-12-01T22:06:08.298510',
+                '2017-11-01T22:06:08.298510',
             'duration':
                 0.06629300117492676,
             'exit_code':
-                '2',
+                '1',
             'failure':
                 True,
             'modified_ts':
-                '2017-12-01T22:06:11.538070',
+                '2017-11-01T22:06:11.538070',
             'name':
                 name,
             'run_id':
-                '39927049b6ae7011',
+                '39927049b6ee7011',
             'started_ts':
                 '2017-11-01T22:06:09.155530',
             'state':
@@ -230,24 +230,22 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'bot_id':
                 'fuchsia-test-vm',
             'bot_version': (
-                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c4'
-                '7f2'),
+                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c'
+                '47f2'),
             'completed_ts':
-                '2017-12-01T22:06:11.538070',
+                '2017-11-01T22:06:11.538070',
             'created_ts':
-                '2017-12-01T22:06:08.298510',
+                '2017-11-01T22:06:08.298510',
             'duration':
                 0.06629300117492676,
-            'exit_code':
-                '2',
             'failure':
                 True,
             'modified_ts':
-                '2017-12-01T22:06:11.538070',
+                '2017-11-01T22:06:11.538070',
             'name':
                 name,
             'run_id':
-                '39927049b6ae7011',
+                '39927049b6ee7011',
             'started_ts':
                 '2017-11-01T22:06:09.155530',
             'state':
@@ -275,22 +273,20 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'bot_id':
                 'fuchsia-test-vm',
             'bot_version': (
-                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c4'
-                '7f2'),
+                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c'
+                '47f2'),
             'completed_ts':
-                '2017-12-01T22:06:11.538070',
+                '2017-11-01T22:06:11.538070',
             'created_ts':
-                '2017-12-01T22:06:08.298510',
+                '2017-11-01T22:06:08.298510',
             'duration':
                 0.06629300117492676,
-            'exit_code':
-                '2',
             'modified_ts':
-                '2017-12-01T22:06:11.538070',
+                '2017-11-01T22:06:11.538070',
             'name':
                 name,
             'run_id':
-                '39927049b6ae7011',
+                '39927049b6ee7011',
             'started_ts':
                 '2017-11-01T22:06:09.155530',
             'state':
@@ -318,22 +314,20 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
             'bot_id':
                 'fuchsia-test-vm',
             'bot_version': (
-                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c4'
-                '7f2'),
+                'f5f38a01bce09e3491fbd51c5974a03707915d0d7ebd5f9ee0186051895c'
+                '47f2'),
             'completed_ts':
-                '2017-12-01T22:06:11.538070',
+                '2017-11-01T22:06:11.538070',
             'created_ts':
-                '2017-12-01T22:06:08.298510',
+                '2017-11-01T22:06:08.298510',
             'duration':
                 0.06629300117492676,
-            'exit_code':
-                '2',
             'modified_ts':
-                '2017-12-01T22:06:11.538070',
+                '2017-11-01T22:06:11.538070',
             'name':
                 name,
             'run_id':
-                '39927049b6ae7011',
+                '39927049b6ee7011',
             'started_ts':
                 '2017-11-01T22:06:09.155530',
             'state':
