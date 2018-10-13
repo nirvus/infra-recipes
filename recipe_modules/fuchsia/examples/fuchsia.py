@@ -322,7 +322,7 @@ def GenTests(api):
       properties=dict(run_tests=True),
       steps=[
           api.fuchsia.tasks_step_data(
-              api.fuchsia.task_mock_data(output='KERNEL PANIC')),
+              api.fuchsia.task_mock_data(timed_out=True, output='KERNEL PANIC')),
       ])
   yield api.fuchsia.test(
       'isolated_tests_infra_failure',

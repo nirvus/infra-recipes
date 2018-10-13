@@ -1325,6 +1325,15 @@ class FuchsiaApi(recipe_api.RecipeApi):
         self._symbolize(build_dir, result.output, symbolize_dump)
       kernel_output_lines = result.output.split('\n')
       step_result.presentation.logs['kernel log'] = kernel_output_lines
+
+      # A kernel panic may be present in the logs even if the task timed out, so
+      # check for that first.
+      if 'KERNEL PANIC' in result.output:
+        step_result.presentation.step_text = 'kernel panic'
+        step_result.presentation.status = self.m.step.FAILURE
+        raise self.m.step.StepFailure(
+            'Found kernel panic. See symbolized output for details.')
+
       if result.is_failure():
         if result.timed_out():
           # If we have a timeout with a successful collect, then this must be an
@@ -1340,11 +1349,6 @@ class FuchsiaApi(recipe_api.RecipeApi):
         step_result.presentation.status = self.m.step.EXCEPTION
         raise self.m.step.InfraFailure(
             'Swarming task failed:\n%s' % result.output)
-      elif 'KERNEL PANIC' in result.output:
-        step_result.presentation.step_text = 'kernel panic'
-        step_result.presentation.status = self.m.step.FAILURE
-        raise self.m.step.StepFailure(
-            'Found kernel panic. See symbolized output for details.')
 
   def analyze_test_results(self, test_results):
     """Analyzes test results represented by FuchsiaTestResults objects.
