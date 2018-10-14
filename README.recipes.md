@@ -1790,7 +1790,7 @@ Recipe for automatically creating jiri snapshots from manifest commit.
 
 &mdash; **def [GetNextReleaseTag](/recipes/release/snapshot.py#46)(api, remote):**
 
-&mdash; **def [RunSteps](/recipes/release/snapshot.py#77)(api, branch, builders, remote):**
+&mdash; **def [RunSteps](/recipes/release/snapshot.py#75)(api, branch, builders, remote):**
 ### *recipes* / [rust\_toolchain](/recipes/rust_toolchain.py)
 
 [DEPS](/recipes/rust_toolchain.py#14): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]

@@ -1,0 +1,234 @@
+[
+  {
+    "cmd": [],
+    "name": "ensure_lkgs"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/lkgs",
+      "-ensure-file",
+      "fuchsia/infra/lkgs/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_lkgs.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/infra/lkgs/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/releases"
+    ],
+    "infra_step": true,
+    "name": "makedirs"
+  },
+  {
+    "cmd": [
+      "git",
+      "init"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git init"
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "http://fuchsia.googlesource.com/garnet"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git remote"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "master"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git rev-parse",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@got_revision@\"deadbeef\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "sync"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "submodule sync"
+  },
+  {
+    "cmd": [
+      "git",
+      "submodule",
+      "update",
+      "--init"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "submodule update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/lkgs/lkgs",
+      "-output-file",
+      "[START_DIR]/releases/snapshot",
+      "-builder-id",
+      "garnet-x64-release-qemu_kvm"
+    ],
+    "infra_step": true,
+    "name": "lkgs"
+  },
+  {
+    "cmd": [
+      "git",
+      "ls-remote",
+      "-q",
+      "-t",
+      "http://fuchsia.googlesource.com/garnet",
+      "*20120514*"
+    ],
+    "infra_step": true,
+    "name": "git ls-remote",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@stdout@@@@",
+      "@@@STEP_LOG_LINE@stdout@      cc83301b8cf7ee60828623904bbf0bd310fde349\trefs/tags/20180920_00_RC00@@@",
+      "@@@STEP_LOG_LINE@stdout@      2bdcf7c40c23c3526092f708e28b0ba98f8fe4cd\trefs/tags/20180920_00_RC01@@@",
+      "@@@STEP_LOG_END@stdout@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "add",
+      "[START_DIR]/releases/snapshot"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git add"
+  },
+  {
+    "cmd": [
+      "git",
+      "rm",
+      "[START_DIR]/releases/cherrypick.json"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git rm"
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-m",
+      "[release] 20120514_01_RC00\n"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git commit"
+  },
+  {
+    "cmd": [
+      "git",
+      "tag",
+      "20120514_01_RC00"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git tag"
+  },
+  {
+    "cmd": [
+      "git",
+      "push",
+      "origin",
+      "HEAD:master"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git push"
+  },
+  {
+    "cmd": [
+      "git",
+      "push",
+      "--tags"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git push (2)"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

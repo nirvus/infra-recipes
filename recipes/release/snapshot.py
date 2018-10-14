@@ -56,11 +56,9 @@ def GetNextReleaseTag(api, remote):
       remote,
       '*%s*' % date,
       stdout=api.raw_io.output(),
-      step_test_data=
-      lambda: api.raw_io.test_api.stream_output('''
+      step_test_data=lambda: api.raw_io.test_api.stream_output('''
       cc83301b8cf7ee60828623904bbf0bd310fde349	refs/tags/20180920_00_RC00
-      2bdcf7c40c23c3526092f708e28b0ba98f8fe4cd	refs/tags/20180920_00_RC01''')
-  )
+      2bdcf7c40c23c3526092f708e28b0ba98f8fe4cd	refs/tags/20180920_00_RC01'''))
   step_result.presentation.logs['stdout'] = step_result.stdout.split('\n')
   # Find all the current release_versions
   m = re.findall(r'\d{8}_(\d{2})_RC00$', step_result.stdout, re.MULTILINE)
@@ -86,6 +84,7 @@ def RunSteps(api, branch, builders, remote):
     )
 
     snapshot_file = release_path.join('snapshot')
+    cherry_pick_file = release_path.join('cherrypick.json')
 
     # Obtain the last-known-good-snapshot for the builders.
     api.lkgs(
@@ -100,6 +99,9 @@ def RunSteps(api, branch, builders, remote):
     # Commit and push the snapshot.
     with api.context(cwd=release_path):
       api.git('add', snapshot_file)
+      # Remove an existing cherrypick file if it exists
+      if api.path.exists(cherry_pick_file):
+        api.git('rm', cherry_pick_file)
       api.git.commit(message=COMMIT_MESSAGE.format(tag=tag))
       api.git('tag', tag)
       api.git('push', 'origin', 'HEAD:%s' % branch)
@@ -139,3 +141,9 @@ def GenTests(api):
       remote="http://fuchsia.googlesource.com/garnet",
       branch="master",
   )
+
+  yield api.test('has existing cherrypick file') + api.properties(
+      builders=['garnet-x64-release-qemu_kvm'],
+      remote="http://fuchsia.googlesource.com/garnet",
+      branch="master",
+  ) + api.path.exists(api.path['start_dir'].join('releases', 'cherrypick.json'))
