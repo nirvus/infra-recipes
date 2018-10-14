@@ -6,6 +6,7 @@
   * [authutil](#recipe_modules-authutil)
   * [auto_roller](#recipe_modules-auto_roller)
   * [bazel](#recipe_modules-bazel)
+  * [buildsetlookup](#recipe_modules-buildsetlookup)
   * [catapult](#recipe_modules-catapult)
   * [cipd](#recipe_modules-cipd)
   * [clang_tidy](#recipe_modules-clang_tidy)
@@ -35,6 +36,7 @@
   * [bazel:examples/full](#recipes-bazel_examples_full)
   * [bloaty](#recipes-bloaty) &mdash; Recipe for building Bloaty.
   * [breakpad_tools](#recipes-breakpad_tools) &mdash; Recipe for building some Breakpad tools.
+  * [buildsetlookup:examples/full](#recipes-buildsetlookup_examples_full)
   * [catapult:examples/full](#recipes-catapult_examples_full)
   * [chromium_roller](#recipes-chromium_roller) &mdash; Recipe for rolling chromium prebuilts into Fuchsia.
   * [cipd:examples/full](#recipes-cipd_examples_full)
@@ -184,6 +186,34 @@ Returns:
 Raises:
   AssertionError: if this method has already been called with a different
       version.
+### *recipe_modules* / [buildsetlookup](/recipe_modules/buildsetlookup)
+
+[DEPS](/recipe_modules/buildsetlookup/__init__.py#5): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [BuildSetLookupApi](/recipe_modules/buildsetlookup/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+APIs for retrieving the build ID for a given buildset and builder ID.
+
+&mdash; **def [\_\_call\_\_](/recipe_modules/buildsetlookup/api.py#15)(self, step_name, builder, buildset, leak_to=None):**
+
+Retrieves the build ID for a given buildset and builder ID.
+
+Args:
+  step_name (str): The name of the step produced.
+  builder (str): A fully-qualified buildbucket v2 builder ID,
+    consisting of <project>/<project-namespaced bucket>/<builder name>. For example:
+    'fuchsia/ci/garnet-x64-release-qemu_kvm'.
+  buildset (str): A fully-qualified buildbucket V2 buildset tag,
+    consisting of commit/gitiles/<host>/<repo>/+/<commit ID>.  For example:
+    'commit/gitiles/fuchsia.googlesource.com/topaz/+/e3127e0bd6d57da7a5959ee70eb0a396590e6d53'.
+  leak_to (Path): If leak_to is provided, it must be a Path object. This path will be used in
+    place of a random temporary file, and the file will not be deleted at the end of the step.
+
+&emsp; **@property**<br>&mdash; **def [buildset\_lookup\_tool](/recipe_modules/buildsetlookup/api.py#56)(self):**
+
+&mdash; **def [ensure\_buildset\_lookup](/recipe_modules/buildsetlookup/api.py#42)(self, version=None):**
+
+Ensures that the buildset lookup tool is installed.
 ### *recipe_modules* / [catapult](/recipe_modules/catapult)
 
 [DEPS](/recipe_modules/catapult/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1351,6 +1381,11 @@ Recipe for building Bloaty.
 Recipe for building some Breakpad tools.
 
 &mdash; **def [RunSteps](/recipes/breakpad_tools.py#43)(api, url, ref, revision, cipd_target):**
+### *recipes* / [buildsetlookup:examples/full](/recipe_modules/buildsetlookup/examples/full.py)
+
+[DEPS](/recipe_modules/buildsetlookup/examples/full.py#5): [buildsetlookup](#recipe_modules-buildsetlookup), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
+
+&mdash; **def [RunSteps](/recipe_modules/buildsetlookup/examples/full.py#12)(api):**
 ### *recipes* / [catapult:examples/full](/recipe_modules/catapult/examples/full.py)
 
 [DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
