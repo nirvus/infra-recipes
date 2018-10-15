@@ -28,8 +28,8 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
         version of the CIPD package.
 
     Returns:
-      Step test data in the form of JSON output intended to mock a swarming API
-      trigger method call.
+      Step test data in the form of JSON response output intended to mock a
+      swarming API trigger method call.
     """
     # TODO(mknyszek): Create instructions for updating this if the output format
     # changes.
@@ -64,6 +64,51 @@ class SwarmingTestApi(recipe_test_api.RecipeTestApi):
                 'user': 'luci'
             },
         },],
+    })
+
+  def spawn_tasks(self, tasks):
+    """Generates step test data intended to mock a swarming API spawn_tasks
+    method call.
+
+    Args:
+      tasks (seq[api.swarming.TaskRequest]): A sequence of task request objects
+        representing the tasks we want to spawn.
+
+    Returns:
+      Step test data in the form of JSON response output intended to mock a
+      swarming API spawn_tasks method call.
+    """
+    return self.m.json.output({
+        'tasks': [{
+            'task_id': '39927049b6ee701%d' % ind,
+            'request': {
+                'expiration_secs': '3600',
+                'name': task.name,
+                'priority': '100',
+                'properties': {
+                    'cipd_input': {
+                        'packages': [{
+                            'package_name': pkg,
+                            'path': path,
+                            'version': version,
+                        } for path, pkg, version in task.cipd_packages]
+                    },
+                    'command':
+                        task.cmd,
+                    'dimensions': [{
+                        'key': k,
+                        'value': v,
+                    } for k, v in sorted(task.dimensions.iteritems())],
+                    'execution_timeout_secs':
+                        '3600',
+                    'grace_period_secs':
+                        '30',
+                    'io_timeout_secs':
+                        '1200'
+                },
+                'user': 'luci'
+            },
+        } for ind, task in enumerate(tasks)],
     })
 
   @staticmethod

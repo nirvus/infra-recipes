@@ -72,7 +72,7 @@ def RunSteps(api, spawn_tasks):
 
   # Wait for its results.
   try:
-    results = api.swarming.collect(timeout='1m', requests_json=json)
+    results = api.swarming.collect(timeout='1m', tasks_json=json)
     if results[0].no_resource():
       raise api.step.InfraFailure('Task cannot run on any known live bots!')
     if results[0].expired():
@@ -84,6 +84,8 @@ def RunSteps(api, spawn_tasks):
       raise api.step.StepTimeout('Timed out!')
     # You can grab the task's name.
     results[0].name
+    # You can grab the task's id.
+    results[0].id
     # You can also grab the outputs of the Swarming task as a map.
     results[0].outputs
   except:

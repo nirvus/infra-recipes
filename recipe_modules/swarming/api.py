@@ -300,8 +300,8 @@ class SwarmingApi(recipe_api.RecipeApi):
         the return value of this method.
 
     Returns:
-      A Python dict representing the tasks spawned as a JSON file that may be
-      passed into collect().
+      A Python dict representing the JSON spawn response that may be passed into
+        collect().
     """
     assert len(tasks) > 0
 
@@ -309,26 +309,40 @@ class SwarmingApi(recipe_api.RecipeApi):
     for task in tasks:
       requests.append(task.render_to_json())
 
-    return self.m.step('spawn %d tasks' % len(tasks), [
-      self._swarming_client,
-      'spawn-tasks',
-      '-server', self.swarming_server,
-      '-json-input', self.m.json.input({'requests': requests}),
-      '-json-output', self.m.json.output(leak_to=json_output),
-    ]).json.output
+    spawn_resp = self.m.step(
+        'spawn %d tasks' % len(tasks),
+        [
+          self._swarming_client,
+          'spawn-tasks',
+          '-server', self.swarming_server,
+          '-json-input', self.m.json.input({'requests': requests}),
+          '-json-output', self.m.json.output(leak_to=json_output),
+        ],
+        step_test_data=lambda: self.test_api.spawn_tasks(tasks),
+    ).json.output
 
-  def collect(self, timeout=None, requests_json=None, tasks=[]):
+    presented_links = self.m.step.active_result.presentation.links
+    for task in spawn_resp['tasks']:
+      task_id = task['task_id']
+      name = task['request']['name']
+      presented_links['Swarming task: %s' % name] = (
+          '%s/task?id=%s' % (self.swarming_server, task_id)
+      )
+
+    return spawn_resp
+
+  def collect(self, timeout=None, tasks_json=None, tasks=[]):
     """Waits on a set of Swarming tasks.
 
     Returns both the step result as well as a set of neatly parsed results.
 
     Args:
       timeout: timeout to wait for result.
-      requests_json: load details about the task(s) from the json file.
+      tasks_json: load details about the task(s) from the json file.
       tasks: list of task ids to wait on.
     """
     assert self._swarming_client
-    assert (requests_json and not tasks) or (not requests_json and tasks)
+    assert (tasks_json and not tasks) or (not tasks_json and tasks)
     outdir = str(self.m.path.mkdtemp("swarming"))
     cmd = [
       self._swarming_client,
@@ -340,8 +354,8 @@ class SwarmingApi(recipe_api.RecipeApi):
     ]
     if timeout:
       cmd.extend(['-timeout', timeout])
-    if requests_json:
-      cmd.extend(['-requests-json', requests_json])
+    if tasks_json:
+      cmd.extend(['-requests-json', tasks_json])
     if tasks:
       cmd.extend(tasks)
     cmd.extend([])
@@ -359,6 +373,8 @@ class SwarmingApi(recipe_api.RecipeApi):
     # Fix presentation on collect to reflect bot results.
     for result in parsed_results:
       if result.output:
-        step_result.presentation.logs['%s.stdout' % result.id] = result.output.split('\n')
+        step_result.presentation.logs['Swarming task output: %s' % result.name] = (
+          result.output.split('\n')
+        )
 
     return parsed_results

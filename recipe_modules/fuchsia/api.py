@@ -1119,11 +1119,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     with self.m.context(infra_steps=True):
       # Spawn task.
-      requests_json = self.m.swarming.spawn_tasks(tasks=[task])
+      tasks_json = self.m.swarming.spawn_tasks(tasks=[task])
 
       # Collect results.
       results = self.m.swarming.collect(
-          requests_json=self.m.json.input(requests_json))
+          tasks_json=self.m.json.input(tasks_json))
       assert len(results) == 1, 'len(%s) != 1' % repr(results)
       result = results[0]
     self.analyze_collect_result('task results', result, build.fuchsia_build_dir)
@@ -1261,11 +1261,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
     with self.m.context(infra_steps=True):
       # Spawn tasks.
-      requests_json = self.m.swarming.spawn_tasks(tasks=task_requests)
+      tasks_json = self.m.swarming.spawn_tasks(tasks=task_requests)
 
       # Collect results.
       results = self.m.swarming.collect(
-          requests_json=self.m.json.input(requests_json))
+          tasks_json=self.m.json.input(tasks_json))
 
       # Iterate over all task results, check them, and collect test results.
       fuchsia_test_results = []

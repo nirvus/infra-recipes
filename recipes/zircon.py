@@ -212,7 +212,7 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
         cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest')],
     )
     # Collect results.
-    results = api.swarming.collect(requests_json=api.json.input(trigger_result.json.output))
+    results = api.swarming.collect(tasks_json=api.json.input(trigger_result.json.output))
     # This assert just makes sure that we only get 1 result back, as requested.
     # If this assert fails, it indicates a fatal error in our stack.
     assert len(results) == 1

@@ -1273,7 +1273,7 @@ APIs for interacting with swarming.
 
 Return a swarming command step.
 
-&mdash; **def [collect](/recipe_modules/swarming/api.py#320)(self, timeout=None, requests_json=None, tasks=[]):**
+&mdash; **def [collect](/recipe_modules/swarming/api.py#334)(self, timeout=None, tasks_json=None, tasks=[]):**
 
 Waits on a set of Swarming tasks.
 
@@ -1281,7 +1281,7 @@ Returns both the step result as well as a set of neatly parsed results.
 
 Args:
   timeout: timeout to wait for result.
-  requests_json: load details about the task(s) from the json file.
+  tasks_json: load details about the task(s) from the json file.
   tasks: list of task ids to wait on.
 
 &mdash; **def [ensure\_swarming](/recipe_modules/swarming/api.py#190)(self, version=None):**
@@ -1299,8 +1299,8 @@ Args:
     the return value of this method.
 
 Returns:
-  A Python dict representing the tasks spawned as a JSON file that may be
-  passed into collect().
+  A Python dict representing the JSON spawn response that may be passed into
+    collect().
 
 &emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#207)(self):**
 
