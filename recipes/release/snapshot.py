@@ -38,6 +38,8 @@ PROPERTIES = {
 
 TAG_FORMAT = """{date}_{release:0>2}_RC{release_candidate:0>2}"""
 
+LATEST_ROLLUP_TAG = """LATEST_ROLLUP"""
+
 COMMIT_MESSAGE = """\
 [release] {tag}
 """
@@ -104,6 +106,7 @@ def RunSteps(api, branch, builders, remote):
         api.git('rm', cherry_pick_file)
       api.git.commit(message=COMMIT_MESSAGE.format(tag=tag))
       api.git('tag', tag)
+      api.git('tag', LATEST_ROLLUP_TAG)
       api.git('push', 'origin', 'HEAD:%s' % branch)
       api.git('push', '--tags')
 
