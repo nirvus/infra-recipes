@@ -90,41 +90,44 @@ def RunSteps(api, project, manifest, remote):
         full_archive_path,
       ])
 
-  if project == 'topaz':
-    scripts_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel')
-    sdk_dir = api.path['cleanup'].join('sdk-bazel')
-    test_workspace_dir = api.path['cleanup'].join('tests')
+  # Generate a Bazel workspace along with its tests.
+  # These tests are being run for every SDK type.
+  scripts_path = api.path['start_dir'].join('scripts', 'sdk', 'bazel')
+  sdk_dir = api.path['cleanup'].join('sdk-bazel')
+  test_workspace_dir = api.path['cleanup'].join('tests')
 
-    api.python('create bazel sdk',
-        scripts_path.join('generate.py'),
+  api.python('create bazel sdk',
+      scripts_path.join('generate.py'),
+      args=[
+        '--archive',
+        full_archive_path,
+        '--output',
+        sdk_dir,
+        '--tests',
+        test_workspace_dir,
+      ],
+  )
+
+  with api.step.nest('test sdk'):
+    bazel_path = api.bazel.ensure_bazel()
+
+    api.python('run tests',
+        test_workspace_dir.join('run.py'),
         args=[
-          '--archive',
-          full_archive_path,
-          '--output',
-          sdk_dir,
-          '--tests',
-          test_workspace_dir,
+          '--bazel',
+          bazel_path,
         ],
     )
 
-    with api.step.nest('test sdk'):
-      bazel_path = api.bazel.ensure_bazel()
-
-      api.python('run tests',
-          test_workspace_dir.join('run.py'),
-          args=[
-            '--bazel',
-            bazel_path,
-          ],
-      )
-
+  # Only publish the resulting Bazel SDK for Topaz.
+  if project == 'topaz':
     if not api.properties.get('tryjob'):
       with api.step.nest('upload bazel sdk'):
         # Upload the SDK to CIPD and GCS.
         UploadPackage(api, 'bazel', sdk_dir, remote, revision)
 
-  # Likewise for the Chromium SDK, but by other legacy means.
-  elif project == 'garnet':
+  # Publish the unprocessed SDK for Garnet.
+  if project == 'garnet':
     sdk_dir = api.path['cleanup'].join('chromium-sdk')
 
     # Extract the archive to a directory for CIPD processing.

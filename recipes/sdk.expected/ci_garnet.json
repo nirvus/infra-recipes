@@ -710,6 +710,70 @@
     "name": "merge sdk archives"
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/scripts/sdk/bazel/generate.py",
+      "--archive",
+      "[CLEANUP]/merged_sdk_archive.tar.gz",
+      "--output",
+      "[CLEANUP]/sdk-bazel",
+      "--tests",
+      "[CLEANUP]/tests"
+    ],
+    "name": "create bazel sdk"
+  },
+  {
+    "cmd": [],
+    "name": "test sdk"
+  },
+  {
+    "cmd": [],
+    "name": "test sdk.ensure bazel",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/bazel",
+      "-ensure-file",
+      "fuchsia/third_party/bazel/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "test sdk.ensure bazel.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/third_party/bazel/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CLEANUP]/tests/run.py",
+      "--bazel",
+      "[START_DIR]/cipd/bazel/bazel"
+    ],
+    "name": "test sdk.run tests",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
     "cmd": [],
     "name": "extract chromium sdk"
   },
