@@ -199,6 +199,7 @@
     "cmd": [
       "git",
       "tag",
+      "-f",
       "LATEST_ROLLUP"
     ],
     "cwd": "[START_DIR]/releases",
