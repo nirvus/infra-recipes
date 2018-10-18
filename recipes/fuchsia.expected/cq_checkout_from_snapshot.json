@@ -473,14 +473,7 @@
       "-C",
       "[START_DIR]/out/debug-x64",
       "-j",
-      "20",
-      "fuchsia.zbi",
-      "fvm.blk",
-      "fvm.sparse.blk",
-      "boot.bin",
-      "efi.blk",
-      "netboot.zbi",
-      "default"
+      "20"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [

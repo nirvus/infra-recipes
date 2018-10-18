@@ -389,12 +389,6 @@
       "[START_DIR]/out/debug-x64",
       "-j",
       "20",
-      "fuchsia.zbi",
-      "fvm.blk",
-      "fvm.sparse.blk",
-      "boot.bin",
-      "efi.blk",
-      "netboot.zbi",
       "build-archive.zip",
       "default"
     ],

@@ -482,7 +482,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
   def _build_fuchsia(self, build, build_type, packages, variants, gn_args,
                      ninja_targets, boards, products, collect_build_metrics,
-                     build_archive):
+                     build_for_testing, build_archive):
     """Builds fuchsia given a FuchsiaBuildResults and other GN options."""
     with self.m.step.nest('build fuchsia'):
       args = [
@@ -540,37 +540,36 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       self.m.step('gn gen', gen_cmd)
 
-      # If no ninja targets are provided, use all of those needed for testing.
-      if not len(ninja_targets):
-        # gn gen will have produced the image manifest. Read it in, ensure that
-        # images needed for testing will be built, and record the paths on disk
-        # where the produced images will be found.
-        image_manifest = self.m.json.read(
-            'read image manifest',
-            build.fuchsia_build_dir.join('images.json'),
-            step_test_data=lambda: self.test_api.mock_image_manifest(),
-        ).json.output
+      # gn gen will have produced the image manifest. Read it in, ensure that
+      # images needed for testing will be built, and record the paths on disk
+      # where the produced images will be found.
+      image_manifest = self.m.json.read(
+          'read image manifest',
+          build.fuchsia_build_dir.join('images.json'),
+          step_test_data=lambda: self.test_api.mock_image_manifest(),
+      ).json.output
 
-        for image in image_manifest:
-          name = image['name']
-          path = image['path']
-          type = image['type']
+      for image in image_manifest:
+        name = image['name']
+        path = image['path']
+        type = image['type']
 
-          build_archive = build_archive or self._archive_gcs_bucket
-          include_archive = (
-              name == 'archive' and type == 'zip' and build_archive
+        include_image = build_for_testing and name in IMAGES_FOR_TESTING
+        build_archive = build_archive or self._archive_gcs_bucket
+        include_image = include_image or (
+            name == 'archive' and type == 'zip' and build_archive
+        )
+        if include_image:
+          ninja_targets.append(path)
+          build.images[name] = (
+              self.m.path.abs_to_path(self.m.path.realpath(
+                  build.fuchsia_build_dir.join(path))
+              )
           )
-          if name in IMAGES_FOR_TESTING or include_archive:
-            ninja_targets.append(path)
-            build.images[name] = (
-                self.m.path.abs_to_path(self.m.path.realpath(
-                    build.fuchsia_build_dir.join(path))
-                )
-            )
-        # The `default` ninja target is needed - but is not automatically included
-        # if other ninja targets are specified.
-        if len(ninja_targets):
-          ninja_targets.append('default')
+      # The `default` ninja target is needed - but is not automatically included
+      # if other ninja targets are specified.
+      if len(ninja_targets):
+        ninja_targets.append('default')
 
       self.m.step('ninja', [
           self.m.path['start_dir'].join('buildtools', 'ninja'),
@@ -591,6 +590,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             products=[],
             zircon_args=[],
             collect_build_metrics=False,
+            build_for_testing=False,
             build_archive=False):
     """Builds Fuchsia from a Jiri checkout.
 
@@ -609,6 +609,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       zircon_args (sequence[str]): A sequence of Make arguments to pass when
         building zircon.
       collect_build_metrics (bool): Whether to collect build metrics.
+      build_for_testing (bool): Whether to build the basic images needed to boot
+        and test on fuchsia.
       build_archive (bool): Whether to build an image archive to be uploaded.
 
     Returns:
@@ -642,6 +644,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             boards=boards,
             products=products,
             collect_build_metrics=collect_build_metrics,
+            build_for_testing=build_for_testing,
             build_archive=build_archive)
     self.m.minfs.minfs_path = out_dir.join('build-zircon', 'tools', 'minfs')
     self.m.zbi.zbi_path = out_dir.join('build-zircon', 'tools', 'zbi')

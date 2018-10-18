@@ -176,6 +176,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
       ninja_targets=ninja_targets,
       boards=boards,
       products=products,
+      build_for_testing=True,
   )
   test_results = api.fuchsia.test(
       build=build,
