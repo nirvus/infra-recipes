@@ -566,10 +566,10 @@ class FuchsiaApi(recipe_api.RecipeApi):
                   build.fuchsia_build_dir.join(path))
               )
           )
-      # The `default` ninja target is needed - but is not automatically included
-      # if other ninja targets are specified.
+      # ids.txt is needed for symbolization; ensure that is built outside of the
+      # default ninja build.
       if len(ninja_targets):
-        ninja_targets.append('default')
+        ninja_targets.append('ids.txt')
 
       self.m.step('ninja', [
           self.m.path['start_dir'].join('buildtools', 'ninja'),

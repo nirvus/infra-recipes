@@ -270,7 +270,7 @@
       "-j",
       "20",
       "tools/json_validator",
-      "default"
+      "ids.txt"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
