@@ -443,7 +443,7 @@
       "20",
       "build/gn:breakpad_symbols",
       "build-archive.zip",
-      "ids.txt"
+      "default"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [

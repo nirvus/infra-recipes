@@ -383,7 +383,7 @@
       "arm64-asan-shared/libffmpeg.so",
       "arm64-ubsan-shared/libffmpeg.so",
       "build-archive.zip",
-      "ids.txt"
+      "default"
     ],
     "name": "arm64.build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -1092,7 +1092,7 @@
       "x64-asan-shared/libffmpeg.so",
       "x64-ubsan-shared/libffmpeg.so",
       "build-archive.zip",
-      "ids.txt"
+      "default"
     ],
     "name": "x64.build.build fuchsia.ninja",
     "~followup_annotations": [

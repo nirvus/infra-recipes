@@ -450,7 +450,7 @@
       "boot.bin",
       "efi.blk",
       "netboot.zbi",
-      "ids.txt"
+      "default"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [

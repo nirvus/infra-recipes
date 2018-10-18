@@ -390,7 +390,7 @@
       "-j",
       "20",
       "build-archive.zip",
-      "ids.txt"
+      "default"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
