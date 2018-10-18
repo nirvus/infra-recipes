@@ -106,9 +106,13 @@ def RunSteps(api, branch, builders, remote):
         api.git('rm', cherry_pick_file)
       api.git.commit(message=COMMIT_MESSAGE.format(tag=tag))
       api.git('tag', tag)
-      api.git('tag', '-f', LATEST_ROLLUP_TAG)
       api.git('push', 'origin', 'HEAD:%s' % branch)
-      api.git('push', '--tags')
+
+      # Because we're moving a tag, we have to use --force.
+      # If the non-force push above fails, we won't get to this line.
+      # Thus we're guaranteed that this force push won't mess anything up.
+      api.git('tag', '--force', LATEST_ROLLUP_TAG)
+      api.git('push', '--force', '--tags')
 
 
 def GenTests(api):

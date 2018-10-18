@@ -200,17 +200,6 @@
   {
     "cmd": [
       "git",
-      "tag",
-      "-f",
-      "LATEST_ROLLUP"
-    ],
-    "cwd": "[START_DIR]/releases",
-    "infra_step": true,
-    "name": "git tag (2)"
-  },
-  {
-    "cmd": [
-      "git",
       "push",
       "origin",
       "HEAD:master"
@@ -222,7 +211,19 @@
   {
     "cmd": [
       "git",
+      "tag",
+      "--force",
+      "LATEST_ROLLUP"
+    ],
+    "cwd": "[START_DIR]/releases",
+    "infra_step": true,
+    "name": "git tag (2)"
+  },
+  {
+    "cmd": [
+      "git",
       "push",
+      "--force",
       "--tags"
     ],
     "cwd": "[START_DIR]/releases",
