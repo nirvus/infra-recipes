@@ -252,7 +252,9 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       zircon_args=zircon_args,
       collect_build_metrics=upload_results,
       build_for_testing=run_tests or test_in_shards,
-      build_archive=upload_results,
+      # Mac builders cannot handle the strain of building the archive, so
+      # cleanest just to turn off building the archive when running host tests.
+      build_archive=upload_results and not run_host_tests,
   )
 
   # TODO(IN-691): Make condition `if not tryjob and gcs_bucket` after migration
