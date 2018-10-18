@@ -584,7 +584,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [upload\_build\_results](/recipe_modules/fuchsia/api.py#1510)(self, build_results, gcs_bucket=None, upload_breakpad_symbols=False):**
+&mdash; **def [upload\_build\_results](/recipe_modules/fuchsia/api.py#1561)(self, build_results, gcs_bucket=None, upload_breakpad_symbols=False):**
 
 Uploads artifacts from the build to Google Cloud Storage.
 
