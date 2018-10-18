@@ -391,8 +391,7 @@
       "20",
       "//target:one",
       "//target:two",
-      "build-archive.zip",
-      "default"
+      "build-archive.zip"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [

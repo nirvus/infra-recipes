@@ -403,8 +403,7 @@
       "arm64-thinlto-shared/libffmpeg.so",
       "arm64-profile-shared/libffmpeg.so",
       "arm64-asan-shared/libffmpeg.so",
-      "arm64-ubsan-shared/libffmpeg.so",
-      "default"
+      "arm64-ubsan-shared/libffmpeg.so"
     ],
     "name": "arm64.build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -1111,8 +1110,7 @@
       "x64-thinlto-shared/libffmpeg.so",
       "x64-profile-shared/libffmpeg.so",
       "x64-asan-shared/libffmpeg.so",
-      "x64-ubsan-shared/libffmpeg.so",
-      "default"
+      "x64-ubsan-shared/libffmpeg.so"
     ],
     "name": "x64.build.build fuchsia.ninja",
     "~followup_annotations": [

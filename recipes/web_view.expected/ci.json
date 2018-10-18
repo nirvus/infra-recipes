@@ -418,8 +418,7 @@
       "-j",
       "20",
       "third_party/webkit",
-      "build-archive.zip",
-      "default"
+      "build-archive.zip"
     ],
     "name": "build arm64.build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -662,8 +661,7 @@
       "-j",
       "20",
       "third_party/webkit",
-      "build-archive.zip",
-      "default"
+      "build-archive.zip"
     ],
     "name": "build x64.build.build fuchsia.ninja",
     "~followup_annotations": [

@@ -390,8 +390,7 @@
       "-j",
       "20",
       "//build/gn:breakpad_symbols",
-      "build-archive.zip",
-      "default"
+      "build-archive.zip"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [

@@ -439,8 +439,7 @@
       "[START_DIR]/out/release-arm64",
       "-j",
       "20",
-      "third_party/webkit",
-      "default"
+      "third_party/webkit"
     ],
     "name": "build arm64.build.build fuchsia.ninja",
     "~followup_annotations": [
@@ -682,8 +681,7 @@
       "[START_DIR]/out/release-x64",
       "-j",
       "20",
-      "third_party/webkit",
-      "default"
+      "third_party/webkit"
     ],
     "name": "build x64.build.build fuchsia.ninja",
     "~followup_annotations": [

@@ -390,8 +390,7 @@
       "[START_DIR]/out/debug-x64",
       "-j",
       "20",
-      "build-archive.zip",
-      "default"
+      "build-archive.zip"
     ],
     "name": "build.build fuchsia.ninja",
     "~followup_annotations": [
