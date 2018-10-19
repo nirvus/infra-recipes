@@ -169,6 +169,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       collect_build_metrics=upload_results,
       build_for_testing=run_tests or test_in_shards,
       build_archive=upload_results,
+      build_package_archive=upload_results,
   )
 
   # Upload checkout results (i.e., the jiri snapshot) if not a tryjob.
