@@ -793,7 +793,7 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd",
+      "[START_DIR]/cipd/bsdtar",
       "-ensure-file",
       "fuchsia/tools/bsdtar/linux-amd64 latest",
       "-json-output",
@@ -816,7 +816,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/bsdtar",
+      "[START_DIR]/cipd/bsdtar/bsdtar",
       "--extract",
       "--verbose",
       "-f",

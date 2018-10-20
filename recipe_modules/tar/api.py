@@ -25,13 +25,11 @@ class TarApi(recipe_api.RecipeApi):
       with self.m.context(infra_steps=True):
         bsdtar_package = ('fuchsia/tools/bsdtar/%s' %
             self.m.cipd.platform_suffix())
-        bsdtar_dir = self.m.path['start_dir'].join('cipd')
+        bsdtar_dir = self.m.path['start_dir'].join('cipd', 'bsdtar')
 
         self.m.cipd.ensure(
             bsdtar_dir, {bsdtar_package: version or 'latest'})
         self._bsdtar_path = bsdtar_dir.join('bsdtar')
-        self._ensured = True
-
         return self._bsdtar_path
 
   def create(self, path, compression=None):

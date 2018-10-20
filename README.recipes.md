@@ -1234,7 +1234,7 @@ Args:
 
 Provides steps to tar and untar files.
 
-&mdash; **def [create](/recipe_modules/tar/api.py#37)(self, path, compression=None):**
+&mdash; **def [create](/recipe_modules/tar/api.py#35)(self, path, compression=None):**
 
 Returns TarArchive object that can be used to compress a set of files.
 
@@ -1246,7 +1246,7 @@ Args:
 
 Ensures that bsdtar is installed.
 
-&mdash; **def [extract](/recipe_modules/tar/api.py#48)(self, step_name, path, directory=None, strip_components=None):**
+&mdash; **def [extract](/recipe_modules/tar/api.py#46)(self, step_name, path, directory=None, strip_components=None):**
 
 Uncompress |archive| file.
 
