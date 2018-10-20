@@ -285,7 +285,14 @@
   },
   {
     "cmd": [],
-    "name": "ensure_packages"
+    "name": "validate checkout"
+  },
+  {
+    "cmd": [],
+    "name": "validate checkout.ensure json validator",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -299,9 +306,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure_packages.ensure_installed",
+    "name": "validate checkout.ensure json validator.ensure_installed",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",

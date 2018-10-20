@@ -1,8 +1,15 @@
 [
   {
     "cmd": [],
+    "name": "checkout"
+  },
+  {
+    "cmd": [],
     "infra_step": true,
-    "name": "ensure_jiri"
+    "name": "checkout.ensure_jiri",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -16,9 +23,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
+    "name": "checkout.ensure_jiri.ensure_installed",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -43,7 +50,10 @@
       "-shared"
     ],
     "infra_step": true,
-    "name": "jiri init"
+    "name": "checkout.jiri init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -59,7 +69,10 @@
       "https://fuchsia.googlesource.com/third_party/ffmpeg"
     ],
     "infra_step": true,
-    "name": "jiri import"
+    "name": "checkout.jiri import",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -72,8 +85,11 @@
       "-run-hooks=false"
     ],
     "infra_step": true,
-    "name": "jiri update",
-    "timeout": 1200
+    "name": "checkout.jiri update",
+    "timeout": 1200,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -84,7 +100,10 @@
       "-attempts=3"
     ],
     "infra_step": true,
-    "name": "jiri run-hooks"
+    "name": "checkout.jiri run-hooks",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -95,8 +114,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "jiri source-manifest",
+    "name": "checkout.jiri source-manifest",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
@@ -119,7 +139,10 @@
       "[CLEANUP]/jiri.snapshot"
     ],
     "infra_step": true,
-    "name": "jiri snapshot"
+    "name": "checkout.jiri snapshot",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -133,8 +156,9 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "read snapshot",
+    "name": "checkout.read snapshot",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@snapshot_contents@@@@",
       "@@@STEP_LOG_END@snapshot_contents@@@"
     ]

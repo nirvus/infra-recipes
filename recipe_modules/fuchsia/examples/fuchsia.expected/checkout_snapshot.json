@@ -207,7 +207,14 @@
   },
   {
     "cmd": [],
-    "name": "ensure_gsutil"
+    "name": "upload checkout results"
+  },
+  {
+    "cmd": [],
+    "name": "upload checkout results.ensure_gsutil",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -221,9 +228,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure_gsutil.ensure_installed",
+    "name": "upload checkout results.ensure_gsutil.ensure_installed",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -249,8 +256,9 @@
       "gs://###fuchsia-build###/builds/5555555555/snapshot"
     ],
     "infra_step": true,
-    "name": "upload snapshot to ###fuchsia-build###",
+    "name": "upload checkout results.upload snapshot to ###fuchsia-build###",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@snapshot@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/snapshot@@@"
     ]
   },
@@ -492,6 +500,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "upload build results"
+  },
+  {
     "cmd": [
       "vpython",
       "-vpython-spec",
@@ -505,14 +517,18 @@
       "gs://###fuchsia-build###/builds/5555555555/build-archive.zip"
     ],
     "infra_step": true,
-    "name": "upload build-archive.zip to ###fuchsia-build###",
+    "name": "upload build results.upload build-archive.zip to ###fuchsia-build###",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@build-archive.zip@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/build-archive.zip@@@"
     ]
   },
   {
     "cmd": [],
-    "name": "ensure bsdtar"
+    "name": "upload build results.ensure bsdtar",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -526,9 +542,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure bsdtar.ensure_installed",
+    "name": "upload build results.ensure bsdtar.ensure_installed",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -559,7 +575,10 @@
       "targets",
       "blobs"
     ],
-    "name": "tar fuchsia packages"
+    "name": "upload build results.tar fuchsia packages",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -575,8 +594,9 @@
       "gs://###fuchsia-build###/builds/5555555555/packages.tar.gz"
     ],
     "infra_step": true,
-    "name": "upload packages.tar.gz to ###fuchsia-build###",
+    "name": "upload build results.upload packages.tar.gz to ###fuchsia-build###",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@packages.tar.gz@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/packages.tar.gz@@@"
     ]
   },
@@ -589,7 +609,17 @@
       "[CLEANUP]/gn_trace.html",
       "[CLEANUP]/gn_trace.json"
     ],
-    "name": "trace2html"
+    "name": "upload build results.gn trace2html",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload build results.ensure ninjatrace",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -603,8 +633,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure_installed",
+    "name": "upload build results.ensure ninjatrace.ensure_installed",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
@@ -626,8 +657,11 @@
       "-trace-json",
       "[CLEANUP]/ninja_trace.json"
     ],
-    "name": "ninja tracing",
-    "stdout": "[CLEANUP]/ninja_trace.json"
+    "name": "upload build results.ninja tracing",
+    "stdout": "[CLEANUP]/ninja_trace.json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -638,7 +672,10 @@
       "[CLEANUP]/ninja_trace.html",
       "[CLEANUP]/ninja_trace.json"
     ],
-    "name": "trace2html (2)"
+    "name": "upload build results.ninja trace2html",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -654,8 +691,9 @@
       "gs://###fuchsia-build###/builds/5555555555/gn_trace.html"
     ],
     "infra_step": true,
-    "name": "upload gn_trace.html to ###fuchsia-build###",
+    "name": "upload build results.upload gn_trace.html to ###fuchsia-build###",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@gn_trace.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/gn_trace.html@@@"
     ]
   },
@@ -673,9 +711,17 @@
       "gs://###fuchsia-build###/builds/5555555555/ninja_trace.html"
     ],
     "infra_step": true,
-    "name": "upload ninja_trace.html to ###fuchsia-build###",
+    "name": "upload build results.upload ninja_trace.html to ###fuchsia-build###",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@ninja_trace.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/ninja_trace.html@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload build results.ensure bloaty",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -690,8 +736,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure_installed (2)",
+    "name": "upload build results.ensure bloaty.ensure_installed",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
@@ -727,7 +774,10 @@
       "-jobs",
       "2"
     ],
-    "name": "bloaty"
+    "name": "upload build results.bloaty",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -743,8 +793,9 @@
       "gs://###fuchsia-build###/builds/5555555555/bloaty.html"
     ],
     "infra_step": true,
-    "name": "upload bloaty.html to ###fuchsia-build###",
+    "name": "upload build results.upload bloaty.html to ###fuchsia-build###",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LINK@bloaty.html@https://storage.cloud.google.com/###fuchsia-build###/builds/5555555555/bloaty.html@@@"
     ]
   },

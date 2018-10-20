@@ -199,46 +199,47 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
   if upload_results:
     checkout.upload_results(gcs_bucket)
 
-  with api.step.nest('ensure_packages'):
-    with api.context(infra_steps=True):
-      json_validator_dir = api.path['start_dir'].join('tools', 'json_validator')
-      api.cipd.ensure(json_validator_dir, {
-          'fuchsia/tools/json_validator/${platform}': 'latest',
-      })
+  with api.step.nest('validate checkout'):
+    with api.step.nest('ensure json validator'):
+      with api.context(infra_steps=True):
+        json_validator_dir = api.path['start_dir'].join('tools', 'json_validator')
+        api.cipd.ensure(json_validator_dir, {
+            'fuchsia/tools/json_validator/${platform}': 'latest',
+        })
 
-  validator = json_validator_dir.join('json_validator')
+    validator = json_validator_dir.join('json_validator')
 
-  if project:
-    if project.startswith('vendor/'):
-      vendor = project[len('vendor/'):]
-      layer_args = [
-          '--vendor-layer',
-          vendor,
-      ]
-      namespace_args = [
-          '--namespaces',
-          vendor,
-      ]
-    else:
-      layer_args = [
-          '--layer',
-          project,
-      ]
-      namespace_args = []
+    if project:
+      if project.startswith('vendor/'):
+        vendor = project[len('vendor/'):]
+        layer_args = [
+            '--vendor-layer',
+            vendor,
+        ]
+        namespace_args = [
+            '--namespaces',
+            vendor,
+        ]
+      else:
+        layer_args = [
+            '--layer',
+            project,
+        ]
+        namespace_args = []
 
-    api.python(
-        'verify FIDL namespaces',
-        api.path['start_dir'].join('scripts', 'style',
-                                   'verify-fidl-libraries.py'),
-        args=layer_args + namespace_args)
+      api.python(
+          'validate FIDL namespaces',
+          api.path['start_dir'].join('scripts', 'style',
+                                     'verify-fidl-libraries.py'),
+          args=layer_args + namespace_args)
 
-    api.python(
-        'verify build packages',
-        api.path['start_dir'].join('scripts', 'packages', 'verify_layer.py'),
-        args=layer_args + [
-            '--json-validator',
-            validator,
-        ])
+      api.python(
+          'validate build packages',
+          api.path['start_dir'].join('scripts', 'packages', 'verify_layer.py'),
+          args=layer_args + [
+              '--json-validator',
+              validator,
+          ])
 
   build = api.fuchsia.build(
       target=target,
@@ -389,11 +390,7 @@ def GenTests(api):
           ninja_targets=['build/gn:breakpad_symbols'],
           upload_breakpad_symbols=True,
       ),
-      steps=[
-          api.fuchsia.breakpad_symbol_summary({
-              '/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'
-          })
-      ])
+  )
 
   # Test cases for exercising the secrets pipeline.
   yield api.fuchsia.test(

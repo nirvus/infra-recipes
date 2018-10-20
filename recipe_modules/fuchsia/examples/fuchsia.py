@@ -444,20 +444,7 @@ def GenTests(api):
           ninja_targets=['//build/gn:breakpad_symbols'],
           upload_breakpad_symbols=True,
       ),
-      steps=[
-          api.fuchsia.breakpad_symbol_summary({
-              '/path/to/bin': '[START_DIR]/out/release-x64/bin.sym'
-          })
-      ])
-  yield api.fuchsia.test(
-      'upload_but_symbol_files_missing',
-      properties=dict(
-          build_type='release',
-          target='x64',
-          ninja_targets=['//build/gn:breakpad_symbols'],
-          upload_breakpad_symbols=True,
-      ),
-      steps=[api.fuchsia.breakpad_symbol_summary({})])
+  )
 
   # Test case for generating build traces and bloaty analysis
   yield api.fuchsia.test(

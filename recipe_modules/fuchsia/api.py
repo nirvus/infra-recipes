@@ -85,7 +85,9 @@ class FuchsiaCheckoutResults(object):
 
   def upload_results(self, gcs_bucket):
     """Upload snapshot to a given GCS bucket."""
-    self._api._upload_file_to_gcs(self.snapshot_file, gcs_bucket)
+    assert gcs_bucket
+    with self._api.m.step.nest('upload checkout results'):
+      self._api._upload_file_to_gcs(self.snapshot_file, gcs_bucket)
 
 
 class FuchsiaBuildResults(object):
@@ -136,7 +138,8 @@ class FuchsiaBuildResults(object):
   def upload_results(self, gcs_bucket, upload_breakpad_symbols=False):
     """Upload build results to a given GCS bucket."""
     assert gcs_bucket
-    self._api._upload_build_results(self, gcs_bucket, upload_breakpad_symbols)
+    with self._api.m.step.nest('upload build results'):
+      self._api._upload_build_results(self, gcs_bucket, upload_breakpad_symbols)
 
 
 class FuchsiaApi(recipe_api.RecipeApi):
@@ -265,19 +268,20 @@ class FuchsiaApi(recipe_api.RecipeApi):
     Returns:
       A FuchsiaCheckoutResults containing details of the checkout.
     """
-    with self.m.context(infra_steps=True):
-      self.m.jiri.ensure_jiri()
-      self.m.jiri.checkout(
-          manifest,
-          remote,
-          project=project,
-          build_input=build_input,
-          timeout_secs=timeout_secs,
-      )
+    with self.m.step.nest("checkout"):
+      with self.m.context(infra_steps=True):
+        self.m.jiri.ensure_jiri()
+        self.m.jiri.checkout(
+            manifest,
+            remote,
+            project=project,
+            build_input=build_input,
+            timeout_secs=timeout_secs,
+        )
 
-      snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
-      self.m.jiri.snapshot(snapshot_file)
-      return self._finalize_checkout(snapshot_file=snapshot_file)
+        snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
+        self.m.jiri.snapshot(snapshot_file)
+        return self._finalize_checkout(snapshot_file=snapshot_file)
 
   def checkout_snapshot(self,
                         repository=None,
@@ -1605,6 +1609,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
         name='read symbol file summary',
         path=build_results.fuchsia_build_dir.join('breakpad_symbols',
                                                   'symbol_file_mappings.json'),
+        step_test_data=lambda:self.m.json.test_api.output({
+          '/path/to/bin': '[START_DIR]/out/release-x64/bin.sym',
+        }),
     ).json.output
 
     return list(
@@ -1680,7 +1687,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A Path to the file containing the gn tracing data in Chromium's
       about:tracing html format.
     """
-    return self._trace2html(self.m.path['cleanup'].join('gn_trace.json'),
+    return self._trace2html('gn trace2html',
+                            self.m.path['cleanup'].join('gn_trace.json'),
                             self.m.path['cleanup'].join('gn_trace.html'))
 
   def _extract_ninja_tracing_data(self, build_results):
@@ -1693,11 +1701,12 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A Path to the file containing the gn tracing data in Chromium's
       about:tracing html format.
     """
-    with self.m.context(infra_steps=True):
-      cipd_dir = self.m.path['start_dir'].join('cipd')
-      pkgs = self.m.cipd.EnsureFile()
-      pkgs.add_package('fuchsia/tools/ninjatrace/${platform}', 'latest')
-      self.m.cipd.ensure(cipd_dir, pkgs)
+    with self.m.step.nest('ensure ninjatrace'):
+      with self.m.context(infra_steps=True):
+        cipd_dir = self.m.path['start_dir'].join('cipd')
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('fuchsia/tools/ninjatrace/${platform}', 'latest')
+        self.m.cipd.ensure(cipd_dir, pkgs)
 
     trace = self.m.path['cleanup'].join('ninja_trace.json')
     html = self.m.path['cleanup'].join('ninja_trace.html')
@@ -1710,9 +1719,9 @@ class FuchsiaApi(recipe_api.RecipeApi):
             trace,
         ],
         stdout=self.m.raw_io.output(leak_to=trace))
-    return self._trace2html(trace, html)
+    return self._trace2html('ninja trace2html', trace, html)
 
-  def _trace2html(self, trace, html):
+  def _trace2html(self, name, trace, html):
     """Converts an about:tracing file to HTML using the trace2html tool"""
 
     # Catapult is imported in manifest/garnet, so we abort if it wasn't included
@@ -1720,7 +1729,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     # if self.m.path['third_party'].join('catapult') not in self.m.path:
     #     return
     self.m.python(
-        name='trace2html',
+        name=name,
         script=self.m.path['start_dir'].join('third_party', 'catapult',
                                              'tracing', 'bin', 'trace2html'),
         args=['--output', html, trace])
@@ -1738,12 +1747,13 @@ class FuchsiaApi(recipe_api.RecipeApi):
       A Path to the file containing the resulting bloaty data.
     """
     assert gcs_bucket
-    with self.m.context(infra_steps=True):
-      cipd_dir = self.m.path['start_dir'].join('cipd')
-      pkgs = self.m.cipd.EnsureFile()
-      pkgs.add_package('fuchsia/tools/bloatalyzer/${platform}', 'latest')
-      pkgs.add_package('fuchsia/third_party/bloaty/${platform}', 'latest')
-      self.m.cipd.ensure(cipd_dir, pkgs)
+    with self.m.step.nest('ensure bloaty'):
+      with self.m.context(infra_steps=True):
+        cipd_dir = self.m.path['start_dir'].join('cipd')
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('fuchsia/tools/bloatalyzer/${platform}', 'latest')
+        pkgs.add_package('fuchsia/third_party/bloaty/${platform}', 'latest')
+        self.m.cipd.ensure(cipd_dir, pkgs)
 
     bloaty_file = self.m.path['cleanup'].join('bloaty.html')
     self.m.step(
