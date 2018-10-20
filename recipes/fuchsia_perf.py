@@ -126,13 +126,18 @@ PROPERTIES = {
             help=
             'Whether to upload benchmark results. Make sure you set this to false when testing',
             default=True),
+    'test_timeout_secs':
+        Property(
+            kind=int,
+            help='How long to wait until timing out on tests',
+            default=40 * 60),
 }
 
 
 def RunSteps(api, project, manifest, remote, target, build_type, packages,
              variant, gn_args, ninja_targets, test_pool, catapult_url,
              device_type, pave, dashboard_masters_name, dashboard_bots_name,
-             upload_to_dashboard, benchmarks_package, boards, products):
+             upload_to_dashboard, benchmarks_package, boards, products, test_timeout_secs):
   api.catapult.ensure_catapult()
 
   api.fuchsia.checkout(
@@ -181,6 +186,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   test_results = api.fuchsia.test(
       build=build,
       test_pool=test_pool,
+      timeout_secs=test_timeout_secs,
       pave=pave,
       test_cmds=test_cmds,
       device_type=device_type,
