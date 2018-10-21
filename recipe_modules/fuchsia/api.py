@@ -277,6 +277,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
             project=project,
             build_input=build_input,
             timeout_secs=timeout_secs,
+            # TODO(IN-653): After flower flag day, set as false.
+            local_manifest=not 'integration' in remote,
         )
 
         snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')
