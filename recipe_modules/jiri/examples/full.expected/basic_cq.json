@@ -74,7 +74,8 @@
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3"
+      "-attempts=3",
+      "-local-manifest=true"
     ],
     "name": "jiri run-hooks"
   },
@@ -124,9 +125,9 @@
       "-time",
       "-name",
       "manifest",
+      "-overwrite=true",
       "-revision",
       "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-      "-overwrite=true",
       "minimal",
       "https://fuchsia.googlesource.com"
     ],

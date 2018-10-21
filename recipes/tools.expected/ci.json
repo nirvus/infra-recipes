@@ -139,7 +139,8 @@
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3"
+      "-attempts=3",
+      "-local-manifest=true"
     ],
     "infra_step": true,
     "name": "jiri run-hooks"
