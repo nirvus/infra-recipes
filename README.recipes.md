@@ -1517,13 +1517,13 @@ Recipe for building FFmpeg and uploading it and required source files.
 &mdash; **def [RunSteps](/recipes/ffmpeg.py#39)(api, project):**
 ### *recipes* / [firebase\_docs](/recipes/firebase_docs.py)
 
-[DEPS](/recipes/firebase_docs.py#6): [auto\_roller](#recipe_modules-auto_roller), [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/firebase_docs.py#8): [auto\_roller](#recipe_modules-auto_roller), [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for generating docs for upload to Firebase.
 
-&mdash; **def [RunSteps](/recipes/firebase_docs.py#131)(api):**
+&mdash; **def [RunSteps](/recipes/firebase_docs.py#199)(api, dry_run):**
 
-&mdash; **def [gen\_dartdoc](/recipes/firebase_docs.py#29)(api, out_dir, docs_dir, cipd_dir):**
+&mdash; **def [gen\_dartdoc](/recipes/firebase_docs.py#39)(api, out_dir, docs_dir, cipd_dir):**
 
 Generate dartdoc output.
 
@@ -1538,7 +1538,18 @@ Args:
   docs_dir (Path) - The output directory for documentation.
   cipd_dir (Path) - The cipd directory.
 
-&mdash; **def [push\_to\_firebase](/recipes/firebase_docs.py#123)(api, cipd_dir, docs_dir):**
+&mdash; **def [gen\_rustdoc](/recipes/firebase_docs.py#133)(api, out_dir, docs_dir, cipd_dir, build_dir):**
+
+Generate rust output.
+
+The rustdoc script runs on GN targets. We find the Rust GN targets by finding all targets that generate a Cargo.toml file, and use those.
+
+Args:
+  out_dir (Path) - The output directory for generated files.
+  docs_dir (Path) - The output directory for documentation.
+  cipd_dir (Path) - The cipd directory.
+
+&mdash; **def [push\_to\_firebase](/recipes/firebase_docs.py#191)(api, cipd_dir, docs_dir):**
 ### *recipes* / [fuchsia](/recipes/fuchsia.py)
 
 [DEPS](/recipes/fuchsia.py#21): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [tar](#recipe_modules-tar), [testsharder](#recipe_modules-testsharder), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step]

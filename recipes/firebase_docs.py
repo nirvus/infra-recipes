@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 """Recipe for generating docs for upload to Firebase."""
 
+from recipe_engine.recipe_api import Property
+
 DEPS = [
     'infra/auto_roller',
     'infra/cipd',
@@ -18,6 +20,14 @@ DEPS = [
     'recipe_engine/raw_io',
     'recipe_engine/step',
 ]
+
+PROPERTIES = {
+    'dry_run':
+        Property(
+            kind=bool,
+            help='Whether to upload docs to firebase.',
+            default=False),
+}
 
 DARTDOC_PUBSPEC = """name: Fuchsia
 homepage: fuchsia-docs.firebaseapp.com
@@ -120,6 +130,64 @@ environment:
     ])
 
 
+def gen_rustdoc(api, out_dir, docs_dir, cipd_dir, build_dir):
+  '''Generate rust output.
+
+  The rustdoc script runs on GN targets. We find the Rust GN targets by finding all targets that generate a Cargo.toml file, and use those.
+
+  Args:
+    out_dir (Path) - The output directory for generated files.
+    docs_dir (Path) - The output directory for documentation.
+    cipd_dir (Path) - The cipd directory.
+  '''
+  step_result = api.step(
+      'gn desc', [
+          api.path['start_dir'].join('buildtools', 'gn'),
+          'desc',
+          build_dir,
+          '//*',
+          'outputs',
+          '--type=action',
+          '--format=json',
+      ],
+      stdout=api.json.output())
+
+  skipped = []
+  test_cargo_path = build_dir.join('target', 'Cargo.toml')
+  api.path.mock_add_paths(test_cargo_path)
+  for target in step_result.stdout:
+    if not 'outputs' in step_result.stdout[target]:
+      continue
+    outputs = step_result.stdout[target]['outputs']
+    # If the target doesn't output a Cargo.toml file, it's not a rust target.
+    if not outputs[0].endswith('Cargo.toml'):
+      continue
+
+    output = api.path['start_dir'].join(*outputs[0].split('/'))
+
+    if not api.path.exists(output):
+      skipped.append(target)
+      continue
+
+    api.step('rustdoc %s' % target, [
+        api.path['start_dir'].join('scripts', 'devshell', 'rustdoc'),
+        output,
+        "--no-deps",
+        "--out-dir",
+        build_dir,
+    ])
+
+  # Move the output to the docs directory.
+  step_result = api.step('move output to docs', [
+      'mv',
+      api.path['start_dir'].join('out', 'cargo_target', 'x86_64-fuchsia',
+                                 'doc'),
+      docs_dir.join('public', 'rust'),
+  ])
+
+  step_result.presentation.logs['skipped'] = skipped
+
+
 def push_to_firebase(api, cipd_dir, docs_dir):
   with api.context(cwd=docs_dir):
     api.step('firebase deploy', [
@@ -128,7 +196,7 @@ def push_to_firebase(api, cipd_dir, docs_dir):
     ])
 
 
-def RunSteps(api):
+def RunSteps(api, dry_run):
   api.jiri.ensure_jiri()
 
   cipd_dir = api.path['start_dir'].join('cipd')
@@ -173,14 +241,32 @@ def RunSteps(api):
 
   with api.step.nest('dartdoc'):
     gen_dartdoc(api, out_dir, docs_dir, cipd_dir)
+  with api.step.nest('rustdoc'):
+    gen_rustdoc(api, out_dir, docs_dir, cipd_dir, build.fuchsia_build_dir)
 
-  push_to_firebase(api, node_modules_dir, docs_dir)
+  if not dry_run:
+    push_to_firebase(api, node_modules_dir, docs_dir)
 
 
 def GenTests(api):
 
-  yield (
-      api.test('firebase_docs') + api.buildbucket.ci_build(
-          git_repo='https://fuchsia.googlesource.com/topaz',) +
-      api.properties(account='test@fuchsia.com') + api.step_data(
-          'dartdoc.list fuchsia packages', api.file.listdir(['fuchsia.dart'])))
+  yield (api.test('firebase_docs') + api.buildbucket.ci_build(
+      git_repo='https://fuchsia.googlesource.com/topaz',) + api.step_data(
+          'dartdoc.list fuchsia packages', api.file.listdir(['fuchsia.dart'])) +
+         api.step_data(
+             'rustdoc.gn desc',
+             stdout=api.json.output({
+                 "//topaz/target:target_cargo": {
+                     "outputs": ["//out/release-x64/target/Cargo.toml"]
+                 },
+                 "//topaz/not_target:not_target": {
+                     "outputs": [
+                         "//out/release-x64/not_target.h",
+                         "//out/release-x64/not_target.cc"
+                     ]
+                 },
+                 "//topaz/target:missing_outputs": {
+                     "outputs": ["//out/release-x64/missing/Cargo.toml"]
+                 },
+                 "//topaz/not_target:no_outputs": {}
+             })))

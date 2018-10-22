@@ -756,6 +756,72 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "rustdoc"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/buildtools/gn",
+      "desc",
+      "[START_DIR]/out/release-x64",
+      "//*",
+      "outputs",
+      "--type=action",
+      "--format=json"
+    ],
+    "name": "rustdoc.gn desc",
+    "stdout": "/path/to/tmp/json",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"//topaz/not_target:no_outputs\": {}, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"//topaz/not_target:not_target\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"//out/release-x64/not_target.h\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"//out/release-x64/not_target.cc\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"//topaz/target:missing_outputs\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"//out/release-x64/missing/Cargo.toml\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"//topaz/target:target_cargo\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"outputs\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"//out/release-x64/target/Cargo.toml\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/scripts/devshell/rustdoc",
+      "[START_DIR]/out/release-x64/target/Cargo.toml",
+      "--no-deps",
+      "--out-dir",
+      "[START_DIR]/out/release-x64"
+    ],
+    "name": "rustdoc.rustdoc //topaz/target:target_cargo",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "mv",
+      "[START_DIR]/out/cargo_target/x86_64-fuchsia/doc",
+      "[START_DIR]/firebase/public/rust"
+    ],
+    "name": "rustdoc.move output to docs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@skipped@//topaz/target:missing_outputs@@@",
+      "@@@STEP_LOG_END@skipped@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/node_modules/firebase-tools/bin/firebase",
       "deploy"
