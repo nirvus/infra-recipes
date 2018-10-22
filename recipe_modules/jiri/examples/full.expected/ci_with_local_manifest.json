@@ -52,25 +52,11 @@
       "-name",
       "garnet",
       "-revision",
-      "HEAD",
+      "a1b2c3",
       "minimal",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "name": "jiri import"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "override",
-      "-v",
-      "-time",
-      "-revision",
-      "a1b2c3",
-      "garnet",
-      "minimal",
-      "https://fuchsia.googlesource.com/manifest"
-    ],
-    "name": "jiri override"
   },
   {
     "cmd": [
@@ -90,7 +76,8 @@
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3"
+      "-attempts=3",
+      "-local-manifest=true"
     ],
     "name": "jiri run-hooks"
   },
