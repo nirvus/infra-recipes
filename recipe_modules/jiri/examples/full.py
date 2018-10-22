@@ -34,15 +34,6 @@ def RunSteps(api, tryjob, checkout_from_snapshot):
   else:
     if tryjob:
       build_input = api.buildbucket.build_pb2.Build.Input(
-          gitiles_commit=api.buildbucket.common_pb2.GitilesCommit(
-              host='fuchsia.googlesource.com',
-              project='garnet',
-              ref='refs/heads/master',
-              id='a1b2c3',
-          ),
-      )
-    else:
-      build_input = api.buildbucket.build_pb2.Build.Input(
           gerrit_changes=[
               api.buildbucket.common_pb2.GerritChange(
                   host='fuchsia-review.googlesource.com',
@@ -51,6 +42,15 @@ def RunSteps(api, tryjob, checkout_from_snapshot):
                   patchset=5,
               ),
           ],
+      )
+    else:
+      build_input = api.buildbucket.build_pb2.Build.Input(
+          gitiles_commit=api.buildbucket.common_pb2.GitilesCommit(
+              host='fuchsia.googlesource.com',
+              project='garnet',
+              ref='refs/heads/master',
+              id='a1b2c3',
+          ),
       )
     api.jiri.checkout(
         manifest='minimal',

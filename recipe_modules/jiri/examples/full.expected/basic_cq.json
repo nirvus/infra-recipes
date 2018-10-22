@@ -44,13 +44,68 @@
     "name": "jiri init"
   },
   {
+    "cmd": [],
+    "name": "ensure_gerrit"
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/gerrit",
+      "-ensure-file",
+      "infra/tools/luci/gerrit/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "ensure_gerrit.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gerrit/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/gerrit/gerrit",
+      "change-detail",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-input",
+      "{\"change_id\": \"garnet~100\", \"params\": {\"o\": [\"CURRENT_REVISION\"]}}",
+      "-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "get change details",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"branch\": \"master\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"current_revision\": \"a1b2c3\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"revisions\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"a1b2c3\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"ref\": \"refs/changes/00/100/5\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
       "-v",
       "-time",
-      "-revision",
-      "a1b2c3",
+      "-remote-branch",
+      "master",
       "minimal",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -67,6 +122,36 @@
       "-run-hooks=false"
     ],
     "name": "jiri update"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-v",
+      "-time",
+      "-host",
+      "https://fuchsia-review.googlesource.com",
+      "-project",
+      "garnet",
+      "-rebase=true",
+      "refs/changes/00/100/5"
+    ],
+    "name": "jiri patch"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "update",
+      "-v",
+      "-time",
+      "-autoupdate=false",
+      "-attempts=3",
+      "-gc=true",
+      "-rebase-tracked",
+      "-local-manifest=true",
+      "-run-hooks=false"
+    ],
+    "name": "jiri update (2)"
   },
   {
     "cmd": [
@@ -145,7 +230,7 @@
       "-local-manifest=true",
       "snapshot"
     ],
-    "name": "jiri update (2)"
+    "name": "jiri update (3)"
   },
   {
     "cmd": [
@@ -277,7 +362,7 @@
       "-rebase-tracked",
       "-run-hooks=false"
     ],
-    "name": "jiri update (3)"
+    "name": "jiri update (4)"
   },
   {
     "cmd": [
@@ -364,7 +449,7 @@
       "-force=true",
       "refs/changes/1/2/3"
     ],
-    "name": "jiri patch"
+    "name": "jiri patch (2)"
   },
   {
     "cmd": [
