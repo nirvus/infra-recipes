@@ -10,7 +10,6 @@ from recipe_engine.recipe_api import Property
 DEPS = [
     'infra/clang_tidy',
     'infra/git',
-    'infra/goma',
     'infra/jiri',
     'recipe_engine/buildbucket',
     'recipe_engine/context',
@@ -39,9 +38,7 @@ PROPERTIES = {
 
 
 def RunSteps(api, project, manifest, checks):
-  api.goma.ensure_goma()
   api.clang_tidy.ensure_clang()
-
   api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):

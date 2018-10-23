@@ -1858,11 +1858,11 @@ Recipe for building and publishing tools.
 &mdash; **def [upload\_package](/recipes/tools.py#48)(api, name, platform, staging_dir, revision, remote):**
 ### *recipes* / [tricium/clang\_tidy](/recipes/tricium/clang_tidy.py)
 
-[DEPS](/recipes/tricium/clang_tidy.py#10): [clang\_tidy](#recipe_modules-clang_tidy), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
+[DEPS](/recipes/tricium/clang_tidy.py#10): [clang\_tidy](#recipe_modules-clang_tidy), [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
 
 Recipe for running Tricium clang-format analyzer.
 
-&mdash; **def [RunSteps](/recipes/tricium/clang_tidy.py#41)(api, project, manifest, checks):**
+&mdash; **def [RunSteps](/recipes/tricium/clang_tidy.py#40)(api, project, manifest, checks):**
 ### *recipes* / [tricium/format](/recipes/tricium/format.py)
 
 [DEPS](/recipes/tricium/format.py#11): [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
