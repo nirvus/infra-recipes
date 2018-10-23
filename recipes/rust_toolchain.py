@@ -53,7 +53,7 @@ targets = "X86;AArch64"
 target = ["x86_64-fuchsia", "aarch64-fuchsia"]
 docs = false
 extended = true
-openssl-static = true
+cargo-native-static = true
 
 [install]
 prefix = "{prefix}"

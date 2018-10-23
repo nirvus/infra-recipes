@@ -340,7 +340,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "\n[llvm]\noptimize = true\nstatic-libstdcpp = true\nninja = true\ntargets = \"X86;AArch64\"\n\n[build]\ntarget = [\"x86_64-fuchsia\", \"aarch64-fuchsia\"]\ndocs = false\nextended = true\nopenssl-static = true\n\n[install]\nprefix = \"[TMP_BASE]/rust_tmp_1/rust\"\nsysconfdir = \"etc\"\n\n[rust]\noptimize = true\nchannel = \"nightly\"\n\n[target.x86_64-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[target.aarch64-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[dist]\n",
+      "\n[llvm]\noptimize = true\nstatic-libstdcpp = true\nninja = true\ntargets = \"X86;AArch64\"\n\n[build]\ntarget = [\"x86_64-fuchsia\", \"aarch64-fuchsia\"]\ndocs = false\nextended = true\ncargo-native-static = true\n\n[install]\nprefix = \"[TMP_BASE]/rust_tmp_1/rust\"\nsysconfdir = \"etc\"\n\n[rust]\noptimize = true\nchannel = \"nightly\"\n\n[target.x86_64-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[target.aarch64-fuchsia]\ncc = \"[START_DIR]/cipd/bin/clang\"\ncxx = \"[START_DIR]/cipd/bin/clang++\"\nar = \"[START_DIR]/cipd/bin/llvm-ar\"\nlinker = \"[START_DIR]/cipd/bin/clang\"\n\n[dist]\n",
       "[TMP_BASE]/rust_tmp_1/build/config.toml"
     ],
     "infra_step": true,
