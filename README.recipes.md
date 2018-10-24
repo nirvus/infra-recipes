@@ -1656,13 +1656,13 @@ Args:
 &mdash; **def [RunSteps](/recipe_modules/isolated/examples/full.py#15)(api):**
 ### *recipes* / [jiri](/recipes/jiri.py)
 
-[DEPS](/recipes/jiri.py#11): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
+[DEPS](/recipes/jiri.py#11): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
 
 Recipe for building Jiri.
 
-&mdash; **def [RunSteps](/recipes/jiri.py#76)(api, project, manifest, remote):**
+&mdash; **def [RunSteps](/recipes/jiri.py#77)(api, project, manifest, remote):**
 
-&mdash; **def [upload\_package](/recipes/jiri.py#45)(api, name, platform, staging_dir, revision, remote):**
+&mdash; **def [upload\_package](/recipes/jiri.py#46)(api, name, platform, staging_dir, revision, remote):**
 ### *recipes* / [jiri:examples/full](/recipe_modules/jiri/examples/full.py)
 
 [DEPS](/recipe_modules/jiri/examples/full.py#7): [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1850,13 +1850,13 @@ Recipe for checking licenses in the repo hosting third-party Rust crates.
 &mdash; **def [RunSteps](/recipes/third_party_rust_licenses.py#21)(api):**
 ### *recipes* / [tools](/recipes/tools.py)
 
-[DEPS](/recipes/tools.py#12): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+[DEPS](/recipes/tools.py#12): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [go](#recipe_modules-go), [gsutil](#recipe_modules-gsutil), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
 
 Recipe for building and publishing tools.
 
-&mdash; **def [RunSteps](/recipes/tools.py#89)(api, project, manifest, remote, packages):**
+&mdash; **def [RunSteps](/recipes/tools.py#90)(api, project, manifest, remote, packages):**
 
-&mdash; **def [upload\_package](/recipes/tools.py#48)(api, name, platform, staging_dir, revision, remote):**
+&mdash; **def [upload\_package](/recipes/tools.py#49)(api, name, platform, staging_dir, revision, remote):**
 ### *recipes* / [tricium/clang\_tidy](/recipes/tricium/clang_tidy.py)
 
 [DEPS](/recipes/tricium/clang_tidy.py#10): [clang\_tidy](#recipe_modules-clang_tidy), [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]

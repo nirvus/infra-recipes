@@ -12,6 +12,7 @@ DEPS = [
   'infra/cipd',
   'infra/jiri',
   'infra/git',
+  'infra/gitiles',
   'infra/go',
   'infra/gsutil',
   'recipe_engine/buildbucket',
@@ -75,10 +76,15 @@ def upload_package(api, name, platform, staging_dir, revision, remote):
 
 def RunSteps(api, project, manifest, remote):
   api.jiri.ensure_jiri()
+  api.gitiles.ensure_gitiles()
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
 
   build_input = api.buildbucket.build.input
+  if not api.properties.get('tryjob', False):
+    revision = (build_input.gitiles_commit.id or
+                api.gitiles.refs(remote).get('master', None))
+    assert revision
 
   with api.context(infra_steps=True):
     api.jiri.checkout(
@@ -106,9 +112,6 @@ def RunSteps(api, project, manifest, remote):
           ]
 
           if not api.properties.get('tryjob', False):
-            revision = build_input.gitiles_commit.id
-            assert revision
-
             build_time = api.time.utcnow().isoformat()
             ldflags = ' '.join([
               '-X "fuchsia.googlesource.com/jiri/version.GitCommit=%s"' % revision,
