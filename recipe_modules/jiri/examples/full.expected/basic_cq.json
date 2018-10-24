@@ -104,8 +104,6 @@
       "import",
       "-v",
       "-time",
-      "-name",
-      "garnet",
       "-remote-branch",
       "master",
       "minimal",
@@ -150,6 +148,7 @@
       "-attempts=3",
       "-gc=true",
       "-rebase-tracked",
+      "-local-manifest=true",
       "-run-hooks=false"
     ],
     "name": "jiri update (2)"
@@ -160,7 +159,8 @@
       "run-hooks",
       "-v",
       "-time",
-      "-attempts=3"
+      "-attempts=3",
+      "-local-manifest=true"
     ],
     "name": "jiri run-hooks"
   },

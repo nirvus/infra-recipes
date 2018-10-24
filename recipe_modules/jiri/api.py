@@ -277,22 +277,6 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd)
 
-  def override(self, project, manifest, remote, new_revision=None):
-    """Overrides a given project entry with a new revision.
-
-    Args:
-      project (str): name of the project.
-      manifest (str): Relative path to the manifest in the remote repository.
-      remote (str): URL to the remote repository.
-      new_revision (str|None): new revision to override the project's current.
-    """
-    cmd = ['override']
-    if new_revision:
-      cmd.extend(['-revision', new_revision])
-
-    cmd.extend([project, manifest, remote])
-    return self(*cmd)
-
   def snapshot(self, file=None, test_data=None, **kwargs):
     cmd = [
         'snapshot',
@@ -399,21 +383,10 @@ class JiriApi(recipe_api.RecipeApi):
         timeout=timeout_secs)
 
     else:
-      project_revision = None
-      if build_input and build_input.gitiles_commit:
-        project_revision = build_input.gitiles_commit.id
-
-      if local_manifest and project_revision:
-        remote_revision = project_revision
-      else:
-        remote_revision = 'HEAD'
-      self.import_manifest(manifest, remote, name=project, revision=remote_revision)
-
-      # After having checked out a remote manifest at HEAD - we override the
-      # revision associated with the given project in the local .jiri_manifest.
-      if not local_manifest and project_revision:
-        self.override(project, manifest, remote, new_revision=project_revision)
-
+      revision = 'HEAD'
+      if build_input:
+        revision = build_input.gitiles_commit.id or revision
+      self.import_manifest(manifest, remote, name=project, revision=revision)
       self.update(run_hooks=False, timeout=timeout_secs)
 
     if run_hooks:

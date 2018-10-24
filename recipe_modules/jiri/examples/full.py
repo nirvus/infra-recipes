@@ -18,17 +18,12 @@ DEPS = [
 
 PROPERTIES = {
     'tryjob': Property(kind=bool, help='', default=False),
-    'local_manifest':
-        Property(kind=bool,
-                 help='Whether the jiri manifest is local to the associated ' +
-                      'project repository',
-                 default=False),
     'checkout_from_snapshot':
         Property(kind=bool, help='Checkout from snapshot', default=False),
 }
 
 
-def RunSteps(api, tryjob, local_manifest, checkout_from_snapshot):
+def RunSteps(api, tryjob, checkout_from_snapshot):
   # First, ensure we have jiri.
   api.jiri.ensure_jiri()
   assert api.jiri.jiri
@@ -60,9 +55,7 @@ def RunSteps(api, tryjob, local_manifest, checkout_from_snapshot):
     api.jiri.checkout(
         manifest='minimal',
         remote='https://fuchsia.googlesource.com/manifest',
-        project='garnet',
         build_input=build_input,
-        local_manifest=local_manifest,
     )
   # Setup a new jiri root.
   api.jiri.init('dir')
@@ -158,20 +151,6 @@ def GenTests(api):
           element_type='project',
           element_name='test/project',
           test_output=api.jiri.read_manifest_project_output))
-
-  yield (api.test('ci_with_local_manifest') +
-      api.properties(local_manifest=True) +
-      api.jiri.read_manifest_element(api,
-          manifest='minimal',
-          element_type='import',
-          element_name='test/import',
-          test_output=api.jiri.read_manifest_project_output) +
-      api.jiri.read_manifest_element(api,
-          manifest='minimal',
-          element_type='project',
-          element_name='test/project',
-          test_output=api.jiri.read_manifest_project_output))
-
   yield (api.test('basic_cq') +
       api.properties(tryjob=True) +
       api.jiri.read_manifest_element(api,
