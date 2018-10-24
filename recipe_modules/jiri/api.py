@@ -322,8 +322,7 @@ class JiriApi(recipe_api.RecipeApi):
                project=None,
                build_input=None,
                timeout_secs=None,
-               run_hooks=True,
-               local_manifest=True):
+               run_hooks=True):
     """Initializes and populates a jiri checkout from a remote manifest.
 
     Emits a source manifest for the build.
@@ -336,7 +335,6 @@ class JiriApi(recipe_api.RecipeApi):
         build.
       timeout_secs (int): A timeout for jiri update in seconds.
       run_hooks (bool): Whether or not to run the hooks.
-      local_manifest (bool): Whether the project uses a local manifest.
     """
     self.init()
 
@@ -378,9 +376,11 @@ class JiriApi(recipe_api.RecipeApi):
       self.update(
         gc=True,
         rebase_tracked=True,
-        local_manifest=local_manifest,
+        local_manifest=True,
         run_hooks=False,
         timeout=timeout_secs)
+      if run_hooks:
+        self.run_hooks(local_manifest=True)
 
     else:
       revision = 'HEAD'
@@ -388,11 +388,10 @@ class JiriApi(recipe_api.RecipeApi):
         revision = build_input.gitiles_commit.id or revision
       self.import_manifest(manifest, remote, name=project, revision=revision)
       self.update(run_hooks=False, timeout=timeout_secs)
+      if run_hooks:
+        self.run_hooks()
 
-    if run_hooks:
-      self.run_hooks(local_manifest=local_manifest)
     self.emit_source_manifest()
-
   def checkout_snapshot(self, snapshot, timeout_secs=None):
     """Initializes and populates a jiri checkout from a snapshot.
 
