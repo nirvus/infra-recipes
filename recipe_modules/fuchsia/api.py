@@ -1465,13 +1465,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     archive.add(amber_repo_dir.join('targets'), directory=amber_repo_dir)
     archive.add(amber_repo_dir.join('blobs'), directory=amber_repo_dir)
 
-    # Add a host_x64 directory containing the contents of host_x64/amber-publish
-    # and host_x64/pm in the fuchsia build output directory. These directories
-    # contain host tools and files necessary to push packages to Fuchsia.
     host_build_dir = build_results.fuchsia_build_dir.join('host_x64')
-    archive.add(
-        host_build_dir.join('amber-publish'),
-        directory=build_results.fuchsia_build_dir)
     archive.add(
         host_build_dir.join('pm'), directory=build_results.fuchsia_build_dir)
 

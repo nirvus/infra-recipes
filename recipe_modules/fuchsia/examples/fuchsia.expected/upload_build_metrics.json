@@ -534,7 +534,6 @@
       "keys",
       "-C",
       "[START_DIR]/out/release-x64",
-      "host_x64/amber-publish",
       "host_x64/pm",
       "-C",
       "[START_DIR]/out/release-x64/amber-files/repository",
