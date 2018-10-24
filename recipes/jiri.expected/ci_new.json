@@ -31,36 +31,6 @@
   },
   {
     "cmd": [],
-    "name": "ensure_gitiles"
-  },
-  {
-    "cmd": [
-      "cipd",
-      "ensure",
-      "-root",
-      "[START_DIR]/cipd/gitiles",
-      "-ensure-file",
-      "infra/tools/luci/gitiles/linux-amd64 latest",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "infra_step": true,
-    "name": "ensure_gitiles.ensure_installed",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/gitiles/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [],
     "name": "ensure_go"
   },
   {
@@ -140,8 +110,10 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "jiri",
       "-revision",
-      "a1b2c3",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "jiri",
       "https://fuchsia.googlesource.com/manifest"
     ],
@@ -199,6 +171,34 @@
   },
   {
     "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "project",
+      "-v",
+      "-time",
+      "-json-output",
+      "/path/to/tmp/json",
+      "jiri"
+    ],
+    "infra_step": true,
+    "name": "jiri project",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"branches\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    ], @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"jiri\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/jiri\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/jiri\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "test",
       "-v",
@@ -238,7 +238,7 @@
       "[TMP_BASE]/jiri_tmp_1/jiri",
       "fuchsia.googlesource.com/jiri/cmd/jiri",
       "-ldflags",
-      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=a1b2c3\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:21.500000\""
+      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=c22471f4e3f842ae18dd9adec82ed9eb78ed1127\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:21.500000\""
     ],
     "env": {
       "GOARCH": "amd64",
@@ -262,7 +262,7 @@
       "search",
       "fuchsia/tools/jiri/linux-amd64",
       "-tag",
-      "git_revision:a1b2c3",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -276,7 +276,7 @@
         "[START_DIR]/cipd/go/bin"
       ]
     },
-    "name": "linux-amd64.cipd search fuchsia/tools/jiri/linux-amd64 git_revision:a1b2c3",
+    "name": "linux-amd64.cipd search fuchsia/tools/jiri/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -330,7 +330,7 @@
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/manifest",
       "-tag",
-      "git_revision:a1b2c3"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "env": {
       "GOARCH": "amd64",
@@ -365,7 +365,7 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[TMP_BASE]/jiri_tmp_1/jiri",
-      "gs://fuchsia-build/jiri/linux-amd64/a1b2c3"
+      "gs://fuchsia-build/jiri/linux-amd64/c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "env": {
       "GOARCH": "amd64",
@@ -381,7 +381,7 @@
     "name": "linux-amd64.gsutil cp",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/linux-amd64/a1b2c3@@@"
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/linux-amd64/c22471f4e3f842ae18dd9adec82ed9eb78ed1127@@@"
     ]
   },
   {
@@ -407,7 +407,7 @@
       "[TMP_BASE]/jiri_tmp_1/jiri",
       "fuchsia.googlesource.com/jiri/cmd/jiri",
       "-ldflags",
-      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=a1b2c3\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:23\""
+      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=c22471f4e3f842ae18dd9adec82ed9eb78ed1127\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:23\""
     ],
     "env": {
       "GOARCH": "arm64",
@@ -431,7 +431,7 @@
       "search",
       "fuchsia/tools/jiri/linux-arm64",
       "-tag",
-      "git_revision:a1b2c3",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -445,7 +445,7 @@
         "[START_DIR]/cipd/go/bin"
       ]
     },
-    "name": "linux-arm64.cipd search fuchsia/tools/jiri/linux-arm64 git_revision:a1b2c3",
+    "name": "linux-arm64.cipd search fuchsia/tools/jiri/linux-arm64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -499,7 +499,7 @@
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/manifest",
       "-tag",
-      "git_revision:a1b2c3"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "env": {
       "GOARCH": "arm64",
@@ -534,7 +534,7 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[TMP_BASE]/jiri_tmp_1/jiri",
-      "gs://fuchsia-build/jiri/linux-arm64/a1b2c3"
+      "gs://fuchsia-build/jiri/linux-arm64/c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "env": {
       "GOARCH": "arm64",
@@ -550,7 +550,7 @@
     "name": "linux-arm64.gsutil cp",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/linux-arm64/a1b2c3@@@"
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/linux-arm64/c22471f4e3f842ae18dd9adec82ed9eb78ed1127@@@"
     ]
   },
   {
@@ -576,7 +576,7 @@
       "[TMP_BASE]/jiri_tmp_1/jiri",
       "fuchsia.googlesource.com/jiri/cmd/jiri",
       "-ldflags",
-      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=a1b2c3\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:24.500000\""
+      "-X \"fuchsia.googlesource.com/jiri/version.GitCommit=c22471f4e3f842ae18dd9adec82ed9eb78ed1127\" -X \"fuchsia.googlesource.com/jiri/version.BuildTime=2012-05-14T12:53:24.500000\""
     ],
     "env": {
       "GOARCH": "amd64",
@@ -600,7 +600,7 @@
       "search",
       "fuchsia/tools/jiri/mac-amd64",
       "-tag",
-      "git_revision:a1b2c3",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -614,7 +614,7 @@
         "[START_DIR]/cipd/go/bin"
       ]
     },
-    "name": "mac-amd64.cipd search fuchsia/tools/jiri/mac-amd64 git_revision:a1b2c3",
+    "name": "mac-amd64.cipd search fuchsia/tools/jiri/mac-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
@@ -668,7 +668,7 @@
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/manifest",
       "-tag",
-      "git_revision:a1b2c3"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "env": {
       "GOARCH": "amd64",
@@ -703,7 +703,7 @@
       "GSUtil:software_update_check_period=0",
       "cp",
       "[TMP_BASE]/jiri_tmp_1/jiri",
-      "gs://fuchsia-build/jiri/darwin-amd64/a1b2c3"
+      "gs://fuchsia-build/jiri/darwin-amd64/c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "env": {
       "GOARCH": "amd64",
@@ -719,7 +719,7 @@
     "name": "mac-amd64.gsutil cp",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/darwin-amd64/a1b2c3@@@"
+      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia-build/jiri/darwin-amd64/c22471f4e3f842ae18dd9adec82ed9eb78ed1127@@@"
     ]
   },
   {

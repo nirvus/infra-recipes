@@ -12,7 +12,6 @@ DEPS = [
   'infra/cipd',
   'infra/jiri',
   'infra/git',
-  'infra/gitiles',
   'infra/go',
   'infra/gsutil',
   'recipe_engine/buildbucket',
@@ -76,15 +75,10 @@ def upload_package(api, name, platform, staging_dir, revision, remote):
 
 def RunSteps(api, project, manifest, remote):
   api.jiri.ensure_jiri()
-  api.gitiles.ensure_gitiles()
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
 
   build_input = api.buildbucket.build.input
-  if not api.properties.get('tryjob', False):
-    revision = (build_input.gitiles_commit.id or
-                api.gitiles.refs(remote).get('master', None))
-    assert revision
 
   with api.context(infra_steps=True):
     api.jiri.checkout(
@@ -92,6 +86,7 @@ def RunSteps(api, project, manifest, remote):
         remote=remote,
         project=project,
         build_input=build_input)
+    revision = api.jiri.project([project]).json.output[0]['revision']
 
   staging_dir = api.path.mkdtemp('jiri')
 
@@ -136,14 +131,13 @@ def RunSteps(api, project, manifest, remote):
 
 
 def GenTests(api):
-  revision = 'a1b2c3'
   cipd_search_step_data = []
   for goos, goarch in GO_OS_ARCH:
     platform = '%s-%s' % (goos.replace('darwin', 'mac'), goarch)
     cipd_search_step_data.append(
         api.step_data(
             '{0}.cipd search fuchsia/tools/jiri/{0} git_revision:{1}'.
-            format(platform, revision),
+            format(platform, api.jiri.example_revision),
             api.json.output({
                 'result': []
             })))
@@ -151,17 +145,19 @@ def GenTests(api):
   yield (api.test('ci') +
     api.buildbucket.ci_build(
       git_repo='https://fuchsia.googlesource.com/jiri',
-      revision=revision,
+      revision=api.jiri.example_revision,
     ) +
-    api.properties(manifest='jiri',
+    api.properties(project='jiri',
+                   manifest='jiri',
                    remote='https://fuchsia.googlesource.com/manifest',
                    target='linux-amd64'))
   yield (api.test('ci_new') +
     api.buildbucket.ci_build(
       git_repo='https://fuchsia.googlesource.com/jiri',
-      revision=revision,
+      revision=api.jiri.example_revision,
     ) +
-    api.properties(manifest='jiri',
+    api.properties(project='jiri',
+                   manifest='jiri',
                    remote='https://fuchsia.googlesource.com/manifest',
                    target='linux-amd64') +
     reduce(lambda a, b: a + b, cipd_search_step_data))
@@ -169,7 +165,8 @@ def GenTests(api):
     api.buildbucket.try_build(
       git_repo='https://fuchsia.googlesource.com/jiri'
     ) +
-    api.properties.tryserver(
+    api.properties(
+        project='jiri',
         manifest='jiri',
         remote='https://fuchsia.googlesource.com/manifest',
         target='linux-amd64',

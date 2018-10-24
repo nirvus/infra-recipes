@@ -13,7 +13,6 @@ DEPS = [
     'infra/cipd',
     'infra/jiri',
     'infra/git',
-    'infra/gitiles',
     'infra/go',
     'infra/gsutil',
     'recipe_engine/buildbucket',
@@ -89,15 +88,10 @@ def upload_package(api, name, platform, staging_dir, revision, remote):
 
 def RunSteps(api, project, manifest, remote, packages):
   api.jiri.ensure_jiri()
-  api.gitiles.ensure_gitiles()
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
 
   build_input = api.buildbucket.build.input
-  if not api.properties.get('tryjob', False):
-    revision = (build_input.gitiles_commit.id or
-                api.gitiles.refs(remote).get('master', None))
-    assert revision
 
   with api.context(infra_steps=True):
     api.jiri.checkout(
@@ -105,6 +99,7 @@ def RunSteps(api, project, manifest, remote, packages):
         remote=remote,
         project=project,
         build_input=build_input)
+    revision = api.jiri.project([project]).json.output[0]['revision']
 
   gopath = api.path['start_dir'].join('go')
   path = api.jiri.project([project]).json.output[0]['path']
@@ -131,7 +126,6 @@ def RunSteps(api, project, manifest, remote, packages):
 
 
 def GenTests(api):
-  revision = 'c22471f4e3f842ae18dd9adec82ed9eb78ed1127'
   packages = [
       'fuchsia.googlesource.com/tools/gndoc',
       'fuchsia.googlesource.com/tools/symbolizer'
@@ -143,14 +137,15 @@ def GenTests(api):
       cipd_search_step_data.append(
           api.step_data(
               '{0}.{1}.cipd search fuchsia/tools/{2}/{1} git_revision:{3}'.
-              format(pkg, platform, pkg.split('/')[-1], revision),
+              format(pkg, platform, pkg.split('/')[-1],
+                     api.jiri.example_revision),
               api.json.output({
                   'result': []
               })))
   yield (api.test('ci_new') +
     api.buildbucket.ci_build(
         git_repo='https://fuchsia.googlesource.com/tools',
-        revision = revision,
+        revision = api.jiri.example_revision,
     ) +
     api.properties(
       project='tools',
@@ -164,7 +159,7 @@ def GenTests(api):
   yield (api.test('ci') +
     api.buildbucket.ci_build(
         git_repo='https://fuchsia.googlesource.com/tools',
-        revision=revision,
+        revision=api.jiri.example_revision,
     ) +
     api.properties(
       project='tools',
