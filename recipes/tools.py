@@ -117,7 +117,7 @@ def RunSteps(api, project, manifest, remote, packages):
             output = pkg.split('/')[-1]
 
             # Build the package.
-            api.go('build', '-o', staging_dir.join(output), '-v', pkg)
+            api.go('build', '-o', staging_dir.join(output), pkg)
 
             # Upload the package to CIPD.
             if not api.properties.get('tryjob', False):

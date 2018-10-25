@@ -266,7 +266,6 @@
       "build",
       "-o",
       "[TMP_BASE]/tools_tmp_1/gndoc",
-      "-v",
       "fuchsia.googlesource.com/tools/gndoc"
     ],
     "cwd": "[START_DIR]/path/to/tools",
@@ -353,7 +352,6 @@
       "build",
       "-o",
       "[TMP_BASE]/tools_tmp_1/symbolizer",
-      "-v",
       "fuchsia.googlesource.com/tools/symbolizer"
     ],
     "cwd": "[START_DIR]/path/to/tools",
@@ -440,7 +438,6 @@
       "build",
       "-o",
       "[TMP_BASE]/tools_tmp_1/gndoc",
-      "-v",
       "fuchsia.googlesource.com/tools/gndoc"
     ],
     "cwd": "[START_DIR]/path/to/tools",
@@ -527,7 +524,6 @@
       "build",
       "-o",
       "[TMP_BASE]/tools_tmp_1/symbolizer",
-      "-v",
       "fuchsia.googlesource.com/tools/symbolizer"
     ],
     "cwd": "[START_DIR]/path/to/tools",
@@ -614,7 +610,6 @@
       "build",
       "-o",
       "[TMP_BASE]/tools_tmp_1/gndoc",
-      "-v",
       "fuchsia.googlesource.com/tools/gndoc"
     ],
     "cwd": "[START_DIR]/path/to/tools",
@@ -701,7 +696,6 @@
       "build",
       "-o",
       "[TMP_BASE]/tools_tmp_1/symbolizer",
-      "-v",
       "fuchsia.googlesource.com/tools/symbolizer"
     ],
     "cwd": "[START_DIR]/path/to/tools",

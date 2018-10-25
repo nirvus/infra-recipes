@@ -102,8 +102,7 @@ def RunSteps(api, project, manifest, remote):
 
         with api.step.nest(platform):
           args = [
-            'build', '-v', '-o', staging_dir.join('jiri'),
-            'fuchsia.googlesource.com/jiri/cmd/jiri'
+            'build', '-o', staging_dir.join('jiri'),
           ]
 
           if not api.properties.get('tryjob', False):
@@ -112,8 +111,9 @@ def RunSteps(api, project, manifest, remote):
               '-X "fuchsia.googlesource.com/jiri/version.GitCommit=%s"' % revision,
               '-X "fuchsia.googlesource.com/jiri/version.BuildTime=%s"' % build_time,
             ])
+            args.extend(['-ldflags', ldflags])
 
-            args += ['-ldflags', ldflags]
+          args.append('fuchsia.googlesource.com/jiri/cmd/jiri')
 
           # Build the package.
           api.go(*args)

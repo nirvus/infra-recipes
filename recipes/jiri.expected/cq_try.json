@@ -322,7 +322,6 @@
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "build",
-      "-v",
       "-o",
       "[TMP_BASE]/jiri_tmp_1/jiri",
       "fuchsia.googlesource.com/jiri/cmd/jiri"
@@ -361,7 +360,6 @@
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "build",
-      "-v",
       "-o",
       "[TMP_BASE]/jiri_tmp_1/jiri",
       "fuchsia.googlesource.com/jiri/cmd/jiri"
@@ -400,7 +398,6 @@
     "cmd": [
       "[START_DIR]/cipd/go/bin/go",
       "build",
-      "-v",
       "-o",
       "[TMP_BASE]/jiri_tmp_1/jiri",
       "fuchsia.googlesource.com/jiri/cmd/jiri"
