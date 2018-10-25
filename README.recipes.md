@@ -422,7 +422,7 @@ Returns:
 
 APIs for checking out, building, and testing Fuchsia.
 
-&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1326)(self, step_name, result, build_dir):**
+&mdash; **def [analyze\_collect\_result](/recipe_modules/fuchsia/api.py#1331)(self, step_name, result, build_dir):**
 
 Analyzes a swarming.CollectResult and reports results as a step.
 
@@ -435,7 +435,7 @@ Raises:
   A StepFailure if a kernel panic is detected, or if the tests timed out.
   An InfraFailure if the swarming task failed for a different reason.
 
-&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1374)(self, test_results):**
+&mdash; **def [analyze\_test\_results](/recipe_modules/fuchsia/api.py#1379)(self, test_results):**
 
 Analyzes test results represented by FuchsiaTestResults objects.
 
@@ -445,7 +445,7 @@ Args:
 Raises:
   A StepFailure if any of the discovered tests failed.
 
-&mdash; **def [build](/recipe_modules/fuchsia/api.py#561)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), boards=[], products=[], zircon_args=[], collect_build_metrics=False, build_for_testing=False, build_archive=False, build_package_archive=False):**
+&mdash; **def [build](/recipe_modules/fuchsia/api.py#566)(self, target, build_type, packages, variants=(), gn_args=[], ninja_targets=(), boards=[], products=[], zircon_args=[], collect_build_metrics=False, build_for_testing=False, build_archive=False, build_package_archive=False):**
 
 Builds Fuchsia from a Jiri checkout.
 
@@ -522,14 +522,14 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1400)(self, test_results):**
+&mdash; **def [report\_test\_results](/recipe_modules/fuchsia/api.py#1405)(self, test_results):**
 
 Logs individual test results in separate steps.
 
 Args:
   test_results (FuchsiaTestResults): The test results.
 
-&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_host](/recipe_modules/fuchsia/api.py#721)(self):**
+&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_host](/recipe_modules/fuchsia/api.py#726)(self):**
 
 The directory on host to which host and target test results will be written.
 
@@ -537,11 +537,11 @@ Target test results will be copied over to this location and host test
 results will be written here. Host and target tests on should write to
 separate subdirectories so as not to collide.
 
-&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_target](/recipe_modules/fuchsia/api.py#716)(self):**
+&emsp; **@property**<br>&mdash; **def [results\_dir\_on\_target](/recipe_modules/fuchsia/api.py#721)(self):**
 
 The directory on target to which target test results will be written.
 
-&mdash; **def [test](/recipe_modules/fuchsia/api.py#1073)(self, build, test_pool, test_cmds, device_type, timeout_secs=(40 \* 60), pave=True, external_network=False, requires_secrets=False):**
+&mdash; **def [test](/recipe_modules/fuchsia/api.py#1078)(self, build, test_pool, test_cmds, device_type, timeout_secs=(40 \* 60), pave=True, external_network=False, requires_secrets=False):**
 
 Tests a Fuchsia build on the specified device.
 
@@ -563,7 +563,7 @@ Args:
 Returns:
   A FuchsiaTestResults representing the completed test.
 
-&mdash; **def [test\_in\_shards](/recipe_modules/fuchsia/api.py#1184)(self, test_pool, build, timeout_secs=(40 \* 60)):**
+&mdash; **def [test\_in\_shards](/recipe_modules/fuchsia/api.py#1189)(self, test_pool, build, timeout_secs=(40 \* 60)):**
 
 Tests a Fuchsia build by sharding.
 
@@ -579,7 +579,7 @@ Args:
 Returns:
   A list of FuchsiaTestResults representing the completed test tasks.
 
-&mdash; **def [test\_on\_host](/recipe_modules/fuchsia/api.py#731)(self, build):**
+&mdash; **def [test\_on\_host](/recipe_modules/fuchsia/api.py#736)(self, build):**
 
 Tests a Fuchsia build from the host machine.
 

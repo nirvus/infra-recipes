@@ -535,6 +535,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
         include_image = include_image or (
             name == 'archive' and type == 'zip' and build_archive
         )
+        # There might be multiple images under the name "netboot"; only take
+        # netboot.zbi.
+        if build_for_testing and name == 'netboot':
+          include_image = type == 'zbi'
+
         if include_image:
           ninja_targets.append(path)
           build.images[name] = (
