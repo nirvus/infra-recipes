@@ -1,0 +1,24 @@
+[
+  {
+    "cmd": [
+      "[START_DIR]/ninja",
+      "-C",
+      "[START_DIR]/build",
+      "-j",
+      "42",
+      "-f",
+      "[START_DIR]/build.ninja",
+      "-k",
+      "2",
+      "-v",
+      "//foo",
+      "//bar"
+    ],
+    "name": "ninja"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

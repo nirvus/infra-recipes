@@ -1,0 +1,17 @@
+[
+  {
+    "cmd": [
+      "[START_DIR]/gn",
+      "gen",
+      "//a",
+      "//b",
+      "//c"
+    ],
+    "name": "gn gen"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

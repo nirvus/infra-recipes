@@ -64,7 +64,6 @@ IMAGES_FOR_TESTING = [
     'storage-sparse',
 ]
 
-
 class FuchsiaCheckoutResults(object):
   """Represents a Fuchsia source checkout."""
 
@@ -463,60 +462,32 @@ class FuchsiaApi(recipe_api.RecipeApi):
                      build_for_testing, build_archive, build_package_archive):
     """Builds fuchsia given a FuchsiaBuildResults and other GN options."""
     with self.m.step.nest('build fuchsia'):
-      args = [
-          'target_cpu="%s"' % build.target,
-          'use_goma=true',
-          'goma_dir="%s"' % self.m.goma.goma_dir,
-          'is_debug=%s' % ('true' if build_type == 'debug' else 'false'),
-      ]
+      # Set the path to GN and Ninja executables since they are not installed from CIPD.
+      self.m.gn.set_path(self.m.path['start_dir'].join('buildtools', 'gn'))
+      self.m.ninja.set_path(self.m.path['start_dir'].join('buildtools', 'ninja'))
 
-      if boards:
-        args.append(' '.join('import("//%s")' % board for board in boards))
+      fuchsia_gn_args = self._gn_args(
+          boards=boards,
+          build_type=build_type,
+          goma_dir=self.m.goma.goma_dir,
+          is_debug=build_type == 'debug',
+          packages=packages,
+          products=products,
+          target=build.target,
+          variants=variants,
+      ) + list(gn_args)
 
-      if packages:
-        fuchsia_packages_format = 'fuchsia_packages=[%s]'
-        # if boards is set, append to fuchsia_packages.
-        # boards set fuchsia_packages, we don't want to overwrite.
-        if boards:
-          fuchsia_packages_format = 'fuchsia_packages+=[%s]'
-
-        args.append(fuchsia_packages_format % ','.join(
-            '"%s"' % pkg for pkg in packages))
-
-      if products:
-        args.append('fuchsia_products=[%s]' % ','.join(
-            '"%s"' % product for product in products))
-
-      args += {
-          'lto': [
-              'use_lto=true',
-              'use_thinlto=false',
-          ],
-          'thinlto': [
-              'use_lto=true',
-              'use_thinlto=true',
-              'thinlto_cache_dir="%s"' % self.m.path['cache'].join('thinlto'),
-          ],
-      }.get(build_type, [])
-
-      if variants:
-        args.append(
-            'select_variant=[%s]' % ','.join(['"%s"' % v for v in variants]))
-
-      gen_cmd = [
-          self.m.path['start_dir'].join('buildtools', 'gn'),
-          'gen',
-          build.fuchsia_build_dir,
-          '--check',
-          '--args=%s' % ' '.join(args + list(gn_args)),
+      full_gn_args =  [
+        build.fuchsia_build_dir,
+        '--check',
+        '--args=%s' % ' '.join(fuchsia_gn_args),
       ]
 
       if collect_build_metrics:
-        # Collect gn tracing data
-        gen_cmd.append('--tracelog=' +
-                       str(self.m.path['cleanup'].join('gn_trace.json')))
+        tracelog_path = str(self.m.path['cleanup'].join('gn_trace.json'))
+        full_gn_args.append('--tracelog=%s' % tracelog_path)
 
-      self.m.step('gn gen', gen_cmd)
+      self.m.gn('gen', *full_gn_args)
 
       # gn gen will have produced the image manifest. Read it in, ensure that
       # images needed for testing will be built, and record the paths on disk
@@ -556,13 +527,11 @@ class FuchsiaApi(recipe_api.RecipeApi):
         ninja_targets.append('updates')
         build.includes_package_archive = True
 
-      self.m.step('ninja', [
-          self.m.path['start_dir'].join('buildtools', 'ninja'),
-          '-C',
-          build.fuchsia_build_dir,
-          '-j',
-          self.m.goma.jobs,
-      ] + ninja_targets)
+      self.m.ninja(
+          build_dir=build.fuchsia_build_dir,
+          targets=ninja_targets,
+          job_count=self.m.goma.jobs
+      )
 
   def build(self,
             target,
@@ -1778,3 +1747,59 @@ class FuchsiaApi(recipe_api.RecipeApi):
             str(min(self.m.platform.cpu_count, 32)),
         ])
     self._upload_file_to_gcs(bloaty_file, gcs_bucket, hash=False)
+
+  def _gn_args(self,
+               goma_dir,
+               target,
+               is_debug=False,
+               boards=(),
+               build_type=None,
+               packages=(),
+               products=(),
+               variants=()):
+    """Creates Fuchsia-specific GN command line arguments.
+
+    GN's declare_args() macro allows the GN client to define their own command line flags.
+    This adapter converts Fuchia's declared args to a list of strings for GN.
+    """
+    args = [
+      'target_cpu="%s"' % target,
+      'use_goma=true',
+      'goma_dir="%s"' % goma_dir,
+      'is_debug=%s' % ('true' if is_debug else 'false'),
+    ]
+
+    if boards:
+      args.append(' '.join('import("//%s")' % board for board in boards))
+
+    if packages:
+      fuchsia_packages_format = 'fuchsia_packages=[%s]'
+      # if boards is set, append to fuchsia_packages.
+      # boards set fuchsia_packages, we don't want to overwrite.
+      if boards:
+        fuchsia_packages_format = 'fuchsia_packages+=[%s]'
+
+      args.append(
+          fuchsia_packages_format % ','.join('"%s"' % pkg for pkg in packages))
+
+    if products:
+      args.append('fuchsia_products=[%s]' % ','.join(
+          '"%s"' % product for product in products))
+
+    args.extend({
+      'lto': [
+          'use_lto=true',
+          'use_thinlto=false',
+      ],
+      'thinlto': [
+          'use_lto=true',
+          'use_thinlto=true',
+          'thinlto_cache_dir="%s"' % self.m.path['cache'].join('thinlto'),
+      ],
+    }.get(build_type, []))
+
+    if variants:
+      args.append(
+          'select_variant=[%s]' % ','.join(['"%s"' % v for v in variants]))
+
+    return args
