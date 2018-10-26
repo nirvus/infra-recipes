@@ -15,7 +15,7 @@ TARGETS = ['arm64', 'x64']
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
 DEVICES = [
-    'QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE', 'HiKey 960'
+    'QEMU', 'Intel NUC Kit NUC7i5DNHE',
 ]
 
 DEPS = [
@@ -303,7 +303,7 @@ def GenTests(api):
       'device_tests',
       properties=dict(
           run_tests=True,
-          device_type='Intel NUC Kit NUC6i3SYK',
+          device_type='Intel NUC Kit NUC7i5DNHE',
       ))
   yield api.fuchsia.test(
       'host_tests',
@@ -315,7 +315,7 @@ def GenTests(api):
       'host_and_device_tests',
       properties=dict(
           run_tests=True,
-          device_type='Intel NUC Kit NUC6i3SYK',
+          device_type='Intel NUC Kit NUC7i5DNHE',
           run_host_tests=True,
       ))
 
@@ -334,7 +334,7 @@ def GenTests(api):
       properties=dict(
           run_tests=True,
           networking_for_tests=True,
-          device_type='Intel NUC Kit NUC6i3SYK',
+          device_type='Intel NUC Kit NUC7i5DNHE',
       ),
   )
   yield api.fuchsia.test(
@@ -439,7 +439,7 @@ def GenTests(api):
           requires_secrets=True,
           networking_for_tests=True,
           run_tests=True,
-          device_type='Intel NUC Kit NUC6i3SYK',
+          device_type='Intel NUC Kit NUC7i5DNHE',
       ),
   )
 

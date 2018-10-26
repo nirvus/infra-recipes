@@ -54,7 +54,7 @@ TARGET_TO_KERNEL_IMAGE = dict(zip(
 ARCHS = ('x86_64', 'aarch64')
 
 # Supported device types for testing.
-DEVICES = ('QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE', 'HiKey 960')
+DEVICES = ('QEMU', 'Intel NUC Kit NUC7i5DNHE')
 
 # toolchain: (['make', 'args'], 'builddir-suffix')
 TOOLCHAINS = {
@@ -92,7 +92,6 @@ NUC_SCRATCH_BLOCK_DEVICE_PATH = '/dev/sys/pci/00:17.0/ahci/sata2/block'
 # Destructive local storage tests will run on a given device type iff that
 # device type is present in this dict.
 DEVICE_TYPE_TO_SCRATCH_BLOCK_DEVICE_PATH = {
-    'Intel NUC Kit NUC6i3SYK': NUC_SCRATCH_BLOCK_DEVICE_PATH,
     'Intel NUC Kit NUC7i5DNHE': NUC_SCRATCH_BLOCK_DEVICE_PATH,
 }
 
