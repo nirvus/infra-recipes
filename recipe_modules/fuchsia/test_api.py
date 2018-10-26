@@ -52,8 +52,8 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
     else:
       final_properties = dict(
           manifest='manifest/minimal',
-          remote='https://fuchsia.googlesource.com/%s' % project,
-          project=project,
+          remote='https://fuchsia.googlesource.com/integration',
+          project='integration',
           target='x64',
           packages=['%s/packages/default' % project],
           gcs_bucket='###fuchsia-build###',

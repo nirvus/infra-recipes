@@ -123,11 +123,11 @@
       "-v",
       "-time",
       "-name",
-      "topaz",
+      "integration",
       "-remote-branch",
       "master",
       "manifest/minimal",
-      "https://fuchsia.googlesource.com/topaz"
+      "https://fuchsia.googlesource.com/integration"
     ],
     "infra_step": true,
     "name": "checkout.jiri import",
@@ -307,7 +307,7 @@
       "-u",
       "[START_DIR]/scripts/style/verify-fidl-libraries.py",
       "--layer",
-      "topaz"
+      "integration"
     ],
     "name": "validate checkout.validate FIDL namespaces",
     "~followup_annotations": [
@@ -320,7 +320,7 @@
       "-u",
       "[START_DIR]/scripts/packages/verify_layer.py",
       "--layer",
-      "topaz",
+      "integration",
       "--json-validator",
       "[START_DIR]/tools/json_validator/json_validator"
     ],

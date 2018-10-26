@@ -277,6 +277,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
             project=project,
             build_input=build_input,
             timeout_secs=timeout_secs,
+            override=project == 'integration',
         )
 
         snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')

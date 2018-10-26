@@ -123,11 +123,11 @@
       "-v",
       "-time",
       "-name",
-      "topaz",
+      "integration",
       "-remote-branch",
       "master",
       "manifest/minimal",
-      "https://fuchsia.googlesource.com/topaz"
+      "https://fuchsia.googlesource.com/integration"
     ],
     "infra_step": true,
     "name": "checkout.jiri import",
