@@ -62,14 +62,31 @@
       "-v",
       "-time",
       "-name",
-      "vendor/foobar",
+      "integration",
       "-revision",
-      "a1b2c3",
+      "HEAD",
       "manifest/minimal",
       "https://fuchsia.googlesource.com/integration"
     ],
     "infra_step": true,
     "name": "checkout.jiri import",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "override",
+      "-v",
+      "-time",
+      "-revision",
+      "a1b2c3",
+      "topaz",
+      "https://fuchsia.googlesource.com/integration"
+    ],
+    "infra_step": true,
+    "name": "checkout.jiri override",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -263,9 +280,9 @@
       "-u",
       "[START_DIR]/scripts/style/verify-fidl-libraries.py",
       "--vendor-layer",
-      "",
+      "foobar",
       "--namespaces",
-      ""
+      "foobar"
     ],
     "name": "validate checkout.validate FIDL namespaces",
     "~followup_annotations": [
@@ -278,7 +295,7 @@
       "-u",
       "[START_DIR]/scripts/packages/verify_layer.py",
       "--vendor-layer",
-      "",
+      "foobar",
       "--json-validator",
       "[START_DIR]/tools/json_validator/json_validator"
     ],
@@ -378,7 +395,7 @@
       "gen",
       "[START_DIR]/out/debug-x64",
       "--check",
-      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true fuchsia_packages=[\"vendor/foobar/packages/default\"]",
+      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=true fuchsia_packages=[\"topaz/packages/default\"]",
       "--tracelog=[CLEANUP]/gn_trace.json"
     ],
     "name": "build.build fuchsia.gn gen",

@@ -212,7 +212,7 @@ def RunSteps(api, project, manifest, remote, repo, checkout_snapshot, target,
     validator = json_validator_dir.join('json_validator')
 
     if repo:
-      if project.startswith('vendor/'):
+      if repo.startswith('vendor/'):
         vendor = repo[len('vendor/'):]
         layer_args = [
             '--vendor-layer',
@@ -378,7 +378,7 @@ def GenTests(api):
   # The non-vendor case is tested by most other tests.
   yield api.fuchsia.test(
       'build-packages-vendor',
-      properties=dict(project='vendor/foobar'),
+      properties=dict(repo='vendor/foobar'),
   )
 
   # Test cases for generating symbol files as part of the build
