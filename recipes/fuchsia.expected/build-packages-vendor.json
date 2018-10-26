@@ -263,9 +263,9 @@
       "-u",
       "[START_DIR]/scripts/style/verify-fidl-libraries.py",
       "--vendor-layer",
-      "foobar",
+      "",
       "--namespaces",
-      "foobar"
+      ""
     ],
     "name": "validate checkout.validate FIDL namespaces",
     "~followup_annotations": [
@@ -278,7 +278,7 @@
       "-u",
       "[START_DIR]/scripts/packages/verify_layer.py",
       "--vendor-layer",
-      "foobar",
+      "",
       "--json-validator",
       "[START_DIR]/tools/json_validator/json_validator"
     ],

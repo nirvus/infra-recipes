@@ -44,6 +44,8 @@ PROPERTIES = {
         Property(kind=str, help='Jiri manifest to use', default=None),
     'remote':
         Property(kind=str, help='Remote manifest repository', default=None),
+    'repo':
+        Property(kind=str, help='Repo to checkout, build, and test', default=None),
 
     # Properties for checking out code from a snapshot.
     'checkout_snapshot':
@@ -149,7 +151,7 @@ PROPERTIES = {
 }
 
 
-def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
+def RunSteps(api, project, manifest, remote, repo, checkout_snapshot, target,
              build_type, packages, variant, gn_args, test_pool, run_tests,
              runtests_args, run_host_tests, device_type, networking_for_tests,
              pave, ninja_targets, test_timeout_secs, requires_secrets,
@@ -209,9 +211,9 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
 
     validator = json_validator_dir.join('json_validator')
 
-    if project:
+    if repo:
       if project.startswith('vendor/'):
-        vendor = project[len('vendor/'):]
+        vendor = repo[len('vendor/'):]
         layer_args = [
             '--vendor-layer',
             vendor,
@@ -223,7 +225,7 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
       else:
         layer_args = [
             '--layer',
-            project,
+            repo,
         ]
         namespace_args = []
 

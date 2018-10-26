@@ -53,6 +53,7 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
       final_properties = dict(
           manifest='manifest/minimal',
           remote='https://fuchsia.googlesource.com/integration',
+          repo='topaz',
           project='integration',
           target='x64',
           packages=['%s/packages/default' % project],
