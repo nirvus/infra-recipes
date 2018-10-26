@@ -251,7 +251,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
                manifest,
                remote,
                project=None,
-               timeout_secs=20 * 60):
+               timeout_secs=40 * 60):
     """Uses Jiri to check out a Fuchsia project.
 
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.

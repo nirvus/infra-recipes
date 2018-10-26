@@ -277,7 +277,7 @@
     ],
     "infra_step": true,
     "name": "checkout.jiri update",
-    "timeout": 1200,
+    "timeout": 2400,
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

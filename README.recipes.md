@@ -473,7 +473,7 @@ Args:
 Returns:
   A FuchsiaBuildResults, representing the recently completed build.
 
-&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#249)(self, build, manifest, remote, project=None, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout](/recipe_modules/fuchsia/api.py#249)(self, build, manifest, remote, project=None, timeout_secs=(40 \* 60)):**
 
 Uses Jiri to check out a Fuchsia project.
 
