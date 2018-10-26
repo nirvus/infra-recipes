@@ -84,6 +84,8 @@
       "-time",
       "-name",
       "zircon",
+      "-revision",
+      "HEAD",
       "manifest",
       "https://fuchsia.googlesource.com/zircon"
     ],

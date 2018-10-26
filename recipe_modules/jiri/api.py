@@ -399,7 +399,7 @@ class JiriApi(recipe_api.RecipeApi):
     else:
       revision = 'HEAD'
       commit = None
-      if build_input and build_input.gitiles_commit:
+      if build_input and build_input.gitiles_commit.id:
         commit = build_input.gitiles_commit
         revision = commit.id
 
