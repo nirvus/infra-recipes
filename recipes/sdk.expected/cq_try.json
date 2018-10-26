@@ -183,11 +183,11 @@
       "-v",
       "-time",
       "-name",
-      "topaz",
+      "integration",
       "-remote-branch",
       "master",
-      "manifest/topaz",
-      "https://fuchsia.googlesource.com/topaz"
+      "fuchsia/topaz/topaz",
+      "https://fuchsia.googlesource.com/integration"
     ],
     "infra_step": true,
     "name": "checkout.jiri import",
@@ -332,7 +332,7 @@
       "-time",
       "-json-output",
       "/path/to/tmp/json",
-      "topaz"
+      "integration"
     ],
     "infra_step": true,
     "name": "jiri project",
@@ -343,9 +343,9 @@
       "@@@STEP_LOG_LINE@json.output@      \"(HEAD detached at c22471f)\"@@@",
       "@@@STEP_LOG_LINE@json.output@    ], @@@",
       "@@@STEP_LOG_LINE@json.output@    \"current_branch\": \"\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"name\": \"topaz\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/topaz\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/topaz\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"name\": \"integration\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"path\": \"[START_DIR]/path/to/integration\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"remote\": \"https://fuchsia.googlesource.com/integration\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"revision\": \"c22471f4e3f842ae18dd9adec82ed9eb78ed1127\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",

@@ -30,20 +30,22 @@ DEPS = [
     'recipe_engine/step',
 ]
 
-PROJECTS = ['garnet', 'topaz']
+REPOS = ['garnet', 'topaz']
 
 BUILD_TYPE = 'release'
 
 PROPERTIES = {
     'project':
-        Property(kind=Enum(*PROJECTS), help='Jiri remote manifest project'),
+        Property(kind=str, help='Jiri remote manifest project'),
     'manifest':
         Property(kind=str, help='Jiri manifest to use'),
     'remote':
         Property(kind=str, help='Remote manifest repository'),
+    'repo':
+        Property(kind=Enum(*REPOS), help='Repo to checkout, build', default=None),
 }
 
-def RunSteps(api, project, manifest, remote):
+def RunSteps(api, project, manifest, remote, repo):
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
 
@@ -65,7 +67,7 @@ def RunSteps(api, project, manifest, remote):
   builds = {}
   for target in ('arm64', 'x64'):
     with api.step.nest('build ' + target):
-      sdk_build_package = '%s/packages/sdk/%s' % (project, project)
+      sdk_build_package = '%s/packages/sdk/%s' % (repo, repo)
       builds[target] = api.fuchsia.build(
           target=target,
           build_type=BUILD_TYPE,
@@ -82,10 +84,10 @@ def RunSteps(api, project, manifest, remote):
       args=[
         '--alpha-archive',
         builds['x64'].fuchsia_build_dir.join('sdk', 'archive', '%s.tar.gz' %
-                                             project),
+                                             repo),
         '--beta-archive',
         builds['arm64'].fuchsia_build_dir.join('sdk', 'archive', '%s.tar.gz' %
-                                               project),
+                                               repo),
         '--output-archive',
         full_archive_path,
       ])
@@ -120,14 +122,14 @@ def RunSteps(api, project, manifest, remote):
     )
 
   # Only publish the resulting Bazel SDK for Topaz.
-  if project == 'topaz':
+  if repo == 'topaz':
     if not api.properties.get('tryjob'):
       with api.step.nest('upload bazel sdk'):
         # Upload the SDK to CIPD and GCS.
         UploadPackage(api, 'bazel', sdk_dir, remote, revision)
 
   # Publish the unprocessed SDK for Garnet.
-  if project == 'garnet':
+  if repo == 'garnet':
     sdk_dir = api.path['cleanup'].join('chromium-sdk')
 
     # Extract the archive to a directory for CIPD processing.
@@ -255,9 +257,10 @@ def GenTests(api):
         revision=revision,
       ) +
       api.properties(
-          project='garnet',
-          manifest='manifest/garnet',
-          remote='https://fuchsia.googlesource.com/garnet') +
+          project='integration',
+          repo='garnet',
+          manifest='fuchsia/garnet/garnet',
+          remote='https://fuchsia.googlesource.com/integration') +
       api.step_data('upload chromium sdk.hash archive', api.hash(revision))
   )
   yield (api.test('ci_topaz') +
@@ -266,9 +269,10 @@ def GenTests(api):
         revision=revision,
       ) +
       api.properties(
-          project='topaz',
-          manifest='manifest/topaz',
-          remote='https://fuchsia.googlesource.com/topaz')
+          project='integration',
+          repo='topaz',
+          manifest='fuchsia/topaz/topaz',
+          remote='https://fuchsia.googlesource.com/integration')
   )
   yield (api.test('ci_new_garnet') +
       api.buildbucket.ci_build(
@@ -276,9 +280,10 @@ def GenTests(api):
         revision=revision,
       ) +
       api.properties(
-          project='garnet',
-          manifest='manifest/garnet',
-          remote='https://fuchsia.googlesource.com/garnet') +
+          project='integration',
+          repo='garnet',
+          manifest='fuchsia/garnet/garnet',
+          remote='https://fuchsia.googlesource.com/integration') +
       api.step_data('upload chromium sdk.cipd search fuchsia/sdk/linux-amd64 ' +
                     'git_revision:%s' % revision,
                      api.json.output({'result': []})) +
@@ -290,9 +295,10 @@ def GenTests(api):
         revision=revision,
       ) +
       api.properties(
-          project='topaz',
-          manifest='manifest/topaz',
-          remote='https://fuchsia.googlesource.com/topaz') +
+          project='integration',
+          repo='topaz',
+          manifest='fuchsia/topaz/topaz',
+          remote='https://fuchsia.googlesource.com/integration') +
       api.step_data('upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 ' +
                     'git_revision:%s' % revision,
                      api.json.output({'result': []}))
@@ -302,8 +308,9 @@ def GenTests(api):
         git_repo="https://fuchsia.googlesource.com/topaz",
       ) +
       api.properties(
-          project='topaz',
-          manifest='manifest/topaz',
-          remote='https://fuchsia.googlesource.com/topaz')
+          project='integration',
+          repo='topaz',
+          manifest='fuchsia/topaz/topaz',
+          remote='https://fuchsia.googlesource.com/integration')
   )
 # yapf: enable

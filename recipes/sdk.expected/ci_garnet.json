@@ -122,14 +122,31 @@
       "-v",
       "-time",
       "-name",
-      "garnet",
+      "integration",
       "-revision",
-      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-      "manifest/garnet",
-      "https://fuchsia.googlesource.com/garnet"
+      "HEAD",
+      "fuchsia/garnet/garnet",
+      "https://fuchsia.googlesource.com/integration"
     ],
     "infra_step": true,
     "name": "checkout.jiri import",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "override",
+      "-v",
+      "-time",
+      "-revision",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "garnet",
+      "https://fuchsia.googlesource.com/integration"
+    ],
+    "infra_step": true,
+    "name": "checkout.jiri override",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

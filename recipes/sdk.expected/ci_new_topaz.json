@@ -122,14 +122,31 @@
       "-v",
       "-time",
       "-name",
-      "topaz",
+      "integration",
       "-revision",
-      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-      "manifest/topaz",
-      "https://fuchsia.googlesource.com/topaz"
+      "HEAD",
+      "fuchsia/topaz/topaz",
+      "https://fuchsia.googlesource.com/integration"
     ],
     "infra_step": true,
     "name": "checkout.jiri import",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "override",
+      "-v",
+      "-time",
+      "-revision",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "topaz",
+      "https://fuchsia.googlesource.com/integration"
+    ],
+    "infra_step": true,
+    "name": "checkout.jiri override",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -839,7 +856,7 @@
       "-ref",
       "latest",
       "-tag",
-      "git_repository:https://fuchsia.googlesource.com/topaz",
+      "git_repository:https://fuchsia.googlesource.com/integration",
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
