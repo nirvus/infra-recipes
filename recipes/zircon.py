@@ -565,13 +565,16 @@ def Build(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev,
 def RunSteps(api, project, manifest, remote, target, toolchain, make_args,
              use_kvm, run_tests, runtests_args, device_type, run_host_tests):
   api.goma.ensure_goma()
-  api.jiri.ensure_jiri()
 
   with api.context(infra_steps=True):
-    api.jiri.checkout(manifest=manifest,
-                      remote=remote,
-                      project=project,
-                      build_input=api.buildbucket.build.input)
+    assert manifest
+    assert remote
+    api.fuchsia.checkout(
+        build_input=api.buildbucket.build.input,
+        manifest=manifest,
+        remote=remote,
+        project=project,
+    )
 
   src_dir = api.path['start_dir'].join('zircon')
   build_dir = Build(
