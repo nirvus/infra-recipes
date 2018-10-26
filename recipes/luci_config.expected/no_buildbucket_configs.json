@@ -50,8 +50,6 @@
       "import",
       "-v",
       "-time",
-      "-revision",
-      "HEAD",
       "manifest/infra",
       "https://fuchsia.googlesource.com/manifest"
     ],

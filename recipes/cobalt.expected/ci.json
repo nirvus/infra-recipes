@@ -50,8 +50,6 @@
       "import",
       "-v",
       "-time",
-      "-revision",
-      "HEAD",
       "cobalt",
       "https://fuchsia.googlesource.com/manifest"
     ],

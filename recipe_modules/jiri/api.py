@@ -277,6 +277,17 @@ class JiriApi(recipe_api.RecipeApi):
 
     return self(*cmd)
 
+  def override(self, project, remote, new_revision='HEAD'):
+    """Overrides a given project entry with a new revision.
+
+    Args:
+      project (str): name of the project.
+      remote (str): URL to the remote repository.
+      new_revision (str|None): new revision to override the project's current.
+    """
+    cmd = ['override', '-revision', new_revision, project, remote]
+    return self(*cmd)
+
   def snapshot(self, file=None, test_data=None, **kwargs):
     cmd = [
         'snapshot',
@@ -322,7 +333,8 @@ class JiriApi(recipe_api.RecipeApi):
                project=None,
                build_input=None,
                timeout_secs=None,
-               run_hooks=True):
+               run_hooks=True,
+               override=False):
     """Initializes and populates a jiri checkout from a remote manifest.
 
     Emits a source manifest for the build.
@@ -335,6 +347,8 @@ class JiriApi(recipe_api.RecipeApi):
         build.
       timeout_secs (int): A timeout for jiri update in seconds.
       run_hooks (bool): Whether or not to run the hooks.
+      override (bool): Whether to override the imported manifest with a commit's
+        given revision.
     """
     self.init()
 
@@ -384,9 +398,17 @@ class JiriApi(recipe_api.RecipeApi):
 
     else:
       revision = 'HEAD'
-      if build_input:
-        revision = build_input.gitiles_commit.id or revision
-      self.import_manifest(manifest, remote, name=project, revision=revision)
+      commit = None
+      if build_input and build_input.gitiles_commit:
+        commit = build_input.gitiles_commit
+        revision = commit.id
+
+      if override and commit:
+        self.import_manifest(manifest, remote, name=project, revision='HEAD')
+        self.override(project=commit.project, remote=remote, new_revision=revision)
+      else:
+        self.import_manifest(manifest, remote, name=project, revision=revision)
+
       self.update(run_hooks=False, timeout=timeout_secs)
       if run_hooks:
         self.run_hooks()

@@ -49,6 +49,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "garnet",
       "-revision",
       "a1b2c3",
       "minimal",

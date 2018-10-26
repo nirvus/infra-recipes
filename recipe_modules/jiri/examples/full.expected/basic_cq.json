@@ -104,6 +104,8 @@
       "import",
       "-v",
       "-time",
+      "-name",
+      "garnet",
       "-remote-branch",
       "master",
       "minimal",

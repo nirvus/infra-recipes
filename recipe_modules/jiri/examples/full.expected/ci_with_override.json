@@ -52,11 +52,24 @@
       "-name",
       "garnet",
       "-revision",
-      "a1b2c3",
+      "HEAD",
       "minimal",
       "https://fuchsia.googlesource.com/manifest"
     ],
     "name": "jiri import"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "override",
+      "-v",
+      "-time",
+      "-revision",
+      "a1b2c3",
+      "garnet",
+      "https://fuchsia.googlesource.com/manifest"
+    ],
+    "name": "jiri override"
   },
   {
     "cmd": [
@@ -223,7 +236,15 @@
     "stdout": "/path/to/tmp/json",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{}@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"gerrithost\": \"project_gerrit_host\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"githooks\": \"project_githooks\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"historydepth\": \"project_historydepth\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"name\": \"project_name\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"path\": \"project_path\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"remote\": \"project_remote\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"revision\": \"project_revision\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },
@@ -247,7 +268,15 @@
     "stdout": "/path/to/tmp/json",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{}@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"gerrithost\": \"project_gerrit_host\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"githooks\": \"project_githooks\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"historydepth\": \"project_historydepth\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"name\": \"project_name\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"path\": \"project_path\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"remote\": \"project_remote\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"revision\": \"project_revision\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
   },

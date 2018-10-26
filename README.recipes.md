@@ -914,7 +914,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#319)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#330)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -928,8 +928,10 @@ Args:
     build.
   timeout_secs (int): A timeout for jiri update in seconds.
   run_hooks (bool): Whether or not to run the hooks.
+  override (bool): Whether to override the imported manifest with a commit's
+    given revision.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#395)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#417)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -957,7 +959,7 @@ Args:
 Returns:
   A step to edit the manifest.
 
-&mdash; **def [emit\_source\_manifest](/recipe_modules/jiri/api.py#314)(self):**
+&mdash; **def [emit\_source\_manifest](/recipe_modules/jiri/api.py#325)(self):**
 
 Emits a source manifest for this build for the current jiri checkout.
 
@@ -981,6 +983,15 @@ Returns:
 &mdash; **def [init](/recipe_modules/jiri/api.py#47)(self, dir=None, \*\*kwargs):**
 
 &emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#43)(self):**
+
+&mdash; **def [override](/recipe_modules/jiri/api.py#280)(self, project, remote, new_revision='HEAD'):**
+
+Overrides a given project entry with a new revision.
+
+Args:
+  project (str): name of the project.
+  remote (str): URL to the remote repository.
+  new_revision (str|None): new revision to override the project's current.
 
 &mdash; **def [patch](/recipe_modules/jiri/api.py#255)(self, ref, host=None, project=None, delete=False, force=False, rebase=False, cherrypick=False):**
 
@@ -1009,7 +1020,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#412)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#434)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -1031,9 +1042,9 @@ Returns:
 
 &mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#134)(self, local_manifest=False, attempts=3):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#280)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#291)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#293)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#304)(self, file=None, test_data=None, \*\*kwargs):**
 
 Generates a source manifest JSON file.
 
@@ -1677,7 +1688,7 @@ Recipe for building Jiri.
 
 [DEPS](/recipe_modules/jiri/examples/full.py#7): [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-&mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#26)(api, tryjob, checkout_from_snapshot):**
+&mdash; **def [RunSteps](/recipe_modules/jiri/examples/full.py#31)(api, tryjob, override, checkout_from_snapshot):**
 ### *recipes* / [licenses](/recipes/licenses.py)
 
 [DEPS](/recipes/licenses.py#11): [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
