@@ -143,7 +143,7 @@
       "-revision",
       "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "topaz",
-      "https://fuchsia.googlesource.com/integration"
+      "https://fuchsia.googlesource.com/topaz"
     ],
     "infra_step": true,
     "name": "checkout.jiri override",

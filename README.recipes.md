@@ -905,15 +905,15 @@ and directories.
 
 [DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [JiriApi](/recipe_modules/jiri/api.py#14)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [JiriApi](/recipe_modules/jiri/api.py#16)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 JiriApi provides support for Jiri managed checkouts.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/jiri/api.py#21)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/jiri/api.py#23)(self, \*args, \*\*kwargs):**
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#330)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#332)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -930,7 +930,7 @@ Args:
   override (bool): Whether to override the imported manifest with a commit's
     given revision.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#417)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#430)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -940,9 +940,9 @@ Args:
   snapshot (Path): Path to the jiri snapshot.
   timeout_secs (int): A timeout for jiri update in seconds.
 
-&mdash; **def [clean](/recipe_modules/jiri/api.py#143)(self, all=False, \*\*kwargs):**
+&mdash; **def [clean](/recipe_modules/jiri/api.py#145)(self, all=False, \*\*kwargs):**
 
-&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#189)(self, manifest, projects=None, imports=None, test_data=None, \*\*kwargs):**
+&mdash; **def [edit\_manifest](/recipe_modules/jiri/api.py#191)(self, manifest, projects=None, imports=None, test_data=None, \*\*kwargs):**
 
 Creates a step to edit a Jiri manifest.
 
@@ -958,13 +958,13 @@ Args:
 Returns:
   A step to edit the manifest.
 
-&mdash; **def [emit\_source\_manifest](/recipe_modules/jiri/api.py#325)(self):**
+&mdash; **def [emit\_source\_manifest](/recipe_modules/jiri/api.py#327)(self):**
 
 Emits a source manifest for this build for the current jiri checkout.
 
-&mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#32)(self, version=None):**
+&mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#34)(self, version=None):**
 
-&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#152)(self, manifest, remote, name=None, revision=None, overwrite=False, remote_branch=None, \*\*kwargs):**
+&mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#154)(self, manifest, remote, name=None, revision=None, overwrite=False, remote_branch=None, \*\*kwargs):**
 
 Imports manifest into Jiri project.
 
@@ -979,11 +979,11 @@ Args:
 Returns:
   A step result.
 
-&mdash; **def [init](/recipe_modules/jiri/api.py#47)(self, dir=None, \*\*kwargs):**
+&mdash; **def [init](/recipe_modules/jiri/api.py#49)(self, dir=None, \*\*kwargs):**
 
-&emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#43)(self):**
+&emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#45)(self):**
 
-&mdash; **def [override](/recipe_modules/jiri/api.py#280)(self, project, remote, new_revision='HEAD'):**
+&mdash; **def [override](/recipe_modules/jiri/api.py#282)(self, project, remote, new_revision='HEAD'):**
 
 Overrides a given project entry with a new revision.
 
@@ -992,9 +992,9 @@ Args:
   remote (str): URL to the remote repository.
   new_revision (str|None): new revision to override the project's current.
 
-&mdash; **def [patch](/recipe_modules/jiri/api.py#255)(self, ref, host=None, project=None, delete=False, force=False, rebase=False, cherrypick=False):**
+&mdash; **def [patch](/recipe_modules/jiri/api.py#257)(self, ref, host=None, project=None, delete=False, force=False, rebase=False, cherrypick=False):**
 
-&mdash; **def [project](/recipe_modules/jiri/api.py#61)(self, projects=[], out=None, test_data=None):**
+&mdash; **def [project](/recipe_modules/jiri/api.py#63)(self, projects=[], out=None, test_data=None):**
 
 Args:
   projects (List): A heterogeneous list of strings representing the name of
@@ -1019,7 +1019,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#434)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#447)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -1039,11 +1039,11 @@ Returns:
       if 'remote' in project:
           ...
 
-&mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#134)(self, local_manifest=False, attempts=3):**
+&mdash; **def [run\_hooks](/recipe_modules/jiri/api.py#136)(self, local_manifest=False, attempts=3):**
 
-&mdash; **def [snapshot](/recipe_modules/jiri/api.py#291)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [snapshot](/recipe_modules/jiri/api.py#293)(self, file=None, test_data=None, \*\*kwargs):**
 
-&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#304)(self, file=None, test_data=None, \*\*kwargs):**
+&mdash; **def [source\_manifest](/recipe_modules/jiri/api.py#306)(self, file=None, test_data=None, \*\*kwargs):**
 
 Generates a source manifest JSON file.
 
@@ -1053,7 +1053,7 @@ Args:
 Returns:
   The contents of the source manifest as a Python dictionary.
 
-&mdash; **def [update](/recipe_modules/jiri/api.py#108)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
+&mdash; **def [update](/recipe_modules/jiri/api.py#110)(self, gc=False, rebase_tracked=False, local_manifest=False, run_hooks=True, snapshot=None, attempts=3, \*\*kwargs):**
 ### *recipe_modules* / [lkgs](/recipe_modules/lkgs)
 
 [DEPS](/recipe_modules/lkgs/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]

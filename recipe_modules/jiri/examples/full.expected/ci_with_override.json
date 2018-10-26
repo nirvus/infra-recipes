@@ -67,7 +67,7 @@
       "-revision",
       "a1b2c3",
       "garnet",
-      "https://fuchsia.googlesource.com/manifest"
+      "https://fuchsia.googlesource.com/garnet"
     ],
     "name": "jiri override"
   },

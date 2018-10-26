@@ -4,6 +4,8 @@
 
 from recipe_engine import recipe_api
 
+from urlparse import urlparse
+
 # Flags added to all jiri commands.
 COMMON_FLAGS = [
     '-v',
@@ -405,7 +407,18 @@ class JiriApi(recipe_api.RecipeApi):
 
       if override and commit:
         self.import_manifest(manifest, remote, name=project, revision='HEAD')
-        self.override(project=commit.project, remote=remote, new_revision=revision)
+
+        # Note that in order to identify a project to override, jiri keys on
+        # both the project name and the remote source repository (not to be
+        # confused with `remote`, the manifest repository).
+        # We reconstruct the source repository in a scheme-agnostic manner.
+        manifest_remote_url = urlparse(remote)
+        project_remote = '%s://%s/%s' % (
+          manifest_remote_url.scheme,
+          manifest_remote_url.netloc,
+          commit.project,
+        )
+        self.override(project=commit.project, remote=project_remote, new_revision=revision)
       else:
         self.import_manifest(manifest, remote, name=project, revision=revision)
 
