@@ -8,7 +8,7 @@ from urlparse import urlparse
 
 # Flags added to all jiri commands.
 COMMON_FLAGS = [
-    '-v',
+    '-vv',
     '-time',
 ]
 

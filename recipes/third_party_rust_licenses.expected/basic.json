@@ -33,7 +33,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
-      "-v",
+      "-vv",
       "-time",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
@@ -48,7 +48,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "-v",
+      "-vv",
       "-time",
       "third_party_rust_crates",
       "https://fuchsia.googlesource.com/manifest"
@@ -60,7 +60,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
-      "-v",
+      "-vv",
       "-time",
       "-autoupdate=false",
       "-attempts=3"

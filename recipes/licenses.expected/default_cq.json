@@ -41,7 +41,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "init",
-      "-v",
+      "-vv",
       "-time",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
@@ -120,7 +120,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "import",
-      "-v",
+      "-vv",
       "-time",
       "-remote-branch",
       "master",
@@ -137,7 +137,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
-      "-v",
+      "-vv",
       "-time",
       "-autoupdate=false",
       "-attempts=3",
@@ -154,7 +154,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "patch",
-      "-v",
+      "-vv",
       "-time",
       "-host",
       "https://fuchsia-review.googlesource.com",
@@ -173,7 +173,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
-      "-v",
+      "-vv",
       "-time",
       "-autoupdate=false",
       "-attempts=3",
@@ -193,7 +193,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "run-hooks",
-      "-v",
+      "-vv",
       "-time",
       "-attempts=3",
       "-local-manifest=true"
@@ -208,7 +208,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "source-manifest",
-      "-v",
+      "-vv",
       "-time",
       "/path/to/tmp/json"
     ],
@@ -233,7 +233,7 @@
     "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "snapshot",
-      "-v",
+      "-vv",
       "-time",
       "[CLEANUP]/jiri.snapshot"
     ],
