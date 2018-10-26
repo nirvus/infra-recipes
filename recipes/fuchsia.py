@@ -178,21 +178,21 @@ def RunSteps(api, project, manifest, remote, repo, checkout_snapshot, target,
           'the secrets pipeline is only supported in tryjobs, ' +
           'when networking for tests enabled, and ' + 'and on QEMU')
 
-  build_input = api.buildbucket.build.input
+  build = api.buildbucket.build
   if api.properties.get('tryjob'):
-    assert len(build_input.gerrit_changes) == 1
+    assert len(build.input.gerrit_changes) == 1
 
   if checkout_snapshot:
     if api.properties.get('tryjob'):
       checkout = api.fuchsia.checkout_patched_snapshot(
-          gerrit_change=build_input.gerrit_changes[0],)
+          gerrit_change=build.input.gerrit_changes[0],)
     else:
-      checkout = api.fuchsia.checkout_snapshot(gitiles_commit=build_input.gitiles_commit,)
+      checkout = api.fuchsia.checkout_snapshot(gitiles_commit=build.input.gitiles_commit,)
   else:
     assert manifest
     assert remote
     checkout = api.fuchsia.checkout(
-        build_input=build_input,
+        build=build,
         manifest=manifest,
         remote=remote,
         project=project,

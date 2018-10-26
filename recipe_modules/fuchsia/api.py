@@ -247,7 +247,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
         'test_coverage_gcs_bucket')
 
   def checkout(self,
-               build_input,
+               build,
                manifest,
                remote,
                project=None,
@@ -257,8 +257,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
     The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
 
     Args:
-      build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
-        build.
+      build (buildbucket.build_pb2.Build): A buildbucket build.
       manifest (str): A path to the manifest in the remote (e.g. manifest/minimal)
       remote (str): A URL to the remote repository which Jiri will be pointed at
       project (str): The name of the project
@@ -271,13 +270,14 @@ class FuchsiaApi(recipe_api.RecipeApi):
     with self.m.step.nest("checkout"):
       with self.m.context(infra_steps=True):
         self.m.jiri.ensure_jiri()
+        global_integration = build and 'global' in build.builder.bucket
         self.m.jiri.checkout(
             manifest,
             remote,
             project=project,
-            build_input=build_input,
+            build_input=build.input if build else None,
             timeout_secs=timeout_secs,
-            override=project == 'integration',
+            override=project == 'integration' and not global_integration,
         )
 
         snapshot_file = self.m.path['cleanup'].join('jiri.snapshot')

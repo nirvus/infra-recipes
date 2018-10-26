@@ -224,7 +224,7 @@ def RunSteps(api, dry_run):
       manifest='manifest/topaz',
       remote='https://fuchsia.googlesource.com/topaz',
       project='topaz',
-      build_input=api.buildbucket.build.input,
+      build=api.buildbucket.build,
   )
 
   build = api.fuchsia.build(

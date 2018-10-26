@@ -24,13 +24,13 @@ TARGETS = ['arm64', 'x64']
 def RunSteps(api):
   api.gitiles.ensure_gitiles()
 
-  build_input = api.buildbucket.build.input
-  revision = build_input.gitiles_commit.id
+  build = api.buildbucket.build
+  revision = build.input.gitiles_commit.id
 
   checkout = api.fuchsia.checkout(
       # jiri manifest lives in fuchsia/manifests, if this
       # is a CI build, we just want to checkout at HEAD
-      build_input=None if revision else build_input,
+      build=None if revision else build,
       manifest='webkit',
       remote='https://fuchsia.googlesource.com/manifest',
   )

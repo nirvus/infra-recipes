@@ -15,7 +15,7 @@ DEPS = [
 def RunSteps(api):
   api.clang_tidy.ensure_clang()
   checkout_dir = api.fuchsia.checkout(
-      build_input=api.buildbucket.build.input,
+      build=api.buildbucket.build,
       manifest='manifest/minimal',
       remote='tools',
   ).root_dir

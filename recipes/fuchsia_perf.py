@@ -141,7 +141,7 @@ def RunSteps(api, project, manifest, remote, target, build_type, packages,
   api.catapult.ensure_catapult()
 
   api.fuchsia.checkout(
-      build_input=api.buildbucket.build.input,
+      build=api.buildbucket.build,
       manifest=manifest,
       remote=remote,
       project=project,

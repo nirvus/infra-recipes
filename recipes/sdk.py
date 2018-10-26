@@ -49,15 +49,15 @@ def RunSteps(api, project, manifest, remote, repo):
   api.go.ensure_go()
   api.gsutil.ensure_gsutil()
 
-  build_input = api.buildbucket.build.input
+  build = api.buildbucket.build
   api.fuchsia.checkout(
-      build_input=build_input,
+      build=build,
       manifest=manifest,
       remote=remote,
       project=project)
 
   with api.context(infra_steps=True):
-    revision = build_input.gitiles_commit.id
+    revision = build.input.gitiles_commit.id
     if not revision:
       # api.fuchsia.checkout() will have ensured that jiri exists.
       revision = api.jiri.project([project]).json.output[0]['revision']

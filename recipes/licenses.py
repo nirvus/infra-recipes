@@ -29,7 +29,7 @@ PROPERTIES = {
 
 def RunSteps(api, project, remote, manifest):
   checkout = api.fuchsia.checkout(
-      build_input=api.buildbucket.build.input,
+      build=api.buildbucket.build,
       manifest=manifest,
       remote=remote,
       project=project,

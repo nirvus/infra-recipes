@@ -131,19 +131,19 @@ def RunSteps(api, project, manifest, remote, checkout_snapshot, target,
              requires_secrets, pave, boards, products, zircon_args,
              test_in_shards, gcs_bucket, upload_breakpad_symbols):
   upload_results = not api.properties.get('tryjob') and gcs_bucket
-  build_input = api.buildbucket.build.input
+  build = api.buildbucket.build
 
   if checkout_snapshot:
     if api.properties.get('tryjob'):
-      assert len(build_input.gerrit_changes) == 1
+      assert len(build.input.gerrit_changes) == 1
       checkout = api.fuchsia.checkout_patched_snapshot(
-          gerrit_change=build_input.gerrit_changes[0],)
+          gerrit_change=build.input.gerrit_changes[0],)
     else:
       checkout = api.fuchsia.checkout_snapshot(
-          gitiles_commit=build_input.gitiles_commit,)
+          gitiles_commit=build.input.gitiles_commit,)
   else:
     checkout = api.fuchsia.checkout(
-        build_input=build_input,
+        build=build,
         manifest=manifest,
         remote=remote,
         project=project,

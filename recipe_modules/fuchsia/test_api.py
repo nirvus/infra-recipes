@@ -90,7 +90,9 @@ class FuchsiaTestApi(recipe_test_api.RecipeTestApi):
 
     final_properties['$recipe_engine/buildbucket'] = {
         'build': {
-            'bucket': '###buildbucket-bucket###',
+            'builder': {
+              'bucket': '###buildbucket-bucket###'
+            },
             'id': '5555555555',
             'project': '###buildbucket-project###',
             'tags': ['builder:###buildbucket-builder###'],

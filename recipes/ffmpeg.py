@@ -37,10 +37,8 @@ PROPERTIES = {
 
 
 def RunSteps(api, project):
-  build_input = api.buildbucket.build.input
-
   checkout = api.fuchsia.checkout(
-      build_input=build_input,
+      build=api.buildbucket.build,
       manifest='manifest/ffmpeg',
       remote=REPOSITORY,
       project=project,
