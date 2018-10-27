@@ -257,11 +257,15 @@ def RunSteps(api, project, manifest, remote, repo, checkout_snapshot, target,
       build_for_testing=run_tests or test_in_shards,
       # Mac builders cannot handle the strain of building the archive, so
       # cleanest just to turn off building the archives when running host tests.
-      build_archive=upload_results and not run_host_tests,
-      build_package_archive=upload_results and not run_host_tests,
+      #
+      # In all other situations, we build the archives even though we might not
+      # upload or use them; this is so that CQ and CI compilations exercise
+      # the same code, a trade-off to avoid surprise CI breakages.
+      build_archive=not run_host_tests,
+      build_package_archive=not run_host_tests,
   )
 
-  if not tryjob and gcs_bucket:
+  if upload_results:
     build.upload_results(gcs_bucket, upload_breakpad_symbols)
 
   if run_tests:
