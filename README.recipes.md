@@ -1588,11 +1588,15 @@ This differs from the fuchsia recipe in the following ways:
 &mdash; **def [RunSteps](/recipes/fuchsia_perf.py#137)(api, project, manifest, remote, target, build_type, packages, variant, gn_args, ninja_targets, test_pool, catapult_url, device_type, pave, dashboard_masters_name, dashboard_bots_name, upload_to_dashboard, benchmarks_package, boards, products, test_timeout_secs):**
 ### *recipes* / [fuchsia\_roller](/recipes/fuchsia_roller.py)
 
-[DEPS](/recipes/fuchsia_roller.py#14): [auto\_roller](#recipe_modules-auto_roller), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/fuchsia_roller.py#16): [auto\_roller](#recipe_modules-auto_roller), [gitiles](#recipe_modules-gitiles), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for rolling Fuchsia layers into upper layers.
 
-&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#69)(api, project, manifest, remote, roll_type, import_in, import_from, revision, dry_run):**
+&mdash; **def [RunSteps](/recipes/fuchsia_roller.py#78)(api, project, manifest, remote, roll_type, import_in, import_from, revision, dry_run):**
+
+&mdash; **def [SsoToHttps](/recipes/fuchsia_roller.py#63)(remote):**
+
+Transform a url of SSO scheme to its associated https version 
 ### *recipes* / [gcc\_toolchain](/recipes/gcc_toolchain.py)
 
 [DEPS](/recipes/gcc_toolchain.py#13): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [hash](#recipe_modules-hash), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile], [recipe\_engine/url][recipe_engine/recipe_modules/url]

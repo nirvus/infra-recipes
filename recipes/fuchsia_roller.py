@@ -6,6 +6,8 @@
 from recipe_engine.config import Enum, Single
 from recipe_engine.recipe_api import Property, StepFailure
 
+from urlparse import urlparse
+
 # ROLL_TYPES lists the types of rolls we can perform on the target manifest.
 # * 'import': An <import> tag will be updated.
 # * 'project': A <project> tag will be updated.
@@ -58,6 +60,13 @@ COMMIT_MESSAGE = """[roll] Roll {project} {old}..{new} ({count} commits)
 Test: CQ
 """
 
+def SsoToHttps(remote):
+  """Transform a url of SSO scheme to its associated https version """
+  if not remote or 'sso://' not in remote:
+    return remote
+  url = urlparse(remote)
+  # Note that url.path contains a leading '/'.
+  return 'https://%s.googlesource.com%s' % (url.netloc, url.path)
 
 # This recipe has two 'modes' of operation: production and dry-run. Which mode
 # of execution should be used is dictated by the 'dry_run' property.
@@ -79,11 +88,11 @@ def RunSteps(api, project, manifest, remote, roll_type, import_in, import_from,
     project_dir = api.path['start_dir'].join(*project.split('/'))
     with api.context(cwd=project_dir):
       # Read the remote URL of the repo we're rolling from.
-      roll_from_repo = api.jiri.read_manifest_element(
+      roll_from_repo = SsoToHttps(api.jiri.read_manifest_element(
           manifest=import_in,
           element_type=roll_type,
           element_name=import_from,
-      ).get('remote')
+      ).get('remote'))
 
       if not revision:
         revision = api.gitiles.refs(roll_from_repo).get('refs/heads/master', None)
@@ -232,17 +241,32 @@ def GenTests(api):
   # Test a successful roll of zircon into garnet.
   yield (api.test('zircon') +
       api.properties(project='garnet',
-                        manifest='manifest/garnet',
-                        import_in='manifest/garnet',
-                        import_from='zircon',
-                        remote='https://fuchsia.googlesource.com/garnet',
-                        revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
+                     manifest='manifest/garnet',
+                     import_in='manifest/garnet',
+                     import_from='zircon',
+                     remote='https://fuchsia.googlesource.com/garnet',
+                     revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
       api.gitiles.log('log', 'A') + success_step_data +
       api.jiri.read_manifest_element(api,
           manifest='manifest/garnet',
           element_name='zircon',
           element_type='import',
           test_output={'remote': 'https://fuchsia.googlesource.com/zircon'}))
+
+  # Test a successful roll of zircon into garnet.
+  yield (api.test('roll_from_non_https_remote') +
+      api.properties(project='garnet',
+                     manifest='manifest/garnet',
+                     import_in='manifest/garnet',
+                     import_from='third_party/foo',
+                     remote='https://fuchsia.googlesource.com/garnet',
+                     revision='fc4dc762688d2263b254208f444f5c0a4b91bc07') +
+      api.gitiles.log('log', 'A') + success_step_data +
+      api.jiri.read_manifest_element(api,
+          manifest='manifest/garnet',
+          element_name='third_party/foo',
+          element_type='import',
+          test_output={'remote': 'sso://host/foo'}))
 
   # Test a no-op roll of zircon into garnet.
   yield (api.test('zircon-noop') +
