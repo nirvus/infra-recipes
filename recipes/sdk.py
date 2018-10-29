@@ -56,12 +56,8 @@ def RunSteps(api, project, manifest, remote, repo):
       remote=remote,
       project=project)
 
-  with api.context(infra_steps=True):
-    revision = build.input.gitiles_commit.id
-    if not revision:
-      # api.fuchsia.checkout() will have ensured that jiri exists.
-      revision = api.jiri.project([project]).json.output[0]['revision']
-      api.step.active_result.presentation.properties['got_revision'] = revision
+  revision = build.input.gitiles_commit.id
+  global_integration = 'global' in build.builder.bucket
 
   # Build fuchsia for each target.
   builds = {}
@@ -123,7 +119,10 @@ def RunSteps(api, project, manifest, remote, repo):
 
   # Only publish the resulting Bazel SDK for Topaz.
   if repo == 'topaz':
-    if not api.properties.get('tryjob'):
+    # TODO(nsylvain): Remove restriction on uploading only for global
+    # integration CI once Bazel SDK consumers can differentiate between local
+    # and global uploads.
+    if revision and global_integration:
       with api.step.nest('upload bazel sdk'):
         # Upload the SDK to CIPD and GCS.
         UploadPackage(api, 'bazel', sdk_dir, remote, revision)
@@ -142,10 +141,12 @@ def RunSteps(api, project, manifest, remote, repo):
           directory=sdk_dir,
       )
 
-    if not api.properties.get('tryjob'):
+    if revision:
       with api.step.nest('upload chromium sdk'):
-        # Upload the Chromium style SDK to GCS and CIPD.
-        UploadArchive(api, full_archive_path, sdk_dir, remote, revision)
+        # Upload the Chromium style SDK to GCS and CIPD. Only upload digest
+        # during global integration CI.
+        UploadArchive(api, full_archive_path, sdk_dir, remote, revision,
+                      upload_digest=global_integration)
 
 # Given an SDK |sdk_name| with artifacts found in |staging_dir|, upload a
 # corresponding .cipd file to CIPD and GCS.
@@ -189,7 +190,7 @@ def UploadPackage(api, sdk_name, staging_dir, remote, revision):
   )
 
 
-def UploadArchive(api, sdk, out_dir, remote, revision):
+def UploadArchive(api, sdk, out_dir, remote, revision, upload_digest):
   digest = api.hash.sha1('hash archive', sdk)
   archive_base_location = 'sdk/' + api.cipd.platform_suffix()
   archive_bucket = 'fuchsia'
@@ -213,16 +214,18 @@ def UploadArchive(api, sdk, out_dir, remote, revision):
       link_name='jiri.snapshot',
       name='upload jiri.snapshot',
       unauthenticated_url=True)
-  # Record the digest of the most recently uploaded archive for downstream autorollers.
-  digest_path = api.path['cleanup'].join('digest')
-  api.file.write_text('write digest', digest_path, digest)
-  api.gsutil.upload(
-      bucket=archive_bucket,
-      src=digest_path,
-      dst='%s/LATEST_ARCHIVE' % archive_base_location,
-      link_name='LATEST_ARCHIVE',
-      name='upload latest digest',
-      unauthenticated_url=True)
+
+  if upload_digest:
+    # Record the digest of the most recently uploaded archive for downstream autorollers.
+    digest_path = api.path['cleanup'].join('digest')
+    api.file.write_text('write digest', digest_path, digest)
+    api.gsutil.upload(
+        bucket=archive_bucket,
+        src=digest_path,
+        dst='%s/LATEST_ARCHIVE' % archive_base_location,
+        link_name='LATEST_ARCHIVE',
+        name='upload latest digest',
+        unauthenticated_url=True)
 
   # Upload the SDK to CIPD as well.
   cipd_pkg_name = 'fuchsia/sdk/' + api.cipd.platform_suffix()
@@ -251,66 +254,65 @@ def UploadArchive(api, sdk, out_dir, remote, revision):
 # yapf: disable
 def GenTests(api):
   revision = api.jiri.example_revision
-  yield (api.test('ci_garnet') +
-      api.buildbucket.ci_build(
-        git_repo="https://fuchsia.googlesource.com/garnet",
-        revision=revision,
-      ) +
-      api.properties(
-          project='integration',
-          repo='garnet',
-          manifest='fuchsia/garnet/garnet',
-          remote='https://fuchsia.googlesource.com/integration') +
-      api.step_data('upload chromium sdk.hash archive', api.hash(revision))
+  garnet_properties = api.properties(
+      project='integration',
+      repo='garnet',
+      manifest='fuchsia/garnet/garnet',
+      remote='https://fuchsia.googlesource.com/integration')
+  topaz_properties = api.properties(
+      project='integration',
+      repo='topaz',
+      manifest='fuchsia/topaz/topaz',
+      remote='https://fuchsia.googlesource.com/integration')
+
+  garnet_local_ci = (garnet_properties +
+    api.buildbucket.ci_build(
+      git_repo="https://fuchsia.googlesource.com/garnet",
+      revision=revision,
+    ) +
+    api.step_data('upload chromium sdk.hash archive', api.hash(revision))
   )
-  yield (api.test('ci_topaz') +
-      api.buildbucket.ci_build(
-        git_repo="https://fuchsia.googlesource.com/garnet",
-        revision=revision,
-      ) +
-      api.properties(
-          project='integration',
-          repo='topaz',
-          manifest='fuchsia/topaz/topaz',
-          remote='https://fuchsia.googlesource.com/integration')
+  garnet_global_ci = (garnet_properties +
+    api.buildbucket.ci_build(
+      git_repo="https://fuchsia.googlesource.com/garnet",
+      revision=revision,
+      bucket="###global-integration-bucket###"
+    ) +
+    api.step_data('upload chromium sdk.hash archive', api.hash(revision))
   )
-  yield (api.test('ci_new_garnet') +
-      api.buildbucket.ci_build(
-        git_repo="https://fuchsia.googlesource.com/garnet",
-        revision=revision,
-      ) +
-      api.properties(
-          project='integration',
-          repo='garnet',
-          manifest='fuchsia/garnet/garnet',
-          remote='https://fuchsia.googlesource.com/integration') +
+
+  topaz_local_ci = topaz_properties + api.buildbucket.ci_build(
+    git_repo="https://fuchsia.googlesource.com/topaz",
+    revision=revision,
+  )
+  topaz_global_ci = topaz_properties + api.buildbucket.ci_build(
+    git_repo="https://fuchsia.googlesource.com/topaz",
+    revision=revision,
+    bucket="###global-integration-bucket###"
+  )
+
+  yield (api.test('garnet_local_ci') + garnet_local_ci)
+  yield (api.test('garnet_global_ci') + garnet_global_ci)
+  yield (api.test('garnet_global_ci_new_upload') +
+      garnet_global_ci +
       api.step_data('upload chromium sdk.cipd search fuchsia/sdk/linux-amd64 ' +
                     'git_revision:%s' % revision,
-                     api.json.output({'result': []})) +
-      api.step_data('upload chromium sdk.hash archive', api.hash(revision))
-  )
-  yield (api.test('ci_new_topaz') +
-      api.buildbucket.ci_build(
-        git_repo="https://fuchsia.googlesource.com/topaz",
-        revision=revision,
-      ) +
-      api.properties(
-          project='integration',
-          repo='topaz',
-          manifest='fuchsia/topaz/topaz',
-          remote='https://fuchsia.googlesource.com/integration') +
-      api.step_data('upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 ' +
-                    'git_revision:%s' % revision,
                      api.json.output({'result': []}))
+
   )
-  yield (api.test('cq_try') +
+  yield (api.test('topaz_local_ci') + topaz_local_ci)
+  yield (api.test('topaz_global_ci') + topaz_global_ci)
+  yield (api.test('topaz_global_ci_new_upload') +
+      topaz_global_ci +
+      api.step_data('upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 ' +
+                  'git_revision:%s' % revision,
+                   api.json.output({'result': []}))
+
+  )
+  yield (api.test('cq') +
       api.buildbucket.try_build(
         git_repo="https://fuchsia.googlesource.com/topaz",
       ) +
-      api.properties(
-          project='integration',
-          repo='topaz',
-          manifest='fuchsia/topaz/topaz',
-          remote='https://fuchsia.googlesource.com/integration')
+      topaz_properties
   )
 # yapf: enable

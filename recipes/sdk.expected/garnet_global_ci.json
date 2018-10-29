@@ -124,29 +124,12 @@
       "-name",
       "integration",
       "-revision",
-      "HEAD",
-      "fuchsia/topaz/topaz",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "fuchsia/garnet/garnet",
       "https://fuchsia.googlesource.com/integration"
     ],
     "infra_step": true,
     "name": "checkout.jiri import",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "override",
-      "-vv",
-      "-time",
-      "-revision",
-      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-      "topaz",
-      "https://fuchsia.googlesource.com/topaz"
-    ],
-    "infra_step": true,
-    "name": "checkout.jiri override",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -338,7 +321,7 @@
       "gen",
       "[START_DIR]/out/release-arm64",
       "--check",
-      "--args=target_cpu=\"arm64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false fuchsia_packages=[\"topaz/packages/sdk/topaz\"] build_sdk_archives=true"
+      "--args=target_cpu=\"arm64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false fuchsia_packages=[\"garnet/packages/sdk/garnet\"] build_sdk_archives=true"
     ],
     "name": "build arm64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -579,7 +562,7 @@
       "gen",
       "[START_DIR]/out/release-x64",
       "--check",
-      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false fuchsia_packages=[\"topaz/packages/sdk/topaz\"] build_sdk_archives=true"
+      "--args=target_cpu=\"x64\" use_goma=true goma_dir=\"[CACHE]/goma/client\" is_debug=false fuchsia_packages=[\"garnet/packages/sdk/garnet\"] build_sdk_archives=true"
     ],
     "name": "build x64.build.build fuchsia.gn gen",
     "~followup_annotations": [
@@ -728,9 +711,9 @@
       "-u",
       "[START_DIR]/scripts/sdk/merger/merge.py",
       "--alpha-archive",
-      "[START_DIR]/out/release-x64/sdk/archive/topaz.tar.gz",
+      "[START_DIR]/out/release-x64/sdk/archive/garnet.tar.gz",
       "--beta-archive",
-      "[START_DIR]/out/release-arm64/sdk/archive/topaz.tar.gz",
+      "[START_DIR]/out/release-arm64/sdk/archive/garnet.tar.gz",
       "--output-archive",
       "[CLEANUP]/merged_sdk_archive.tar.gz"
     ],
@@ -802,74 +785,92 @@
   },
   {
     "cmd": [],
-    "name": "upload bazel sdk"
+    "name": "extract chromium sdk"
   },
   {
     "cmd": [
-      "cipd",
-      "search",
-      "fuchsia/sdk/bazel/linux-amd64",
-      "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "name": "upload bazel sdk.cipd search fuchsia/sdk/bazel/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "cipd",
-      "pkg-build",
-      "-pkg-def",
-      "{\"data\": [{\"dir\": \".\", \"exclude\": []}, {\"version_file\": \".versions/sdk.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/sdk/bazel/linux-amd64\", \"root\": \"[CLEANUP]/sdk-bazel\"}",
-      "-out",
-      "[CLEANUP]/sdk.cipd",
-      "-json-output",
-      "/path/to/tmp/json"
-    ],
-    "name": "upload bazel sdk.build fuchsia/sdk/bazel/linux-amd64",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/sdk/bazel/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
-      "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "cipd",
-      "pkg-register",
-      "[CLEANUP]/sdk.cipd",
-      "-json-output",
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
       "/path/to/tmp/json",
-      "-ref",
-      "latest",
-      "-tag",
-      "git_repository:https://fuchsia.googlesource.com/integration",
-      "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CLEANUP]/chromium-sdk"
     ],
-    "name": "upload bazel sdk.register fuchsia/sdk/bazel/linux-amd64",
+    "infra_step": true,
+    "name": "extract chromium sdk.create sdk dir",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "extract chromium sdk.ensure bsdtar",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "ensure",
+      "-root",
+      "[START_DIR]/cipd/bsdtar",
+      "-ensure-file",
+      "fuchsia/tools/bsdtar/linux-amd64 latest",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "infra_step": true,
+    "name": "extract chromium sdk.ensure bsdtar.ensure_installed",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/sdk/bazel/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/tools/bsdtar/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/bsdtar/bsdtar",
+      "--extract",
+      "--verbose",
+      "-f",
+      "[CLEANUP]/merged_sdk_archive.tar.gz",
+      "-C",
+      "[CLEANUP]/chromium-sdk"
+    ],
+    "name": "extract chromium sdk.unpack sdk archive",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload chromium sdk"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[infra::hash]/resources/hashutil.py",
+      "-a",
+      "sha1",
+      "[CLEANUP]/merged_sdk_archive.tar.gz"
+    ],
+    "infra_step": true,
+    "name": "upload chromium sdk.hash archive",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -882,14 +883,115 @@
       "-o",
       "GSUtil:software_update_check_period=0",
       "cp",
-      "[CLEANUP]/sdk.cipd",
-      "gs://fuchsia/sdk/bazel/linux-amd64/40-chars-fake-of-the-package-instance_id"
+      "[CLEANUP]/merged_sdk_archive.tar.gz",
+      "gs://fuchsia/sdk/linux-amd64/c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
     ],
     "infra_step": true,
-    "name": "upload bazel sdk.gsutil cp",
+    "name": "upload chromium sdk.upload fuchsia-sdk c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LINK@gsutil.upload@https://storage.googleapis.com/fuchsia/sdk/bazel/linux-amd64/40-chars-fake-of-the-package-instance_id@@@"
+      "@@@STEP_LINK@archive@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/c22471f4e3f842ae18dd9adec82ed9eb78ed1127@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "snapshot",
+      "-vv",
+      "-time",
+      "[CLEANUP]/jiri.snapshot"
+    ],
+    "name": "upload chromium sdk.jiri snapshot",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/jiri.snapshot",
+      "gs://fuchsia-snapshots/c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+    ],
+    "infra_step": true,
+    "name": "upload chromium sdk.upload jiri.snapshot",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@jiri.snapshot@https://storage.googleapis.com/fuchsia-snapshots/c22471f4e3f842ae18dd9adec82ed9eb78ed1127@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "[CLEANUP]/digest"
+    ],
+    "infra_step": true,
+    "name": "upload chromium sdk.write digest",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-vpython-spec",
+      "RECIPE_MODULE[infra::gsutil]/resources/gsutil.vpython",
+      "-u",
+      "[START_DIR]/cipd/gsutil/gsutil",
+      "-o",
+      "GSUtil:software_update_check_period=0",
+      "cp",
+      "[CLEANUP]/digest",
+      "gs://fuchsia/sdk/linux-amd64/LATEST_ARCHIVE"
+    ],
+    "infra_step": true,
+    "name": "upload chromium sdk.upload latest digest",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LINK@LATEST_ARCHIVE@https://storage.googleapis.com/fuchsia/sdk/linux-amd64/LATEST_ARCHIVE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "cipd",
+      "search",
+      "fuchsia/sdk/linux-amd64",
+      "-tag",
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
+    ],
+    "name": "upload chromium sdk.cipd search fuchsia/sdk/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"package\": \"fuchsia/sdk/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "upload chromium sdk.Package is up-to-date",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
