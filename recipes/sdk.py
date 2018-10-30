@@ -176,7 +176,6 @@ def UploadPackage(api, sdk_name, staging_dir, remote, revision):
       package_path=cipd_pkg_file,
       refs=['latest'],
       tags={
-        'git_repository': remote,
         'git_revision': revision,
       }
   )
