@@ -243,7 +243,6 @@ def UploadArchive(api, sdk, out_dir, remote, revision, upload_digest):
       pkg_def=pkg_def,
       refs=['latest'],
       tags={
-        'git_repository': remote,
         'git_revision': revision,
         'jiri_snapshot': digest,
       }
