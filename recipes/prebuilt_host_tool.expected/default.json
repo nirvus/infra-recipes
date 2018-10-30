@@ -1,7 +1,16 @@
 [
   {
     "cmd": [],
-    "name": "ensure_jiri"
+    "infra_step": true,
+    "name": "checkout"
+  },
+  {
+    "cmd": [],
+    "infra_step": true,
+    "name": "checkout.ensure_jiri",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -15,9 +24,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "ensure_jiri.ensure_installed",
+    "name": "checkout.ensure_jiri.ensure_installed",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_NEST_LEVEL@2@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -42,7 +51,10 @@
       "-shared"
     ],
     "infra_step": true,
-    "name": "jiri init"
+    "name": "checkout.jiri init",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -58,7 +70,10 @@
       "https://fuchsia.googlesource.com/build"
     ],
     "infra_step": true,
-    "name": "jiri import"
+    "name": "checkout.jiri import",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -71,7 +86,11 @@
       "-run-hooks=false"
     ],
     "infra_step": true,
-    "name": "jiri update"
+    "name": "checkout.jiri update",
+    "timeout": 2400,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -82,7 +101,10 @@
       "-attempts=3"
     ],
     "infra_step": true,
-    "name": "jiri run-hooks"
+    "name": "checkout.jiri run-hooks",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -93,8 +115,9 @@
       "/path/to/tmp/json"
     ],
     "infra_step": true,
-    "name": "jiri source-manifest",
+    "name": "checkout.jiri source-manifest",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
@@ -106,6 +129,39 @@
       "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
       "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
       "@@@STEP_LOG_END@json.output[source manifest]@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "snapshot",
+      "-vv",
+      "-time",
+      "[CLEANUP]/jiri.snapshot"
+    ],
+    "infra_step": true,
+    "name": "checkout.jiri snapshot",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CLEANUP]/jiri.snapshot",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "checkout.read snapshot",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@snapshot_contents@@@@",
+      "@@@STEP_LOG_END@snapshot_contents@@@"
     ]
   },
   {

@@ -96,17 +96,18 @@ def GetBinPathComponents(build_dir, ninja_target):
 
 def RunSteps(api, cipd_pkg_prefix, manifest, ninja_targets, packages,
              project, remote):
-  api.jiri.ensure_jiri()
 
-  build_input = api.buildbucket.build.input
   with api.context(infra_steps=True):
-    api.jiri.checkout(
+    assert manifest
+    assert remote
+    build = api.buildbucket.build
+    api.fuchsia.checkout(
         manifest=manifest,
         remote=remote,
         project=project,
-        build_input=build_input)
+        build=build)
 
-    revision = build_input.gitiles_commit.id
+    revision = build.input.gitiles_commit.id
     assert revision
 
   # TODO(IN-580): Extract ninja build functionality into its own recipe_module
