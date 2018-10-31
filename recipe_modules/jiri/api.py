@@ -356,82 +356,26 @@ class JiriApi(recipe_api.RecipeApi):
 
     if build_input and build_input.gerrit_changes:
       assert len(build_input.gerrit_changes) == 1
-      gerrit_change = build_input.gerrit_changes[0]
-
-      self.m.gerrit.ensure_gerrit()
-      details = self.m.gerrit.change_details(
-          name='get change details',
-          change_id='%s~%s' % (
-              gerrit_change.project,
-              gerrit_change.change,
-          ),
-          gerrit_host='https://%s' % gerrit_change.host,
-          query_params=['CURRENT_REVISION'],
-          test_data=self.m.json.test_api.output({
-              'branch': 'master',
-              'current_revision': 'a1b2c3',
-              'revisions': {
-                  'a1b2c3': {
-                      'ref': 'refs/changes/00/100/5'
-                  }
-              }
-          }),
-      )
-      self.import_manifest(
-          manifest,
-          remote,
-          name=project,
-          revision='HEAD',
-          remote_branch=details['branch'])
-      self.update(run_hooks=False, timeout=timeout_secs)
-
-      current_revision = details['current_revision']
-      patch_ref = details['revisions'][current_revision]['ref']
-      self.patch(
-          patch_ref,
-          host='https://%s' % gerrit_change.host,
-          project=gerrit_change.project,
-          rebase=True,
-      )
-      self.update(
-          gc=True,
-          rebase_tracked=True,
-          local_manifest=True,
-          run_hooks=False,
-          timeout=timeout_secs)
-      if run_hooks:
-        self.run_hooks(local_manifest=True)
-
+      self._checkout_patchset(
+          manifest=manifest,
+          remote=remote,
+          project=project,
+          run_hooks=run_hooks,
+          timeout_secs=timeout_secs,
+          gerrit_change=build_input.gerrit_changes[0])
     else:
-      revision = 'HEAD'
       commit = None
       if build_input and build_input.gitiles_commit.id:
         commit = build_input.gitiles_commit
-        revision = commit.id
 
-      if override and commit:
-        self.import_manifest(manifest, remote, name=project, revision='HEAD')
-
-        # Note that in order to identify a project to override, jiri keys on
-        # both the project name and the remote source repository (not to be
-        # confused with `remote`, the manifest repository).
-        # We reconstruct the source repository in a scheme-agnostic manner.
-        manifest_remote_url = urlparse(remote)
-        project_remote = '%s://%s/%s' % (
-            manifest_remote_url.scheme,
-            manifest_remote_url.netloc,
-            commit.project,
-        )
-        self.override(
-            project=commit.project,
-            remote=project_remote,
-            new_revision=revision)
-      else:
-        self.import_manifest(manifest, remote, name=project, revision=revision)
-
-      self.update(run_hooks=False, timeout=timeout_secs)
-      if run_hooks:
-        self.run_hooks()
+      self._checkout_commit(
+          manifest=manifest,
+          remote=remote,
+          commit=commit,
+          project=project,
+          run_hooks=run_hooks,
+          override=override,
+          timeout_secs=timeout_secs)
 
     self.emit_source_manifest()
 
@@ -553,3 +497,75 @@ class JiriApi(recipe_api.RecipeApi):
     """
     return self('manifest', '-element', element_name, '-template', template,
                 manifest, **kwargs)
+
+  def _checkout_patchset(self, manifest, remote, project, run_hooks,
+                         timeout_secs, gerrit_change):
+    self.m.gerrit.ensure_gerrit()
+    details = self.m.gerrit.change_details(
+        name='get change details',
+        change_id='%s~%s' % (
+            gerrit_change.project,
+            gerrit_change.change,
+        ),
+        gerrit_host='https://%s' % gerrit_change.host,
+        query_params=['CURRENT_REVISION'],
+        test_data=self.m.json.test_api.output({
+            'branch': 'master',
+            'current_revision': 'a1b2c3',
+            'revisions': {
+                'a1b2c3': {
+                    'ref': 'refs/changes/00/100/5'
+                }
+            }
+        }),
+    )
+
+    self.import_manifest(
+        manifest,
+        remote,
+        name=project,
+        revision='HEAD',
+        remote_branch=details['branch'])
+    self.update(run_hooks=False, timeout=timeout_secs)
+
+    current_revision = details['current_revision']
+    patch_ref = details['revisions'][current_revision]['ref']
+    self.patch(
+        patch_ref,
+        host='https://%s' % gerrit_change.host,
+        project=gerrit_change.project,
+        rebase=True,
+    )
+    self.update(
+        gc=True,
+        rebase_tracked=True,
+        local_manifest=True,
+        run_hooks=False,
+        timeout=timeout_secs)
+    if run_hooks:
+      self.run_hooks(local_manifest=True)
+
+  def _checkout_commit(self, manifest, remote, commit, project, run_hooks,
+                       override, timeout_secs):
+    revision = commit.id if commit else 'HEAD'
+    if override and commit:
+      self.import_manifest(manifest, remote, name=project, revision='HEAD')
+
+      # Note that in order to identify a project to override, jiri keys on
+      # both the project name and the remote source repository (not to be
+      # confused with `remote`, the manifest repository).
+      # We reconstruct the source repository in a scheme-agnostic manner.
+      manifest_remote_url = urlparse(remote)
+      project_remote = '%s://%s/%s' % (
+          manifest_remote_url.scheme,
+          manifest_remote_url.netloc,
+          commit.project,
+      )
+      self.override(
+          project=commit.project, remote=project_remote, new_revision=revision)
+    else:
+      self.import_manifest(manifest, remote, name=project, revision=revision)
+
+    self.update(run_hooks=False, timeout=timeout_secs)
+    if run_hooks:
+      self.run_hooks()
