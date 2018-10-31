@@ -377,24 +377,28 @@ class JiriApi(recipe_api.RecipeApi):
               }
           }),
       )
-      self.import_manifest(manifest, remote, name=project, revision='HEAD',
-                           remote_branch=details['branch'])
+      self.import_manifest(
+          manifest,
+          remote,
+          name=project,
+          revision='HEAD',
+          remote_branch=details['branch'])
       self.update(run_hooks=False, timeout=timeout_secs)
 
       current_revision = details['current_revision']
       patch_ref = details['revisions'][current_revision]['ref']
       self.patch(
-        patch_ref,
-        host='https://%s' % gerrit_change.host,
-        project=gerrit_change.project,
-        rebase=True,
+          patch_ref,
+          host='https://%s' % gerrit_change.host,
+          project=gerrit_change.project,
+          rebase=True,
       )
       self.update(
-        gc=True,
-        rebase_tracked=True,
-        local_manifest=True,
-        run_hooks=False,
-        timeout=timeout_secs)
+          gc=True,
+          rebase_tracked=True,
+          local_manifest=True,
+          run_hooks=False,
+          timeout=timeout_secs)
       if run_hooks:
         self.run_hooks(local_manifest=True)
 
@@ -414,11 +418,14 @@ class JiriApi(recipe_api.RecipeApi):
         # We reconstruct the source repository in a scheme-agnostic manner.
         manifest_remote_url = urlparse(remote)
         project_remote = '%s://%s/%s' % (
-          manifest_remote_url.scheme,
-          manifest_remote_url.netloc,
-          commit.project,
+            manifest_remote_url.scheme,
+            manifest_remote_url.netloc,
+            commit.project,
         )
-        self.override(project=commit.project, remote=project_remote, new_revision=revision)
+        self.override(
+            project=commit.project,
+            remote=project_remote,
+            new_revision=revision)
       else:
         self.import_manifest(manifest, remote, name=project, revision=revision)
 
@@ -427,6 +434,7 @@ class JiriApi(recipe_api.RecipeApi):
         self.run_hooks()
 
     self.emit_source_manifest()
+
   def checkout_snapshot(self, snapshot, timeout_secs=None):
     """Initializes and populates a jiri checkout from a snapshot.
 

@@ -947,7 +947,7 @@ Args:
   override (bool): Whether to override the imported manifest with a commit's
     given revision.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#430)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#438)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -1036,7 +1036,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#447)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#455)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
