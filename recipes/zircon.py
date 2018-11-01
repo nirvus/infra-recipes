@@ -54,7 +54,7 @@ TARGET_TO_KERNEL_IMAGE = dict(zip(
 ARCHS = ('x86_64', 'aarch64')
 
 # Supported device types for testing.
-DEVICES = ('QEMU', 'Intel NUC Kit NUC7i5DNHE')
+DEVICES = ('QEMU', 'Intel NUC Kit NUC7i5DNHE', 'Khadas Vim2 Max')
 
 # toolchain: (['make', 'args'], 'builddir-suffix')
 TOOLCHAINS = {
@@ -187,6 +187,9 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     '-out', output_archive_name,
     'zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH,
   ]
+
+  if device_type == 'Khadas Vim2 Max':
+    botanist_cmd.append('-fastboot')
 
   # Isolate all necessary build artifacts.
   isolated = api.isolated.isolated()
