@@ -707,6 +707,8 @@
       "-DCMAKE_INSTALL_PREFIX=",
       "-DLLVM_ENABLE_PROJECTS=clang;lld",
       "-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind",
+      "-DSTAGE2_LINUX_aarch64_SYSROOT=[START_DIR]/cipd/linux-arm64",
+      "-DSTAGE2_LINUX_x86_64_SYSROOT=[START_DIR]/cipd/linux-amd64",
       "-DSTAGE2_FUCHSIA_SDK=[START_DIR]/cipd/sdk",
       "-DCMAKE_AR=[START_DIR]/cipd/bin/llvm-ar",
       "-DCMAKE_LINKER=[START_DIR]/cipd/bin/ld.lld",
@@ -726,8 +728,6 @@
       "-DCMAKE_EXE_SHARED_FLAGS=-static-libstdc++ -ldl -lpthread -L[START_DIR]/cipd/lib",
       "-DCMAKE_SYSROOT=[START_DIR]/cipd/linux-amd64",
       "-DLLVM_DEFAULT_TARGET_TRIPLE=x86_64-linux-gnu",
-      "-DSTAGE2_LINUX_aarch64_SYSROOT=[START_DIR]/cipd/linux-arm64",
-      "-DSTAGE2_LINUX_x86_64_SYSROOT=[START_DIR]/cipd/linux-amd64",
       "-C",
       "[START_DIR]/llvm-project/clang/cmake/caches/Fuchsia.cmake",
       "[START_DIR]/llvm-project/llvm"

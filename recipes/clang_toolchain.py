@@ -87,9 +87,8 @@ def RunSteps(api, repository, branch, revision, platform):
       pkgs.add_package('infra/cmake/${platform}', 'version:3.9.2')
       pkgs.add_package('infra/ninja/${platform}', 'version:1.8.2')
       pkgs.add_package('fuchsia/clang/${platform}', 'goma')
-      if api.platform.is_linux:
-        pkgs.add_package('fuchsia/sysroot/linux-amd64', 'latest', 'linux-amd64')
-        pkgs.add_package('fuchsia/sysroot/linux-arm64', 'latest', 'linux-arm64')
+      pkgs.add_package('fuchsia/sysroot/linux-amd64', 'latest', 'linux-amd64')
+      pkgs.add_package('fuchsia/sysroot/linux-arm64', 'latest', 'linux-arm64')
       pkgs.add_package('fuchsia/sdk/${platform}', 'latest', 'sdk')
       api.cipd.ensure(cipd_dir, pkgs)
 
@@ -197,8 +196,6 @@ def RunSteps(api, repository, branch, revision, platform):
         '-DCMAKE_EXE_SHARED_FLAGS=-static-libstdc++ -ldl -lpthread -L%s' % cipd_dir.join('lib'),
         '-DCMAKE_SYSROOT=%s' % host_sysroot,
         '-DLLVM_DEFAULT_TARGET_TRIPLE=%s' % host_triple,
-        '-DSTAGE2_LINUX_aarch64_SYSROOT=%s' % cipd_dir.join('linux-arm64'),
-        '-DSTAGE2_LINUX_x86_64_SYSROOT=%s' % cipd_dir.join('linux-amd64'),
       ],
       'mac': [],
     }[api.platform.name]
@@ -217,6 +214,8 @@ def RunSteps(api, repository, branch, revision, platform):
         '-DCMAKE_INSTALL_PREFIX=',
         '-DLLVM_ENABLE_PROJECTS=clang;lld',
         '-DLLVM_ENABLE_RUNTIMES=compiler-rt;libcxx;libcxxabi;libunwind',
+        '-DSTAGE2_LINUX_aarch64_SYSROOT=%s' % cipd_dir.join('linux-arm64'),
+        '-DSTAGE2_LINUX_x86_64_SYSROOT=%s' % cipd_dir.join('linux-amd64'),
         '-DSTAGE2_FUCHSIA_SDK=%s' % cipd_dir.join('sdk'),
       ] + extra_options + [
         '-C', llvm_dir.join('clang', 'cmake', 'caches', 'Fuchsia.cmake'),
