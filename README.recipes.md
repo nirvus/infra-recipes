@@ -8,6 +8,7 @@
   * [bazel](#recipe_modules-bazel)
   * [buildsetlookup](#recipe_modules-buildsetlookup)
   * [catapult](#recipe_modules-catapult)
+  * [checkout](#recipe_modules-checkout)
   * [cipd](#recipe_modules-cipd)
   * [clang_tidy](#recipe_modules-clang_tidy)
   * [cloudkms](#recipe_modules-cloudkms)
@@ -40,6 +41,7 @@
   * [breakpad_tools](#recipes-breakpad_tools) &mdash; Recipe for building some Breakpad tools.
   * [buildsetlookup:examples/full](#recipes-buildsetlookup_examples_full)
   * [catapult:examples/full](#recipes-catapult_examples_full)
+  * [checkout:examples/full](#recipes-checkout_examples_full)
   * [chromium_roller](#recipes-chromium_roller) &mdash; Recipe for rolling chromium prebuilts into Fuchsia.
   * [cipd:examples/full](#recipes-cipd_examples_full)
   * [cipd:examples/platform_suffix](#recipes-cipd_examples_platform_suffix)
@@ -246,6 +248,59 @@ Args:
 
 Returns:
   A step to execute the upload subcommand.
+### *recipe_modules* / [checkout](/recipe_modules/checkout)
+
+[DEPS](/recipe_modules/checkout/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+#### **class [CheckoutApi](/recipe_modules/checkout/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+An abstraction over how Jiri checkouts are created during Fuchsia CI/CQ builds
+
+&mdash; **def [\_\_call\_\_](/recipe_modules/checkout/api.py#13)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
+
+Initializes and populates a jiri checkout from a remote manifest.
+
+Emits a source manifest for the build.
+
+Args:
+    manifest (str): Relative path to the manifest in the remote repository.
+    remote (str): URL to the remote repository.
+    project (str): The name that jiri should assign to the project.
+    build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
+        build.
+    timeout_secs (int): A timeout for jiri update in seconds.
+    run_hooks (bool): Whether or not to run the hooks.
+    override (bool): Whether to override the imported manifest with a commit's
+        given revision.
+
+&mdash; **def [from\_commit](/recipe_modules/checkout/api.py#106)(self, manifest, remote, commit, project, run_hooks, override, timeout_secs):**
+
+Initializes and populates a Jiri checkout from a remote manifest and Gerrit change.
+
+Args:
+    manifest (str): Relative path to the manifest in the remote repository.
+    remote (str): URL to the remote repository.
+    project (str): The name that jiri should assign to the project.
+    remote (str): The remote git repository.
+    commit: Commit information derived from
+        buildbucket.build_pb2.Build.Input.gitiles_commit.
+    timeout_secs (int): A timeout for jiri update in seconds.
+    run_hooks (bool): Whether or not to run the hooks.
+    override (bool): Whether to override the imported manifest with a commit's
+        given revision.
+
+&mdash; **def [from\_patchset](/recipe_modules/checkout/api.py#64)(self, manifest, remote, project, run_hooks, timeout_secs, gerrit_change):**
+
+Initializes and populates a Jiri checkout from a remote manifest and Gerrit change.
+
+Args:
+    manifest (str): Relative path to the manifest in the remote repository.
+    remote (str): URL to the remote repository.
+    project (str): The name that jiri should assign to the project.
+    build_input (buildbucket.build_pb2.Build.Input): The input to a buildbucket
+        build.
+    timeout_secs (int): A timeout for jiri update in seconds.
+    gerrit_change: An element from buildbucket.build_pb2.Build.Input.gerrit_changes.
 ### *recipe_modules* / [cipd](/recipe_modules/cipd)
 
 [DEPS](/recipe_modules/cipd/__init__.py#1): [service\_account](#recipe_modules-service_account), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -420,7 +475,7 @@ Returns:
 &mdash; **def [ensure\_cloudkms](/recipe_modules/cloudkms/api.py#19)(self, version=None):**
 ### *recipe_modules* / [fuchsia](/recipe_modules/fuchsia)
 
-[DEPS](/recipe_modules/fuchsia/__init__.py#1): [cloudkms](#recipe_modules-cloudkms), [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gn](#recipe_modules-gn), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [ninja](#recipe_modules-ninja), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [testsharder](#recipe_modules-testsharder), [zbi](#recipe_modules-zbi), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/fuchsia/__init__.py#1): [checkout](#recipe_modules-checkout), [cloudkms](#recipe_modules-cloudkms), [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [gn](#recipe_modules-gn), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [ninja](#recipe_modules-ninja), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [testsharder](#recipe_modules-testsharder), [zbi](#recipe_modules-zbi), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [FuchsiaApi](/recipe_modules/fuchsia/api.py#144)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -494,7 +549,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [checkout\_patched\_snapshot](/recipe_modules/fuchsia/api.py#327)(self, gerrit_change, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout\_patched\_snapshot](/recipe_modules/fuchsia/api.py#326)(self, gerrit_change, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out Fuchsia from a Jiri snapshot from a Gerrit patch.
 The root of the checkout is returned via FuchsiaCheckoutResults.root_dir.
@@ -507,7 +562,7 @@ Args:
 Returns:
   A FuchsiaCheckoutResults containing details of the checkout.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/fuchsia/api.py#286)(self, repository=None, revision=None, gitiles_commit=None, timeout_secs=(20 \* 60)):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/fuchsia/api.py#285)(self, repository=None, revision=None, gitiles_commit=None, timeout_secs=(20 \* 60)):**
 
 Uses Jiri to check out Fuchsia from a Jiri snapshot.
 
@@ -930,7 +985,7 @@ JiriApi provides support for Jiri managed checkouts.
 
 Return a jiri command step.
 
-&mdash; **def [checkout](/recipe_modules/jiri/api.py#332)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
+&mdash; **def [checkout](/recipe_modules/jiri/api.py#333)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -947,7 +1002,7 @@ Args:
   override (bool): Whether to override the imported manifest with a commit's
     given revision.
 
-&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#382)(self, snapshot, timeout_secs=None):**
+&mdash; **def [checkout\_snapshot](/recipe_modules/jiri/api.py#383)(self, snapshot, timeout_secs=None):**
 
 Initializes and populates a jiri checkout from a snapshot.
 
@@ -1036,7 +1091,7 @@ Args:
 Returns:
   A step to provide structured info on existing projects and branches.
 
-&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#399)(self, manifest, element_type, element_name):**
+&mdash; **def [read\_manifest\_element](/recipe_modules/jiri/api.py#400)(self, manifest, element_type, element_name):**
 
 Reads information about a <project> or <import> from a manifest file.
 
@@ -1434,6 +1489,11 @@ Recipe for building some Breakpad tools.
 [DEPS](/recipe_modules/catapult/examples/full.py#5): [catapult](#recipe_modules-catapult), [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
 
 &mdash; **def [RunSteps](/recipe_modules/catapult/examples/full.py#13)(api):**
+### *recipes* / [checkout:examples/full](/recipe_modules/checkout/examples/full.py)
+
+[DEPS](/recipe_modules/checkout/examples/full.py#8): [checkout](#recipe_modules-checkout), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+
+&mdash; **def [RunSteps](/recipe_modules/checkout/examples/full.py#22)(api, project, override):**
 ### *recipes* / [chromium\_roller](/recipes/chromium_roller.py)
 
 [DEPS](/recipes/chromium_roller.py#11): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

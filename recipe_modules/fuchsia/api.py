@@ -268,9 +268,8 @@ class FuchsiaApi(recipe_api.RecipeApi):
     """
     with self.m.step.nest("checkout"):
       with self.m.context(infra_steps=True):
-        self.m.jiri.ensure_jiri()
         global_integration = build and 'global' in build.builder.bucket
-        self.m.jiri.checkout(
+        self.m.checkout(
             manifest,
             remote,
             project=project,
@@ -392,6 +391,7 @@ class FuchsiaApi(recipe_api.RecipeApi):
 
       return self._checkout_snapshot(snapshot_repo_dir=snapshot_repo_dir)
 
+  # TODO(IN-690): DEPRECATED. Do not extend this method. Move it to CheckoutApi.
   def _checkout_snapshot(self, snapshot_repo_dir):
     # Read the snapshot so it shows up in the step presentation.
     snapshot_file = snapshot_repo_dir.join('snapshot')

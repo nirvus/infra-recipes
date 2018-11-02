@@ -329,6 +329,7 @@ class JiriApi(recipe_api.RecipeApi):
     manifest = self.source_manifest()
     self.m.source_manifest.set_json_manifest('checkout', manifest)
 
+  # TODO(IN-690): DEPRECATED. Do not extend this method. Move it to CheckoutApi.
   def checkout(self,
                manifest,
                remote,
@@ -498,6 +499,7 @@ class JiriApi(recipe_api.RecipeApi):
     return self('manifest', '-element', element_name, '-template', template,
                 manifest, **kwargs)
 
+  # TODO(IN-690): DEPRECATED. Do not extend this method. Move it to CheckoutApi.
   def _checkout_patchset(self, manifest, remote, project, run_hooks,
                          timeout_secs, gerrit_change):
     self.m.gerrit.ensure_gerrit()
@@ -545,6 +547,7 @@ class JiriApi(recipe_api.RecipeApi):
     if run_hooks:
       self.run_hooks(local_manifest=True)
 
+  # TODO(IN-690): DEPRECATED. Do not extend this method. Move it to CheckoutApi.
   def _checkout_commit(self, manifest, remote, commit, project, run_hooks,
                        override, timeout_secs):
     revision = commit.id if commit else 'HEAD'

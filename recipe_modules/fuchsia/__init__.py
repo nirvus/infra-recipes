@@ -1,4 +1,5 @@
 DEPS = [
+    'infra/checkout',
     'infra/cloudkms',
     'infra/gerrit',
     'infra/git',
