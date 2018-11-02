@@ -106,7 +106,7 @@ PROPERTIES = {
   'make_args': Property(kind=List(basestring),
                         help='Extra args to pass to Make',
                         default=[]),
-  'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=True),
+  'run_tests' : Property(kind=bool, help='Run tests in qemu after building', default=False),
   'runtests_args': Property(kind=str,
                             help='Shell-quoted string to add to the runtests commandline',
                             default=''),
@@ -651,7 +651,8 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='arm64',
-                     toolchain='gcc') +
+                     toolchain='gcc',
+                     run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -662,7 +663,8 @@ def GenTests(api):
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='arm64',
                      toolchain='gcc',
-                     use_kvm=False) +
+                     use_kvm=False,
+                     run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -673,7 +675,6 @@ def GenTests(api):
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
                      toolchain='gcc',
-                     run_tests=False,
                      run_host_tests=True))
   yield (api.test('ci_host_and_target_tests') +
       ci_build +
@@ -693,7 +694,8 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='gcc') +
+                     toolchain='gcc',
+                     run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -704,7 +706,8 @@ def GenTests(api):
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
                      runtests_args='-L',
-                     toolchain='gcc') +
+                     toolchain='gcc',
+                     run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -715,7 +718,8 @@ def GenTests(api):
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
                      toolchain='gcc',
-                     use_kvm=False) +
+                     use_kvm=False,
+                     run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -734,7 +738,8 @@ def GenTests(api):
                        remote='https://fuchsia.googlesource.com/zircon',
                        target='x64',
                        toolchain='gcc',
-                       device_type=device_type) +
+                       device_type=device_type,
+                       run_tests=True) +
         booted_tests_trigger_data +
         api.step_data('collect', api.swarming.collect(
             task_data=[api.swarming.task_data(outputs=['out.tar'])],
@@ -746,7 +751,8 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='gcc') +
+                     toolchain='gcc',
+                     run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       api.step_data('collect', api.swarming.collect(
@@ -760,7 +766,8 @@ def GenTests(api):
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x64',
-                    toolchain='asan') +
+                    toolchain='asan',
+                    run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -769,7 +776,8 @@ def GenTests(api):
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x64',
-                    toolchain='lto') +
+                    toolchain='lto',
+                    run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -779,7 +787,8 @@ def GenTests(api):
                     manifest='manifest',
                     remote='https://fuchsia.googlesource.com/zircon',
                     target='x64',
-                    toolchain='thinlto') +
+                    toolchain='thinlto',
+                    run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -790,7 +799,8 @@ def GenTests(api):
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
          target='x64',
-         toolchain='clang') +
+         toolchain='clang',
+         run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       collect_data)
@@ -801,8 +811,7 @@ def GenTests(api):
          manifest='manifest',
          remote='https://fuchsia.googlesource.com/zircon',
          target='x64',
-         toolchain='clang',
-         run_tests=False))
+         toolchain='clang'))
   yield (api.test('debug_buildonly') +
      try_build +
      api.properties.tryserver(
@@ -811,8 +820,7 @@ def GenTests(api):
          remote='https://fuchsia.googlesource.com/zircon',
          target='x64',
          toolchain='clang',
-         make_args=['DEBUG_HARD=1'],
-         run_tests=False))
+         make_args=['DEBUG_HARD=1']))
 
   # This task should trigger a failure because its output does not contain
   # CORE_TESTS_SUCCESS_STR
@@ -828,7 +836,8 @@ def GenTests(api):
                      manifest='manifest',
                      remote='https://fuchsia.googlesource.com/zircon',
                      target='x64',
-                     toolchain='clang') +
+                     toolchain='clang',
+                     run_tests=True) +
       core_tests_trigger_data +
       booted_tests_trigger_data +
       core_tests_failed_collect_data)
