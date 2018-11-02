@@ -146,6 +146,42 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/garnet/.patchfile",
+      "/path/to/tmp/json"
+    ],
+    "name": "read .patchfile",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"host\": \"example-review.googlesource.com\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"project\": \"not_garnet\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ref\": \"refs/changes/cc/aabbcc/1\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cipd/jiri/jiri",
+      "patch",
+      "-vv",
+      "-time",
+      "-j=10",
+      "-host",
+      "https://example-review.googlesource.com",
+      "-project",
+      "not_garnet",
+      "-rebase=true",
+      "refs/changes/cc/aabbcc/1"
+    ],
+    "name": "jiri patch (2)"
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/jiri/jiri",
       "update",
       "-vv",

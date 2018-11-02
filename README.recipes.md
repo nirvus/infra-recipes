@@ -250,13 +250,13 @@ Returns:
   A step to execute the upload subcommand.
 ### *recipe_modules* / [checkout](/recipe_modules/checkout)
 
-[DEPS](/recipe_modules/checkout/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/checkout/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [CheckoutApi](/recipe_modules/checkout/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [CheckoutApi](/recipe_modules/checkout/api.py#97)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-An abstraction over how Jiri checkouts are created during Fuchsia CI/CQ builds
+An abstraction over how Jiri checkouts are created during Fuchsia CI/CQ builds.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/checkout/api.py#13)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/checkout/api.py#100)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -273,7 +273,7 @@ Args:
     override (bool): Whether to override the imported manifest with a commit's
         given revision.
 
-&mdash; **def [from\_commit](/recipe_modules/checkout/api.py#106)(self, manifest, remote, commit, project, run_hooks, override, timeout_secs):**
+&mdash; **def [from\_commit](/recipe_modules/checkout/api.py#215)(self, manifest, remote, commit, project, run_hooks, override, timeout_secs):**
 
 Initializes and populates a Jiri checkout from a remote manifest and Gerrit change.
 
@@ -289,7 +289,7 @@ Args:
     override (bool): Whether to override the imported manifest with a commit's
         given revision.
 
-&mdash; **def [from\_patchset](/recipe_modules/checkout/api.py#64)(self, manifest, remote, project, run_hooks, timeout_secs, gerrit_change):**
+&mdash; **def [from\_patchset](/recipe_modules/checkout/api.py#151)(self, manifest, remote, project, run_hooks, timeout_secs, gerrit_change):**
 
 Initializes and populates a Jiri checkout from a remote manifest and Gerrit change.
 
@@ -1508,9 +1508,9 @@ Recipe for building some Breakpad tools.
 &mdash; **def [RunSteps](/recipe_modules/catapult/examples/full.py#13)(api):**
 ### *recipes* / [checkout:examples/full](/recipe_modules/checkout/examples/full.py)
 
-[DEPS](/recipe_modules/checkout/examples/full.py#8): [checkout](#recipe_modules-checkout), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
+[DEPS](/recipe_modules/checkout/examples/full.py#8): [checkout](#recipe_modules-checkout), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
 
-&mdash; **def [RunSteps](/recipe_modules/checkout/examples/full.py#22)(api, project, override):**
+&mdash; **def [RunSteps](/recipe_modules/checkout/examples/full.py#23)(api, project, override):**
 ### *recipes* / [chromium\_roller](/recipes/chromium_roller.py)
 
 [DEPS](/recipes/chromium_roller.py#11): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]

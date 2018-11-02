@@ -69,8 +69,8 @@
       "-j=10",
       "-revision",
       "a1b2c3",
-      "###buildbucket-project###",
-      "https://fuchsia.googlesource.com/###buildbucket-project###"
+      "garnet",
+      "https://fuchsia.googlesource.com/garnet"
     ],
     "name": "jiri override"
   },

@@ -9,6 +9,7 @@ DEPS = [
     'infra/checkout',
     'recipe_engine/buildbucket',
     'recipe_engine/properties',
+    'recipe_engine/path',
 ]
 
 PROPERTIES = {
@@ -20,37 +21,74 @@ PROPERTIES = {
 
 
 def RunSteps(api, project, override):
-  build = api.buildbucket.build
-
   api.checkout(
       manifest='minimal',
       remote='https://fuchsia.googlesource.com/manifest',
       project=project,
-      build_input=build.input,
+      build_input=api.buildbucket.build.input,
       override=override,
   )
 
 
 def GenTests(api):
-  #yapf:disable
-  yield (api.test('global integration tryjob') + api.properties(
+  yield api.checkout.test(
+      'global integration tryjob',
       project='integration',
       override=False,
-      **api.checkout.buildbucket_properties(project='integration',
-                                            tryjob=True)))
+      tryjob=True,
+  )
 
-  yield (api.test('global integration ci') + api.properties(
+  yield api.checkout.test(
+      'global integration ci',
       project='integration',
       override=False,
-      **api.checkout.buildbucket_properties(project='integration',
-                                            tryjob=False)))
+      tryjob=False,
+  )
 
-  yield (api.test('local integration tryjob') + api.properties(
-      override=True,
-      **api.checkout.buildbucket_properties(tryjob=True)))
-
-  yield (api.test('local integration ci') + api.properties(
+  yield api.checkout.test(
+      'local integration tryjob',
       project='garnet',
       override=True,
-      **api.checkout.buildbucket_properties(tryjob=False)))
-  #yapf:enable
+      tryjob=True,
+  )
+
+  yield api.checkout.test(
+      'local integration ci',
+      project='garnet',
+      override=True,
+      tryjob=False,
+  )
+
+  yield api.checkout.test(
+      'tryjob_with_patchfile',
+      project='garnet',
+      tryjob=True,
+      patchfile=[{
+          'ref': 'refs/changes/cc/aabbcc/1',
+          'host': 'example-review.googlesource.com',
+          'project': 'not_garnet'
+      }])
+
+  yield api.checkout.test(
+      'fail_to_patch_over_gerrit_change',
+      project='garnet',
+      tryjob=True,
+      patchfile=[{
+          'ref': 'refs/changes/cc/aabbcc/1',
+          'host': 'fuchsia-review.googlesource.com',
+          'project': 'garnet',
+      }])
+
+  yield api.checkout.test(
+      'fail_to_patch_same_project_many_times',
+      project='garnet',
+      tryjob=True,
+      patchfile=[{
+          'ref': 'refs/changes/cc/aabbcc/1',
+          'host': 'fuchsia-review.googlesource.com',
+          'project': 'zircon',
+      }, {
+          'ref': 'refs/changes/ff/ddeeff/2',
+          'host': 'fuchsia-review.googlesource.com',
+          'project': 'zircon',
+      }])

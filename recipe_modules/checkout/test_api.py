@@ -7,11 +7,51 @@ from recipe_engine import recipe_test_api
 
 class CheckoutTestApi(recipe_test_api.RecipeTestApi):
 
-  def buildbucket_properties(self,
-                             bucket='###buildbucket-bucket###',
-                             builder='###buildbucket-builder###',
-                             project='###buildbucket-project###',
-                             tryjob=False):
+  def test(self, name, project, patchfile=None, override=False, tryjob=False):
+    """Creates a CheckoutApi test case
+
+    Args:
+        name (str): The name of this test case.
+        project (str): The name of the git project being tested.
+        patchfile (Dict): JSON object representing the contents of a patchfile.  If unset,
+          no patchfile will be present in this test.
+        override (bool): Whether to `jiri override` the project being tested.
+        tryjob (bool): Whether this is a tryjob.
+    """
+    # Default properties.
+    properties = dict(
+        project=project,
+        override=override,
+    )
+
+    # Add buildbucket properties.
+    properties.update(
+        self._buildbucket_properties(
+            project=project,
+            tryjob=tryjob,
+        ))
+
+    # Create return value.
+    ret = super(CheckoutTestApi, self).test(name)
+
+    # Add test patchfile if specified.
+    if patchfile is not None:
+      patchfile_path = self.m.path['start_dir'].join(project, '.patchfile')
+      ret += self.m.path.exists(patchfile_path)
+      ret += self.step_data('read .patchfile', self.m.json.output(patchfile))
+
+    if tryjob:
+      ret += self.m.properties.tryserver(**properties)
+    else:
+      ret += self.m.properties(**properties)
+
+    return ret
+
+  def _buildbucket_properties(self,
+                              bucket='###buildbucket-bucket###',
+                              builder='###buildbucket-builder###',
+                              project='###buildbucket-project###',
+                              tryjob=False):
     """Returns input Recipe property json that would normally be specified as
         $recipe_engine/buildbucket properties.  These should be passed as test properties:
 
@@ -22,9 +62,9 @@ class CheckoutTestApi(recipe_test_api.RecipeTestApi):
 
             self.m.properties(**props)
         """
-    input = self.gitiles_commit(project)
+    input = self._gitiles_commit(project)
     if tryjob:
-      input = self.gerrit_changes(project)
+      input = self._gerrit_changes(project)
 
     return {
         '$recipe_engine/buildbucket': {
@@ -40,7 +80,7 @@ class CheckoutTestApi(recipe_test_api.RecipeTestApi):
         }
     }
 
-  def gerrit_changes(self, project):
+  def _gerrit_changes(self, project):
     return {
         'gerrit_changes': [{
             'host': 'fuchsia-review.googlesource.com',
@@ -50,7 +90,7 @@ class CheckoutTestApi(recipe_test_api.RecipeTestApi):
         },]
     }
 
-  def gitiles_commit(self, project):
+  def _gitiles_commit(self, project):
     return {
         'gitiles_commit': {
             'host': 'fuchsia.googlesource.com',

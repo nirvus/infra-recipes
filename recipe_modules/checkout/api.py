@@ -3,12 +3,99 @@
 # found in the LICENSE file.
 
 from recipe_engine import recipe_api
-
 from urlparse import urlparse
+import collections
+
+# PatchInput describes the input to a `jiri patch` command. These are decoded from the
+# list of JSON objects in a .patchfile (see below).
+#
+# Properties:
+#   ref (str): The gerrit change ref (e.g refs/changes/aa/aabbcc/n)
+#   host (str): The code review host (e.g. fuchsia-review.googlesource.com)
+#   project (str): The patch project (e.g. garnet)
+#
+# Usage:
+#   These inputs are typically specified within a .patchfile at the root of a project's
+#   directory.  When checking out from a gerrit patchset (i.e. when running on CQ),
+#   CheckoutApi will patch any changes listed in this file.
+PatchInput = collections.namedtuple('PatchInput', 'ref host project')
+
+
+class PatchFile:
+  """A file used to patch one or more changes from unrelated projects into a workspace.
+
+  The patchfile should contain a list of JSON objects with the following structure:
+
+    [
+        {
+            "ref": "refs/changes/56/123456/3",
+            "host": "fuchsia-review.googlesource.com",
+            "project": "project",
+        }
+    ]
+  """
+
+  @staticmethod
+  def from_json(js):
+    patch_inputs = []
+    for js_object in js:
+      patch_inputs.append(PatchInput(**js_object))
+
+    return PatchFile(patch_inputs)
+
+  def __init__(self, patch_inputs):
+    self.patch_inputs = patch_inputs
+
+  @property
+  def inputs(self):
+    return self.patch_inputs
+
+  def validate(self, gerrit_change):
+    """Verifies that following about this PatchFile:
+        1. No input overwrites the Gerrit change that is currently being tested.
+        2. No two inputs patch over one another.
+
+        Returns:
+            A ValueError that should be raised as a StepFailure, if validation fails. Else
+            None.
+        """
+
+    def create_key(project, host):
+      """Produces a unique ID for a project + host combination."""
+      return '%s/%s' % (project, host)
+
+    # Maps validated PatchInput keys to their PatchInputs.
+    validated = {}
+
+    # The key for the original Gerrit change that is being tested.
+    gerrit_patch_key = create_key(gerrit_change.project, gerrit_change.host)
+
+    for patch_input in self.patch_inputs:
+      patch_key = create_key(patch_input.project, patch_input.host)
+
+      # User cannot use the patchfile to overwrite the original gerrit change.
+      if patch_key == gerrit_patch_key:
+        return ValueError((
+            "This patch overwrites the original gerrit change: %s\n"
+            "Inline this patch into the change instead of specifying in .patchfile"
+        ) % str(patch_input))
+
+      # User cannot patch multiple changes to the same project. Those changes should
+      # be tested locally.
+      if validated.get(patch_key, None):
+        return ValueError((
+            "Found patch that ovewrites a previous patch. These changes should be"
+            "tested together locally instead of through the patchfile:\n"
+            "Original:  %(original)s\nDuplicate: %(duplicate)s.") % dict(
+                original=str(validated[patch_key]),
+                duplicate=str(patch_input),
+            ))
+
+      validated[patch_key] = patch_input
 
 
 class CheckoutApi(recipe_api.RecipeApi):
-  """An abstraction over how Jiri checkouts are created during Fuchsia CI/CQ builds"""
+  """An abstraction over how Jiri checkouts are created during Fuchsia CI/CQ builds."""
 
   def __call__(self,
                manifest,
@@ -75,16 +162,19 @@ class CheckoutApi(recipe_api.RecipeApi):
         gerrit_change: An element from buildbucket.build_pb2.Build.Input.gerrit_changes.
     """
     self.m.gerrit.ensure_gerrit()
-    details = self._get_change_details(gerrit_change)
 
+    # Fetch the project and update.
+    details = self._get_change_details(gerrit_change)
     self.m.jiri.import_manifest(
         manifest,
         remote,
         name=project,
         revision='HEAD',
         remote_branch=details['branch'])
+
     self.m.jiri.update(run_hooks=False, timeout=timeout_secs)
 
+    # Patch the current Gerrit change.
     current_revision = details['current_revision']
     patch_ref = details['revisions'][current_revision]['ref']
     self.m.jiri.patch(
@@ -94,12 +184,31 @@ class CheckoutApi(recipe_api.RecipeApi):
         rebase=True,
     )
 
+    # Patch any extra changes specified in .patchfile.
+    patchfile_path = self.m.path['start_dir'].join(gerrit_change.project,
+                                                   '.patchfile')
+    if self.m.path.exists(patchfile_path):
+      patch_file = self._parse_patchfile(patchfile_path)
+
+      # Ensure patchfile is valid.
+      validation_err = patch_file.validate(gerrit_change)
+      if validation_err is not None:
+        raise self.m.step.StepFailure(str(validation_err))
+
+      for patch_input in patch_file.inputs:
+        self.m.jiri.patch(
+            ref=patch_input.ref,
+            host='https://%s' % patch_input.host,
+            project=patch_input.project,
+            rebase=True)
+
     self.m.jiri.update(
         gc=True,
         rebase_tracked=True,
         local_manifest=True,
         run_hooks=False,
         timeout=timeout_secs)
+
     if run_hooks:
       self.m.jiri.run_hooks(local_manifest=True)
 
@@ -164,3 +273,11 @@ class CheckoutApi(recipe_api.RecipeApi):
             }
         }),
     )
+
+  def _parse_patchfile(self, patchfile_path):
+    """Parses a .patchfile from the given path"""
+    js = self.m.json.read(
+        'read .patchfile',
+        patchfile_path,
+    ).json.output
+    return PatchFile.from_json(js)

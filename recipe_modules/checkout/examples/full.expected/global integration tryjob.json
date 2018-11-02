@@ -107,7 +107,7 @@
       "-time",
       "-j=10",
       "-name",
-      "integration",
+      "garnet",
       "-remote-branch",
       "master",
       "minimal",

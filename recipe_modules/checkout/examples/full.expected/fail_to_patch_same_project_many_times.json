@@ -146,58 +146,36 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "update",
-      "-vv",
-      "-time",
-      "-j=10",
-      "-autoupdate=false",
-      "-attempts=3",
-      "-gc=true",
-      "-rebase-tracked",
-      "-local-manifest=true",
-      "-run-hooks=false"
-    ],
-    "name": "jiri update (2)"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "run-hooks",
-      "-vv",
-      "-time",
-      "-j=10",
-      "-attempts=3",
-      "-local-manifest=true"
-    ],
-    "name": "jiri run-hooks"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cipd/jiri/jiri",
-      "source-manifest",
-      "-vv",
-      "-time",
-      "-j=10",
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]/garnet/.patchfile",
       "/path/to/tmp/json"
     ],
-    "name": "jiri source-manifest",
+    "name": "read .patchfile",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output[source manifest]@{@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  \"directories\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      \"git_checkout\": {@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"repo_url\": \"https://fuchsia.googlesource.com/manifest\", @@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@        \"revision\": \"4c2b0da3c06341db5cebe4d02c78c93c3b2bd78b\"@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@      }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@    }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@  }@@@",
-      "@@@STEP_LOG_LINE@json.output[source manifest]@}@@@",
-      "@@@STEP_LOG_END@json.output[source manifest]@@@"
+      "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"host\": \"fuchsia-review.googlesource.com\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"project\": \"zircon\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ref\": \"refs/changes/cc/aabbcc/1\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"host\": \"fuchsia-review.googlesource.com\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"project\": \"zircon\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ref\": \"refs/changes/ff/ddeeff/2\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@]@@@",
+      "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
-    "jsonResult": null,
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Found patch that ovewrites a previous patch. These changes should betested together locally instead of through the patchfile:\nOriginal:  PatchInput(ref='refs/changes/cc/aabbcc/1', host='fuchsia-review.googlesource.com', project='zircon')\nDuplicate: PatchInput(ref='refs/changes/ff/ddeeff/2', host='fuchsia-review.googlesource.com', project='zircon')."
+    },
     "name": "$result"
   }
 ]
