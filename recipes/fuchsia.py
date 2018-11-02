@@ -63,8 +63,7 @@ PROPERTIES = {
             kind=Enum(*BUILD_TYPES), help='The build type', default='debug'),
     'packages':
         Property(kind=List(basestring), help='Packages to build', default=[]),
-    # TODO(mknyszek): Rename to 'variants' since this property is a list.
-    'variant':
+    'variants':
         Property(
             kind=List(basestring),
             help='--variant arguments to GN in `select_variant`',
@@ -152,7 +151,7 @@ PROPERTIES = {
 
 
 def RunSteps(api, project, manifest, remote, repo, checkout_snapshot, target,
-             build_type, packages, variant, gn_args, test_pool, run_tests,
+             build_type, packages, variants, gn_args, test_pool, run_tests,
              runtests_args, run_host_tests, device_type, networking_for_tests,
              pave, ninja_targets, test_timeout_secs, requires_secrets,
              test_in_shards, boards, products, zircon_args, gcs_bucket,
@@ -247,7 +246,7 @@ def RunSteps(api, project, manifest, remote, repo, checkout_snapshot, target,
       target=target,
       build_type=build_type,
       packages=packages,
-      variants=variant,
+      variants=variants,
       gn_args=gn_args,
       ninja_targets=ninja_targets,
       boards=boards,
