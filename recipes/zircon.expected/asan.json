@@ -820,9 +820,12 @@
     "name": "booted test results"
   },
   {
-    "name": "$result",
-    "reason": "Test summary JSON not found, see kernel log for details",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Test summary JSON not found, see kernel log for details"
+    },
+    "name": "$result"
   }
 ]

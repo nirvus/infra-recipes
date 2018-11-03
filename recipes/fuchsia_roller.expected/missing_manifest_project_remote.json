@@ -162,9 +162,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "cobalt missing remote= attribute",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "cobalt missing remote= attribute"
+    },
+    "name": "$result"
   }
 ]

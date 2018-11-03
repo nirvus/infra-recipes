@@ -1043,9 +1043,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "The bot running this task died",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "The bot running this task died"
+    },
+    "name": "$result"
   }
 ]

@@ -161,9 +161,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "zircon missing remote= attribute",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "zircon missing remote= attribute"
+    },
+    "name": "$result"
   }
 ]

@@ -752,9 +752,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Did not find string \"core-tests succeeded RZMm59f7zOSs6aZUIXZR\" in kernel log, so assuming core tests failed.",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Did not find string \"core-tests succeeded RZMm59f7zOSs6aZUIXZR\" in kernel log, so assuming core tests failed."
+    },
+    "name": "$result"
   }
 ]

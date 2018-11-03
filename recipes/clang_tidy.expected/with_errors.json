@@ -348,9 +348,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "clang-tidy errors found for checks: check",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "clang-tidy errors found for checks: check"
+    },
+    "name": "$result"
   }
 ]

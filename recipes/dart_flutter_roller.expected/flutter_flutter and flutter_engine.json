@@ -853,8 +853,7 @@
     "name": "rmtree [TMP_BASE]/sandbox-flutter-dart_tmp_1"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "jsonResult": null,
+    "name": "$result"
   }
 ]

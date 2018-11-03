@@ -1043,9 +1043,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "The task was canceled before it could run",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "The task was canceled before it could run"
+    },
+    "name": "$result"
   }
 ]

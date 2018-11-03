@@ -1043,9 +1043,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Found no bots to run this task",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Found no bots to run this task"
+    },
+    "name": "$result"
   }
 ]

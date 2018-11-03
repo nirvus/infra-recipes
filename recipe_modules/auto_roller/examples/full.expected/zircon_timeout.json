@@ -248,9 +248,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Failed to roll changes: auto-roller timeout.\n\nSee the link titled \"gerrit link\" in the build console to access the Gerrit change, and the failed tryjobs.",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Failed to roll changes: auto-roller timeout.\n\nSee the link titled \"gerrit link\" in the build console to access the Gerrit change, and the failed tryjobs."
+    },
+    "name": "$result"
   }
 ]

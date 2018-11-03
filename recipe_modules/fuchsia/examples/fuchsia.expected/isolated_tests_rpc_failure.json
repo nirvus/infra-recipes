@@ -1024,9 +1024,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Failed to collect: I could not contact the bot",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Failed to collect: I could not contact the bot"
+    },
+    "name": "$result"
   }
 ]

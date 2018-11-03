@@ -1097,9 +1097,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step Timeout: Step('I/O timed out. Last 10 lines of kernel output:\\nhello world!') timed out after 180 seconds",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Step Timeout: Step('I/O timed out. Last 10 lines of kernel output:\\nhello world!') timed out after 180 seconds"
+    },
+    "name": "$result"
   }
 ]

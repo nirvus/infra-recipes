@@ -924,9 +924,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step('test x86_64 binutils') failed with return_code 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "test x86_64 binutils"
+      },
+      "humanReason": "Step('test x86_64 binutils') failed with return_code 1"
+    },
+    "name": "$result"
   }
 ]

@@ -1140,9 +1140,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Test failure(s): /hello, benchmark.catapult_json",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Test failure(s): /hello, benchmark.catapult_json"
+    },
+    "name": "$result"
   }
 ]

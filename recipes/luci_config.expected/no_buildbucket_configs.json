@@ -152,9 +152,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Found no buildbucket configs under [START_DIR]/config/config/services",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Found no buildbucket configs under [START_DIR]/config/config/services"
+    },
+    "name": "$result"
   }
 ]

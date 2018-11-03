@@ -752,9 +752,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Swarming task failed:\nhello world!",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Swarming task failed:\nhello world!"
+    },
+    "name": "$result"
   }
 ]

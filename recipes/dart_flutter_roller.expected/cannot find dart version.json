@@ -664,9 +664,12 @@
     "name": "rmtree [TMP_BASE]/sandbox-flutter-dart_tmp_1"
   },
   {
-    "name": "$result",
-    "reason": "failed to find dart_revision in DEPS",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "failed to find dart_revision in DEPS"
+    },
+    "name": "$result"
   }
 ]

@@ -825,9 +825,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "The following benchmarks failed. See kernel log and individual steps for details: ['/hello', 'benchmark.catapult_json']",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "The following benchmarks failed. See kernel log and individual steps for details: ['/hello', 'benchmark.catapult_json']"
+    },
+    "name": "$result"
   }
 ]

@@ -1097,9 +1097,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Found kernel panic. See symbolized output for details.",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Found kernel panic. See symbolized output for details."
+    },
+    "name": "$result"
   }
 ]

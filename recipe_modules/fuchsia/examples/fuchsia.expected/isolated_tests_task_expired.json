@@ -1043,9 +1043,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Timed out waiting for a bot to run on",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Timed out waiting for a bot to run on"
+    },
+    "name": "$result"
   }
 ]

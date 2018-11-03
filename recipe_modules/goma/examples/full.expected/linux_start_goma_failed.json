@@ -180,9 +180,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Infra Failure: Step('pre_goma.start_goma') returned 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "pre_goma.start_goma"
+      },
+      "humanReason": "Infra Failure: Step('pre_goma.start_goma') returned 1"
+    },
+    "name": "$result"
   }
 ]

@@ -47,9 +47,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Step('get access token') failed with return_code 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": "get access token"
+      },
+      "humanReason": "Step('get access token') failed with return_code 1"
+    },
+    "name": "$result"
   }
 ]

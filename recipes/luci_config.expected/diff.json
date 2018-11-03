@@ -201,9 +201,12 @@
     ]
   },
   {
-    "name": "$result",
-    "reason": "Found diff",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {
+        "step": ""
+      },
+      "humanReason": "Found diff"
+    },
+    "name": "$result"
   }
 ]
