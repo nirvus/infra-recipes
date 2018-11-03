@@ -13,7 +13,6 @@ from recipe_engine.recipe_api import Property, StepFailure
 
 
 DEPS = [
-  'infra/cipd',
   'infra/fuchsia',
   'infra/goma',
   'infra/jiri',
