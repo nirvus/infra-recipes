@@ -46,6 +46,7 @@
       "-time",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
+      "-j=10",
       "-cache",
       "[CACHE]/git",
       "-shared"
