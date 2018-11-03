@@ -18,10 +18,10 @@ Test: CQ
 
 DEPS = [
     'infra/auto_roller',
-    'infra/cipd',
     'infra/fuchsia',
     'infra/jiri',
     'recipe_engine/buildbucket',
+    'recipe_engine/cipd',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -98,12 +98,12 @@ def gen_gndoc(api, packages, project_dir):
 def RunSteps(api, project, manifest, remote, packages, run_gndoc):
   api.jiri.ensure_jiri()
 
-  cipd_dir = api.path['start_dir'].join('cipd')
   with api.step.nest('ensure_packages'):
     with api.context(infra_steps=True):
-      api.cipd.ensure(cipd_dir, {
-          'fuchsia/tools/gndoc/${platform}': 'latest',
-      })
+      pkgs = api.cipd.EnsureFile()
+      pkgs.add_package('fuchsia/tools/gndoc/${platform}', 'latest')
+      cipd_dir = api.path['start_dir'].join('cipd', 'gndoc')
+      api.cipd.ensure(cipd_dir, pkgs)
 
   api.fuchsia.checkout(
       build=api.buildbucket.build,
