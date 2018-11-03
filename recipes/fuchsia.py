@@ -19,7 +19,6 @@ DEVICES = [
 ]
 
 DEPS = [
-    'infra/cipd',
     'infra/fuchsia',
     'infra/gsutil',
     'infra/hash',
@@ -27,6 +26,7 @@ DEPS = [
     'infra/tar',
     'infra/testsharder',
     'recipe_engine/buildbucket',
+    'recipe_engine/cipd',
     'recipe_engine/context',
     'recipe_engine/file',
     'recipe_engine/path',
@@ -203,12 +203,12 @@ def RunSteps(api, project, manifest, remote, repo, checkout_snapshot, target,
   with api.step.nest('validate checkout'):
     with api.step.nest('ensure json validator'):
       with api.context(infra_steps=True):
-        json_validator_dir = api.path['start_dir'].join('tools', 'json_validator')
-        api.cipd.ensure(json_validator_dir, {
-            'fuchsia/tools/json_validator/${platform}': 'latest',
-        })
+        cipd_dir = api.path['start_dir'].join('cipd', 'json_validator')
+        pkgs = api.cipd.EnsureFile()
+        pkgs.add_package('fuchsia/tools/json_validator/${platform}', 'latest')
+        api.cipd.ensure(cipd_dir, pkgs)
 
-    validator = json_validator_dir.join('json_validator')
+    validator = cipd_dir.join('json_validator')
 
     if repo:
       if repo.startswith('vendor/'):
