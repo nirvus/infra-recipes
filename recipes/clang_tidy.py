@@ -9,7 +9,6 @@ from recipe_engine.config import List
 from recipe_engine.recipe_api import Property
 
 DEPS = [
-    'infra/cipd',
     'infra/clang_tidy',
     'infra/fuchsia',
     'infra/git',

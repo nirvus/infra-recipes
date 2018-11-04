@@ -1501,11 +1501,11 @@ Recipe for rolling chromium prebuilts into Fuchsia.
 &mdash; **def [RunSteps](/recipe_modules/cipd/examples/platform_suffix.py#24)(api, arch_override, bits_override, expect_error):**
 ### *recipes* / [clang\_tidy](/recipes/clang_tidy.py)
 
-[DEPS](/recipes/clang_tidy.py#11): [cipd](#recipe_modules-cipd), [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
+[DEPS](/recipes/clang_tidy.py#11): [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [git](#recipe_modules-git), [goma](#recipe_modules-goma), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tricium][recipe_engine/recipe_modules/tricium]
 
 Recipe for running CQ-blocking clang-tidy checks.
 
-&mdash; **def [RunSteps](/recipes/clang_tidy.py#45)(api, project, manifest, remote, checks):**
+&mdash; **def [RunSteps](/recipes/clang_tidy.py#44)(api, project, manifest, remote, checks):**
 ### *recipes* / [clang\_tidy:examples/full](/recipe_modules/clang_tidy/examples/full.py)
 
 [DEPS](/recipe_modules/clang_tidy/examples/full.py#5): [clang\_tidy](#recipe_modules-clang_tidy), [fuchsia](#recipe_modules-fuchsia), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
