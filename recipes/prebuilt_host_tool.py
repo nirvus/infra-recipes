@@ -7,10 +7,10 @@ from recipe_engine.config import List
 from recipe_engine.recipe_api import Property
 
 DEPS = [
-    'infra/cipd',
     'infra/fuchsia',
     'infra/jiri',
     'recipe_engine/buildbucket',
+    'recipe_engine/cipd',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/properties',
@@ -54,10 +54,9 @@ def UploadPackage(api, bin_dir, bin_name, cipd_pkg_prefix, revision, remote):
     remote: The git remote where code for the tool binary lives
   """
 
-  cipd_pkg_name = '%s/%s/%s' % (cipd_pkg_prefix, bin_name,
-                                api.cipd.platform_suffix())
-  step = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if step.json.output['result']:
+  cipd_pkg_name = '%s/%s/${platform}' % (cipd_pkg_prefix, bin_name)
+  pins = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if len(pins) > 0:
     api.step('Package is up-to-date', cmd=None)
     return
 
@@ -107,7 +106,7 @@ def RunSteps(api, cipd_pkg_prefix, manifest, ninja_targets, packages,
         project=project,
         build=build)
 
-    revision = build.input.gitiles_commit.id
+    revision = str(build.input.gitiles_commit.id)
     assert revision
 
   # TODO(IN-580): Extract ninja build functionality into its own recipe_module
@@ -141,7 +140,7 @@ def GenTests(api):
   ) + api.step_data(
       # Mock api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
       # by expanding the internal step name and providing a result for the step
-      'cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:%s' % revision,
+      'cipd search fuchsia/tools/json_validator/${platform} git_revision:%s' % revision,
       api.json.output({
           'result': []
       }),
@@ -154,12 +153,8 @@ def GenTests(api):
       project='build',
       remote='https://fuchsia.googlesource.com/build',
   ) + api.step_data(
-      'cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:%s' % revision,
-      api.json.output({
-          'result': [
-              'Packages: fuchsia/tools/json_validator/linux-amd64:%s' % revision
-          ]
-      }),
+      'cipd search fuchsia/tools/json_validator/${platform} git_revision:%s' % revision,
+      api.cipd.example_search('fuchsia/tools/json_validator/${platform}:%s' % revision),
   )
   yield api.test('no_revision') + ci_build + api.properties(
       cipd_pkg_prefix='fuchsia/tools',

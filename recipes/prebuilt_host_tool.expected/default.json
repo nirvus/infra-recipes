@@ -409,13 +409,13 @@
     "cmd": [
       "cipd",
       "search",
-      "fuchsia/tools/json_validator/linux-amd64",
+      "fuchsia/tools/json_validator/${platform}",
       "-tag",
       "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
       "-json-output",
       "/path/to/tmp/json"
     ],
-    "name": "cipd search fuchsia/tools/json_validator/linux-amd64 git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+    "name": "cipd search fuchsia/tools/json_validator/${platform} git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": []@@@",
@@ -428,23 +428,25 @@
       "cipd",
       "create",
       "-pkg-def",
-      "{\"data\": [{\"file\": \"json_validator\"}], \"install_mode\": \"\", \"package\": \"fuchsia/tools/json_validator/linux-amd64\", \"root\": \"[START_DIR]/out/release-x64/tools\"}",
-      "-json-output",
-      "/path/to/tmp/json",
+      "{\"data\": [{\"file\": \"json_validator\"}], \"install_mode\": \"\", \"package\": \"fuchsia/tools/json_validator/${platform}\", \"root\": \"[START_DIR]/out/release-x64/tools\"}",
+      "-hash-algo",
+      "sha256",
       "-ref",
       "latest",
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/build",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
-    "name": "create fuchsia/tools/json_validator/linux-amd64",
+    "name": "create fuchsia/tools/json_validator/${platform}",
     "~followup_annotations": [
-      "@@@STEP_TEXT@</br>pkg: fuchsia/tools/json_validator/linux-amd64</br>id: 40-chars-fake-of-the-package-instance_id@@@",
+      "@@@STEP_TEXT@</br>pkg: fuchsia/tools/json_validator/resolved-platform</br>id: 40-chars-fake-of-the-package-instance_id@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"instance_id\": \"40-chars-fake-of-the-package-instance_id\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/tools/json_validator/linux-amd64\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"package\": \"fuchsia/tools/json_validator/resolved-platform\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
