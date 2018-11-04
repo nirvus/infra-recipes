@@ -1829,7 +1829,7 @@ Recipe for testing LUCI configs.
 &mdash; **def [RunSteps](/recipe_modules/ninja/examples/full.py#11)(api):**
 ### *recipes* / [ovmf](/recipes/ovmf.py)
 
-[DEPS](/recipes/ovmf.py#12): [cipd](#recipe_modules-cipd), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipes/ovmf.py#12): [git](#recipe_modules-git), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe for building OVMF firmware and uploading them to CIPD.
 

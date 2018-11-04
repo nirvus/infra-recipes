@@ -10,8 +10,8 @@ this is only supported for x64.
 """
 
 DEPS = [
-    'infra/cipd',
     'infra/git',
+    'recipe_engine/cipd',
     'recipe_engine/context',
     'recipe_engine/json',
     'recipe_engine/path',
@@ -33,8 +33,8 @@ def RunSteps(api):
   with api.context(cwd=checkout_dir):
     # Check if a CIPD upload already exists at this revision.
     revision = api.git.get_hash()
-    step = api.cipd.search(CIPD_PKG_NAME, 'git_revision:%s' % revision)
-    if step.json.output['result']:
+    pins = api.cipd.search(CIPD_PKG_NAME, tag='git_revision:%s' % revision)
+    if len(pins) > 0:
       return
 
     # BaseTools binary is needed to build OVMF
@@ -66,15 +66,11 @@ def GenTests(api):
   revision_data = api.step_data('git show', api.raw_io.stream_output(revision))
 
   yield (api.test('not yet built for current revision') + revision_data +
-         api.step_data(
-             'cipd search %s ' % CIPD_PKG_NAME +
-             'git_revision:%s' % revision, api.json.output({
-                 'result': []
-             })))
+         api.override_step_data(
+             'cipd search %s git_revision:%s' % (CIPD_PKG_NAME, revision),
+             api.json.output({'result': []})))
   yield (
       api.test('already built for current revision') + revision_data +
-      api.step_data(
-          'cipd search %s ' % CIPD_PKG_NAME +
-          'git_revision:%s' % revision, api.json.output({
-              'result': ['latest']
-          })))
+      api.override_step_data(
+          'cipd search %s git_revision:%s' % (CIPD_PKG_NAME, revision),
+          api.cipd.example_search(CIPD_PKG_NAME)))

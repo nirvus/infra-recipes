@@ -155,10 +155,12 @@
       "fuchsia/firmware/ovmf/amd64",
       "-out",
       "[CLEANUP]/ovmf.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
+      "-hash-algo",
+      "sha256",
       "-install-mode",
-      "copy"
+      "copy",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
     "name": "build amd64",
     "~followup_annotations": [
@@ -176,14 +178,14 @@
       "cipd",
       "pkg-register",
       "[CLEANUP]/ovmf.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
       "-ref",
       "latest",
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/third_party/edk2",
       "-tag",
-      "git_revision:abc123"
+      "git_revision:abc123",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
     "name": "register fuchsia/firmware/ovmf/amd64",
     "~followup_annotations": [
