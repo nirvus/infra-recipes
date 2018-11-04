@@ -3,7 +3,6 @@
 ## Table of Contents
 
 **[Recipe Modules](#Recipe-Modules)**
-  * [authutil](#recipe_modules-authutil)
   * [auto_roller](#recipe_modules-auto_roller)
   * [bazel](#recipe_modules-bazel)
   * [buildsetlookup](#recipe_modules-buildsetlookup)
@@ -27,14 +26,12 @@
   * [minfs](#recipe_modules-minfs)
   * [ninja](#recipe_modules-ninja)
   * [qemu](#recipe_modules-qemu)
-  * [service_account](#recipe_modules-service_account)
   * [swarming](#recipe_modules-swarming)
   * [tar](#recipe_modules-tar)
   * [testsharder](#recipe_modules-testsharder) &mdash; Recipe module that wraps the testsharder tool, which searches a Fuchsia build for test specifications and groups them into shards.
   * [zbi](#recipe_modules-zbi)
 
 **[Recipes](#Recipes)**
-  * [authutil:examples/full](#recipes-authutil_examples_full)
   * [auto_roller:examples/full](#recipes-auto_roller_examples_full) &mdash; Example recipe for auto-rolling.
   * [bazel:examples/full](#recipes-bazel_examples_full)
   * [bloaty](#recipes-bloaty) &mdash; Recipe for building Bloaty.
@@ -91,7 +88,6 @@
   * [release/snapshot](#recipes-release_snapshot) &mdash; Recipe for automatically creating jiri snapshots from manifest commit.
   * [rust_toolchain](#recipes-rust_toolchain) &mdash; Recipe for building Rust toolchain.
   * [sdk](#recipes-sdk) &mdash; Recipe for building Fuchsia SDKs.
-  * [service_account:examples/full](#recipes-service_account_examples_full)
   * [swarming:examples/full](#recipes-swarming_examples_full)
   * [tar:examples/full](#recipes-tar_examples_full)
   * [testsharder:examples/full](#recipes-testsharder_examples_full)
@@ -104,20 +100,6 @@
   * [zircon](#recipes-zircon) &mdash; Recipe for building Zircon.
 ## Recipe Modules
 
-### *recipe_modules* / [authutil](/recipe_modules/authutil)
-
-[DEPS](/recipe_modules/authutil/__init__.py#1): [cipd](#recipe_modules-cipd), [service\_account](#recipe_modules-service_account), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
-
-#### **class [AuthutilApi](/recipe_modules/authutil/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
-
-AuthutilApi allows generating OAuth2 tokens from locally stored secrets.
-
-This is a thin wrapper over the authutil go executable, which itself calls
-https://github.com/luci/luci-go/blob/master/client/authcli/authcli.go
-
-&mdash; **def [ensure\_authutil](/recipe_modules/authutil/api.py#19)(self, version=None):**
-
-&mdash; **def [get\_token](/recipe_modules/authutil/api.py#32)(self, account, scopes=None, lifetime_sec=None):**
 ### *recipe_modules* / [auto\_roller](/recipe_modules/auto_roller)
 
 [DEPS](/recipe_modules/auto_roller/__init__.py#1): [gerrit](#recipe_modules-gerrit), [git](#recipe_modules-git), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [recipe\_engine/url][recipe_engine/recipe_modules/url]
@@ -304,7 +286,7 @@ Args:
     gerrit_change: An element from buildbucket.build_pb2.Build.Input.gerrit_changes.
 ### *recipe_modules* / [cipd](/recipe_modules/cipd)
 
-[DEPS](/recipe_modules/cipd/__init__.py#1): [service\_account](#recipe_modules-service_account), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/cipd/__init__.py#1): [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [CIPDApi](/recipe_modules/cipd/api.py#148)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -1253,15 +1235,6 @@ Args:
 &mdash; **def [ensure\_qemu](/recipe_modules/qemu/api.py#17)(self, version=None):**
 
 &emsp; **@property**<br>&mdash; **def [qemu\_img](/recipe_modules/qemu/api.py#27)(self):**
-### *recipe_modules* / [service\_account](/recipe_modules/service_account)
-
-[DEPS](/recipe_modules/service_account/__init__.py#1): [recipe\_engine/path][recipe_engine/recipe_modules/path]
-
-#### **class [ServiceAccountApi](/recipe_modules/service_account/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
-
-ServiceAccountApi provides access to service account keys.
-
-&mdash; **def [get\_json\_path](/recipe_modules/service_account/api.py#17)(self, account):**
 ### *recipe_modules* / [swarming](/recipe_modules/swarming)
 
 [DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolated](#recipe_modules-isolated), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
@@ -1460,11 +1433,6 @@ Returns:
 Sets the path to the zbi tool.
 ## Recipes
 
-### *recipes* / [authutil:examples/full](/recipe_modules/authutil/examples/full.py)
-
-[DEPS](/recipe_modules/authutil/examples/full.py#8): [authutil](#recipe_modules-authutil), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
-
-&mdash; **def [RunSteps](/recipe_modules/authutil/examples/full.py#30)(api, scopes, lifetime_sec):**
 ### *recipes* / [auto\_roller:examples/full](/recipe_modules/auto_roller/examples/full.py)
 
 [DEPS](/recipe_modules/auto_roller/examples/full.py#10): [auto\_roller](#recipe_modules-auto_roller), [git](#recipe_modules-git), [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io]
@@ -1988,11 +1956,6 @@ Recipe for building Fuchsia SDKs.
 &mdash; **def [UploadArchive](/recipes/sdk.py#192)(api, sdk, out_dir, remote, revision, upload_digest):**
 
 &mdash; **def [UploadPackage](/recipes/sdk.py#153)(api, sdk_name, staging_dir, remote, revision):**
-### *recipes* / [service\_account:examples/full](/recipe_modules/service_account/examples/full.py)
-
-[DEPS](/recipe_modules/service_account/examples/full.py#5): [service\_account](#recipe_modules-service_account)
-
-&mdash; **def [RunSteps](/recipe_modules/service_account/examples/full.py#10)(api):**
 ### *recipes* / [swarming:examples/full](/recipe_modules/swarming/examples/full.py)
 
 [DEPS](/recipe_modules/swarming/examples/full.py#8): [swarming](#recipe_modules-swarming), [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties]
