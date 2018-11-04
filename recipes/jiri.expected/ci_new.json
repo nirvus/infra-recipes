@@ -297,6 +297,8 @@
       "{\"data\": [{\"file\": \"jiri\"}, {\"version_file\": \".versions/jiri.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/tools/jiri/linux-amd64\", \"root\": \"[TMP_BASE]/jiri_tmp_1\"}",
       "-out",
       "[CLEANUP]/jiri.cipd",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -327,14 +329,14 @@
       "cipd",
       "pkg-register",
       "[CLEANUP]/jiri.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
       "-ref",
       "latest",
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/manifest",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
     "env": {
       "GOARCH": "amd64",
@@ -465,6 +467,8 @@
       "{\"data\": [{\"file\": \"jiri\"}, {\"version_file\": \".versions/jiri.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/tools/jiri/linux-arm64\", \"root\": \"[TMP_BASE]/jiri_tmp_1\"}",
       "-out",
       "[CLEANUP]/jiri.cipd",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -495,14 +499,14 @@
       "cipd",
       "pkg-register",
       "[CLEANUP]/jiri.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
       "-ref",
       "latest",
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/manifest",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
     "env": {
       "GOARCH": "arm64",
@@ -633,6 +637,8 @@
       "{\"data\": [{\"file\": \"jiri\"}, {\"version_file\": \".versions/jiri.cipd_version\"}], \"install_mode\": \"copy\", \"package\": \"fuchsia/tools/jiri/mac-amd64\", \"root\": \"[TMP_BASE]/jiri_tmp_1\"}",
       "-out",
       "[CLEANUP]/jiri.cipd",
+      "-hash-algo",
+      "sha256",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -663,14 +669,14 @@
       "cipd",
       "pkg-register",
       "[CLEANUP]/jiri.cipd",
-      "-json-output",
-      "/path/to/tmp/json",
       "-ref",
       "latest",
       "-tag",
       "git_repository:https://fuchsia.googlesource.com/manifest",
       "-tag",
-      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127"
+      "git_revision:c22471f4e3f842ae18dd9adec82ed9eb78ed1127",
+      "-json-output",
+      "/path/to/tmp/json"
     ],
     "env": {
       "GOARCH": "amd64",

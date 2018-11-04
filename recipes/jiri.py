@@ -9,12 +9,12 @@ from recipe_engine import config
 
 
 DEPS = [
-  'infra/cipd',
   'infra/jiri',
   'infra/git',
   'infra/go',
   'infra/gsutil',
   'recipe_engine/buildbucket',
+  'recipe_engine/cipd',
   'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
@@ -44,8 +44,8 @@ GO_OS_ARCH = (
 
 def upload_package(api, name, platform, staging_dir, revision, remote):
   cipd_pkg_name = 'fuchsia/tools/%s/%s' % (name, platform)
-  api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
-  if api.step.active_result.json.output['result']:
+  pins = api.cipd.search(cipd_pkg_name, 'git_revision:' + revision)
+  if len(pins) > 0:
     api.step('Package is up-to-date', cmd=None)
     return
 
