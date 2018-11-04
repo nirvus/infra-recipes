@@ -1237,7 +1237,7 @@ Args:
 &emsp; **@property**<br>&mdash; **def [qemu\_img](/recipe_modules/qemu/api.py#27)(self):**
 ### *recipe_modules* / [swarming](/recipe_modules/swarming)
 
-[DEPS](/recipe_modules/swarming/__init__.py#1): [cipd](#recipe_modules-cipd), [isolated](#recipe_modules-isolated), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/swarming/__init__.py#1): [isolated](#recipe_modules-isolated), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [SwarmingApi](/recipe_modules/swarming/api.py#179)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -1247,7 +1247,7 @@ APIs for interacting with swarming.
 
 Return a swarming command step.
 
-&mdash; **def [collect](/recipe_modules/swarming/api.py#338)(self, timeout=None, tasks_json=None, tasks=[]):**
+&mdash; **def [collect](/recipe_modules/swarming/api.py#335)(self, timeout=None, tasks_json=None, tasks=[]):**
 
 Waits on a set of Swarming tasks.
 
@@ -1262,7 +1262,7 @@ Args:
 
 Ensures that swarming client is installed.
 
-&mdash; **def [spawn\_tasks](/recipe_modules/swarming/api.py#297)(self, tasks=(), json_output=None):**
+&mdash; **def [spawn\_tasks](/recipe_modules/swarming/api.py#294)(self, tasks=(), json_output=None):**
 
 Spawns a set of Swarming tasks.
 
@@ -1276,20 +1276,20 @@ Returns:
   A Python dict representing the JSON spawn response that may be passed into
     collect().
 
-&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#211)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_client](/recipe_modules/swarming/api.py#208)(self):**
 
-&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#220)(self, value):**
+&emsp; **@swarming_server.setter**<br>&mdash; **def [swarming\_server](/recipe_modules/swarming/api.py#217)(self, value):**
 
 Changes URL of Swarming server to use.
 
-&mdash; **def [task\_request](/recipe_modules/swarming/api.py#288)(self, \*args, \*\*kwargs):**
+&mdash; **def [task\_request](/recipe_modules/swarming/api.py#285)(self, \*args, \*\*kwargs):**
 
 Creates a new TaskRequest object.
 
 Passes down all arguments to the TaskRequest constructor with the exception
 of isolate_server, which is provided by the isolated recipe module.
 
-&mdash; **def [trigger](/recipe_modules/swarming/api.py#225)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, hard_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
+&mdash; **def [trigger](/recipe_modules/swarming/api.py#222)(self, name, raw_cmd, isolated=None, dump_json=None, dimensions=None, expiration=None, io_timeout=None, hard_timeout=None, idempotent=False, cipd_packages=None, outputs=None):**
 
 Triggers a Swarming task.
 

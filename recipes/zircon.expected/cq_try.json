@@ -495,9 +495,9 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/luci/swarming",
+      "[START_DIR]/cipd/swarming",
       "-ensure-file",
-      "infra/tools/luci/swarming/linux-amd64 latest",
+      "infra/tools/luci/swarming/${platform} latest",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -506,12 +506,14 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/swarming/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-latest----------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/tools/luci/swarming/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -575,7 +577,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/luci/swarming/swarming",
+      "[START_DIR]/cipd/swarming/swarming",
       "trigger",
       "-isolate-server",
       "https://isolateserver.appspot.com",
@@ -652,7 +654,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/luci/swarming/swarming",
+      "[START_DIR]/cipd/swarming/swarming",
       "trigger",
       "-isolate-server",
       "https://isolateserver.appspot.com",
@@ -734,7 +736,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/luci/swarming/swarming",
+      "[START_DIR]/cipd/swarming/swarming",
       "collect",
       "-server",
       "https://chromium-swarm.appspot.com",

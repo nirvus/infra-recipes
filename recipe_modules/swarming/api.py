@@ -198,14 +198,11 @@ class SwarmingApi(recipe_api.RecipeApi):
 
     with self.m.step.nest('ensure_swarming'):
       with self.m.context(infra_steps=True):
-        swarming_package = ('infra/tools/luci/swarming/%s' %
-            self.m.cipd.platform_suffix())
-        luci_dir = self.m.path['start_dir'].join('cipd', 'luci', 'swarming')
-
-        self.m.cipd.ensure(luci_dir,
-                           {swarming_package: version or 'release'})
-        self._swarming_client = luci_dir.join('swarming')
-
+        cipd_dir = self.m.path['start_dir'].join('cipd', 'swarming')
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('infra/tools/luci/swarming/${platform}', version or 'release')
+        self.m.cipd.ensure(cipd_dir, pkgs)
+        self._swarming_client = cipd_dir.join('swarming')
         return self._swarming_client
 
   @property
