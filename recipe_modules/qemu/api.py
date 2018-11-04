@@ -17,11 +17,11 @@ class QemuApi(recipe_api.RecipeApi):
   def ensure_qemu(self, version=None):
     with self.m.step.nest('ensure_qemu'):
       with self.m.context(infra_steps=True):
-        qemu_package = ('fuchsia/qemu/%s' %
-            self.m.cipd.platform_suffix())
-        self._qemu_dir = self.m.path['start_dir'].join('cipd', 'qemu')
-        self.m.cipd.ensure(
-            self._qemu_dir, {qemu_package: version or 'latest'})
+        cipd_dir = self.m.path['start_dir'].join('cipd', 'qemu')
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('fuchsia/qemu/${platform}', version or 'latest')
+        self.m.cipd.ensure(cipd_dir, pkgs)
+        self._qemu_dir = cipd_dir.join('qemu')
         return self._qemu_dir
 
   @property

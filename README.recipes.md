@@ -1217,7 +1217,7 @@ Returns:
 Sets the path to the Ninja executable.
 ### *recipe_modules* / [qemu](/recipe_modules/qemu)
 
-[DEPS](/recipe_modules/qemu/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/qemu/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [QemuApi](/recipe_modules/qemu/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
