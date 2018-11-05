@@ -178,7 +178,7 @@ Raises:
       version.
 ### *recipe_modules* / [buildsetlookup](/recipe_modules/buildsetlookup)
 
-[DEPS](/recipe_modules/buildsetlookup/__init__.py#5): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/buildsetlookup/__init__.py#5): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [BuildSetLookupApi](/recipe_modules/buildsetlookup/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -199,7 +199,7 @@ Args:
   leak_to (Path): If leak_to is provided, it must be a Path object. This path will be used in
     place of a random temporary file, and the file will not be deleted at the end of the step.
 
-&emsp; **@property**<br>&mdash; **def [buildset\_lookup\_tool](/recipe_modules/buildsetlookup/api.py#56)(self):**
+&emsp; **@property**<br>&mdash; **def [buildset\_lookup\_tool](/recipe_modules/buildsetlookup/api.py#53)(self):**
 
 &mdash; **def [ensure\_buildset\_lookup](/recipe_modules/buildsetlookup/api.py#42)(self, version=None):**
 

@@ -43,14 +43,11 @@ class BuildSetLookupApi(recipe_api.RecipeApi):
     """Ensures that the buildset lookup tool is installed."""
     with self.m.step.nest('ensure_buildset_lookup'):
       with self.m.context(infra_steps=True):
-        buildset_lookup_package = (
-            'fuchsia/infra/buildsetlookup/%s' % self.m.cipd.platform_suffix())
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('fuchsia/infra/buildsetlookup/${platform}', version or 'latest')
         cipd_dir = self.m.path['start_dir'].join('cipd', 'buildsetlookup')
-
-        self.m.cipd.ensure(cipd_dir,
-                           {buildset_lookup_package: version or 'latest'})
+        self.m.cipd.ensure(cipd_dir, pkgs)
         self._buildset_lookup_tool = cipd_dir.join('buildsetlookup')
-
         return self._buildset_lookup_tool
 
   @property
