@@ -229,7 +229,10 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
         io_timeout=TEST_IO_TIMEOUT_SECS,
         hard_timeout=40*60, # 40 minute hard timeout
         outputs=[output_archive_name],
-        cipd_packages=[('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest')],
+        cipd_packages=[
+          ('botanist', 'fuchsia/infra/botanist/linux-amd64', 'latest'),
+          ('fastboot', 'fuchsia/infra/external/fastboot/linux-amd64', 'latest')
+        ],
     )
     # Collect results.
     results = api.swarming.collect(tasks_json=api.json.input(trigger_result.json.output))

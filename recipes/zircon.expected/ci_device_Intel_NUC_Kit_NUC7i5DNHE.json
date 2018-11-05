@@ -554,6 +554,8 @@
       "2400",
       "-cipd-package",
       "botanist:fuchsia/infra/botanist/linux-amd64=latest",
+      "-cipd-package",
+      "fastboot:fuchsia/infra/external/fastboot/linux-amd64=latest",
       "-output",
       "out.tar",
       "-raw-cmd",
