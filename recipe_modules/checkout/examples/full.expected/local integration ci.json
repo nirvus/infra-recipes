@@ -35,9 +35,9 @@
       "init",
       "-vv",
       "-time",
+      "-j=10",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
-      "-j=10",
       "-cache",
       "[CACHE]/git",
       "-shared"
@@ -50,6 +50,7 @@
       "import",
       "-vv",
       "-time",
+      "-j=10",
       "-name",
       "garnet",
       "-revision",
@@ -65,6 +66,7 @@
       "override",
       "-vv",
       "-time",
+      "-j=10",
       "-revision",
       "a1b2c3",
       "###buildbucket-project###",
@@ -78,6 +80,7 @@
       "update",
       "-vv",
       "-time",
+      "-j=10",
       "-autoupdate=false",
       "-attempts=3",
       "-run-hooks=false"
@@ -90,6 +93,7 @@
       "run-hooks",
       "-vv",
       "-time",
+      "-j=10",
       "-attempts=3"
     ],
     "name": "jiri run-hooks"
@@ -100,6 +104,7 @@
       "source-manifest",
       "-vv",
       "-time",
+      "-j=10",
       "/path/to/tmp/json"
     ],
     "name": "jiri source-manifest",

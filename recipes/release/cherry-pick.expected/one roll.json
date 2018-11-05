@@ -140,6 +140,7 @@
       "edit",
       "-vv",
       "-time",
+      "-j=10",
       "-json-output",
       "/path/to/tmp/json",
       "-project",

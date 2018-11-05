@@ -10,6 +10,7 @@ from urlparse import urlparse
 COMMON_FLAGS = [
     '-vv',
     '-time',
+    '-j=10',
 ]
 
 
@@ -51,7 +52,6 @@ class JiriApi(recipe_api.RecipeApi):
         'init',
         '-analytics-opt=false',
         '-rewrite-sso-to-https=true',
-        '-j=10',
         '-cache',
         self.m.path['cache'].join('git'),
         '-shared',

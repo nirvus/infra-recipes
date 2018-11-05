@@ -76,9 +76,9 @@
       "init",
       "-vv",
       "-time",
+      "-j=10",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
-      "-j=10",
       "-cache",
       "[CACHE]/git",
       "-shared"
@@ -156,6 +156,7 @@
       "import",
       "-vv",
       "-time",
+      "-j=10",
       "-remote-branch",
       "master",
       "manifest",
@@ -173,6 +174,7 @@
       "update",
       "-vv",
       "-time",
+      "-j=10",
       "-autoupdate=false",
       "-attempts=3",
       "-run-hooks=false"
@@ -190,6 +192,7 @@
       "patch",
       "-vv",
       "-time",
+      "-j=10",
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-project",
@@ -209,6 +212,7 @@
       "update",
       "-vv",
       "-time",
+      "-j=10",
       "-autoupdate=false",
       "-attempts=3",
       "-gc=true",
@@ -229,6 +233,7 @@
       "run-hooks",
       "-vv",
       "-time",
+      "-j=10",
       "-attempts=3",
       "-local-manifest=true"
     ],
@@ -244,6 +249,7 @@
       "source-manifest",
       "-vv",
       "-time",
+      "-j=10",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
@@ -269,6 +275,7 @@
       "snapshot",
       "-vv",
       "-time",
+      "-j=10",
       "[CLEANUP]/jiri.snapshot"
     ],
     "infra_step": true,

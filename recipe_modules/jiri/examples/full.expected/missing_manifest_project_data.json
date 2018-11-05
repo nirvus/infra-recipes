@@ -35,9 +35,9 @@
       "init",
       "-vv",
       "-time",
+      "-j=10",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
-      "-j=10",
       "-cache",
       "[CACHE]/git",
       "-shared"
@@ -50,6 +50,7 @@
       "import",
       "-vv",
       "-time",
+      "-j=10",
       "-name",
       "garnet",
       "-revision",
@@ -65,6 +66,7 @@
       "update",
       "-vv",
       "-time",
+      "-j=10",
       "-autoupdate=false",
       "-attempts=3",
       "-run-hooks=false"
@@ -77,6 +79,7 @@
       "run-hooks",
       "-vv",
       "-time",
+      "-j=10",
       "-attempts=3"
     ],
     "name": "jiri run-hooks"
@@ -87,6 +90,7 @@
       "source-manifest",
       "-vv",
       "-time",
+      "-j=10",
       "/path/to/tmp/json"
     ],
     "name": "jiri source-manifest",
@@ -110,9 +114,9 @@
       "init",
       "-vv",
       "-time",
+      "-j=10",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
-      "-j=10",
       "-cache",
       "[CACHE]/git",
       "-shared",
@@ -126,6 +130,7 @@
       "import",
       "-vv",
       "-time",
+      "-j=10",
       "-name",
       "manifest",
       "-overwrite=true",
@@ -142,6 +147,7 @@
       "update",
       "-vv",
       "-time",
+      "-j=10",
       "-autoupdate=false",
       "-attempts=3",
       "-gc=true",
@@ -156,6 +162,7 @@
       "edit",
       "-vv",
       "-time",
+      "-j=10",
       "-json-output",
       "/path/to/tmp/json",
       "-import",
@@ -215,6 +222,7 @@
       "manifest",
       "-vv",
       "-time",
+      "-j=10",
       "-element",
       "test/project",
       "-template",
@@ -239,6 +247,7 @@
       "manifest",
       "-vv",
       "-time",
+      "-j=10",
       "-element",
       "test/import",
       "-template",
@@ -259,6 +268,7 @@
       "update",
       "-vv",
       "-time",
+      "-j=10",
       "-autoupdate=false",
       "-attempts=3",
       "-rebase-tracked",
@@ -272,6 +282,7 @@
       "run-hooks",
       "-vv",
       "-time",
+      "-j=10",
       "-attempts=3",
       "-local-manifest=true"
     ],
@@ -283,6 +294,7 @@
       "snapshot",
       "-vv",
       "-time",
+      "-j=10",
       "/path/to/tmp/"
     ],
     "name": "jiri snapshot"
@@ -293,6 +305,7 @@
       "source-manifest",
       "-vv",
       "-time",
+      "-j=10",
       "/path/to/tmp/json"
     ],
     "name": "jiri source-manifest (2)",
@@ -316,6 +329,7 @@
       "project",
       "-vv",
       "-time",
+      "-j=10",
       "-json-output",
       "/path/to/tmp/json",
       "test"
@@ -343,6 +357,7 @@
       "patch",
       "-vv",
       "-time",
+      "-j=10",
       "-host",
       "https://fuchsia-review.googlesource.com",
       "-project",
@@ -359,6 +374,7 @@
       "project",
       "-vv",
       "-time",
+      "-j=10",
       "-clean-all"
     ],
     "name": "jiri project clean"

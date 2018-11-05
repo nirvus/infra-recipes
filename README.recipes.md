@@ -977,11 +977,11 @@ and directories.
 
 [DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [JiriApi](/recipe_modules/jiri/api.py#16)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [JiriApi](/recipe_modules/jiri/api.py#17)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 JiriApi provides support for Jiri managed checkouts.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/jiri/api.py#23)(self, \*args, \*\*kwargs):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/jiri/api.py#24)(self, \*args, \*\*kwargs):**
 
 Return a jiri command step.
 
@@ -1034,7 +1034,7 @@ Returns:
 
 Emits a source manifest for this build for the current jiri checkout.
 
-&mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#34)(self, version=None):**
+&mdash; **def [ensure\_jiri](/recipe_modules/jiri/api.py#35)(self, version=None):**
 
 &mdash; **def [import\_manifest](/recipe_modules/jiri/api.py#155)(self, manifest, remote, name=None, revision=None, overwrite=False, remote_branch=None, \*\*kwargs):**
 
@@ -1051,9 +1051,9 @@ Args:
 Returns:
   A step result.
 
-&mdash; **def [init](/recipe_modules/jiri/api.py#49)(self, dir=None, \*\*kwargs):**
+&mdash; **def [init](/recipe_modules/jiri/api.py#50)(self, dir=None, \*\*kwargs):**
 
-&emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#45)(self):**
+&emsp; **@property**<br>&mdash; **def [jiri](/recipe_modules/jiri/api.py#46)(self):**
 
 &mdash; **def [override](/recipe_modules/jiri/api.py#283)(self, project, remote, new_revision='HEAD'):**
 

@@ -141,9 +141,9 @@
       "init",
       "-vv",
       "-time",
+      "-j=10",
       "-analytics-opt=false",
       "-rewrite-sso-to-https=true",
-      "-j=10",
       "-cache",
       "[CACHE]/git",
       "-shared"
@@ -157,6 +157,7 @@
       "update",
       "-vv",
       "-time",
+      "-j=10",
       "-autoupdate=false",
       "-attempts=3",
       "[CLEANUP]/snapshot_repo/snapshot"
@@ -170,6 +171,7 @@
       "source-manifest",
       "-vv",
       "-time",
+      "-j=10",
       "/path/to/tmp/json"
     ],
     "infra_step": true,
@@ -213,6 +215,7 @@
       "manifest",
       "-vv",
       "-time",
+      "-j=10",
       "-element",
       "topaz",
       "-template",
