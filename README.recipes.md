@@ -1343,7 +1343,7 @@ Args:
   strip_components: strip number of leading components from file names.
 ### *recipe_modules* / [testsharder](/recipe_modules/testsharder)
 
-[DEPS](/recipe_modules/testsharder/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/testsharder/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 Recipe module that wraps the testsharder tool, which searches a Fuchsia
 build for test specifications and groups them into shards.
@@ -1366,7 +1366,7 @@ a file containing shards of execution.
 
 &mdash; **def [ensure\_testsharder](/recipe_modules/testsharder/api.py#99)(self, version='latest'):**
 
-&mdash; **def [execute](/recipe_modules/testsharder/api.py#112)(self, step_name, target_arch, platforms_file, fuchsia_build_dir, output_file=None, shard_prefix=None):**
+&mdash; **def [execute](/recipe_modules/testsharder/api.py#109)(self, step_name, target_arch, platforms_file, fuchsia_build_dir, output_file=None, shard_prefix=None):**
 
 Executes the testsharder tool.
 

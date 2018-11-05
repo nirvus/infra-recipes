@@ -99,14 +99,11 @@ class TestsharderApi(recipe_api.RecipeApi):
   def ensure_testsharder(self, version='latest'):
     with self.m.step.nest('ensure_testsharder'):
       with self.m.context(infra_steps=True):
-        testsharder_package = (
-            'fuchsia/infra/testsharder/%s' % self.m.cipd.platform_suffix())
-        testsharder_dir = self.m.path['start_dir'].join('cipd', 'testsharder')
-
-        self.m.cipd.ensure(testsharder_dir,
-                           {testsharder_package: version})
-        self._testsharder_path = testsharder_dir.join('testsharder')
-
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('fuchsia/infra/testsharder/${platform}', version)
+        cipd_dir = self.m.path['start_dir'].join('cipd', 'testsharder')
+        self.m.cipd.ensure(cipd_dir, pkgs)
+        self._testsharder_path = cipd_dir.join('testsharder')
         return self._testsharder_path
 
   def execute(self,
