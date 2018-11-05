@@ -1,5 +1,4 @@
 DEPS = [
-  'cipd',
   'infra/jiri',
   'infra/gerrit',
   'recipe_engine/context',
