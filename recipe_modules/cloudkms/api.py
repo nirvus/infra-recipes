@@ -19,14 +19,11 @@ class CloudKmsApi(recipe_api.RecipeApi):
   def ensure_cloudkms(self, version=None):
     with self.m.step.nest('ensure_cloudkms'):
       with self.m.context(infra_steps=True):
-        cloudkms_package = (
-            'infra/tools/luci/cloudkms/%s' % self.m.cipd.platform_suffix())
-        cloudkms_dir = self.m.path['start_dir'].join('cipd', 'cloudkms')
-
-        self.m.cipd.ensure(cloudkms_dir,
-                           {cloudkms_package: version or 'latest'})
-        self._cloudkms_path = cloudkms_dir.join('cloudkms')
-
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('infra/tools/luci/cloudkms/${platform}', version or 'latest')
+        cipd_dir = self.m.path['start_dir'].join('cipd', 'cloudkms')
+        self.m.cipd.ensure(cipd_dir, pkgs)
+        self._cloudkms_path = cipd_dir.join('cloudkms')
         return self._cloudkms_path
 
   def decrypt(self, step_name, crypto_key_path, ciphertext_file,

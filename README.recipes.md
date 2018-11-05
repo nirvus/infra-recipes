@@ -429,7 +429,7 @@ Args:
     is specified in the .clang-tidy file).
 ### *recipe_modules* / [cloudkms](/recipe_modules/cloudkms)
 
-[DEPS](/recipe_modules/cloudkms/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/cloudkms/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [CloudKmsApi](/recipe_modules/cloudkms/api.py#8)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -438,7 +438,7 @@ Module for interacting with CloudKMS.
 This is a thin wrapper of the CloudKMS Go client at
 https://github.com/luci/luci-go/client/cmd/cloudkms
 
-&mdash; **def [decrypt](/recipe_modules/cloudkms/api.py#32)(self, step_name, crypto_key_path, ciphertext_file, plaintext_file):**
+&mdash; **def [decrypt](/recipe_modules/cloudkms/api.py#29)(self, step_name, crypto_key_path, ciphertext_file, plaintext_file):**
 
 Decrypts a ciphertext encrypted with a CloudKMS crypto key.
 
