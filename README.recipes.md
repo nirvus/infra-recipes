@@ -753,7 +753,7 @@ Find and return the timestamp of the given commit.
 Run rebase HEAD onto branch
 ### *recipe_modules* / [gitiles](/recipe_modules/gitiles)
 
-[DEPS](/recipe_modules/gitiles/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
+[DEPS](/recipe_modules/gitiles/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/url][recipe_engine/recipe_modules/url]
 
 #### **class [GitilesApi](/recipe_modules/gitiles/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -761,7 +761,7 @@ Module for polling a Git repository using the Gitiles web interface.
 
 &mdash; **def [ensure\_gitiles](/recipe_modules/gitiles/api.py#17)(self, version=None):**
 
-&mdash; **def [fetch](/recipe_modules/gitiles/api.py#75)(self, url, file_path, branch='master', step_name=None, timeout=None, test_data=None):**
+&mdash; **def [fetch](/recipe_modules/gitiles/api.py#72)(self, url, file_path, branch='master', step_name=None, timeout=None, test_data=None):**
 
 Downloads raw file content from a Gitiles repository.
 
@@ -775,7 +775,7 @@ Args:
 Returns:
   Raw file content.
 
-&mdash; **def [log](/recipe_modules/gitiles/api.py#51)(self, url, treeish, limit=0, step_name=None, test_data={}):**
+&mdash; **def [log](/recipe_modules/gitiles/api.py#48)(self, url, treeish, limit=0, step_name=None, test_data={}):**
 
 Returns the most recent commits for treeish object.
 
@@ -785,7 +785,7 @@ Args:
   limit (int): number of commits to limit the fetching to.
   step_name (str): custom name for this step (optional).
 
-&mdash; **def [refs](/recipe_modules/gitiles/api.py#30)(self, url, refspath='refs', step_name='refs', test_data=[]):**
+&mdash; **def [refs](/recipe_modules/gitiles/api.py#27)(self, url, refspath='refs', step_name='refs', test_data=[]):**
 
 Resolves each ref in a repository to git revision
 
@@ -2015,15 +2015,15 @@ Recipe for building libwebkit.so.
 &mdash; **def [RunSteps](/recipe_modules/zbi/examples/full.py#13)(api):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
-[DEPS](/recipes/zircon.py#15): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [zbi](#recipe_modules-zbi), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/zircon.py#15): [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [zbi](#recipe_modules-zbi), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#507)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
+&mdash; **def [Build](/recipes/zircon.py#506)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#415)(api, core_task, booted_task, booted_task_output_image, build_dir):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#414)(api, core_task, booted_task, booted_task_output_image, build_dir):**
 
 Waits on the tasks running core tests and booted tests, then analyzes the
 results.
@@ -2033,9 +2033,9 @@ Args:
   booted_task (str): The swarming task ID of the task running booted tests.
   build_dir (Path): A path to the directory containing build artifacts.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#591)(api, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#590)(api, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
 
-&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#267)(api, target, build_dir, use_kvm):**
+&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#266)(api, target, build_dir, use_kvm):**
 
 Executes Zircon tests in QEMU on a different machine.
 
@@ -2045,7 +2045,7 @@ Args:
   build_dir (Path): Path to the build directory.
   use_kvm (bool): Whether or not to enable KVM with QEMU when testing.
 
-&mdash; **def [RunTestsOnDevice](/recipes/zircon.py#173)(api, target, build_dir, device_type):**
+&mdash; **def [RunTestsOnDevice](/recipes/zircon.py#172)(api, target, build_dir, device_type):**
 
 Executes Zircon tests on a hardware device.
 
@@ -2055,14 +2055,14 @@ Args
   build_dir (Path): Path to the build directory.
   device_type (Enum(*DEVICES)): The type of device to run tests on.
 
-&mdash; **def [RunTestsOnHost](/recipes/zircon.py#126)(api, build_dir):**
+&mdash; **def [RunTestsOnHost](/recipes/zircon.py#125)(api, build_dir):**
 
 Runs host tests.
 
 Args:
   build_dir (Path): Path to the build directory.
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#350)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#349)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
 
 TriggerTestsTask triggers a task to execute a command on a remote machine.
 

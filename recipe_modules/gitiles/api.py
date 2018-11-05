@@ -17,14 +17,11 @@ class GitilesApi(recipe_api.RecipeApi):
   def ensure_gitiles(self, version=None):
     with self.m.step.nest('ensure_gitiles'):
       with self.m.context(infra_steps=True):
-        gitiles_package = ('infra/tools/luci/gitiles/%s' %
-            self.m.cipd.platform_suffix())
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('infra/tools/luci/gitiles/${platform}', version or 'latest')
         gitiles_dir = self.m.path['start_dir'].join('cipd', 'gitiles')
-
-        self.m.cipd.ensure(
-            gitiles_dir, {gitiles_package: version or 'latest'})
+        self.m.cipd.ensure(gitiles_dir, pkgs)
         self._gitiles_path = gitiles_dir.join('gitiles')
-
         return self._gitiles_path
 
   def refs(self, url, refspath='refs', step_name='refs', test_data=[]):
