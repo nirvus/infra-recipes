@@ -102,12 +102,11 @@ class GSUtilApi(recipe_api.RecipeApi):
 
     with self.m.step.nest('ensure_gsutil'):
       with self.m.context(infra_steps=True):
-        gsutil_dir = self.m.path['start_dir'].join('cipd', 'gsutil')
-
-        self.m.cipd.ensure(
-            gsutil_dir, {'infra/tools/gsutil': version or 'latest'})
-        self._gsutil_tool = gsutil_dir.join('gsutil')
-
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('infra/tools/gsutil', version or 'latest')
+        cipd_dir = self.m.path['start_dir'].join('cipd', 'gsutil')
+        self.m.cipd.ensure(cipd_dir, pkgs)
+        self._gsutil_tool = cipd_dir.join('gsutil')
         return self._gsutil_tool
 
   def upload(self, bucket, src, dst, link_name='gsutil.upload',
