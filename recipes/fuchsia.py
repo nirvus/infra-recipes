@@ -15,7 +15,7 @@ TARGETS = ['arm64', 'x64']
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
 DEVICES = [
-    'QEMU', 'Intel NUC Kit NUC7i5DNHE',
+    'QEMU', 'Intel NUC Kit NUC7i5DNHE', 'Khadas Vim2 Max',
 ]
 
 DEPS = [

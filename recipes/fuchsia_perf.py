@@ -22,7 +22,7 @@ DEFAULT_CATAPULT_URL = 'https://chromeperf.appspot.com'
 
 BUILD_TYPES = ['debug', 'release', 'thinlto', 'lto']
 
-DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE']
+DEVICES = ['QEMU', 'Intel NUC Kit NUC6i3SYK', 'Intel NUC Kit NUC7i5DNHE', 'Khadas Vim2 Max',]
 
 DEPS = [
     'infra/catapult',
