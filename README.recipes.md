@@ -1437,6 +1437,23 @@ Args:
 Returns:
   A step to perform the operation.
 
+&mdash; **def [copy\_and\_overwrite\_cmdline](/recipe_modules/zbi/api.py#59)(self, step_name, input_image, output_image, cmdline_file):**
+
+Creates a copy of a ZBI and overwrites its kernel command line.
+
+A copy of |input_image| is made at |output_image|, and the file
+given as |cmdline_file| is written as the kernel command line.
+
+Args:
+  step_name (str): The name of the step.
+  input_image (Path): The path to the input image.
+  output_image (Path): The path to the output image.
+  cmdline_file (Path): The path to the file containing the
+    kernel command line.
+
+Returns:
+  A step to perform the operation.
+
 &emsp; **@zbi_path.setter**<br>&mdash; **def [zbi\_path](/recipe_modules/zbi/api.py#21)(self, path):**
 
 Sets the path to the zbi tool.
@@ -2025,15 +2042,15 @@ Recipe for building libwebkit.so.
 &mdash; **def [RunSteps](/recipe_modules/zbi/examples/full.py#13)(api):**
 ### *recipes* / [zircon](/recipes/zircon.py)
 
-[DEPS](/recipes/zircon.py#15): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
+[DEPS](/recipes/zircon.py#15): [cipd](#recipe_modules-cipd), [fuchsia](#recipe_modules-fuchsia), [goma](#recipe_modules-goma), [isolated](#recipe_modules-isolated), [jiri](#recipe_modules-jiri), [minfs](#recipe_modules-minfs), [qemu](#recipe_modules-qemu), [swarming](#recipe_modules-swarming), [tar](#recipe_modules-tar), [zbi](#recipe_modules-zbi), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
 
 Recipe for building Zircon.
 
-&mdash; **def [Build](/recipes/zircon.py#484)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
+&mdash; **def [Build](/recipes/zircon.py#504)(api, target, toolchain, make_args, src_dir, test_cmd, needs_blkdev, device_type):**
 
 Builds zircon and returns a path to the build output directory.
 
-&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#392)(api, core_task, booted_task, booted_task_output_image, build_dir):**
+&mdash; **def [FinalizeTestsTasks](/recipes/zircon.py#412)(api, core_task, booted_task, booted_task_output_image, build_dir):**
 
 Waits on the tasks running core tests and booted tests, then analyzes the
 results.
@@ -2043,9 +2060,9 @@ Args:
   booted_task (str): The swarming task ID of the task running booted tests.
   build_dir (Path): A path to the directory containing build artifacts.
 
-&mdash; **def [RunSteps](/recipes/zircon.py#568)(api, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
+&mdash; **def [RunSteps](/recipes/zircon.py#588)(api, project, manifest, remote, target, toolchain, make_args, use_kvm, run_tests, runtests_args, device_type, run_host_tests):**
 
-&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#244)(api, target, build_dir, use_kvm):**
+&mdash; **def [RunTestsInQEMU](/recipes/zircon.py#264)(api, target, build_dir, use_kvm):**
 
 Executes Zircon tests in QEMU on a different machine.
 
@@ -2055,7 +2072,7 @@ Args:
   build_dir (Path): Path to the build directory.
   use_kvm (bool): Whether or not to enable KVM with QEMU when testing.
 
-&mdash; **def [RunTestsOnDevice](/recipes/zircon.py#172)(api, target, build_dir, device_type):**
+&mdash; **def [RunTestsOnDevice](/recipes/zircon.py#173)(api, target, build_dir, device_type):**
 
 Executes Zircon tests on a hardware device.
 
@@ -2065,14 +2082,14 @@ Args
   build_dir (Path): Path to the build directory.
   device_type (Enum(*DEVICES)): The type of device to run tests on.
 
-&mdash; **def [RunTestsOnHost](/recipes/zircon.py#125)(api, build_dir):**
+&mdash; **def [RunTestsOnHost](/recipes/zircon.py#126)(api, build_dir):**
 
 Runs host tests.
 
 Args:
   build_dir (Path): Path to the build directory.
 
-&mdash; **def [TriggerTestsTask](/recipes/zircon.py#327)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
+&mdash; **def [TriggerTestsTask](/recipes/zircon.py#347)(api, name, cmd, arch, use_kvm, isolated_hash, output='', timeout_secs=(60 \* 60)):**
 
 TriggerTestsTask triggers a task to execute a command on a remote machine.
 

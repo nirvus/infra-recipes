@@ -22,6 +22,7 @@ DEPS = [
   'infra/qemu',
   'infra/swarming',
   'infra/tar',
+  'infra/zbi',
   'recipe_engine/buildbucket',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -185,15 +186,34 @@ def RunTestsOnDevice(api, target, build_dir, device_type):
     '-kernel', ZIRCON_ZBI_NAME,
     '-results-dir', api.fuchsia.results_dir_on_target,
     '-out', output_archive_name,
-    'zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH,
   ]
 
-  if device_type == 'Khadas Vim2 Max':
-    botanist_cmd.append('-fastboot')
+  if target == 'arm64':
+    # Create a Zedboot image for flashing physical hardware.
+    # Zedboot can be trivialized as Zircon + netsvc.netboot=true.
+    cmdline_file = api.path['cleanup'].join('cmdline.txt')
+    zedboot_img_name = 'boot.img'
+    zedboot_img_path = api.path['cleanup'].join(zedboot_img_name)
+    api.file.write_raw(
+        name='write cmdline file',
+        dest=cmdline_file,
+        data='netsvc.netboot=true')
+    api.zbi.zbi_path = build_dir.join('tools', 'zbi')
+    api.zbi.copy_and_overwrite_cmdline(
+        step_name='create boot img',
+        input_image=build_dir.join(ZIRCON_ZBI_NAME),
+        output_image=zedboot_img_path,
+        cmdline_file=cmdline_file)
+    botanist_cmd.extend(['-fastboot', '-zedboot', zedboot_img_name])
+
+  # Botanist args must be added after all flags are set
+  botanist_cmd.append('zircon.autorun.boot=/boot/bin/sh+/boot/' + RUNCMDS_BOOTFS_PATH)
 
   # Isolate all necessary build artifacts.
   isolated = api.isolated.isolated()
   isolated.add_file(build_dir.join(ZIRCON_ZBI_NAME), wd=build_dir)
+  if target == 'arm64':
+    isolated.add_file(zedboot_img_path, wd=api.path['cleanup'])
   digest = isolated.archive('isolate zircon artifacts')
 
   with api.context(infra_steps=True):
@@ -727,16 +747,19 @@ def GenTests(api):
   # Exercise all device types, since some recipe logic changes for certain
   # devices.
   for device_type in DEVICES:
+    target = 'x64'
     if device_type == 'QEMU':
       # QEMU is the default, well-exercised by other tests.
       continue
+    if device_type == 'Khadas Vim2 Max':
+      target = 'arm64'
     test_name = 'ci_device_' + re.sub(r'\s+', '_', device_type)
     yield (api.test(test_name) +
         ci_build +
         api.properties(project='zircon',
                        manifest='manifest',
                        remote='https://fuchsia.googlesource.com/zircon',
-                       target='x64',
+                       target=target,
                        toolchain='gcc',
                        device_type=device_type,
                        run_tests=True) +

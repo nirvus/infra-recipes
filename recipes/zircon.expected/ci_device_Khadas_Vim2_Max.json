@@ -267,7 +267,7 @@
   {
     "cmd": [
       "make",
-      "x64",
+      "arm64",
       "GOMACC=[CACHE]/goma/client/gomacc",
       "-j",
       "20",
@@ -440,6 +440,32 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "netsvc.netboot=true",
+      "[CLEANUP]/cmdline.txt"
+    ],
+    "infra_step": true,
+    "name": "write cmdline file"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/zircon/build-arm64/tools/zbi",
+      "-o",
+      "[CLEANUP]/boot.img",
+      "[START_DIR]/zircon/build-arm64/zircon.zbi",
+      "-T",
+      "cmdline",
+      "[CLEANUP]/cmdline.txt"
+    ],
+    "name": "create boot img"
+  },
+  {
+    "cmd": [
       "[START_DIR]/cipd/luci/isolate/isolated",
       "archive",
       "-isolate-server",
@@ -449,7 +475,9 @@
       "-dump-hash",
       "/path/to/tmp/",
       "-files",
-      "[START_DIR]/zircon/build-x64:zircon.zbi"
+      "[START_DIR]/zircon/build-arm64:zircon.zbi",
+      "-files",
+      "[CLEANUP]:boot.img"
     ],
     "name": "archive"
   },
@@ -491,8 +519,10 @@
       "/tmp/infra-test-output",
       "-out",
       "out.tar",
-      "zircon.autorun.boot=/boot/bin/sh+/boot/infra/runcmds",
-      "-fastboot"
+      "-fastboot",
+      "-zedboot",
+      "boot.img",
+      "zircon.autorun.boot=/boot/bin/sh+/boot/infra/runcmds"
     ],
     "infra_step": true,
     "name": "trigger booted tests",
@@ -587,7 +617,7 @@
       "[START_DIR]/zircon/scripts/symbolize",
       "--no-echo",
       "--build-dir",
-      "[START_DIR]/zircon/build-x64"
+      "[START_DIR]/zircon/build-arm64"
     ],
     "name": "task results.symbolize",
     "stdin": "hello world!",
@@ -600,7 +630,7 @@
     "cmd": [
       "[START_DIR]/zircon/prebuilt/downloads/symbolize",
       "-ids",
-      "[START_DIR]/zircon/build-x64/ids.txt",
+      "[START_DIR]/zircon/build-arm64/ids.txt",
       "-llvm-symbolizer",
       "[START_DIR]/zircon/prebuilt/downloads/clang/bin/llvm-symbolizer",
       "-json-output",
