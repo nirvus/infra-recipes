@@ -932,7 +932,7 @@ HashApi provides file hashing functionality.
 &mdash; **def [sha512](/recipe_modules/hash/api.py#39)(self, name, source, test_data=''):**
 ### *recipe_modules* / [isolated](/recipe_modules/isolated)
 
-[DEPS](/recipe_modules/isolated/__init__.py#1): [cipd](#recipe_modules-cipd), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+[DEPS](/recipe_modules/isolated/__init__.py#1): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
 #### **class [IsolatedApi](/recipe_modules/isolated/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
@@ -946,16 +946,16 @@ Return an isolate command step.
 
 Ensures that isolate client is installed.
 
-&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolated/api.py#49)(self, value):**
+&emsp; **@isolate_server.setter**<br>&mdash; **def [isolate\_server](/recipe_modules/isolated/api.py#47)(self, value):**
 
 Changes URL of Isolate server to use.
 
-&mdash; **def [isolated](/recipe_modules/isolated/api.py#54)(self):**
+&mdash; **def [isolated](/recipe_modules/isolated/api.py#52)(self):**
 
 Returns an Isolated object that can be used to archive a set of files
 and directories.
 
-&emsp; **@property**<br>&mdash; **def [isolated\_client](/recipe_modules/isolated/api.py#40)(self):**
+&emsp; **@property**<br>&mdash; **def [isolated\_client](/recipe_modules/isolated/api.py#38)(self):**
 ### *recipe_modules* / [jiri](/recipe_modules/jiri)
 
 [DEPS](/recipe_modules/jiri/__init__.py#1): [cipd](#recipe_modules-cipd), [gerrit](#recipe_modules-gerrit), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]

@@ -28,13 +28,11 @@ class IsolatedApi(recipe_api.RecipeApi):
 
     with self.m.step.nest('ensure_isolated'):
       with self.m.context(infra_steps=True):
-        isolate_package = (
-            'infra/tools/luci/isolated/%s' % self.m.cipd.platform_suffix())
-        luci_dir = self.m.path['start_dir'].join('cipd', 'luci', 'isolate')
-
-        self.m.cipd.ensure(luci_dir, {isolate_package: version or 'release'})
-        self._isolated_client = luci_dir.join('isolated')
-
+        pkgs = self.m.cipd.EnsureFile()
+        pkgs.add_package('infra/tools/luci/isolated/${platform}', version or 'release')
+        cipd_dir = self.m.path['start_dir'].join('cipd', 'isolated')
+        self.m.cipd.ensure(cipd_dir, pkgs)
+        self._isolated_client = cipd_dir.join('isolated')
         return self._isolated_client
 
   @property

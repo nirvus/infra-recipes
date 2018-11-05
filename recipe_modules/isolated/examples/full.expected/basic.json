@@ -8,9 +8,9 @@
       "cipd",
       "ensure",
       "-root",
-      "[START_DIR]/cipd/luci/isolate",
+      "[START_DIR]/cipd/isolated",
       "-ensure-file",
-      "infra/tools/luci/isolated/linux-amd64 release",
+      "infra/tools/luci/isolated/${platform} release",
       "-json-output",
       "/path/to/tmp/json"
     ],
@@ -19,12 +19,14 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"result\": [@@@",
-      "@@@STEP_LOG_LINE@json.output@    {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"package\": \"infra/tools/luci/isolated/linux-amd64\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }@@@",
-      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"result\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@      {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"instance_id\": \"resolved-instance_id-of-release---------\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"package\": \"infra/tools/luci/isolated/resolved-platform\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    ]@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -67,7 +69,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/luci/isolate/isolated",
+      "[START_DIR]/cipd/isolated/isolated",
       "archive",
       "-isolate-server",
       "isolateserver.appspot.com",
@@ -86,7 +88,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cipd/luci/isolate/isolated",
+      "[START_DIR]/cipd/isolated/isolated",
       "version"
     ],
     "name": "isolate version"
