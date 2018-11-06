@@ -235,11 +235,11 @@ Returns:
 
 [DEPS](/recipe_modules/checkout/__init__.py#1): [gerrit](#recipe_modules-gerrit), [jiri](#recipe_modules-jiri), [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/source\_manifest][recipe_engine/recipe_modules/source_manifest], [recipe\_engine/step][recipe_engine/recipe_modules/step]
 
-#### **class [CheckoutApi](/recipe_modules/checkout/api.py#97)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [CheckoutApi](/recipe_modules/checkout/api.py#98)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
 An abstraction over how Jiri checkouts are created during Fuchsia CI/CQ builds.
 
-&mdash; **def [\_\_call\_\_](/recipe_modules/checkout/api.py#100)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
+&mdash; **def [\_\_call\_\_](/recipe_modules/checkout/api.py#101)(self, manifest, remote, project=None, build_input=None, timeout_secs=None, run_hooks=True, override=False):**
 
 Initializes and populates a jiri checkout from a remote manifest.
 
@@ -256,7 +256,7 @@ Args:
     override (bool): Whether to override the imported manifest with a commit's
         given revision.
 
-&mdash; **def [from\_commit](/recipe_modules/checkout/api.py#221)(self, manifest, remote, commit, project, run_hooks, override, timeout_secs):**
+&mdash; **def [from\_commit](/recipe_modules/checkout/api.py#201)(self, manifest, remote, commit, project, run_hooks, override, timeout_secs):**
 
 Initializes and populates a Jiri checkout from a remote manifest and Gerrit change.
 
@@ -272,7 +272,7 @@ Args:
     override (bool): Whether to override the imported manifest with a commit's
         given revision.
 
-&mdash; **def [from\_patchset](/recipe_modules/checkout/api.py#151)(self, manifest, remote, project, run_hooks, timeout_secs, gerrit_change):**
+&mdash; **def [from\_patchset](/recipe_modules/checkout/api.py#152)(self, manifest, remote, project, run_hooks, timeout_secs, gerrit_change):**
 
 Initializes and populates a Jiri checkout from a remote manifest and Gerrit change.
 

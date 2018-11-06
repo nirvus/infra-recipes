@@ -51,14 +51,15 @@ class PatchFile:
     return self.patch_inputs
 
   def validate(self, gerrit_change):
-    """Verifies that following about this PatchFile:
-        1. No input overwrites the Gerrit change that is currently being tested.
-        2. No two inputs patch over one another.
+    """Verifies the following about this PatchFile:
 
-        Returns:
-            A ValueError that should be raised as a StepFailure, if validation fails. Else
-            None.
-        """
+    1. No input overwrites the Gerrit change that is currently being tested.
+    2. No two inputs patch over one another.
+
+    Returns:
+        A ValueError that should be raised as a StepFailure, if validation fails. Else
+        None.
+    """
 
     def create_key(project, host):
       """Produces a unique ID for a project + host combination."""
@@ -184,29 +185,8 @@ class CheckoutApi(recipe_api.RecipeApi):
         rebase=True,
     )
 
-    # Patch any extra changes specified in .patchfile.
-    patchfile_path = self.m.path['start_dir'].join(gerrit_change.project,
-                                                   '.patchfile')
-    if self.m.path.exists(patchfile_path):
-      patch_file = self._parse_patchfile(patchfile_path)
-
-      # Ensure patchfile is valid.
-      validation_err = patch_file.validate(gerrit_change)
-      if validation_err is not None:
-        raise self.m.step.StepFailure(str(validation_err))
-
-      for patch_input in patch_file.inputs:
-        # Strip protocol if present.
-        host = patch_input.host
-        host_url = urlparse(host)
-        if host_url.scheme:
-          host = host_url.hostname
-
-        self.m.jiri.patch(
-            ref=patch_input.ref,
-            host='https://%s' % host,
-            project=patch_input.project,
-            rebase=True)
+    # Handle the patchfile, if present.
+    self._apply_patchfile(gerrit_change)
 
     self.m.jiri.update(
         gc=True,
@@ -258,6 +238,36 @@ class CheckoutApi(recipe_api.RecipeApi):
     self.m.jiri.update(run_hooks=False, timeout=timeout_secs)
     if run_hooks:
       self.m.jiri.run_hooks()
+
+  def _apply_patchfile(self, gerrit_change):
+    """Parses and applies the patchfile for the given gerrit change."""
+
+    # Verify the patchfile exists.
+    patchfile_path = self.m.path['start_dir'].join(gerrit_change.project,
+                                                   '.patchfile')
+    if not self.m.path.exists(patchfile_path):
+      return
+
+    patch_file = self._parse_patchfile(patchfile_path)
+
+    # Ensure patchfile is valid.
+    validation_err = patch_file.validate(gerrit_change)
+    if validation_err is not None:
+      raise self.m.step.StepFailure(str(validation_err))
+
+    for patch_input in patch_file.inputs:
+      # Strip protocol if present.
+      host = patch_input.host
+      host_url = urlparse(host)
+      if host_url.scheme:
+        host = host_url.hostname
+
+      # Patch in the change
+      self.m.jiri.patch(
+          ref=patch_input.ref,
+          host='https://%s' % host,
+          project=patch_input.project,
+          rebase=True)
 
   def _get_change_details(self, gerrit_change):
     """Fetches the details of a Gerrit change"""
