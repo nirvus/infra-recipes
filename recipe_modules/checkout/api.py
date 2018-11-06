@@ -196,9 +196,15 @@ class CheckoutApi(recipe_api.RecipeApi):
         raise self.m.step.StepFailure(str(validation_err))
 
       for patch_input in patch_file.inputs:
+        # Strip protocol if present.
+        host = patch_input.host
+        host_url = urlparse(host)
+        if host_url.scheme:
+          host = host_url.hostname
+
         self.m.jiri.patch(
             ref=patch_input.ref,
-            host='https://%s' % patch_input.host,
+            host='https://%s' % host,
             project=patch_input.project,
             rebase=True)
 

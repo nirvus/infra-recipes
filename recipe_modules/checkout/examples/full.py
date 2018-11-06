@@ -92,3 +92,13 @@ def GenTests(api):
           'host': 'fuchsia-review.googlesource.com',
           'project': 'zircon',
       }])
+
+  yield api.checkout.test(
+      'when_patchfile_host_has_protocol',
+      project='garnet',
+      tryjob=True,
+      patchfile=[{
+          'ref': 'refs/changes/cc/aabbcc/1',
+          'host': 'https://fuchsia-review.googlesource.com',
+          'project': 'zircon',
+      }])

@@ -256,7 +256,7 @@ Args:
     override (bool): Whether to override the imported manifest with a commit's
         given revision.
 
-&mdash; **def [from\_commit](/recipe_modules/checkout/api.py#215)(self, manifest, remote, commit, project, run_hooks, override, timeout_secs):**
+&mdash; **def [from\_commit](/recipe_modules/checkout/api.py#221)(self, manifest, remote, commit, project, run_hooks, override, timeout_secs):**
 
 Initializes and populates a Jiri checkout from a remote manifest and Gerrit change.
 
