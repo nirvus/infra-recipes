@@ -83,6 +83,7 @@
   * [ninja:examples/full](#recipes-ninja_examples_full)
   * [ovmf](#recipes-ovmf) &mdash; Recipe for building OVMF firmware and uploading them to CIPD.
   * [prebuilt_host_tool](#recipes-prebuilt_host_tool) &mdash; Recipe for building and publishing CIPD prebuilts.
+  * [presubmit](#recipes-presubmit) &mdash; Recipe for running generic presubmit checks on git repos.
   * [qemu](#recipes-qemu) &mdash; Recipe for building QEMU.
   * [qemu:examples/full](#recipes-qemu_examples_full)
   * [recipes](#recipes-recipes) &mdash; Recipe for testing Recipes.
@@ -1903,6 +1904,15 @@ Args:
   cipd_pkg_prefix: The CIPD package prefix where the tool binary should be uploaded
   revision: The revision at which the tool binary was built
   remote: The git remote where code for the tool binary lives
+### *recipes* / [presubmit](/recipes/presubmit.py)
+
+[DEPS](/recipes/presubmit.py#8): [checkout](#recipe_modules-checkout), [git](#recipe_modules-git), [jiri](#recipe_modules-jiri), [recipe\_engine/buildbucket][recipe_engine/recipe_modules/buildbucket], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step]
+
+Recipe for running generic presubmit checks on git repos.
+
+&mdash; **def [RunSteps](/recipes/presubmit.py#32)(api, project, manifest, remote):**
+
+&mdash; **def [ensure\_no\_patchfile](/recipes/presubmit.py#58)(api, project):**
 ### *recipes* / [qemu](/recipes/qemu.py)
 
 [DEPS](/recipes/qemu.py#11): [git](#recipe_modules-git), [gitiles](#recipe_modules-gitiles), [goma](#recipe_modules-goma), [gsutil](#recipe_modules-gsutil), [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/tempfile][recipe_engine/recipe_modules/tempfile]
